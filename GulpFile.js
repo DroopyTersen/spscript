@@ -18,3 +18,10 @@ gulp.task('crossdomain', function() {
     .pipe(concat("SPScript.CrossDomain.js"))
     .pipe(gulp.dest('./dist/'));
 });
+
+gulp.task('full', function() {
+  gulp.src(['./baseDao.js', './odatahelpers.js', './restDao.js', 'querystring.js', "search.js", "templating.js"])
+    .pipe(concat("SPScript.SameDomain.js"))
+    .pipe(gulp.dest('./dist/'));
+});
+
