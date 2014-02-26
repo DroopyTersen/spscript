@@ -1,0 +1,71 @@
+SPScript = window.SPScript || {};
+/* 
+ * ==========
+ * CrossDomainDao
+ * Dependencies: ["$", "baseDao.js", "ODataHelpers.js"]
+ * ==========
+ */
+(function(sp) {
+	var CrossDomainDao = function(appWebUrl, hostUrl) {
+		this.appUrl = appWebUrl;
+		this.hostUrl = hostUrl;
+		this.scriptReady = new $.Deferred();
+
+		if (!SP || !SP.RequestExecutor) {
+			this.scriptReady = $.getScript(hostUrl + "/_layouts/15/SP.RequestExecutor.js");
+		} else {
+			this.scriptReady.resolve();
+		}
+	};
+
+	CrossDomainDao.prototype = new SPScript.BaseDao();
+
+	CrossDomainDao.prototype.executeRequest = function(hostRelativeUrl, options) {
+		var self = this,
+			deferred = new $.Deferred(),
+
+			//If a callback was given execute it, passing response then the deferred
+			//otherwise just resolve the deferred.
+			successCallback = function(response) {
+				var data = $.parseJSON(response.body);
+				if (options.success) {
+					options.success(data, deferred);
+				} else {
+					sp.helpers.validateODataV2(data, deferred);
+				}
+			},
+			errorCallback = function(data, errorCode, errorMessage) {
+				if (options.error) {
+					options.error(data, errorCode, errorMessage, deferred);
+				} else {
+					deferred.reject(errorMessage);
+				}
+			};
+
+		this.scriptReady.done(function() {
+			if (hostRelativeUrl.indexOf("?") === -1) {
+				hostRelativeUrl = hostRelativeUrl + "?";
+			}
+
+			var executor = new SP.RequestExecutor(self.appUrl),
+				fullUrl = self.appUrl + "/_api/SP.AppContextSite(@target)" + hostRelativeUrl + "@target='" + self.hostUrl + "'";
+
+			var executeOptions = {
+				url: fullUrl,
+				method: "GET",
+				headers: {
+					"Accept": "application/json; odata=verbose"
+				},
+				success: successCallback,
+				error: errorCallback
+			};
+			//Merge passed in options
+			$.extend(true, executeOptions, options);
+			console.log(executeOptions);
+			executor.executeAsync(executeOptions);
+		});
+		return deferred.promise();
+	};
+
+	sp.CrossDomainDao = CrossDomainDao;
+})(SPScript);
