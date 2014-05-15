@@ -34,8 +34,14 @@ SPScript = window.SPScript || {};
 
 			items: function(oDataQuery) {
 				var query = (oDataQuery != null) ? "?" + oDataQuery : "";
-				query = encodeURIComponent(query);
-				return self.get(baseUrl + "/items" + query);
+				//query = encodeURIComponent(query);
+				return self.get(baseUrl + "/items" + query).then(function(data){
+					if (data && data.d && data.d.results) {
+						return data.d.results;
+					} else {
+						return data;
+					}
+				});;
 			}
 		};
 	};
