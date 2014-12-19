@@ -26,7 +26,15 @@ dataService.lists("Tasks").items().done(function(tasks){
 });
 
 ```
-
+####Query task items for a status of 'Approved'
+```javascript
+var taskList = dataService.lists("Tasks")
+taskList.items("$filter=Status eq 'Approved'").done(function(approvedTasks){
+    approvedTasks.forEach(function(task){
+        console.log(task.Title);
+    });
+});
+```
 ####GET Request
 Both the RestDao and CrossDomainDao implement a `.get()` method that allows you to type in the api call's relative url.  For example, you could rewrite the code above as:
 ```javascript
