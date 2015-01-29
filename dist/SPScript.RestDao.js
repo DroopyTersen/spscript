@@ -27,6 +27,17 @@ SPScript = window.SPScript || {};
 		var self = this,
 			baseUrl = "/web/lists/getbytitle('" + listname + "')";
 
+		var getItems = function(odataQuery) {
+			var query = (oDataQuery != null) ? "?" + oDataQuery : "";
+			//query = encodeURIComponent(query);
+			return self.get(baseUrl + "/items" + query).then(function(data){
+				if (data && data.d && data.d.results) {
+					return data.d.results;
+				} else {
+					return data;
+				}
+			});
+		};
 		return {
 			info: function() {
 				return self.get(baseUrl);
@@ -58,8 +69,21 @@ SPScript = window.SPScript || {};
 							"If-Match": data.d.__metadata.etag
 						}
 					};
-					
+
 					return self.post(url, updates, customOptions);
+				});
+			},
+			find: function (key, value) {
+				var odata = "$filter=" + key + " eq '" + value + "'";
+				return getItems(odata);
+			},
+			findOne: function (key, value) {
+				var odata = "$filter=" + key + " eq '" + value + "'";
+				return getItems(odata).then(function(items){
+					if (items && items.length && items.length > 0) {
+						return items[0];
+					} 
+					return null;
 				});
 			}
 		};
