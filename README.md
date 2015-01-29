@@ -47,6 +47,18 @@ var logApprovedTasks = function(tasks) {
 };
 ```
 
+###Add List Item
+Add item to the **"Tasks"** list
+```javascript
+var newItem = { 
+    Title: "My New Task", 
+    Status: "Not Started", 
+    RemainingHours: 12 
+};
+dataService.lists("Tasks").addItem(newItem);
+
+```
+
 ###Update List Item
 Update item in the **"Tasks"** list.  Set item 29's status to **"Completed"**
 ```javascript
@@ -76,8 +88,8 @@ dataService.lists("Tasks").items().then(function(tasks){
 
 ```
 
-###GET Request
-Both the RestDao and CrossDomainDao implement a `.get()` method that allows you to type in the api call's relative url.  For example, you could rewrite the code above as:
+###GET & POST Requests
+Every REST Api call that SharePoint supports can be called using SPService. Both the RestDao and CrossDomainDao implement a `.get()` and `post()` method that allow you to type in the api call's relative url.  For example, you could rewrite the code above as:
 ```javascript
 dataService.get("/web/lists/getByTitle('Tasks')/items").done(function(data){
     var tasks = data.d.results;

@@ -30,7 +30,7 @@ SPScript = window.SPScript || {};
 		var getItems = function(odataQuery) {
 			var query = (oDataQuery != null) ? "?" + oDataQuery : "";
 			//query = encodeURIComponent(query);
-			return self.get(baseUrl + "/items" + query).then(function(data){
+			return self.get(baseUrl + "/items" + query).then(function(data) {
 				if (data && data.d && data.d.results) {
 					return data.d.results;
 				} else {
@@ -46,7 +46,7 @@ SPScript = window.SPScript || {};
 			items: function(oDataQuery) {
 				var query = (oDataQuery != null) ? "?" + oDataQuery : "";
 				//query = encodeURIComponent(query);
-				return self.get(baseUrl + "/items" + query).then(function(data){
+				return self.get(baseUrl + "/items" + query).then(function(data) {
 					if (data && data.d && data.d.results) {
 						return data.d.results;
 					} else {
@@ -54,14 +54,36 @@ SPScript = window.SPScript || {};
 					}
 				});
 			},
-			updateItem: function (itemId, updates) {
+
+			addItem: function(item) {
+				return self.get(baseUrl).then(function(data) {
+					item = $.extend({
+						"__metadata": {
+							"type": data.d.ListItemEntityTypeFullName
+						}
+					}, item);
+
+					var customOptions = {
+						headers: {
+							"Accept": "application/json;odata=verbose",
+							"X-RequestDigest": $("#__REQUESTDIGEST").val(),
+						}
+					};
+
+					return self.post(baseUrl + "/items", item, customOptions);
+				});
+			},
+			
+			updateItem: function(itemId, updates) {
 				var url = baseUrl + "/items(" + itemId + ")";
-				return self.get(url).then(function(data){
+				return self.get(url).then(function(data) {
 					updates = $.extend({
-						"__metadata": { "type": data.d.__metadata.type }
+						"__metadata": {
+							"type": data.d.__metadata.type
+						}
 					}, updates);
 
-					var customOptions = {    
+					var customOptions = {
 						headers: {
 							"Accept": "application/json;odata=verbose",
 							"X-RequestDigest": $("#__REQUESTDIGEST").val(),
@@ -73,16 +95,18 @@ SPScript = window.SPScript || {};
 					return self.post(url, updates, customOptions);
 				});
 			},
-			find: function (key, value) {
+
+			find: function(key, value) {
 				var odata = "$filter=" + key + " eq '" + value + "'";
 				return getItems(odata);
 			},
-			findOne: function (key, value) {
+
+			findOne: function(key, value) {
 				var odata = "$filter=" + key + " eq '" + value + "'";
-				return getItems(odata).then(function(items){
+				return getItems(odata).then(function(items) {
 					if (items && items.length && items.length > 0) {
 						return items[0];
-					} 
+					}
 					return null;
 				});
 			}
