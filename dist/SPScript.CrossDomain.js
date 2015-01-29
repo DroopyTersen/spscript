@@ -34,16 +34,43 @@ SPScript = window.SPScript || {};
 
 			items: function(oDataQuery) {
 				var query = (oDataQuery != null) ? "?" + oDataQuery : "";
-				query = encodeURIComponent(query);
-				return self.get(baseUrl + "/items" + query);
+				//query = encodeURIComponent(query);
+				return self.get(baseUrl + "/items" + query).then(function(data){
+					if (data && data.d && data.d.results) {
+						return data.d.results;
+					} else {
+						return data;
+					}
+				});
+			},
+			updateItem: function (itemId, updates) {
+				var url = baseUrl + "/items(" + itemId + ")";
+				return self.get(url).then(function(data){
+					updates = $.extend({
+						"__metadata": { "type": data.d.__metadata.type }
+					}, updates);
+
+					var customOptions = {    
+						headers: {
+							"Accept": "application/json;odata=verbose",
+							"X-RequestDigest": $("#__REQUESTDIGEST").val(),
+							"X-HTTP-Method": "MERGE",
+							"If-Match": data.d.__metadata.etag
+						}
+					};
+					
+					return self.post(url, updates, customOptions);
+				});
 			}
 		};
 	};
 
 	BaseDao.prototype.post = function(relativePostUrl, body, extendedOptions) {
+		var strBody = JSON.stringify(body);
 		var options = {
 			method: "POST",
-			body: body
+			data: strBody,
+			contentType: "application/json;odata=verbose"
 		};
 		$.extend(options, extendedOptions);
 		return this.executeRequest(relativePostUrl, options);
@@ -100,10 +127,13 @@ SPScript = window.SPScript || {};
 		this.hostUrl = hostUrl;
 		this.scriptReady = new $.Deferred();
 
+		//Load of up to RequestExecutor javascript from the host site if its not there.
 		if (!SP || !SP.RequestExecutor) {
 			this.scriptReady = $.getScript(hostUrl + "/_layouts/15/SP.RequestExecutor.js");
 		} else {
-			this.scriptReady.resolve();
+			setTimeout(function() {
+				this.scriptReady.resolve();	
+			}, 1);
 		}
 	};
 
@@ -117,21 +147,26 @@ SPScript = window.SPScript || {};
 			//otherwise just resolve the deferred.
 			successCallback = function(response) {
 				var data = $.parseJSON(response.body);
+				//a suceess callback was passed in
 				if (options.success) {
 					options.success(data, deferred);
 				} else {
+					//no success callback so just make sure its valid OData
 					sp.helpers.validateODataV2(data, deferred);
 				}
 			},
 			errorCallback = function(data, errorCode, errorMessage) {
+				//an error callback was passed in
 				if (options.error) {
 					options.error(data, errorCode, errorMessage, deferred);
 				} else {
+					//no error callback so just reject it
 					deferred.reject(errorMessage);
 				}
 			};
 
 		this.scriptReady.done(function() {
+			//tack on the query string question mark if not there already
 			if (hostRelativeUrl.indexOf("?") === -1) {
 				hostRelativeUrl = hostRelativeUrl + "?";
 			}
@@ -150,7 +185,6 @@ SPScript = window.SPScript || {};
 			};
 			//Merge passed in options
 			$.extend(true, executeOptions, options);
-			console.log(executeOptions);
 			executor.executeAsync(executeOptions);
 		});
 		return deferred.promise();

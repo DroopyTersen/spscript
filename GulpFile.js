@@ -1,27 +1,51 @@
 var gulp = require("gulp");
 var concat = require('gulp-concat');
+var minify = require('gulp-uglify');
+var rename = require('gulp-rename');
+
+var concatAndMinify = function(sourceFiles, name) {
+	gulp.src(sourceFiles)
+		.pipe(concat("SPScript." + name + ".js"))
+		.pipe(gulp.dest('./dist/'))
+		.pipe(rename("SPScript." + name + ".min.js"))
+		.pipe(minify())
+		.pipe(gulp.dest('./dist/'));
+};
 
 gulp.task('search', function() {
-  gulp.src(['./baseDao.js', './restDao.js', 'querystring.js', 'search.js'])
-    .pipe(concat("SPScript.Search.js"))
-    .pipe(gulp.dest('./dist/'));
+	var files = [
+		'./src/baseDao.js',
+		'./src/restDao.js',
+		'./src/querystring.js',
+		'./src/search.js'
+	];
+	concatAndMinify(files, "Search");
 });
 
 gulp.task('rest', function() {
-  gulp.src(['./baseDao.js', './restDao.js'])
-    .pipe(concat("SPScript.RestDao.js"))
-    .pipe(gulp.dest('./dist/'));
+	var files = ['./src/baseDao.js', './src/restDao.js'];
+	concatAndMinify(files, 'RestDao');
 });
 
 gulp.task('crossdomain', function() {
-  gulp.src(['./baseDao.js', './odatahelpers.js', './crossDomainDao.js'])
-    .pipe(concat("SPScript.CrossDomain.js"))
-    .pipe(gulp.dest('./dist/'));
+	var files = [
+		'./src/baseDao.js', 
+		'./src/odatahelpers.js', 
+		'./src/crossDomainDao.js'
+	];
+	concatAndMinify(files, 'CrossDomain');
 });
 
 gulp.task('full', function() {
-  gulp.src(['./baseDao.js', './odatahelpers.js', './restDao.js', 'querystring.js', "search.js", "templating.js"])
-    .pipe(concat("SPScript.SameDomain.js"))
-    .pipe(gulp.dest('./dist/'));
+	var files = [
+		'./src/baseDao.js', 
+		'./src/odatahelpers.js', 
+		'./src/restDao.js', 
+		'./src/crossDomainDao', 
+		'./src/querystring.js', 
+		"./src/search.js", 
+		"./src/templating.js"];
+	concatAndMinify(files, 'Full');
 });
 
+gulp.task('default', ['full', 'search', 'rest', 'crossdomain']);

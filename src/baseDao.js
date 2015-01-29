@@ -41,15 +41,36 @@ SPScript = window.SPScript || {};
 					} else {
 						return data;
 					}
-				});;
+				});
+			},
+			updateItem: function (itemId, updates) {
+				var url = baseUrl + "/items(" + itemId + ")";
+				return self.get(url).then(function(data){
+					updates = $.extend({
+						"__metadata": { "type": data.d.__metadata.type }
+					}, updates);
+
+					var customOptions = {    
+						headers: {
+							"Accept": "application/json;odata=verbose",
+							"X-RequestDigest": $("#__REQUESTDIGEST").val(),
+							"X-HTTP-Method": "MERGE",
+							"If-Match": data.d.__metadata.etag
+						}
+					};
+					
+					return self.post(url, updates, customOptions);
+				});
 			}
 		};
 	};
 
 	BaseDao.prototype.post = function(relativePostUrl, body, extendedOptions) {
+		var strBody = JSON.stringify(body);
 		var options = {
 			method: "POST",
-			body: body
+			data: strBody,
+			contentType: "application/json;odata=verbose"
 		};
 		$.extend(options, extendedOptions);
 		return this.executeRequest(relativePostUrl, options);

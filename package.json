@@ -16,7 +16,9 @@
   },
   "homepage": "https://github.com/DroopyTersen/spscript",
   "devDependencies": {
+    "gulp": "~3.5.2",
     "gulp-concat": "~2.1.7",
-    "gulp": "~3.5.2"
+    "gulp-rename": "^1.2.0",
+    "gulp-uglify": "^1.1.0"
   }
 }
