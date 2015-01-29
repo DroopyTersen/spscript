@@ -12,7 +12,8 @@ SPScript is a collection of javascript helpers for the SharePoint 2013 Rest API.
 Including SPScript in your project
 --------------
 First make sure you have jQuery included on your page. Next, head over to the `/dist` folder.  Here you will find many different builds. If you aren't sure which one you need, just use [SPScript.Full.js](https://raw.githubusercontent.com/DroopyTersen/spscript/master/dist/SPScript.Full.js).  
-*See the **Builds** section below for more deatails*
+*See the __Builds__ section below for more details*
+
 Usage Examples
 --------------
 ###Initialization
