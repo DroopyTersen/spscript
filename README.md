@@ -47,6 +47,15 @@ var logApprovedTasks = function(tasks) {
 };
 ```
 
+###Get Item By Id
+Get the task with a SharePoint ID of 29
+```javascript
+dataService.lists("Tasks").getById(29).then(displayTask);
+var displayTask = function(task) {
+    //blah blah blah
+}
+
+```
 ###Add List Item
 Add item to the **"Tasks"** list
 ```javascript
