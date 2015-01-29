@@ -38,23 +38,21 @@ SPScript = window.SPScript || {};
 				}
 			});
 		};
+
+		var getById = function(id) {
+			var url = baseUrl + "/items(" + itemId + ")";
+			return self.get(url).then(function(data) {
+				if (data.d) return data.d;
+				else return data;
+			});
+		};
+
 		return {
 			info: function() {
 				return self.get(baseUrl);
 			},
-
-			items: function(oDataQuery) {
-				var query = (oDataQuery != null) ? "?" + oDataQuery : "";
-				//query = encodeURIComponent(query);
-				return self.get(baseUrl + "/items" + query).then(function(data) {
-					if (data && data.d && data.d.results) {
-						return data.d.results;
-					} else {
-						return data;
-					}
-				});
-			},
-
+			getById: getById,
+			items: getItems,
 			addItem: function(item) {
 				return self.get(baseUrl).then(function(data) {
 					item = $.extend({
@@ -73,13 +71,12 @@ SPScript = window.SPScript || {};
 					return self.post(baseUrl + "/items", item, customOptions);
 				});
 			},
-			
+
 			updateItem: function(itemId, updates) {
-				var url = baseUrl + "/items(" + itemId + ")";
-				return self.get(url).then(function(data) {
+				return getById(itemId).then(function(item) {
 					updates = $.extend({
 						"__metadata": {
-							"type": data.d.__metadata.type
+							"type": item.__metadata.type
 						}
 					}, updates);
 
@@ -88,7 +85,7 @@ SPScript = window.SPScript || {};
 							"Accept": "application/json;odata=verbose",
 							"X-RequestDigest": $("#__REQUESTDIGEST").val(),
 							"X-HTTP-Method": "MERGE",
-							"If-Match": data.d.__metadata.etag
+							"If-Match": item.__metadata.etag
 						}
 					};
 
