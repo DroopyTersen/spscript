@@ -47,6 +47,11 @@ SPScript = window.SPScript || {};
 			});
 		};
 
+		//If no list name was passed, return a promise to get all the lists
+		if(!listname) {
+			return self.get("/web/lists");
+		}
+		//A list name was passed so return list context methods
 		return {
 			info: function() {
 				return self.get(baseUrl);

@@ -37,7 +37,7 @@ SPScript = window.SPScript || {};
 		*/
 
 		//private variables
-		_queryString: [],
+		_queryString: {},
 		_processed: false,
 
 		//private method (only run on the first 'GetValue' request)
@@ -48,7 +48,7 @@ SPScript = window.SPScript || {};
 
 			for (var i = 0; i < keyValues.length; i++) {
 				keyValue = keyValues[i].split('=');
-				this._queryString.push(keyValue[0]);
+				//this._queryString.push(keyValue[0]);
 				this._queryString[keyValue[0]] = decodeURIComponent(keyValue[1].replace(/\+/g, " "));
 			}
 
@@ -58,7 +58,7 @@ SPScript = window.SPScript || {};
 		//Public Methods
 		contains: function(key, text) {
 			if (!this._processed) {
-				this._processQueryString();
+				this._processQueryString(text);
 			}
 			return this._queryString.hasOwnProperty(key);
 		},

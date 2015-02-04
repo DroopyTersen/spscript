@@ -20,5 +20,9 @@
     "gulp-concat": "~2.1.7",
     "gulp-rename": "^1.2.0",
     "gulp-uglify": "^1.1.0"
+  },
+  "dependencies": {
+    "chai": "^1.10.0",
+    "mocha": "^2.1.0"
   }
 }

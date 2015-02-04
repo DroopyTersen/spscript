@@ -86,6 +86,8 @@ dataService.lists("IT Requests")
     });
 
 ```
+If there is more than one match, it will return the first result.  If there are zero matches, it will return `null`
+
 ###Get Every List Item
 Get all items in the **"Tasks"** list and log the 'Title'
 ```javascript
