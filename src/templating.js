@@ -26,6 +26,10 @@ SPScript = window.SPScript || {};
 				value = value[property] != null ? value[property] : "Not Found: " + fullProperty;
 			}
 
+			if(fullProperty === "_") {
+				value = obj;
+			}
+			
 			if ((typeof value === "string") && value.indexOf("/Date(") !== -1) {
 				dateValue = value.UTCJsonToDate();
 				value = dateValue.toLocaleDateString();

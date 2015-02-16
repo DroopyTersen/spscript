@@ -28,7 +28,7 @@ SPScript = window.SPScript || {};
 			baseUrl = "/web/lists/getbytitle('" + listname + "')";
 
 		var getItems = function(odataQuery) {
-			var query = (oDataQuery != null) ? "?" + oDataQuery : "";
+			var query = (odataQuery != null) ? "?" + odataQuery : "";
 			//query = encodeURIComponent(query);
 			return self.get(baseUrl + "/items" + query).then(function(data) {
 				if (data && data.d && data.d.results) {
