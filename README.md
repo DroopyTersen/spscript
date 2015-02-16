@@ -28,10 +28,10 @@ Get all **"Tasks"** with a status of **"Approved"**
 var taskList = dataService.lists("Tasks")
 
 // BEST: Option 1 - 'Find' syntax sugar
-taskList.find("Status", "Approved").then(logApprovedTasks);
+taskList.items.find("Status", "Approved").then(logApprovedTasks);
 
 // BETTER: Option 2 - OData support in the '.items()'
-taskList.items("$filter=Status eq 'Approved'").then(logApprovedTasks);
+taskList.getItems("$filter=Status eq 'Approved'").then(logApprovedTasks);
 
 // GOOD: Options 3 - Manual 'GET'
 dataService.get("/web/lists/getByTitle('Tasks')?$filter=Status eq 'Approved'").then(function(data){
@@ -50,7 +50,7 @@ var logApprovedTasks = function(tasks) {
 ###Get Item By Id
 Get the task with a SharePoint ID of 29
 ```javascript
-dataService.lists("Tasks").getById(29).then(displayTask);
+dataService.lists("Tasks").getItemById(29).then(displayTask);
 var displayTask = function(task) {
     //blah blah blah
 }
@@ -79,7 +79,7 @@ dataService.lists("Tasks").updateItem(29, updates);
 ###Find One
 Get the one item whose **"RequestId"** is **"abc123"**
 ```javascript
-dataService.lists("IT Requests")
+dataService.lists("IT Requests").items
     .findOne("RequestId", "abc123")
     .then(function(request){
         console.log(request.RequestId + ": " + request.Title);
@@ -91,11 +91,13 @@ If there is more than one match, it will return the first result.  If there are 
 ###Get Every List Item
 Get all items in the **"Tasks"** list and log the 'Title'
 ```javascript
-dataService.lists("Tasks").items().then(function(tasks){
-    tasks.forEach(function(task){
-        console.log(task.Title);
+dataService.lists("Tasks")
+    .getItems()
+    .then(function(tasks){
+        tasks.forEach(function(task){
+            console.log(task.Title);
+        });
     });
-});
 
 ```
 
@@ -145,7 +147,7 @@ Display document name and category on the page
 var template = $("#doc-template").html();
 
 //Get our documents
-dataService.lists("Documents").items().done(function(docs){
+dataService.lists("Documents").getItems().done(function(docs){
     var html = "";
 
     //foreach document, create the html based on our template

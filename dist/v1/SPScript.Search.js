@@ -145,3 +145,129 @@ SPScript = window.SPScript || {};
 
 	sp.BaseDao = BaseDao;
 })(SPScript);
+SPScript = window.SPScript || {};
+/* 
+ * ==========
+ * RestDao
+ * Dependencies: ["$", "baseDao.js"]
+ * ==========
+ */
+(function(sp) {
+	var RestDao = function(url) {
+		var self = this;
+		this.webUrl = url;
+	};
+
+	RestDao.prototype = new SPScript.BaseDao();
+
+	RestDao.prototype.executeRequest = function(relativeUrl, options) {
+		var self = this,
+			deferred = new $.Deferred(),
+
+			//If a callback was given execute it, passing response then the deferred
+			//otherwise just resolve the deferred.
+			successCallback = function(response) {
+				if (options.success) {
+					options.success(response, deferred);
+				} else {
+					deferred.resolve(response);
+				}
+			},
+			errorCallback = function(data, errorCode, errorMessage) {
+				if (options.error) {
+					options.error(data, errorCode, errorMessage, deferred);
+				} else {
+					deferred.reject(errorMessage);
+				}
+			},
+			fullUrl = this.webUrl + "/_api" + relativeUrl,
+			executeOptions = {
+				url: fullUrl,
+				method: "GET",
+				headers: {
+					"Accept": "application/json; odata=verbose"
+				},
+				success: successCallback,
+				error: errorCallback
+			};
+
+		$.extend(executeOptions, options);
+		$.ajax(executeOptions);
+
+		return deferred.promise();
+	};
+
+	sp.RestDao = RestDao;
+})(SPScript);
+SPScript = window.SPScript || {};
+/* 
+ * ==========
+ * Search
+ * Dependencies: ["$", "restDao.js", "queryString.js" ]
+ * ==========
+ */
+(function(sp) {
+	var Search = function(url) {
+		this.dao = new SPScript.RestDao(url);
+		this.webUrl = url;
+	};
+
+	Search.QueryOptions = function() {
+		this.sourceid = null;
+		this.startrow = null;
+		this.rowlimit = 30;
+		this.selectedproperties = null;
+		this.refiners = null;
+		this.refinementfilters = null;
+		this.hiddenconstraints = null;
+		this.sortlist = null;
+	};
+
+	var convertRowsToObjects = function(itemRows) {
+		var items = [];
+
+		for (var i = 0; i < itemRows.length; i++) {
+			var row = itemRows[i],
+				item = {};
+			for (var j = 0; j < row.Cells.results.length; j++) {
+				item[row.Cells.results[j].Key] = row.Cells.results[j].Value;
+			}
+
+			items.push(item);
+		}
+
+		return items;
+	};
+
+	//sealed class used to format results
+	var SearchResults = function(queryResponse) {
+		this.elapsedTime = queryResponse.ElapsedTime;
+		this.suggestion = queryResponse.SpellingSuggestion;
+		this.resultsCount = queryResponse.PrimaryQueryResult.RelevantResults.RowCount;
+		this.totalResults = queryResponse.PrimaryQueryResult.RelevantResults.TotalRows;
+		this.totalResultsIncludingDuplicates = queryResponse.PrimaryQueryResult.RelevantResults.TotalRowsIncludingDuplicates;
+		this.items = convertRowsToObjects(queryResponse.PrimaryQueryResult.RelevantResults.Table.Rows.results);
+	};
+
+	Search.prototype.query = function(queryText, queryOptions) {
+		var self = this,
+			optionsQueryString = queryOptions != null ? "&" + SPScript.queryString.objectToQueryString(queryOptions, true) : "",
+			asyncRequest = new $.Deferred();
+
+		var url = "/search/query?querytext='" + queryText + "'" + optionsQueryString;
+		var getRequest = self.dao.get(url);
+
+		getRequest.done(function(data) {
+			if (data.d && data.d.query) {
+				var results = new SearchResults(data.d.query);
+				asyncRequest.resolve(results);
+			} else {
+				asyncRequest.reject(data);
+			}
+		});
+
+		return asyncRequest.promise();
+	};
+
+	sp.Search = Search;
+})(SPScript);
