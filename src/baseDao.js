@@ -40,7 +40,7 @@ SPScript = window.SPScript || {};
 		};
 
 		var getById = function(id) {
-			var url = baseUrl + "/items(" + itemId + ")";
+			var url = baseUrl + "/items(" + id + ")";
 			return self.get(url).then(function(data) {
 				if (data.d) return data.d;
 				else return data;

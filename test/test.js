@@ -4,6 +4,15 @@ chai.should();
 describe("SPScript.RestDao", function () {
 	it("Should be able to get Web Info with a GET request");
 
+	//dao.lists()
+	//dao.lists(listname).info()
+	//dao.lists(listname).items()
+	//dao.lists(listname).items(odata)
+	//dao.lists(listname).items.getById(id)
+	//dao.lists(listname).items.add(item)
+	//dao.lists(listname).items.update(id, updates)
+	//dao.lists(listname).items.find(key, value)
+	//dao.lists(listname).items.findOne(key, value)
 	describe("SPScript.RestDao.lists()", function(){
 		it("Should return a promise that resolves to an array of lists");
 		it("Should bring back list info like Title, ItemCount, and ListItemEntityTypeFullName");

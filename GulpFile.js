@@ -6,10 +6,10 @@ var rename = require('gulp-rename');
 var concatAndMinify = function(sourceFiles, name) {
 	gulp.src(sourceFiles)
 		.pipe(concat("SPScript." + name + ".js"))
-		.pipe(gulp.dest('./dist/'))
+		.pipe(gulp.dest('./dist/v1/'))
 		.pipe(rename("SPScript." + name + ".min.js"))
 		.pipe(minify())
-		.pipe(gulp.dest('./dist/'));
+		.pipe(gulp.dest('./dist/v1/'));
 };
 
 gulp.task('search', function() {
