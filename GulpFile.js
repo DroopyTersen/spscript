@@ -15,6 +15,7 @@ var concatAndMinify = function(sourceFiles, name) {
 gulp.task('search', function() {
 	var files = [
 		'./src/odatahelpers.js',
+		'./src/list.js',
 		'./src/web.js',
 		'./src/baseDao.js',
 		'./src/restDao.js',
@@ -27,6 +28,7 @@ gulp.task('search', function() {
 gulp.task('rest', function() {
 	var files = [
 		'./src/odatahelpers.js',
+		'./src/list.js',
 		'./src/web.js',
 		'./src/baseDao.js', 
 		'./src/restDao.js'
@@ -37,6 +39,7 @@ gulp.task('rest', function() {
 gulp.task('crossdomain', function() {
 	var files = [
 		'./src/odatahelpers.js',
+		'./src/list.js',
 		'./src/web.js',
 		'./src/baseDao.js', 
 		'./src/odatahelpers.js', 
@@ -49,6 +52,7 @@ gulp.task('full', function() {
 	var files = [
 		'./src/odatahelpers.js', 
 		'./src/web.js',
+		'./src/list.js',
 		'./src/baseDao.js', 
 		'./src/restDao.js', 
 		'./src/crossDomainDao', 

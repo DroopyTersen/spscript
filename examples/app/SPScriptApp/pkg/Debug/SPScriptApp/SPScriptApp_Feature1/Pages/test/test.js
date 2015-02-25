@@ -103,7 +103,7 @@ describe("SPScript.RestDao", function () {
             });
         });
 
-        describe("SPScript.RestDao.lists(listname).getById(id)", function () {
+        describe("SPScript.RestDao.lists(listname).getItemById(id)", function () {
             var item = null;
             var validId = -1;
             before(function (done) {
@@ -112,7 +112,9 @@ describe("SPScript.RestDao", function () {
                         validId = allItems[0].Id;
                         return validId;
                     })
-                    .then(list.getItemById)
+                    .then(function (id) {
+                        return list.getItemById(id);
+                    })
                     .then(function (result) {
                         item = result;
                         done();
@@ -155,20 +157,77 @@ describe("SPScript.RestDao", function () {
             it("Should return a promise");
             it("Should update only the properties that were passed");
         });
-        describe("SPScript.RestDao.lists(listname).find(key, value)", function () {
-            it("Should return a promise that resolves to an array of list items");
-            it("Should only bring back items the match the key value query");
+        describe("SPScript.RestDao.lists(listname).findItems(key, value)", function () {
+            var matches = null;
+            before(function (done) {
+                list.findItems("BoolColumn", 1).then(function (results) {
+                    matches = results;
+                    done();
+                });
+            })
+            it("Should return a promise that resolves to an array of list items", function () {
+                matches.should.be.an("array");
+                matches.should.not.be.empty;
+            });
+            it("Should only bring back items the match the key value query", function () {
+                matches.forEach(function (item) {
+                    item.should.have.property("BoolColumn");
+                    item.BoolColumn.should.be.true;
+                });
+            });
+            it("Should support string filters", function (done) {
+                var stringValue = "Required data";
+                list.findItems("RequiredColumn", stringValue).then(function (items) {
+                    items.should.be.an("array");
+                    items.should.not.be.empty;
+                    items.forEach(function (item) {
+                        item.should.have.property("RequiredColumn");
+                        item.RequiredColumn.should.equal(stringValue);
+                    });
+                    done();
+                })
+            });
+
+            it("Should support number (and bool) filters", function () {
+                //first 2 tests test this
+                return true;
+            });
         });
-        describe("SPScript.RestDao.lists(listname).findOne(key, value)", function () {
-            it("Should resolve to one list item");
-            it("Should only bring back an item if it matches the key value query");
+        describe("SPScript.RestDao.lists(listname).findItem(key, value)", function () {
+            var match = null;
+            before(function (done) {
+                list.findItem("BoolColumn", 1).then(function (result) {
+                    match = result;
+                    done();
+                });
+            })
+            it("Should resolve to one list item", function () {
+                match.should.be.an("object");
+            });
+            it("Should only bring back an item if it matches the key value query", function () {
+                match.should.have.property("BoolColumn");
+                match.BoolColumn.should.be.true;
+            });
         });
     });
 });
 
 describe("SPScript.Search", function () {
+    var url = _spPageContextInfo.webAbsoluteUrl;
+    var search = new SPScript.Search(url);
     describe("SPScript.Search.query(queryText)", function () {
-        it("Should return promise that resolves to an array of SearchResults");
+        it("Should return promise that resolves to a SearchResults object", function (done) {
+            var queryText = "seed";
+            search.query(queryText).then(function(searchResults) {
+                searchResults.should.be.an("object");
+                searchResults.should.have.property("resultsCount");
+                searchResults.should.have.property("totalResults");
+                searchResults.should.have.property("items");
+                searchResults.items.should.be.an("array");
+                searchResults.items.should.not.be.empty;
+                done();
+            });
+        });
     });
     describe("SPScript.Search.query(queryText, queryOptions)", function () {
         it("Should return promise that resolves to an array of SearchResults");

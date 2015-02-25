@@ -10,10 +10,16 @@
     <script type="text/javascript" src='https://cdnjs.cloudflare.com/ajax/libs/mocha/2.1.0/mocha.min.js'></script>
 	<script type="text/javascript" src='https://cdnjs.cloudflare.com/ajax/libs/chai/2.1.0/chai.js'></script>
     <script type="text/javascript" src='spscript.js'></script>
+    <style>
+        #mocha-stats {
+            position:absolute;
+        }
+    </style>
 </asp:Content>
 
 <asp:Content ContentPlaceHolderId="PlaceHolderMain" runat="server">
     <WebPartPages:WebPartZone runat="server" FrameType="TitleBarOnly" ID="full" Title="loc:full" />
     <div id='mocha'></div>
+    <%--<script type="text/javascript"src='https://cdn.rawgit.com/DroopyTersen/spscript/v1/test/test.js'></script>--%>
     <script type="text/javascript"src='test.js'></script>
 </asp:Content>
