@@ -2,11 +2,15 @@ SPScript = window.SPScript || {};
 /* 
  * ==========
  * BaseDao - 'Abstract', use either RestDao or CrossDomainDao which inherit
- * Dependencies: ["$"]
+ * Dependencies: ["$", "Web"]
  * ==========
  */
 (function(sp) {
-	var BaseDao = function() {};
+	var BaseDao = function() {
+		var self = this;
+
+		self.web = new sp.Web(self);
+	};
 
 	BaseDao.prototype.executeRequest = function() {
 		throw "Not implemented exception";
@@ -58,12 +62,12 @@ SPScript = window.SPScript || {};
 
 		//If no list name was passed, return a promise to get all the lists
 		if(!listname) {
-			return self.get("/web/lists");
+			return self.get("/web/lists").then(sp.helpers.validateODataV2);
 		}
 		//A list name was passed so return list context methods
 		return {
 			info: function() {
-				return self.get(baseUrl);
+				return self.get(baseUrl).then(sp.helpers.validateODataV2);
 			},
 			getItemById: getById,
 			getItems: getItems,
@@ -120,20 +124,6 @@ SPScript = window.SPScript || {};
 					});
 				}
 			}
-		};
-	};
-
-	BaseDao.prototype.web = function() {
-		var self = this;
-		var baseUrl = "/web";
-
-		return {
-			info: function() {
-				return this.get(baseUrl);
-			},
-			subsites: function() {
-				return this.get(baseUrl + "/webinfos");
-			},
 		};
 	};
 

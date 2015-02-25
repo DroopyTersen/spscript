@@ -1,1 +1,1 @@
-C:\gitwip\SPScriptApp\SPScriptApp\bin\Debug\SPScriptApp.debugapp
+C:\gitwip\SPScript\examples\app\SPScriptApp\bin\Debug\SPScriptApp.debugapp

@@ -37,7 +37,7 @@
         <RowLimit Paged="TRUE">30</RowLimit>
         <ViewFields>
           
-        <FieldRef Name="LinkTitle"></FieldRef><FieldRef Name="MyColumn" /><FieldRef Name="RequiredColumn" /><FieldRef Name="BoolColumn" /><FieldRef Name="ChoiceColumn" /></ViewFields>
+        <FieldRef Name="LinkTitle"></FieldRef><FieldRef Name="MyColumn" /><FieldRef Name="RequiredColumn" /><FieldRef Name="BoolColumn" /><FieldRef Name="ChoiceColumn" /><FieldRef Name="Created" /><FieldRef Name="Modified" /></ViewFields>
         <Query>
           <OrderBy>
             

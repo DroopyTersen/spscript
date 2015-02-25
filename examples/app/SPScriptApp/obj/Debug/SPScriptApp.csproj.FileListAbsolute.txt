@@ -4,3 +4,6 @@ c:\users\apetersen\documents\visual studio 2013\Projects\SPScriptApp\SPScriptApp
 C:\gitwip\SPScriptApp\SPScriptApp\bin\Debug\SPScriptApp.pdb
 C:\gitwip\SPScriptApp\SPScriptApp\obj\Debug\SPScriptApp.dll
 C:\gitwip\SPScriptApp\SPScriptApp\obj\Debug\SPScriptApp.pdb
+C:\gitwip\SPScript\examples\app\SPScriptApp\bin\Debug\SPScriptApp.pdb
+C:\gitwip\SPScript\examples\app\SPScriptApp\obj\Debug\SPScriptApp.dll
+C:\gitwip\SPScript\examples\app\SPScriptApp\obj\Debug\SPScriptApp.pdb

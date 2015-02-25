@@ -14,6 +14,8 @@ var concatAndMinify = function(sourceFiles, name) {
 
 gulp.task('search', function() {
 	var files = [
+		'./src/odatahelpers.js',
+		'./src/web.js',
 		'./src/baseDao.js',
 		'./src/restDao.js',
 		'./src/querystring.js',
@@ -23,12 +25,19 @@ gulp.task('search', function() {
 });
 
 gulp.task('rest', function() {
-	var files = ['./src/baseDao.js', './src/restDao.js'];
+	var files = [
+		'./src/odatahelpers.js',
+		'./src/web.js',
+		'./src/baseDao.js', 
+		'./src/restDao.js'
+	];
 	concatAndMinify(files, 'RestDao');
 });
 
 gulp.task('crossdomain', function() {
 	var files = [
+		'./src/odatahelpers.js',
+		'./src/web.js',
 		'./src/baseDao.js', 
 		'./src/odatahelpers.js', 
 		'./src/crossDomainDao.js'
@@ -38,8 +47,9 @@ gulp.task('crossdomain', function() {
 
 gulp.task('full', function() {
 	var files = [
-		'./src/baseDao.js', 
 		'./src/odatahelpers.js', 
+		'./src/web.js',
+		'./src/baseDao.js', 
 		'./src/restDao.js', 
 		'./src/crossDomainDao', 
 		'./src/querystring.js', 

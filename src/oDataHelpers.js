@@ -8,12 +8,17 @@ SPScript = window.SPScript || {};
 (function(sp) {
 	var helpers = {};
 	helpers.validateODataV2 = function(data, deferred) {
+		var results = data;
 		if (data.d && data.d.results && data.d.results.length != null) {
-			deferred.resolve(data.d.results);
+			results = data.d.results;
 		} else if (data.d) {
-			deferred.resolve(data.d);
+			results = data.d;
+		}
+
+		if (deferred) {
+			deferred.resolve(results);
 		} else {
-			deferred.resolve(data);
+			return results;
 		}
 	};
 

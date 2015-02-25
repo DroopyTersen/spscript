@@ -8,6 +8,7 @@ SPScript = window.SPScript || {};
 (function(sp) {
 	var RestDao = function(url) {
 		var self = this;
+		sp.BaseDao.call(this);
 		this.webUrl = url;
 	};
 

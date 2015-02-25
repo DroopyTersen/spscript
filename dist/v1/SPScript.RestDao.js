@@ -1,12 +1,69 @@
 SPScript = window.SPScript || {};
 /* 
  * ==========
- * BaseDao - 'Abstract', use either RestDao or CrossDomainDao which inherit
+ * Helpers
  * Dependencies: ["$"]
  * ==========
  */
 (function(sp) {
-	var BaseDao = function() {};
+	var helpers = {};
+	helpers.validateODataV2 = function(data, deferred) {
+		var results = data;
+		if (data.d && data.d.results && data.d.results.length != null) {
+			results = data.d.results;
+		} else if (data.d) {
+			results = data.d;
+		}
+
+		if (deferred) {
+			deferred.resolve(results);
+		} else {
+			return results;
+		}
+	};
+
+	helpers.validateCrossDomainODataV2 = function(response, deferred) {
+		var data = $.parseJSON(response.body);
+		SPScript.helpers.validateODataV2(data, deferred);
+	};
+
+	sp.helpers = helpers;
+})(SPScript);
+
+SPScript = window.SPScript || {};
+
+(function(sp) {
+	var baseUrl = "/web";
+	var Web = function(dao) {
+		this._dao = dao;
+	};
+
+	Web.prototype.info = function() {
+		return this._dao
+			.get(baseUrl)
+			.then(sp.helpers.validateODataV2);
+	};
+
+	Web.prototype.subsites = function() {
+		return this._dao
+			.get(baseUrl + "/webinfos")
+			.then(sp.helpers.validateODataV2);
+	};
+	sp.Web = Web;
+})(SPScript);
+SPScript = window.SPScript || {};
+/* 
+ * ==========
+ * BaseDao - 'Abstract', use either RestDao or CrossDomainDao which inherit
+ * Dependencies: ["$", "Web"]
+ * ==========
+ */
+(function(sp) {
+	var BaseDao = function() {
+		var self = this;
+
+		self.web = new sp.Web(self);
+	};
 
 	BaseDao.prototype.executeRequest = function() {
 		throw "Not implemented exception";
@@ -58,12 +115,12 @@ SPScript = window.SPScript || {};
 
 		//If no list name was passed, return a promise to get all the lists
 		if(!listname) {
-			return self.get("/web/lists");
+			return self.get("/web/lists").then(sp.helpers.validateODataV2);
 		}
 		//A list name was passed so return list context methods
 		return {
 			info: function() {
-				return self.get(baseUrl);
+				return self.get(baseUrl).then(sp.helpers.validateODataV2);
 			},
 			getItemById: getById,
 			getItems: getItems,
@@ -155,6 +212,7 @@ SPScript = window.SPScript || {};
 (function(sp) {
 	var RestDao = function(url) {
 		var self = this;
+		sp.BaseDao.call(this);
 		this.webUrl = url;
 	};
 

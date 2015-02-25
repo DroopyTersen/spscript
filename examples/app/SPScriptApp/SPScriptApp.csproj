@@ -41,6 +41,9 @@
     <UseVSHostingProcess>false</UseVSHostingProcess>
   </PropertyGroup>
   <ItemGroup>
+    <Content Include="Pages\test\spscript.js" />
+    <Content Include="Pages\test\test.js" />
+    <Content Include="Pages\test\test.aspx" />
     <Content Include="TestList\Elements.xml" />
     <Content Include="TestList\Schema.xml" />
     <Content Include="TestList\TestListInstance\Elements.xml">
