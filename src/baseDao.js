@@ -123,6 +123,20 @@ SPScript = window.SPScript || {};
 		};
 	};
 
+	BaseDao.prototype.web = function() {
+		var self = this;
+		var baseUrl = "/web";
+
+		return {
+			info: function() {
+				return this.get(baseUrl);
+			},
+			subsites: function() {
+				return this.get(baseUrl + "/webinfos");
+			},
+		};
+	};
+
 	BaseDao.prototype.post = function(relativePostUrl, body, extendedOptions) {
 		var strBody = JSON.stringify(body);
 		var options = {

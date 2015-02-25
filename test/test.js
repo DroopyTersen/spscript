@@ -2,7 +2,33 @@ mocha.setup('bdd');
 chai.should();
 
 describe("SPScript.RestDao", function () {
-	it("Should be able to get Web Info with a GET request");
+	var url = _spPageContextInfo.webAbsoluteUrl;
+	var dao = new SPScript.RestDao(url);
+
+	describe("SPScript.RestDao.web", function(){
+		describe("SPScript.RestDao.info()", function(){
+			it("Should return a promise that resolves to web info", function(done){
+				dao.web.info().then(function(data){
+					data.should.contain("Url");
+					data.should.contain("Title");
+					done();
+				});
+			});			
+		});
+
+		describe("SPScript.RestDao.subsites()", function(){
+			it("Should return a promise that resolves to an array of subsite web infos.", function(subsites){
+				subsites.should.be.an("array");
+				if (subsites.length) {
+					subsites[0].should.contain("Title");
+					subsites[0].should.contain("ServerRelativeUrl");
+				}
+				done();
+			});			
+		});
+
+	});
+
 
 	//dao.lists()
 	//dao.lists(listname).info()
@@ -68,11 +94,11 @@ describe("SPScript.queryString", function(){
 	describe("SPScript.queryString.contains(key)", function(){
 		it("Should return the true for a valid key", function(){
 			var contains = SPScript.queryString.contains('key1', qs);
-			contains.should.be.true;
+			contains.should.be.true();
 		});
 		it("Should return false for an invalid key", function(){
 			var contains = SPScript.queryString.contains('invalidKey', qs);
-			contains.should.be.false;
+			contains.should.be.false();
 		});
 	});
 	describe("SPScript.queryString.getValue(key)", function(){

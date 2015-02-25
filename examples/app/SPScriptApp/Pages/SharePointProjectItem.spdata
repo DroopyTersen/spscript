@@ -3,5 +3,7 @@
   <Files>
     <ProjectItemFile Source="Elements.xml" Target="Pages\" Type="ElementManifest" />
     <ProjectItemFile Source="Default.aspx" Target="Pages\" Type="ElementFile" />
+    <ProjectItemFile Source="test\test.aspx" Target="Pages\test\" Type="ElementFile" />
+    <ProjectItemFile Source="test\test.js" Target="Pages\test\" Type="ElementFile" />
   </Files>
 </ProjectItem>
