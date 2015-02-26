@@ -33,6 +33,29 @@ SPScript = window.SPScript || {};
 SPScript = window.SPScript || {};
 
 (function(sp) {
+	sp.models = {};
+
+	sp.models.roleAssignment = {};
+	sp.models.roleAssignment.fromRaw = function(raw) {
+		var priv = {
+			member: {
+				login: raw.Member.LoginName,
+				name: raw.Member.Title,
+				id: raw.Member.Id
+			}
+		};
+		priv.roles = raw.RoleDefinitionBindings.results.map(function(roleDef){
+			return {
+				name: roleDef.Name,
+				description: roleDef.Description
+			};
+		});
+		return priv;
+	};
+})(SPScript);
+SPScript = window.SPScript || {};
+
+(function(sp) {
 	var baseUrl = null;
 	var List = function(listname, dao) {
 		this.listname = listname;
@@ -114,6 +137,15 @@ SPScript = window.SPScript || {};
 		});
 	};
 
+	List.prototype.permissions = function() {
+		var url = baseUrl + "/RoleAssignments?$expand=Member,RoleDefinitionBindings";
+		return this._dao.get(url)
+			.then(sp.helpers.validateODataV2)
+			.then(function(results){
+				return results.map(sp.models.roleAssignment.fromRaw);
+			});
+	};
+
 	sp.List = List;
 })(SPScript);
 
@@ -135,6 +167,15 @@ SPScript = window.SPScript || {};
 		return this._dao
 			.get(baseUrl + "/webinfos")
 			.then(sp.helpers.validateODataV2);
+	};
+
+	Web.prototype.permissions = function() {
+		var url = baseUrl + "/RoleAssignments?$expand=Member,RoleDefinitionBindings";
+		return this._dao.get(url)
+			.then(sp.helpers.validateODataV2)
+			.then(function(results){
+				return results.map(sp.models.roleAssignment.fromRaw);
+			});
 	};
 	sp.Web = Web;
 })(SPScript);

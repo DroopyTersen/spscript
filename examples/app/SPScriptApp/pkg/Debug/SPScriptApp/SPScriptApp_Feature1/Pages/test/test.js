@@ -30,6 +30,42 @@ describe("SPScript.RestDao", function () {
             });
         });
 
+        describe("SPScript.RestDao.permissions()", function () {
+            before(function (done) {
+                var permissions = null;
+                dao.web.permissions().then(function (privs) {
+                    permissions = privs;
+                    done();
+                })
+            });
+            it("Should return a promise that resolves to an array of objects", function () {
+                permissions.should.be.an("array");
+                permissions.should.not.be.empty;
+            });
+            it("Should return objects that each have a member and a roles array", function () {
+                permissions.forEach(function (permission) {
+                    permission.should.have.property("member");
+                    permission.should.have.property("roles");
+                    permission.roles.should.be.an("array");
+                })
+            })
+            it("Should return permission objects that contain member.name, member.login, and member.id", function () {
+                permisssions.forEach(function (permission) {
+                    permission.member.should.have.property("name");
+                    permission.member.should.have.property("login");
+                    permission.member.should.have.property("id");
+                });
+            });
+            it("Should return permission objects, each with a roles array that has a name and description", function () {
+                permisssions.forEach(function (permission) {
+                    permission.roles.forEach(function (role) {
+                        role.should.have.property("name");
+                        role.should.have.property("description");
+                    })
+                })
+            })
+        })
+
     });
 
 
@@ -150,13 +186,7 @@ describe("SPScript.RestDao", function () {
                 });
             });
         });
-        describe("SPScript.RestDao.lists(listname).addItem()", function () {
-            it("Should return a promise that resolves with the new list item");
-        });
-        describe("SPScript.RestDao.lists(listname).updateItem()", function () {
-            it("Should return a promise");
-            it("Should update only the properties that were passed");
-        });
+
         describe("SPScript.RestDao.lists(listname).findItems(key, value)", function () {
             var matches = null;
             before(function (done) {
@@ -208,6 +238,14 @@ describe("SPScript.RestDao", function () {
                 match.should.have.property("BoolColumn");
                 match.BoolColumn.should.be.true;
             });
+        });
+
+        describe("SPScript.RestDao.lists(listname).addItem()", function () {
+            it("Should return a promise that resolves with the new list item");
+        });
+        describe("SPScript.RestDao.lists(listname).updateItem()", function () {
+            it("Should return a promise");
+            it("Should update only the properties that were passed");
         });
     });
 });

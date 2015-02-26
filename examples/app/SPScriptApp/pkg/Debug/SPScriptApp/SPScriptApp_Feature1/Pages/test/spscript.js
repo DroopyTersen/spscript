@@ -49,6 +49,30 @@ SPScript = window.SPScript || {};
 			.get(baseUrl + "/webinfos")
 			.then(sp.helpers.validateODataV2);
     };
+
+    Web.prototype.permissions = function () {
+        var url = "/RoleAssignments?$expand=Member,RoleDefinitionBindings";
+        this._dao.get(url)
+			.then(function (results) {
+			    var privs = results.map(function (permission) {
+			        var priv = {
+			            member: {
+			                login: permission.Member.Login,
+			                name: permission.Member.Title,
+			                id: permission.Member.Id
+			            }
+			        };
+			        priv.roles = permission.RoleDefinitionBindings.map(function (roleDef) {
+			            return {
+			                name: roleDef.Name,
+			                description: roleDef.Description
+			            };
+			        });
+			        return priv;
+			    });
+			    return privs;
+			});
+    };
     sp.Web = Web;
 })(SPScript);
 SPScript = window.SPScript || {};

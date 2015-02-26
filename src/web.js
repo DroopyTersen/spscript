@@ -17,5 +17,14 @@ SPScript = window.SPScript || {};
 			.get(baseUrl + "/webinfos")
 			.then(sp.helpers.validateODataV2);
 	};
+
+	Web.prototype.permissions = function() {
+		var url = baseUrl + "/RoleAssignments?$expand=Member,RoleDefinitionBindings";
+		return this._dao.get(url)
+			.then(sp.helpers.validateODataV2)
+			.then(function(results){
+				return results.map(sp.models.roleAssignment.fromRaw);
+			});
+	};
 	sp.Web = Web;
 })(SPScript);
