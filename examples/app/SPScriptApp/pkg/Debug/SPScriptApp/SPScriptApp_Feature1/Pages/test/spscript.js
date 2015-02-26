@@ -56,23 +56,27 @@ SPScript = window.SPScript || {};
                 }
             };
             priv.roles = raw.RoleDefinitionBindings.results.map(function (roleDef) {
-                var basePermissions = [];
-                spBasePermissions.forEach(function (basePermission) {
-                    if ((basePermission.low & roleDef.BasePermissions.Low) > 0 || (basePermission.high & roleDef.BasePermissions.High) > 0) {
-                        basePermissions.push(basePermission.name);
-                    }
-                });
                 return {
                     name: roleDef.Name,
                     description: roleDef.Description,
-                    basePermissions: basePermissions
+                    basePermissions: permissionMaskToStrings(roleDef.BasePermissions.Low, roleDef.BasePermissions.High)
                 };
             });
             return priv;
         }
     };
-    var permissions = function (baseUrl, dao, username) {
-        if (!username) {
+
+    var permissionMaskToStrings = function (lowMask, highMask) {
+        var basePermissions = [];
+        spBasePermissions.forEach(function (basePermission) {
+            if ((basePermission.low & lowMask) > 0 || (basePermission.high & highMask) > 0) {
+                basePermissions.push(basePermission.name);
+            }
+        });
+    };
+
+    var permissions = function (baseUrl, dao, email) {
+        if (!email) {
             var url = baseUrl + "/RoleAssignments?$expand=Member,RoleDefinitionBindings";
             return dao.get(url)
 				.then(sp.helpers.validateODataV2)
@@ -80,9 +84,32 @@ SPScript = window.SPScript || {};
 				    return results.map(transforms.roleAssignment);
 				});
         }
-        //check privs with username
+        //An email was passed so check privs on that specific user
+        var checkPrivs = function (user) {
+            var login = encodeURIComponent(user.LoginName);
+            var url = baseUrl + "/getusereffectivepermissions(@v)?@v='" + login + "'";
+            return dao.get(url).then(sp.helpers.validateODataV2);
+        };
+        return dao.web.getUser(email)
+			.then(checkPrivs)
+			.then(function () {
+			    console.log(privs);
+			});
 
     };
+
+    // Scraped it from SP.PermissionKind
+    // var basePermissions = [];
+    // Object.keys(SP.PermissionKind).forEach(function(key) { 
+    // 	var perm = new SP.BasePermissions();
+    //     perm.set(SP.PermissionKind[key]);
+    //     var permisison = {
+    //     	name: key,
+    //     	low: perm.$A_1,
+    //     	high: perm.$9_1
+    //     };
+    //     basePermissions.push(permisison);
+    // });
     var spBasePermissions = [
    {
        "name": "emptyMask",
@@ -264,7 +291,7 @@ SPScript = window.SPScript || {};
        "low": 0,
        "high": 1073741824
    }
-    ]
+    ];
 
 
     sp.permissions = permissions;
@@ -292,6 +319,12 @@ SPScript = window.SPScript || {};
     Web.prototype.permissions = function () {
         return sp.permissions(baseUrl, this._dao);
     };
+
+    Web.prototype.getUser = function (email) {
+        var url = "/SiteUsers/GetByEmail('" + email + "')";
+        return this._dao.get(url).then(sp.helpers.validateODataV2);
+    };
+
     sp.Web = Web;
 })(SPScript);
 SPScript = window.SPScript || {};

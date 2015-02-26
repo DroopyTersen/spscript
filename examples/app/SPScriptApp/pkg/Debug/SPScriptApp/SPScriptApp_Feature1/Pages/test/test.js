@@ -1,354 +1,812 @@
-﻿mocha.setup('bdd');
-chai.should();
+﻿SPScript = window.SPScript || {};
+/* 
+ * ==========
+ * Helpers
+ * Dependencies: ["$"]
+ * ==========
+ */
+(function (sp) {
+    var helpers = {};
+    helpers.validateODataV2 = function (data, deferred) {
+        var results = data;
+        if (data.d && data.d.results && data.d.results.length != null) {
+            results = data.d.results;
+        } else if (data.d) {
+            results = data.d;
+        }
 
-describe("SPScript.RestDao", function () {
-    this.timeout(10000);
-    var url = _spPageContextInfo.webAbsoluteUrl;
-    var dao = new SPScript.RestDao(url);
+        if (deferred) {
+            deferred.resolve(results);
+        } else {
+            return results;
+        }
+    };
 
-    describe("SPScript.RestDao.web", function () {
-        describe("SPScript.RestDao.web.info()", function () {
-            it("Should return a promise that resolves to web info", function (done) {
-                dao.web.info().then(function (webInfo) {
-                    webInfo.should.have.property("Url");
-                    webInfo.should.have.property("Title");
-                    done();
-                });
+    helpers.validateCrossDomainODataV2 = function (response, deferred) {
+        var data = $.parseJSON(response.body);
+        SPScript.helpers.validateODataV2(data, deferred);
+    };
+
+    //'Borrowed' from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Bitwise_Operators
+    helpers.arrayFromBitMask = function (nMask) {
+        // nMask must be between -2147483648 and 2147483647
+        if (typeof nMask === "string") {
+            nMask = parseInt(nMask);
+        }
+        // if (nMask > 0x7fffffff || nMask < -0x80000000) { 
+        // 	throw new TypeError("arrayFromMask - out of range"); 
+        // }
+        for (var nShifted = nMask, aFromMask = []; nShifted; aFromMask.push(Boolean(nShifted & 1)), nShifted >>>= 1);
+        return aFromMask;
+    };
+
+    sp.helpers = helpers;
+})(SPScript);
+
+SPScript = window.SPScript || {};
+
+(function (sp) {
+    var transforms = {
+        roleAssignment: function (raw) {
+            var priv = {
+                member: {
+                    login: raw.Member.LoginName,
+                    name: raw.Member.Title,
+                    id: raw.Member.Id
+                }
+            };
+            priv.roles = raw.RoleDefinitionBindings.results.map(function (roleDef) {
+                return {
+                    name: roleDef.Name,
+                    description: roleDef.Description,
+                    basePermissions: permissionMaskToStrings(roleDef.BasePermissions.Low, roleDef.BasePermissions.High)
+                };
             });
-        });
+            return priv;
+        }
+    };
 
-        describe("SPScript.RestDao.web.subsites()", function () {
-            it("Should return a promise that resolves to an array of subsite web infos.", function (done) {
-                dao.web.subsites().then(function (subsites) {
-                    subsites.should.be.an("array");
-                    if (subsites.length) {
-                        subsites[0].should.have.property("Title");
-                        subsites[0].should.have.property("ServerRelativeUrl");
+    var permissionMaskToStrings = function (lowMask, highMask) {
+        var basePermissions = [];
+        spBasePermissions.forEach(function (basePermission) {
+            if ((basePermission.low & lowMask) > 0 || (basePermission.high & highMask) > 0) {
+                basePermissions.push(basePermission.name);
+            }
+        });
+    };
+
+    var permissions = function (baseUrl, dao, email) {
+        if (!email) {
+            var url = baseUrl + "/RoleAssignments?$expand=Member,RoleDefinitionBindings";
+            return dao.get(url)
+				.then(sp.helpers.validateODataV2)
+				.then(function (results) {
+				    return results.map(transforms.roleAssignment);
+				});
+        }
+        //An email was passed so check privs on that specific user
+        var checkPrivs = function (user) {
+            var login = encodeURIComponent(user.LoginName);
+            var url = baseUrl + "/getusereffectivepermissions(@v)?@v='" + login + "'";
+            return dao.get(url).then(sp.helpers.validateODataV2);
+        };
+        return dao.web.getUser(email)
+			.then(checkPrivs)
+			.then(function () {
+			    console.log(privs);
+			});
+
+    };
+
+    // Scraped it from SP.PermissionKind
+    // var basePermissions = [];
+    // Object.keys(SP.PermissionKind).forEach(function(key) { 
+    // 	var perm = new SP.BasePermissions();
+    //     perm.set(SP.PermissionKind[key]);
+    //     var permisison = {
+    //     	name: key,
+    //     	low: perm.$A_1,
+    //     	high: perm.$9_1
+    //     };
+    //     basePermissions.push(permisison);
+    // });
+    var spBasePermissions = [
+   {
+       "name": "emptyMask",
+       "low": 0,
+       "high": 0
+   },
+   {
+       "name": "viewListItems",
+       "low": 1,
+       "high": 0
+   },
+   {
+       "name": "addListItems",
+       "low": 2,
+       "high": 0
+   },
+   {
+       "name": "editListItems",
+       "low": 4,
+       "high": 0
+   },
+   {
+       "name": "deleteListItems",
+       "low": 8,
+       "high": 0
+   },
+   {
+       "name": "approveItems",
+       "low": 16,
+       "high": 0
+   },
+   {
+       "name": "openItems",
+       "low": 32,
+       "high": 0
+   },
+   {
+       "name": "viewVersions",
+       "low": 64,
+       "high": 0
+   },
+   {
+       "name": "deleteVersions",
+       "low": 128,
+       "high": 0
+   },
+   {
+       "name": "cancelCheckout",
+       "low": 256,
+       "high": 0
+   },
+   {
+       "name": "managePersonalViews",
+       "low": 512,
+       "high": 0
+   },
+   {
+       "name": "manageLists",
+       "low": 2048,
+       "high": 0
+   },
+   {
+       "name": "viewFormPages",
+       "low": 4096,
+       "high": 0
+   },
+   {
+       "name": "anonymousSearchAccessList",
+       "low": 8192,
+       "high": 0
+   },
+   {
+       "name": "open",
+       "low": 65536,
+       "high": 0
+   },
+   {
+       "name": "viewPages",
+       "low": 131072,
+       "high": 0
+   },
+   {
+       "name": "addAndCustomizePages",
+       "low": 262144,
+       "high": 0
+   },
+   {
+       "name": "applyThemeAndBorder",
+       "low": 524288,
+       "high": 0
+   },
+   {
+       "name": "applyStyleSheets",
+       "low": 1048576,
+       "high": 0
+   },
+   {
+       "name": "viewUsageData",
+       "low": 2097152,
+       "high": 0
+   },
+   {
+       "name": "createSSCSite",
+       "low": 4194304,
+       "high": 0
+   },
+   {
+       "name": "manageSubwebs",
+       "low": 8388608,
+       "high": 0
+   },
+   {
+       "name": "createGroups",
+       "low": 16777216,
+       "high": 0
+   },
+   {
+       "name": "managePermissions",
+       "low": 33554432,
+       "high": 0
+   },
+   {
+       "name": "browseDirectories",
+       "low": 67108864,
+       "high": 0
+   },
+   {
+       "name": "browseUserInfo",
+       "low": 134217728,
+       "high": 0
+   },
+   {
+       "name": "addDelPrivateWebParts",
+       "low": 268435456,
+       "high": 0
+   },
+   {
+       "name": "updatePersonalWebParts",
+       "low": 536870912,
+       "high": 0
+   },
+   {
+       "name": "manageWeb",
+       "low": 1073741824,
+       "high": 0
+   },
+   {
+       "name": "anonymousSearchAccessWebLists",
+       "low": -2147483648,
+       "high": 0
+   },
+   {
+       "name": "useClientIntegration",
+       "low": 0,
+       "high": 16
+   },
+   {
+       "name": "useRemoteAPIs",
+       "low": 0,
+       "high": 32
+   },
+   {
+       "name": "manageAlerts",
+       "low": 0,
+       "high": 64
+   },
+   {
+       "name": "createAlerts",
+       "low": 0,
+       "high": 128
+   },
+   {
+       "name": "editMyUserInfo",
+       "low": 0,
+       "high": 256
+   },
+   {
+       "name": "enumeratePermissions",
+       "low": 0,
+       "high": 1073741824
+   }
+    ];
+
+
+    sp.permissions = permissions;
+})(SPScript);
+SPScript = window.SPScript || {};
+
+(function (sp) {
+    var baseUrl = "/web";
+    var Web = function (dao) {
+        this._dao = dao;
+    };
+
+    Web.prototype.info = function () {
+        return this._dao
+			.get(baseUrl)
+			.then(sp.helpers.validateODataV2);
+    };
+
+    Web.prototype.subsites = function () {
+        return this._dao
+			.get(baseUrl + "/webinfos")
+			.then(sp.helpers.validateODataV2);
+    };
+
+    Web.prototype.permissions = function (email) {
+        return sp.permissions(baseUrl, this._dao, email);
+    };
+
+    Web.prototype.getUser = function (email) {
+        var url = "/SiteUsers/GetByEmail('" + email + "')";
+        return this._dao.get(url).then(sp.helpers.validateODataV2);
+    };
+
+    sp.Web = Web;
+})(SPScript);
+SPScript = window.SPScript || {};
+
+(function (sp) {
+    var baseUrl = null;
+    var List = function (listname, dao) {
+        this.listname = listname;
+        baseUrl = "/web/lists/getbytitle('" + listname + "')";
+        this._dao = dao;
+    };
+
+    List.prototype.getItems = function (odataQuery) {
+        var query = (odataQuery != null) ? "?" + odataQuery : "";
+        return this._dao
+			.get(baseUrl + "/items" + query)
+			.then(sp.helpers.validateODataV2);
+    };
+
+    List.prototype.getItemById = function (id) {
+        var url = baseUrl + "/items(" + id + ")";
+        return this._dao.get(url).then(sp.helpers.validateODataV2);
+    };
+
+    List.prototype.info = function () {
+        return this._dao.get(baseUrl).then(sp.helpers.validateODataV2);
+    };
+
+    List.prototype.addItem = function (item) {
+        var self = this;
+        return self._dao.get(baseUrl).then(function (data) {
+            item = $.extend({
+                "__metadata": {
+                    "type": data.d.ListItemEntityTypeFullName
+                }
+            }, item);
+
+            var customOptions = {
+                headers: {
+                    "Accept": "application/json;odata=verbose",
+                    "X-RequestDigest": $("#__REQUESTDIGEST").val(),
+                }
+            };
+
+            return self._dao.post(baseUrl + "/items", item, customOptions);
+        });
+    };
+
+    List.prototype.updateItem = function (itemId, updates) {
+        var self = this;
+        return self.getItemById(itemId).then(function (item) {
+            updates = $.extend({
+                "__metadata": {
+                    "type": item.__metadata.type
+                }
+            }, updates);
+
+            var customOptions = {
+                headers: {
+                    "Accept": "application/json;odata=verbose",
+                    "X-RequestDigest": $("#__REQUESTDIGEST").val(),
+                    "X-HTTP-Method": "MERGE",
+                    "If-Match": item.__metadata.etag
+                }
+            };
+
+            return self._dao.post(url, updates, customOptions);
+        });
+    };
+
+    List.prototype.findItems = function (key, value) {
+        //if its a string, wrap in single quotes
+        var filterValue = typeof value === "string" ? "'" + value + "'" : value;
+        var odata = "$filter=" + key + " eq " + filterValue;
+        return this.getItems(odata);
+    };
+
+    List.prototype.findItem = function (key, value) {
+        return this.findItems(key, value).then(function (items) {
+            if (items && items.length && items.length > 0) {
+                return items[0];
+            }
+            return null;
+        });
+    };
+
+    List.prototype.permissions = function (email) {
+        return sp.permissions(baseUrl, this._dao, email);
+    };
+
+    sp.List = List;
+})(SPScript);
+
+SPScript = window.SPScript || {};
+/* 
+ * ==========
+ * BaseDao - 'Abstract', use either RestDao or CrossDomainDao which inherit
+ * Dependencies: ["$", "Web"]
+ * ==========
+ */
+(function (sp) {
+    var BaseDao = function () {
+        var self = this;
+
+        self.web = new sp.Web(self);
+    };
+
+    BaseDao.prototype.executeRequest = function () {
+        throw "Not implemented exception";
+    };
+
+    BaseDao.prototype.get = function (relativeQueryUrl, extendedOptions, raw) {
+        var options = {
+            method: "GET"
+        };
+
+        if (extendedOptions) {
+            $.extend(options, extendedOptions);
+        }
+        return this.executeRequest(relativeQueryUrl, options);
+    };
+
+    //lists()
+    //lists(listname).info()
+    //lists(listname).getItemById(id)
+    //lists(listname).addItem(item)
+    //lists(listname).updateItem(id, item)
+    //lists(listname).getItems()
+    //lists(listname).getItems(odata)
+    //lists(listname).findItems(key, value)
+    //lists(listname).findItem(key, value)
+    BaseDao.prototype.lists = function (listname) {
+        if (!listname) {
+            return this.get("/web/lists").then(sp.helpers.validateODataV2);
+        }
+        return new sp.List(listname, this);
+    };
+
+    BaseDao.prototype.post = function (relativePostUrl, body, extendedOptions) {
+        var strBody = JSON.stringify(body);
+        var options = {
+            method: "POST",
+            data: strBody,
+            contentType: "application/json;odata=verbose"
+        };
+        $.extend(options, extendedOptions);
+        return this.executeRequest(relativePostUrl, options);
+    };
+
+    BaseDao.prototype.uploadFile = function (folderUrl, name, base64Binary) {
+        var uploadUrl = "/web/GetFolderByServerRelativeUrl('" + folderUrl + "')/Files/Add(url='" + name + "',overwrite=true)",
+			options = {
+			    binaryStringRequestBody: true,
+			    state: "Update"
+			};
+        return this.post(uploadUrl, base64Binary, options);
+    };
+
+    sp.BaseDao = BaseDao;
+})(SPScript);
+SPScript = window.SPScript || {};
+/* 
+ * ==========
+ * RestDao
+ * Dependencies: ["$", "baseDao.js"]
+ * ==========
+ */
+(function (sp) {
+    var RestDao = function (url) {
+        var self = this;
+        sp.BaseDao.call(this);
+        this.webUrl = url;
+    };
+
+    RestDao.prototype = new SPScript.BaseDao();
+
+    RestDao.prototype.executeRequest = function (relativeUrl, options) {
+        var self = this,
+			deferred = new $.Deferred(),
+
+			//If a callback was given execute it, passing response then the deferred
+			//otherwise just resolve the deferred.
+			successCallback = function (response) {
+			    if (options.success) {
+			        options.success(response, deferred);
+			    } else {
+			        deferred.resolve(response);
+			    }
+			},
+			errorCallback = function (data, errorCode, errorMessage) {
+			    if (options.error) {
+			        options.error(data, errorCode, errorMessage, deferred);
+			    } else {
+			        deferred.reject(errorMessage);
+			    }
+			},
+			fullUrl = this.webUrl + "/_api" + relativeUrl,
+			executeOptions = {
+			    url: fullUrl,
+			    method: "GET",
+			    headers: {
+			        "Accept": "application/json; odata=verbose"
+			    },
+			    success: successCallback,
+			    error: errorCallback
+			};
+
+        $.extend(executeOptions, options);
+        $.ajax(executeOptions);
+
+        return deferred.promise();
+    };
+
+    sp.RestDao = RestDao;
+})(SPScript);
+SPScript = window.SPScript || {};
+/* 
+ * ==========
+ * queryString
+ * Dependencies: []
+ * ==========
+ */
+(function (sp) {
+    sp.queryString = {
+        /*  === getValue ===
+		
+			Summary: Pass a string value in as the key to get the string value
+			Note: Returns empty string("") if key is not found
+			Usage: var id = QueryString.getValue("id");
+		*/
+
+        /*  === getAll ===
+		
+			Summary: returns a hash table of query string arguments
+			Usage:
+				var args = QueryString.getAll();
+				for (var i = 0; i < args.length; i++) {
+					var key = args[i];
+					var value = args[key];
+					alert(key + " : " + value);
+				}
+		*/
+
+        /*  === contains ===
+			
+			Summary: Pass in a string value as the key to see whether it exists
+					in the query string arguments.  Returns boolean.
+			Usage:
+					if (QueryString.contains("redirectUrl")){
+						window.location.href = QueryString.GetValue("redirectUrl");
+					}	
+		*/
+
+        //private variables
+        _queryString: {},
+        _processed: false,
+
+        //private method (only run on the first 'GetValue' request)
+        _processQueryString: function (text) {
+            var qs = text || window.location.search.substring(1),
+				keyValue,
+				keyValues = qs.split('&');
+
+            for (var i = 0; i < keyValues.length; i++) {
+                keyValue = keyValues[i].split('=');
+                //this._queryString.push(keyValue[0]);
+                this._queryString[keyValue[0]] = decodeURIComponent(keyValue[1].replace(/\+/g, " "));
+            }
+
+            this._processed = true;
+        },
+
+        //Public Methods
+        contains: function (key, text) {
+            if (!this._processed) {
+                this._processQueryString(text);
+            }
+            return this._queryString.hasOwnProperty(key);
+        },
+
+        getValue: function (key, text) {
+            if (!this._processed) {
+                this._processQueryString(text);
+            }
+            return this.contains(key) ? this._queryString[key] : "";
+        },
+
+        getAll: function (text) {
+            if (!this._processed) {
+                this._processQueryString(text);
+            }
+            return this._queryString;
+        },
+
+        objectToQueryString: function (obj, quoteValues) {
+            var params = [];
+            for (var key in obj) {
+                value = obj[key];
+                if (value !== null) {
+                    if (quoteValues) {
+                        params.push(encodeURIComponent(key) + "='" + encodeURIComponent(value) + "'");
+                    } else {
+                        params.push(encodeURIComponent(key) + "=" + encodeURIComponent(value));
                     }
-                    done();
-                });
-            });
+                }
+
+            }
+            return params.join("&");
+        }
+    };
+})(SPScript);
+SPScript = window.SPScript || {};
+/* 
+ * ==========
+ * Search
+ * Dependencies: ["$", "restDao.js", "queryString.js" ]
+ * ==========
+ */
+(function (sp) {
+    var Search = function (url) {
+        this.dao = new SPScript.RestDao(url);
+        this.webUrl = url;
+    };
+
+    Search.QueryOptions = function () {
+        this.sourceid = null;
+        this.startrow = null;
+        this.rowlimit = 30;
+        this.selectedproperties = null;
+        this.refiners = null;
+        this.refinementfilters = null;
+        this.hiddenconstraints = null;
+        this.sortlist = null;
+    };
+
+    var convertRowsToObjects = function (itemRows) {
+        var items = [];
+
+        for (var i = 0; i < itemRows.length; i++) {
+            var row = itemRows[i],
+				item = {};
+            for (var j = 0; j < row.Cells.results.length; j++) {
+                item[row.Cells.results[j].Key] = row.Cells.results[j].Value;
+            }
+
+            items.push(item);
+        }
+
+        return items;
+    };
+
+    //sealed class used to format results
+    var SearchResults = function (queryResponse) {
+        this.elapsedTime = queryResponse.ElapsedTime;
+        this.suggestion = queryResponse.SpellingSuggestion;
+        this.resultsCount = queryResponse.PrimaryQueryResult.RelevantResults.RowCount;
+        this.totalResults = queryResponse.PrimaryQueryResult.RelevantResults.TotalRows;
+        this.totalResultsIncludingDuplicates = queryResponse.PrimaryQueryResult.RelevantResults.TotalRowsIncludingDuplicates;
+        this.items = convertRowsToObjects(queryResponse.PrimaryQueryResult.RelevantResults.Table.Rows.results);
+    };
+
+    Search.prototype.query = function (queryText, queryOptions) {
+        var self = this,
+			optionsQueryString = queryOptions != null ? "&" + SPScript.queryString.objectToQueryString(queryOptions, true) : "",
+			asyncRequest = new $.Deferred();
+
+        var url = "/search/query?querytext='" + queryText + "'" + optionsQueryString;
+        var getRequest = self.dao.get(url);
+
+        getRequest.done(function (data) {
+            if (data.d && data.d.query) {
+                var results = new SearchResults(data.d.query);
+                asyncRequest.resolve(results);
+            } else {
+                asyncRequest.reject(data);
+            }
         });
 
-        describe("SPScript.RestDao.web.permissions()", function () {
-            var permissions = null;
-            before(function (done) {
-                dao.web.permissions().then(function (privs) {
-                    permissions = privs;
-                    console.log("Permission:");
-                    console.log(privs);
-                    done();
-                })
-            });
-            it("Should return a promise that resolves to an array of objects", function () {
-                permissions.should.be.an("array");
-                permissions.should.not.be.empty;
-            });
-            it("Should return objects that each have a member and a roles array", function () {
-                permissions.forEach(function (permission) {
-                    permission.should.have.property("member");
-                    permission.should.have.property("roles");
-                    permission.roles.should.be.an("array");
-                })
-            })
-            it("Should return permission objects that contain member.name, member.login, and member.id", function () {
-                permissions.forEach(function (permission) {
-                    permission.member.should.have.property("name");
-                    permission.member.should.have.property("login");
-                    permission.member.should.have.property("id");
-                });
-            });
-            it("Should return permission objects, each with a roles array that has a name and description", function () {
-                permissions.forEach(function (permission) {
-                    permission.roles.forEach(function (role) {
-                        role.should.have.property("name");
-                        role.should.have.property("description");
-                    })
-                })
-            })
-        })
+        return asyncRequest.promise();
+    };
 
-    });
+    sp.Search = Search;
+})(SPScript);
+SPScript = window.SPScript || {};
+/* 
+ * ==========
+ * templating
+ * ==========
+ */
+(function (sp) {
+    sp.templating = {
 
+        Placeholder: function (raw) {
+            this.raw = raw;
+            this.fullProperty = raw.slice(2, raw.length - 2);
+        },
 
-    //dao.lists()
-    //dao.lists(listname).info()
-    //dao.lists(listname).items()
-    //dao.lists(listname).items(odata)
-    //dao.lists(listname).items.getById(id)
-    //dao.lists(listname).items.add(item)
-    //dao.lists(listname).items.update(id, updates)
-    //dao.lists(listname).items.find(key, value)
-    //dao.lists(listname).items.findOne(key, value)
-    //dao.lists(listname).permissions()
-    describe("SPScript.RestDao.lists()", function () {
-        var results = null;
-        before(function(done){
-            dao.lists().then(function(data){
-                results = data;
-                done();
-            })
-        })
-        it("Should return a promise that resolves to an array of lists", function () {
-            results.should.be.an("array");
-            results.should.not.be.empty;
-        });
-        it("Should bring back list info like Title, ItemCount, and ListItemEntityTypeFullName", function () {
-            var firstItem = results[0];
-            firstItem.should.have.property("Title");
-            firstItem.should.have.property("ItemCount");
-            firstItem.should.have.property("ListItemEntityTypeFullName");
-        });
-    });
+        getPlaceHolders: function (template, regexp) {
+            var regExpPattern = regexp || /\{\{[^\}]+\}\}?/g;
+            return template.match(regExpPattern);
+        },
 
-    describe("SPScript.RestDao.lists(listname)", function () {
-        var list = dao.lists("TestList");
-        describe("SPScript.RestDao.lists(listname).info()", function () {
-            var listInfo = null;
-            before(function (done) {
-                list.info().then(function (info) {
-                    listInfo = info;
-                    done();
-                });
-            })
-            it("Should return a promise that resolves to list info", function () {
-                listInfo.should.be.an("object");
-            });
-            it("Should bring back list info like Title, ItemCount, and ListItemEntityTypeFullName", function () {
-                listInfo.should.have.property("Title");
-                listInfo.should.have.property("ItemCount");
-                listInfo.should.have.property("ListItemEntityTypeFullName");
-            });
-        });
+        getObjectValue: function (obj, fullProperty) {
+            var value = obj,
+				propertyChain = fullProperty.split('.');
 
-        describe("SPScript.RestDao.lists(listname).getItems()", function () {
-            var items = null;
-            before(function (done) {
-                list.getItems().then(function (results) {
-                    items = results;
-                    done();
-                });
-            })
+            for (var i = 0; i < propertyChain.length; i++) {
+                var property = propertyChain[i];
+                value = value[property] != null ? value[property] : "Not Found: " + fullProperty;
+            }
 
-            it("Should return a promise that resolves to an array of items", function () {
-                items.should.be.an("array");
-                items.should.not.be.empty;
-            });
-            it("Should return all the items in the list", function (done) {
-                list.info().then(function (listInfo) {
-                    items.length.should.equal(listInfo.ItemCount);
-                    done();
-                });
-            });
-        });
+            if (fullProperty === "_") {
+                value = obj;
+            }
 
-        describe("SPScript.RestDao.lists(listname).getItemById(id)", function () {
-            var item = null;
-            var validId = -1;
-            before(function (done) {
-                list.getItems()
-                    .then(function (allItems) {
-                        validId = allItems[0].Id;
-                        return validId;
-                    })
-                    .then(function (id) {
-                        return list.getItemById(id);
-                    })
-                    .then(function (result) {
-                        item = result;
-                        done();
-                    });
-            })
-            it("Should return a promise that resolves to a single item", function () {
-                item.should.be.an("object");
-                item.should.have.property("Title");
-            });
-            it("Should resolve an item with a matching ID", function () {
-                item.should.have.property("Id");
-                item.Id.should.equal(validId);
-            });
-        });
+            if ((typeof value === "string") && value.indexOf("/Date(") !== -1) {
+                var dateValue = value.UTCJsonToDate();
+                value = dateValue.toLocaleDateString();
+            }
 
-        describe("SPScript.RestDao.lists(listname).getItems(odata) - OData support", function () {
-            //Get items where BoolColumn == TRUE
-            var odata = "$filter=BoolColumn eq 1";
-            var items = null;
-            before(function (done) {
-                list.getItems(odata).then(function (results) {
-                    items = results;
-                    done();
-                });
-            })
-            it("Should return a promise that resolves to an array of items", function () {
-                items.should.be.an("array");
-            });
-            it("Should return only items that match the OData params", function () {
-                items.forEach(function (item) {
-                    item.should.have.property("BoolColumn");
-                    item.BoolColumn.should.be.true;
-                });
-            });
-        });
+            return value;
+        },
 
-        describe("SPScript.RestDao.lists(listname).findItems(key, value)", function () {
-            var matches = null;
-            before(function (done) {
-                list.findItems("BoolColumn", 1).then(function (results) {
-                    matches = results;
-                    done();
-                });
-            })
-            it("Should return a promise that resolves to an array of list items", function () {
-                matches.should.be.an("array");
-                matches.should.not.be.empty;
-            });
-            it("Should only bring back items the match the key value query", function () {
-                matches.forEach(function (item) {
-                    item.should.have.property("BoolColumn");
-                    item.BoolColumn.should.be.true;
-                });
-            });
-            it("Should support string filters", function (done) {
-                var stringValue = "Required data";
-                list.findItems("RequiredColumn", stringValue).then(function (items) {
-                    items.should.be.an("array");
-                    items.should.not.be.empty;
-                    items.forEach(function (item) {
-                        item.should.have.property("RequiredColumn");
-                        item.RequiredColumn.should.equal(stringValue);
-                    });
-                    done();
-                })
+        populateTemplate: function (template, item, regexp) {
+            var placeholders = this.getPlaceHolders(template, regexp) || [],
+				itemHtml = template;
+
+            for (var i = 0; i < placeholders.length; i++) {
+                var placeholder = new this.Placeholder(placeholders[i]);
+                placeholder.val = this.getObjectValue(item, placeholder.fullProperty);
+                var pattern = placeholder.raw.replace("[", "\\[").replace("]", "\\]");
+                var modifier = "g";
+                itemHtml = itemHtml.replace(new RegExp(pattern, modifier), placeholder.val);
+            }
+            return itemHtml;
+        }
+    };
+
+    sp.templating.Each = {
+
+        regExp: /\{\[[^\]]+\]\}?/g,
+
+        populateEachTemplates: function (itemHtml, item) {
+            var $itemHtml = $(itemHtml),
+				eachTemplates = $itemHtml.find("[data-each]");
+
+            eachTemplates.each(function () {
+                var arrayHtml = "",
+					itemTemplate = $(this).html(),
+					arrayProp = $(this).data("each"),
+					array = sp.templating.getObjectValue(item, arrayProp);
+
+                if (array != null && $.isArray(array)) {
+                    for (var i = 0; i < array.length; i++) {
+                        arrayHtml += sp.templating.populateTemplate(itemTemplate, array[i], sp.templating.Each.regExp);
+                    }
+                }
+
+                $itemHtml.find($(this)).html(arrayHtml);
             });
 
-            it("Should support number (and bool) filters", function () {
-                //first 2 tests test this
-                return true;
-            });
-        });
-        describe("SPScript.RestDao.lists(listname).findItem(key, value)", function () {
-            var match = null;
-            before(function (done) {
-                list.findItem("BoolColumn", 1).then(function (result) {
-                    match = result;
-                    done();
-                });
-            })
-            it("Should resolve to one list item", function () {
-                match.should.be.an("object");
-            });
-            it("Should only bring back an item if it matches the key value query", function () {
-                match.should.have.property("BoolColumn");
-                match.BoolColumn.should.be.true;
-            });
-        });
+            var temp = $itemHtml.clone().wrap("<div>");
+            return temp.parent().html();
+        }
+    };
 
-        describe("SPScript.RestDao.lists(listname).addItem()", function () {
-            it("Should return a promise that resolves with the new list item");
-        });
-        describe("SPScript.RestDao.lists(listname).updateItem()", function () {
-            it("Should return a promise");
-            it("Should update only the properties that were passed");
-        });
+    sp.templating.renderTemplate = function (template, item, renderEachTemplate) {
+        var itemHtml = sp.templating.populateTemplate(template, item);
+        if (renderEachTemplate) {
+            itemHtml = sp.templating.Each.populateEachTemplates(itemHtml, item);
+        }
+        return itemHtml;
+    };
+})(SPScript);
 
-        describe("SPScript.RestDao.lists(listname).permissions()", function () {
-            var permissions = null;
-            before(function (done) {
-                list.permissions().then(function (privs) {
-                    permissions = privs;
-                    console.log("Permission:");
-                    console.log(privs);
-                    done();
-                })
-            });
-            it("Should return a promise that resolves to an array of objects", function () {
-                permissions.should.be.an("array");
-                permissions.should.not.be.empty;
-            });
-            it("Should return objects that each have a member and a roles array", function () {
-                permissions.forEach(function (permission) {
-                    permission.should.have.property("member");
-                    permission.should.have.property("roles");
-                    permission.roles.should.be.an("array");
-                })
-            })
-            it("Should return permission objects that contain member.name, member.login, and member.id", function () {
-                permissions.forEach(function (permission) {
-                    permission.member.should.have.property("name");
-                    permission.member.should.have.property("login");
-                    permission.member.should.have.property("id");
-                });
-            });
-            it("Should return permission objects, each with a roles array that has a name and description", function () {
-                permissions.forEach(function (permission) {
-                    permission.roles.forEach(function (role) {
-                        role.should.have.property("name");
-                        role.should.have.property("description");
-                    })
-                })
-            })
-        })
+String.prototype.UTCJsonToDate = function () {
+    var utcStr = this.substring(this.indexOf("(") + 1);
+    utcStr = utcStr.substring(0, utcStr.indexOf(")"));
 
-    });
-});
+    var returnDate = new Date(parseInt(utcStr, 10));
+    var hourOffset = returnDate.getTimezoneOffset() / 60;
+    returnDate.setHours(returnDate.getHours() + hourOffset);
 
-describe("SPScript.Search", function () {
-    var url = _spPageContextInfo.webAbsoluteUrl;
-    var search = new SPScript.Search(url);
-    describe("SPScript.Search.query(queryText)", function () {
-        it("Should return promise that resolves to a SearchResults object", function (done) {
-            var queryText = "seed";
-            search.query(queryText).then(function(searchResults) {
-                searchResults.should.be.an("object");
-                searchResults.should.have.property("resultsCount");
-                searchResults.should.have.property("totalResults");
-                searchResults.should.have.property("items");
-                searchResults.items.should.be.an("array");
-                searchResults.items.should.not.be.empty;
-                done();
-            });
-        });
-    });
-    describe("SPScript.Search.query(queryText, queryOptions)", function () {
-        it("Should return promise that resolves to an array of SearchResults");
-        it("Should obey the extra query options that were passed");
-    });
-});
-
-describe("SPScript.queryString", function () {
-    this.timeout(5000);
-    var qs = "key1=value1&key2=value2&key3=value3";
-    describe("SPScript.queryString.contains(key)", function () {
-        it("Should return the true for a valid key", function () {
-            var contains = SPScript.queryString.contains('key1', qs);
-            contains.should.be.true;
-        });
-        it("Should return false for an invalid key", function () {
-            var contains = SPScript.queryString.contains('invalidKey', qs);
-            contains.should.be.false;
-        });
-    });
-    describe("SPScript.queryString.getValue(key)", function () {
-        it("Should return the value of a valid key", function () {
-            var val = SPScript.queryString.getValue("key1", qs);
-            val.should.equal("value1");
-        });
-        it("Should return an empty string for an invalid key", function () {
-            var val = SPScript.queryString.getValue("invalidKey", qs);
-            val.should.equal("");
-        });
-    });
-    describe("SPScript.queryString.getAll()", function () {
-        it("Should return an object with querystring keys as properties", function () {
-            var values = SPScript.queryString.getAll(qs);
-            console.log(values);
-            values.should.have.property('key1');
-            values.key1.should.equal('value1');
-            values.should.have.property('key2');
-            values.key2.should.equal('value2');
-            values.should.have.property('key3');
-            values.key3.should.equal('value3');
-        });
-    });
-});
-mocha.run();
+    return returnDate;
+};

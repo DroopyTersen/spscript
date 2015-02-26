@@ -68,6 +68,29 @@ describe("SPScript.RestDao", function () {
             })
         })
 
+        describe("SPScript.RestDao.web.permissions(email)", function () {
+            var permissions = null;
+            var email = "andrew@andrewpetersen.onmicrosoft.com"
+            before(function (done) {
+                dao.web.permissions(email).then(function (privs) {
+                    permissions = privs;
+                    done();
+                })
+            });
+            it("Should return a promise that resolves to an array of base permission strings", function () {
+                permissions.should.be.an("array");
+                permissions.should.not.be.empty;
+            });
+
+            it("Should throw an error for an invalid email", function (done) {
+                dao.web.permissions("invalid@invalid123.com")
+                .then(function (privs) {
+                    false.should.be.true;
+                    done();
+                });
+
+            });
+        })
     });
 
 

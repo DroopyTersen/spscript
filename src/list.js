@@ -82,8 +82,8 @@ SPScript = window.SPScript || {};
 		});
 	};
 
-	List.prototype.permissions = function() {
-		return sp.permissions(baseUrl, this._dao);
+	List.prototype.permissions = function(email) {
+		return sp.permissions(baseUrl, this._dao, email);
 	};
 
 	sp.List = List;
