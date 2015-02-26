@@ -27,9 +27,248 @@
         SPScript.helpers.validateODataV2(data, deferred);
     };
 
+    //'Borrowed' from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Bitwise_Operators
+    helpers.arrayFromBitMask = function (nMask) {
+        // nMask must be between -2147483648 and 2147483647
+        if (typeof nMask === "string") {
+            nMask = parseInt(nMask);
+        }
+        // if (nMask > 0x7fffffff || nMask < -0x80000000) { 
+        // 	throw new TypeError("arrayFromMask - out of range"); 
+        // }
+        for (var nShifted = nMask, aFromMask = []; nShifted; aFromMask.push(Boolean(nShifted & 1)), nShifted >>>= 1);
+        return aFromMask;
+    };
+
     sp.helpers = helpers;
 })(SPScript);
 
+SPScript = window.SPScript || {};
+
+(function (sp) {
+    var transforms = {
+        roleAssignment: function (raw) {
+            var priv = {
+                member: {
+                    login: raw.Member.LoginName,
+                    name: raw.Member.Title,
+                    id: raw.Member.Id
+                }
+            };
+            priv.roles = raw.RoleDefinitionBindings.results.map(function (roleDef) {
+                var basePermissions = [];
+                spBasePermissions.forEach(function (basePermission) {
+                    if ((basePermission.low & roleDef.BasePermissions.Low) > 0 || (basePermission.high & roleDef.BasePermissions.High) > 0) {
+                        basePermissions.push(basePermission.name);
+                    }
+                });
+                return {
+                    name: roleDef.Name,
+                    description: roleDef.Description,
+                    basePermissions: basePermissions
+                };
+            });
+            return priv;
+        }
+    };
+    var permissions = function (baseUrl, dao, username) {
+        if (!username) {
+            var url = baseUrl + "/RoleAssignments?$expand=Member,RoleDefinitionBindings";
+            return dao.get(url)
+				.then(sp.helpers.validateODataV2)
+				.then(function (results) {
+				    return results.map(transforms.roleAssignment);
+				});
+        }
+        //check privs with username
+
+    };
+    var spBasePermissions = [
+   {
+       "name": "emptyMask",
+       "low": 0,
+       "high": 0
+   },
+   {
+       "name": "viewListItems",
+       "low": 1,
+       "high": 0
+   },
+   {
+       "name": "addListItems",
+       "low": 2,
+       "high": 0
+   },
+   {
+       "name": "editListItems",
+       "low": 4,
+       "high": 0
+   },
+   {
+       "name": "deleteListItems",
+       "low": 8,
+       "high": 0
+   },
+   {
+       "name": "approveItems",
+       "low": 16,
+       "high": 0
+   },
+   {
+       "name": "openItems",
+       "low": 32,
+       "high": 0
+   },
+   {
+       "name": "viewVersions",
+       "low": 64,
+       "high": 0
+   },
+   {
+       "name": "deleteVersions",
+       "low": 128,
+       "high": 0
+   },
+   {
+       "name": "cancelCheckout",
+       "low": 256,
+       "high": 0
+   },
+   {
+       "name": "managePersonalViews",
+       "low": 512,
+       "high": 0
+   },
+   {
+       "name": "manageLists",
+       "low": 2048,
+       "high": 0
+   },
+   {
+       "name": "viewFormPages",
+       "low": 4096,
+       "high": 0
+   },
+   {
+       "name": "anonymousSearchAccessList",
+       "low": 8192,
+       "high": 0
+   },
+   {
+       "name": "open",
+       "low": 65536,
+       "high": 0
+   },
+   {
+       "name": "viewPages",
+       "low": 131072,
+       "high": 0
+   },
+   {
+       "name": "addAndCustomizePages",
+       "low": 262144,
+       "high": 0
+   },
+   {
+       "name": "applyThemeAndBorder",
+       "low": 524288,
+       "high": 0
+   },
+   {
+       "name": "applyStyleSheets",
+       "low": 1048576,
+       "high": 0
+   },
+   {
+       "name": "viewUsageData",
+       "low": 2097152,
+       "high": 0
+   },
+   {
+       "name": "createSSCSite",
+       "low": 4194304,
+       "high": 0
+   },
+   {
+       "name": "manageSubwebs",
+       "low": 8388608,
+       "high": 0
+   },
+   {
+       "name": "createGroups",
+       "low": 16777216,
+       "high": 0
+   },
+   {
+       "name": "managePermissions",
+       "low": 33554432,
+       "high": 0
+   },
+   {
+       "name": "browseDirectories",
+       "low": 67108864,
+       "high": 0
+   },
+   {
+       "name": "browseUserInfo",
+       "low": 134217728,
+       "high": 0
+   },
+   {
+       "name": "addDelPrivateWebParts",
+       "low": 268435456,
+       "high": 0
+   },
+   {
+       "name": "updatePersonalWebParts",
+       "low": 536870912,
+       "high": 0
+   },
+   {
+       "name": "manageWeb",
+       "low": 1073741824,
+       "high": 0
+   },
+   {
+       "name": "anonymousSearchAccessWebLists",
+       "low": -2147483648,
+       "high": 0
+   },
+   {
+       "name": "useClientIntegration",
+       "low": 0,
+       "high": 16
+   },
+   {
+       "name": "useRemoteAPIs",
+       "low": 0,
+       "high": 32
+   },
+   {
+       "name": "manageAlerts",
+       "low": 0,
+       "high": 64
+   },
+   {
+       "name": "createAlerts",
+       "low": 0,
+       "high": 128
+   },
+   {
+       "name": "editMyUserInfo",
+       "low": 0,
+       "high": 256
+   },
+   {
+       "name": "enumeratePermissions",
+       "low": 0,
+       "high": 1073741824
+   }
+    ]
+
+
+    sp.permissions = permissions;
+})(SPScript);
 SPScript = window.SPScript || {};
 
 (function (sp) {
@@ -51,27 +290,7 @@ SPScript = window.SPScript || {};
     };
 
     Web.prototype.permissions = function () {
-        var url = "/RoleAssignments?$expand=Member,RoleDefinitionBindings";
-        this._dao.get(url)
-			.then(function (results) {
-			    var privs = results.map(function (permission) {
-			        var priv = {
-			            member: {
-			                login: permission.Member.Login,
-			                name: permission.Member.Title,
-			                id: permission.Member.Id
-			            }
-			        };
-			        priv.roles = permission.RoleDefinitionBindings.map(function (roleDef) {
-			            return {
-			                name: roleDef.Name,
-			                description: roleDef.Description
-			            };
-			        });
-			        return priv;
-			    });
-			    return privs;
-			});
+        return sp.permissions(baseUrl, this._dao);
     };
     sp.Web = Web;
 })(SPScript);
@@ -157,6 +376,10 @@ SPScript = window.SPScript || {};
             }
             return null;
         });
+    };
+
+    List.prototype.permissions = function () {
+        return sp.permissions(baseUrl, this._dao);
     };
 
     sp.List = List;

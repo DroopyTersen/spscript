@@ -14,8 +14,8 @@ var concatAndMinify = function(sourceFiles, name) {
 
 gulp.task('search', function() {
 	var files = [
-		'./src/odatahelpers.js',
-		'./src/models.js',
+		'./src/helpers.js',
+		'./src/permissions.js',
 		'./src/list.js',
 		'./src/web.js',
 		'./src/baseDao.js',
@@ -28,8 +28,8 @@ gulp.task('search', function() {
 
 gulp.task('rest', function() {
 	var files = [
-		'./src/odatahelpers.js',
-		'./src/models.js',
+		'./src/helpers.js',
+		'./src/permissions.js',
 		'./src/list.js',
 		'./src/web.js',
 		'./src/baseDao.js', 
@@ -40,12 +40,11 @@ gulp.task('rest', function() {
 
 gulp.task('crossdomain', function() {
 	var files = [
-		'./src/odatahelpers.js',
-		'./src/models.js',
+		'./src/helpers.js',
+		'./src/permissions.js',
 		'./src/list.js',
 		'./src/web.js',
 		'./src/baseDao.js', 
-		'./src/odatahelpers.js', 
 		'./src/crossDomainDao.js'
 	];
 	concatAndMinify(files, 'CrossDomain');
@@ -53,8 +52,8 @@ gulp.task('crossdomain', function() {
 
 gulp.task('full', function() {
 	var files = [
-		'./src/odatahelpers.js', 
-		'./src/models.js',
+		'./src/helpers.js', 
+		'./src/permissions.js',
 		'./src/web.js',
 		'./src/list.js',
 		'./src/baseDao.js', 

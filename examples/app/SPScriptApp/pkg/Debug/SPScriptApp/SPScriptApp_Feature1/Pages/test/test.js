@@ -7,7 +7,7 @@ describe("SPScript.RestDao", function () {
     var dao = new SPScript.RestDao(url);
 
     describe("SPScript.RestDao.web", function () {
-        describe("SPScript.RestDao.info()", function () {
+        describe("SPScript.RestDao.web.info()", function () {
             it("Should return a promise that resolves to web info", function (done) {
                 dao.web.info().then(function (webInfo) {
                     webInfo.should.have.property("Url");
@@ -17,7 +17,7 @@ describe("SPScript.RestDao", function () {
             });
         });
 
-        describe("SPScript.RestDao.subsites()", function () {
+        describe("SPScript.RestDao.web.subsites()", function () {
             it("Should return a promise that resolves to an array of subsite web infos.", function (done) {
                 dao.web.subsites().then(function (subsites) {
                     subsites.should.be.an("array");
@@ -30,11 +30,13 @@ describe("SPScript.RestDao", function () {
             });
         });
 
-        describe("SPScript.RestDao.permissions()", function () {
+        describe("SPScript.RestDao.web.permissions()", function () {
+            var permissions = null;
             before(function (done) {
-                var permissions = null;
                 dao.web.permissions().then(function (privs) {
                     permissions = privs;
+                    console.log("Permission:");
+                    console.log(privs);
                     done();
                 })
             });
@@ -50,14 +52,14 @@ describe("SPScript.RestDao", function () {
                 })
             })
             it("Should return permission objects that contain member.name, member.login, and member.id", function () {
-                permisssions.forEach(function (permission) {
+                permissions.forEach(function (permission) {
                     permission.member.should.have.property("name");
                     permission.member.should.have.property("login");
                     permission.member.should.have.property("id");
                 });
             });
             it("Should return permission objects, each with a roles array that has a name and description", function () {
-                permisssions.forEach(function (permission) {
+                permissions.forEach(function (permission) {
                     permission.roles.forEach(function (role) {
                         role.should.have.property("name");
                         role.should.have.property("description");
@@ -78,6 +80,7 @@ describe("SPScript.RestDao", function () {
     //dao.lists(listname).items.update(id, updates)
     //dao.lists(listname).items.find(key, value)
     //dao.lists(listname).items.findOne(key, value)
+    //dao.lists(listname).permissions()
     describe("SPScript.RestDao.lists()", function () {
         var results = null;
         before(function(done){
@@ -247,6 +250,45 @@ describe("SPScript.RestDao", function () {
             it("Should return a promise");
             it("Should update only the properties that were passed");
         });
+
+        describe("SPScript.RestDao.lists(listname).permissions()", function () {
+            var permissions = null;
+            before(function (done) {
+                list.permissions().then(function (privs) {
+                    permissions = privs;
+                    console.log("Permission:");
+                    console.log(privs);
+                    done();
+                })
+            });
+            it("Should return a promise that resolves to an array of objects", function () {
+                permissions.should.be.an("array");
+                permissions.should.not.be.empty;
+            });
+            it("Should return objects that each have a member and a roles array", function () {
+                permissions.forEach(function (permission) {
+                    permission.should.have.property("member");
+                    permission.should.have.property("roles");
+                    permission.roles.should.be.an("array");
+                })
+            })
+            it("Should return permission objects that contain member.name, member.login, and member.id", function () {
+                permissions.forEach(function (permission) {
+                    permission.member.should.have.property("name");
+                    permission.member.should.have.property("login");
+                    permission.member.should.have.property("id");
+                });
+            });
+            it("Should return permission objects, each with a roles array that has a name and description", function () {
+                permissions.forEach(function (permission) {
+                    permission.roles.forEach(function (role) {
+                        role.should.have.property("name");
+                        role.should.have.property("description");
+                    })
+                })
+            })
+        })
+
     });
 });
 

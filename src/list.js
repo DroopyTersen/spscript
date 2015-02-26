@@ -83,12 +83,7 @@ SPScript = window.SPScript || {};
 	};
 
 	List.prototype.permissions = function() {
-		var url = baseUrl + "/RoleAssignments?$expand=Member,RoleDefinitionBindings";
-		return this._dao.get(url)
-			.then(sp.helpers.validateODataV2)
-			.then(function(results){
-				return results.map(sp.models.roleAssignment.fromRaw);
-			});
+		return sp.permissions(baseUrl, this._dao);
 	};
 
 	sp.List = List;
