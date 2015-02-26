@@ -7,7 +7,7 @@ describe("SPScript.RestDao", function () {
     var dao = new SPScript.RestDao(url);
 
     describe("SPScript.RestDao.web", function () {
-        describe("SPScript.RestDao.info()", function () {
+        describe("SPScript.RestDao.web.info()", function () {
             it("Should return a promise that resolves to web info", function (done) {
                 dao.web.info().then(function (webInfo) {
                     webInfo.should.have.property("Url");
@@ -17,7 +17,7 @@ describe("SPScript.RestDao", function () {
             });
         });
 
-        describe("SPScript.RestDao.subsites()", function () {
+        describe("SPScript.RestDao.web.subsites()", function () {
             it("Should return a promise that resolves to an array of subsite web infos.", function (done) {
                 dao.web.subsites().then(function (subsites) {
                     subsites.should.be.an("array");
@@ -30,7 +30,7 @@ describe("SPScript.RestDao", function () {
             });
         });
 
-        describe("SPScript.RestDao.permissions()", function () {
+        describe("SPScript.RestDao.web.permissions()", function () {
             var permissions = null;
             before(function (done) {
                 dao.web.permissions().then(function (privs) {
