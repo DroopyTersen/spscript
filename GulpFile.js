@@ -1,17 +1,9 @@
 var gulp = require("gulp");
-var concat = require('gulp-concat');
 var minify = require('gulp-uglify');
 var rename = require('gulp-rename');
 var browserify = require('gulp-browserify');
+var gzip = require('gulp-gzip'); 
 
-var concatAndMinify = function(sourceFiles, name) {
-	gulp.src(sourceFiles)
-		.pipe(concat("SPScript." + name + ".js"))
-		.pipe(gulp.dest('./dist/v1/'))
-		.pipe(rename("SPScript." + name + ".min.js"))
-		.pipe(minify())
-		.pipe(gulp.dest('./dist/v1/'));
-};
 
 var browserifyAndMinify = function(entry, minifiedName) {
 	return gulp.src(entry)
@@ -19,6 +11,8 @@ var browserifyAndMinify = function(entry, minifiedName) {
 		.pipe(gulp.dest('./dist/v1/'))
 		.pipe(rename(minifiedName))
 		.pipe(minify())
+		.pipe(gulp.dest('./dist/v1/'))
+		.pipe(gzip())
 		.pipe(gulp.dest('./dist/v1/'));
 };
 
