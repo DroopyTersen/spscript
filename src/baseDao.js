@@ -1,4 +1,7 @@
-SPScript = window.SPScript || {};
+SPScript = require("./spscript");
+SPScript.List = require("./list");
+SPScript.Web = require("./web");
+SPScript.helpers = require("./helpers");
 /* 
  * ==========
  * BaseDao - 'Abstract', use either RestDao or CrossDomainDao which inherit
@@ -65,3 +68,5 @@ SPScript = window.SPScript || {};
 
 	sp.BaseDao = BaseDao;
 })(SPScript);
+
+module.exports = SPScript.BaseDao;

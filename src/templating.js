@@ -1,4 +1,5 @@
-SPScript = window.SPScript || {};
+SPScript = require("./spscript");
+
 /* 
  * ==========
  * templating
@@ -100,3 +101,5 @@ String.prototype.UTCJsonToDate = function() {
 
 	return returnDate;
 };
+
+module.exports = SPScript.templating;

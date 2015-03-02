@@ -1,4 +1,4 @@
-SPScript = window.SPScript || {};
+var SPScript = require("./spscript.js");
 /* 
  * ==========
  * Helpers
@@ -24,7 +24,7 @@ SPScript = window.SPScript || {};
 
 	helpers.validateCrossDomainODataV2 = function(response, deferred) {
 		var data = $.parseJSON(response.body);
-		SPScript.helpers.validateODataV2(data, deferred);
+		helpers.validateODataV2(data, deferred);
 	};
 
 	//'Borrowed' from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Bitwise_Operators
@@ -42,3 +42,5 @@ SPScript = window.SPScript || {};
 
 	sp.helpers = helpers;
 })(SPScript);
+
+module.exports = SPScript.helpers;

@@ -7,7 +7,7 @@
     <title>Tests</title>
     <SharePoint:ScriptLink name="sp.js" runat="server" OnDemand="true" LoadAfterUI="true" Localizable="false" />
 	<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/mocha/2.1.0/mocha.min.css">
-	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+	<%--<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>--%>
     <script type="text/javascript" src='https://cdnjs.cloudflare.com/ajax/libs/mocha/2.1.0/mocha.min.js'></script>
 	<script type="text/javascript" src='https://cdnjs.cloudflare.com/ajax/libs/chai/2.1.0/chai.js'></script>
     <script type="text/javascript" src='spscript.js'></script>

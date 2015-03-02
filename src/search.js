@@ -1,4 +1,5 @@
-SPScript = window.SPScript || {};
+SPScript = require("./spscript");
+SPScript.RestDao = require("./restDao");
 /* 
  * ==========
  * Search
@@ -7,7 +8,7 @@ SPScript = window.SPScript || {};
  */
 (function(sp) {
 	var Search = function(url) {
-		this.dao = new SPScript.RestDao(url);
+		this.dao = new sp.RestDao(url);
 		this.webUrl = url;
 	};
 
@@ -70,3 +71,5 @@ SPScript = window.SPScript || {};
 
 	sp.Search = Search;
 })(SPScript);
+
+module.exports = SPScript.Search;

@@ -1,4 +1,6 @@
-SPScript = window.SPScript || {};
+var SPScript = require("./spscript");
+SPScript.helpers = require("./helpers");
+SPScript.permissions = require("./permissions");
 
 (function(sp) {
 	var baseUrl = null;
@@ -88,3 +90,5 @@ SPScript = window.SPScript || {};
 
 	sp.List = List;
 })(SPScript);
+
+module.exports = SPScript.List;

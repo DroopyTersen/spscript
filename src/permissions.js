@@ -1,4 +1,5 @@
-SPScript = window.SPScript || {};
+var SPScript = require("./spscript");
+SPScript.helpers = require("./helpers");
 
 (function(sp) {
 	var transforms = {
@@ -253,3 +254,5 @@ SPScript = window.SPScript || {};
 
 	sp.permissions = permissions;
 })(SPScript);
+
+module.exports = SPScript.permissions;
