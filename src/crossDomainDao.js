@@ -1,4 +1,7 @@
-SPScript = window.SPScript || {};
+SPScript = require("./spscript");
+SPScript.helpers = require("./helpers");
+SPScript.BaseDao = require("./baseDao");
+
 /* 
  * ==========
  * CrossDomainDao
@@ -76,3 +79,5 @@ SPScript = window.SPScript || {};
 
 	sp.CrossDomainDao = CrossDomainDao;
 })(SPScript);
+
+module.exports = SPScript.CrossDomainDao;

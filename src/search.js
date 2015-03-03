@@ -1,4 +1,6 @@
-SPScript = window.SPScript || {};
+SPScript = require("./spscript");
+SPScript.RestDao = require("./restDao");
+SPScript.queryString = require('./queryString');
 /* 
  * ==========
  * Search
@@ -7,7 +9,7 @@ SPScript = window.SPScript || {};
  */
 (function(sp) {
 	var Search = function(url) {
-		this.dao = new SPScript.RestDao(url);
+		this.dao = new sp.RestDao(url);
 		this.webUrl = url;
 	};
 
@@ -50,7 +52,7 @@ SPScript = window.SPScript || {};
 
 	Search.prototype.query = function(queryText, queryOptions) {
 		var self = this,
-			optionsQueryString = queryOptions != null ? "&" + SPScript.queryString.objectToQueryString(queryOptions, true) : "",
+			optionsQueryString = queryOptions != null ? "&" + sp.queryString.objectToQueryString(queryOptions, true) : "",
 			asyncRequest = new $.Deferred();
 
 		var url = "/search/query?querytext='" + queryText + "'" + optionsQueryString;
@@ -70,3 +72,5 @@ SPScript = window.SPScript || {};
 
 	sp.Search = Search;
 })(SPScript);
+
+module.exports = SPScript.Search;

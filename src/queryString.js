@@ -1,4 +1,4 @@
-SPScript = window.SPScript || {};
+SPScript = require("./spscript");
 /* 
  * ==========
  * queryString
@@ -94,3 +94,5 @@ SPScript = window.SPScript || {};
 		}
 	};
 })(SPScript);
+
+module.exports = SPScript.queryString;

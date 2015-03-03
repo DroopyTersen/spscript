@@ -1,12 +1,19 @@
-SPScript = window.SPScript || {};
+SPScript = require("./spscript");
+SPScript.List = require("./list");
+SPScript.Web = require("./web");
+SPScript.helpers = require("./helpers");
 /* 
  * ==========
  * BaseDao - 'Abstract', use either RestDao or CrossDomainDao which inherit
- * Dependencies: ["$"]
+ * Dependencies: ["$", "Web"]
  * ==========
  */
 (function(sp) {
-	var BaseDao = function() {};
+	var BaseDao = function() {
+		var self = this;
+
+		self.web = new sp.Web(self);
+	};
 
 	BaseDao.prototype.executeRequest = function() {
 		throw "Not implemented exception";
@@ -23,96 +30,20 @@ SPScript = window.SPScript || {};
 		return this.executeRequest(relativeQueryUrl, options);
 	};
 
+	//lists()
+	//lists(listname).info()
+	//lists(listname).getItemById(id)
+	//lists(listname).addItem(item)
+	//lists(listname).updateItem(id, item)
+	//lists(listname).getItems()
+	//lists(listname).getItems(odata)
+	//lists(listname).findItems(key, value)
+	//lists(listname).findItem(key, value)
 	BaseDao.prototype.lists = function(listname) {
-		var self = this,
-			baseUrl = "/web/lists/getbytitle('" + listname + "')";
-
-		var getItems = function(odataQuery) {
-			var query = (odataQuery != null) ? "?" + odataQuery : "";
-			//query = encodeURIComponent(query);
-			return self.get(baseUrl + "/items" + query).then(function(data) {
-				if (data && data.d && data.d.results) {
-					return data.d.results;
-				} else {
-					return data;
-				}
-			});
-		};
-
-		var getById = function(id) {
-			var url = baseUrl + "/items(" + itemId + ")";
-			return self.get(url).then(function(data) {
-				if (data.d) return data.d;
-				else return data;
-			});
-		};
-
-		//If no list name was passed, return a promise to get all the lists
 		if(!listname) {
-			return self.get("/web/lists");
+			return this.get("/web/lists").then(sp.helpers.validateODataV2);
 		}
-		//A list name was passed so return list context methods
-		return {
-			info: function() {
-				return self.get(baseUrl);
-			},
-			getById: getById,
-			items: getItems,
-			addItem: function(item) {
-				return self.get(baseUrl).then(function(data) {
-					item = $.extend({
-						"__metadata": {
-							"type": data.d.ListItemEntityTypeFullName
-						}
-					}, item);
-
-					var customOptions = {
-						headers: {
-							"Accept": "application/json;odata=verbose",
-							"X-RequestDigest": $("#__REQUESTDIGEST").val(),
-						}
-					};
-
-					return self.post(baseUrl + "/items", item, customOptions);
-				});
-			},
-
-			updateItem: function(itemId, updates) {
-				return getById(itemId).then(function(item) {
-					updates = $.extend({
-						"__metadata": {
-							"type": item.__metadata.type
-						}
-					}, updates);
-
-					var customOptions = {
-						headers: {
-							"Accept": "application/json;odata=verbose",
-							"X-RequestDigest": $("#__REQUESTDIGEST").val(),
-							"X-HTTP-Method": "MERGE",
-							"If-Match": item.__metadata.etag
-						}
-					};
-
-					return self.post(url, updates, customOptions);
-				});
-			},
-
-			find: function(key, value) {
-				var odata = "$filter=" + key + " eq '" + value + "'";
-				return getItems(odata);
-			},
-
-			findOne: function(key, value) {
-				var odata = "$filter=" + key + " eq '" + value + "'";
-				return getItems(odata).then(function(items) {
-					if (items && items.length && items.length > 0) {
-						return items[0];
-					}
-					return null;
-				});
-			}
-		};
+		return new sp.List(listname, this);
 	};
 
 	BaseDao.prototype.post = function(relativePostUrl, body, extendedOptions) {
@@ -137,3 +68,5 @@ SPScript = window.SPScript || {};
 
 	sp.BaseDao = BaseDao;
 })(SPScript);
+
+module.exports = SPScript.BaseDao;

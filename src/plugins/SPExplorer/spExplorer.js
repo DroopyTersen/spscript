@@ -10,9 +10,9 @@
 	SPExplorer.prototype.getParentWeb = function(currentWebUrl) {
 		var dao = new sp.RestDao(currentWebUrl);
 		var relativeUrl = "/Web/ParentWeb";
-		console.log(dao);
+		
 		return dao.get(relativeUrl).then(function(data){
-					console.log("HERE12");
+				
 			if (data && data.d && data.d.ParentWeb !== null) {
 				return data.d;
 			} 
@@ -29,14 +29,12 @@
 
 				if (parentWeb !== null) {
 					self.parentWeb = parentWeb;
-					console.log(self.parentWeb);
 					return self._recursiveSetParent(self.serverUrl + parentWeb.ServerRelativeUrl);
 				} 
 			});
 	};
 
 	SPExplorer.prototype.setRootWeb = function(){
-			console.log("HERE");
 		var self = this;
 		return self._recursiveSetParent(this.webUrl).then(function(){
 			self.rootSite = new SPExplorerSite(self.parentWeb);
@@ -67,8 +65,7 @@
 			.then(function() {
 				return dao.get("/web/webinfos");
 			})
-			.then(function(data){
-				console.log(data);
+			.then(function(data) {
 				var spWebs = data.d.results;
 				self.sites = $.map(spWebs, SPExplorerSite.fromSPWeb);
 			});
@@ -78,5 +75,3 @@
 
 }) (SPScript);
 
-var ex = new SPScript.SPExplorer("https://andrewpetersen.sharepoint.com/jm2");
-ex.setRootWeb().then(ex.rootSite.populate);

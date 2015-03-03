@@ -17,12 +17,16 @@
   "homepage": "https://github.com/DroopyTersen/spscript",
   "devDependencies": {
     "gulp": "~3.5.2",
+    "gulp-browserify": "^0.5.1",
     "gulp-concat": "~2.1.7",
+    "gulp-gzip": "^1.0.0",
     "gulp-rename": "^1.2.0",
     "gulp-uglify": "^1.1.0"
   },
   "dependencies": {
     "chai": "^1.10.0",
-    "mocha": "^2.1.0"
+    "jquery": "^2.1.3",
+    "mocha": "^2.1.0",
+    "zepto": "0.0.4"
   }
 }

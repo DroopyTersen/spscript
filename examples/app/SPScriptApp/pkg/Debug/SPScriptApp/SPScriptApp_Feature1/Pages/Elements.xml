@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Elements xmlns="http://schemas.microsoft.com/sharepoint/">
+  <Module Name="Pages">
+    <File Path="Pages\Default.aspx" Url="Pages/Default.aspx" ReplaceContent="TRUE" />
+    <File Path="Pages\test\test.aspx" Url="Pages/test/test.aspx" ReplaceContent="TRUE" />
+    <File Path="Pages\test\test.js" Url="Pages/test/test.js" ReplaceContent="TRUE" />
+    <File Path="Pages\test\spscript.js" Url="Pages/test/spscript.js" ReplaceContent="TRUE" />
+    <File Path="Pages\test\spscript.zepto.min.js.gz" Url="Pages/test/spscript.zepto.min.js.gz" ReplaceContent="TRUE" />
+  </Module>
+</Elements>

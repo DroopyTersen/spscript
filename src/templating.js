@@ -1,4 +1,5 @@
-SPScript = window.SPScript || {};
+SPScript = require("./spscript");
+
 /* 
  * ==========
  * templating
@@ -31,7 +32,7 @@ SPScript = window.SPScript || {};
 			}
 			
 			if ((typeof value === "string") && value.indexOf("/Date(") !== -1) {
-				dateValue = value.UTCJsonToDate();
+				var dateValue = value.UTCJsonToDate();
 				value = dateValue.toLocaleDateString();
 			}
 
@@ -46,7 +47,7 @@ SPScript = window.SPScript || {};
 				var placeholder = new this.Placeholder(placeholders[i]);
 				placeholder.val = this.getObjectValue(item, placeholder.fullProperty);
 				var pattern = placeholder.raw.replace("[", "\\[").replace("]", "\\]");
-				modifier = "g";
+				var modifier = "g";
 				itemHtml = itemHtml.replace(new RegExp(pattern, modifier), placeholder.val);
 			}
 			return itemHtml;
@@ -100,3 +101,5 @@ String.prototype.UTCJsonToDate = function() {
 
 	return returnDate;
 };
+
+module.exports = SPScript.templating;

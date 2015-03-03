@@ -1,4 +1,6 @@
-SPScript = window.SPScript || {};
+var SPScript = require("./spscript");
+SPScript.BaseDao = require("./baseDao");
+
 /* 
  * ==========
  * RestDao
@@ -8,10 +10,11 @@ SPScript = window.SPScript || {};
 (function(sp) {
 	var RestDao = function(url) {
 		var self = this;
+		sp.BaseDao.call(this);
 		this.webUrl = url;
 	};
 
-	RestDao.prototype = new SPScript.BaseDao();
+	RestDao.prototype = new sp.BaseDao();
 
 	RestDao.prototype.executeRequest = function(relativeUrl, options) {
 		var self = this,
@@ -52,3 +55,5 @@ SPScript = window.SPScript || {};
 
 	sp.RestDao = RestDao;
 })(SPScript);
+
+module.exports = SPScript.RestDao;
