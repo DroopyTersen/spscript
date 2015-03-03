@@ -1,5 +1,6 @@
 SPScript
 =========
+----------
 
 SPScript is a collection of javascript helpers for the SharePoint 2013 Rest API.  Some features include...
 
@@ -9,26 +10,90 @@ SPScript is a collection of javascript helpers for the SharePoint 2013 Rest API.
   - Integrated templating engine
   - Chrome control helper to make your app look more like the host SharePoint site.
 
+
+Methods
+--------------
+
+###Web
+- `web.info()` - Gets you the [SPWeb properties](https://msdn.microsoft.com/en-us/library/office/jj245288.aspx#properties) of your site
+- `web.subsites()` - Gets you all the sub sites and their [SPWeb properties](https://msdn.microsoft.com/en-us/library/office/jj245288.aspx#properties)
+- `web.permissions()` - Gets you an an array of permissions that have been setup for that site. Each permission object has a `member` (the user or group) and a `roles` array (the permissions that user or group has). 
+- `web.permissions(email)` - Looks up a user by their email address, then gets you a list of permissions that user has for your site.  Similiar to "Check Permissions". 
+
+###Lists
+- `lists()` - gets you all the lists and libraries on your site and their [SPList properties](https://msdn.microsoft.com/en-us/library/office/jj245826.aspx#properties)
+- `lists(listname)` - gets you a list object for a specific list.  See the '__List__' methods for what you can do with this object
+
+###List
+- `list.info()` - gets you that list's [SPList properties](https://msdn.microsoft.com/en-us/library/office/jj245826.aspx#properties)
+- `list.getItems()` - gets you all the items in that list
+- `list.getItems(odata)` - gets all the items in that list based on the [OData](http://www.odata.org/documentation/odata-version-2-0/uri-conventions/) you pass in.  This allows you to trim selection, filter, sort etc..
+- `list.getItemById(id)` - gets you a specific item based on the SharePoint Id
+- `list.findItems(key, value)` - gets you all items whose field(key) matches the value. Currently only text and number columns are supported.
+- `list.findItem(key, value)` - get you an item whose field(key) matches the value. If multiple matches are found, the first is returned.  Currently only text and number columns are supported.
+- `list.addItem(item)` - takes a javascript object and creates a list item.
+- `list.updateItem(id, updates)` - takes a SharePoint Id, and updates that item ONLY with properties that are found in the passed in `updates` object.
+- `list.permissions()` - Gets you an an array of permissions that have been setup for that list. Each permission object has a `member` (the user or group) and a `roles` array (the permissions that user or group has). 
+- `list.permissions(email)` - Looks up a user by their email address, then gets the permissions that user has for that list.  Similiar to "Check Permissions". 
+
+###Search
+- `search.query(queryText)` - performs a SharePoint search and returns a `SearchResults`  object which contains `elapsedTime`, `suggestion`, `resultsCount`, `totalResults`, `totalResultsIncludingDuplicates`, `items`. The `items` is what contains the actual "results" array.
+- `search.query(queryText, queryOptions)` - same as `query(queryText)` but with the ability to override default search options.
+
+###Query String Helpers
+- `queryString.contains(key)` - returns true or false
+- `queryString.getValue(key)` - returns the value and "" if the key is not found
+- `queryString.getAll()` - returns a javascript object. Each query string key is a property on the object.
+
+### Templating
+SPScript contains a lightweigt templating engine.  This allows you start with html with ``{{property}}` placeholders and then fill in the values and display on the page after you have finished getting all your REST data.
+- `templating.renderTemplate(template, item)` - returns an html string. `template` is an html string with `{{property}}` placeholders. `item` is a javascript object whose properties will be used to fill in your html placeholders.
+
+
+###GET & POST
+If you don't see an SPScript helper method for what you need, don't worry,  You can call __ANY__ SharePoint 2013 endpoint using the core `get` or `post` methods. 
+- `dataService.get(url)` - for example, passing __"/web/SiteUsers"__ as your `url` would get you all the users on your site.
+- `dataService.post(url, body, ajaxOptions)` - `url` is the 'siteUrl/_api' relative url. `body` is a javascript object, and `ajaxOtions` allow you to set things like custom headers. 
+
+***
+
 Including SPScript in your project
 --------------
-First make sure you have jQuery included on your page. Next, head over to the `/dist` folder.  Here you will find many different builds. If you aren't sure which one you need, just use [SPScript.Full.js](https://raw.githubusercontent.com/DroopyTersen/spscript/master/dist/SPScript.Full.js).  
-*See the __Builds__ section below for more details*
+SPScript depends on jQuery (or [Zepto, a lightweight version of jQuery](http://zeptojs.com/)). 
 
-Usage Examples
+If you are already using jQuery in your project:
+
+ - __Dev__ - Add the following script tag to your page
+     - `<script type="text/javascript" src='https://cdn.rawgit.com/DroopyTersen/spscript/v1/dist/v1/spscript.js'></script>`
+ - __Prod__ - Save the following file into your project
+-      https://raw.githubusercontent.com/DroopyTersen/spscript/v1/dist/v1/spscript.min.js
+
+If you aren't already using jQuery, grab a version of SPScript that comes packaged with zepto.
+ - __Dev__ - Add the following script tag to your page
+     - `<script type="text/javascript" src='https://cdn.rawgit.com/DroopyTersen/spscript/v1/dist/v1/spscript.zepto.min.js'></script>`
+ - __Prod__ - Save the following file into your project
+-      https://raw.githubusercontent.com/DroopyTersen/spscript/v1/dist/v1/spscript.zepto.min.js
+
+***
+Initialization
 --------------
-###Initialization
 All you need is the url of the SharePoint site you are targeting.
 ```javascript
 var siteUrl = "http://urltomysharepointsite.com";
 var dataService = new SPScript.RestDao(siteUrl);
 ```
+
+***
+Usage Examples
+--------------
+
 ###Query List Items
 Get all **"Tasks"** with a status of **"Approved"**
 ```javascript
 var taskList = dataService.lists("Tasks")
 
 // BEST: Option 1 - 'Find' syntax sugar
-taskList.items.find("Status", "Approved").then(logApprovedTasks);
+taskList.findItems("Status", "Approved").then(logApprovedTasks);
 
 // BETTER: Option 2 - OData support in the '.items()'
 taskList.getItems("$filter=Status eq 'Approved'").then(logApprovedTasks);
@@ -79,8 +144,8 @@ dataService.lists("Tasks").updateItem(29, updates);
 ###Find One
 Get the one item whose **"RequestId"** is **"abc123"**
 ```javascript
-dataService.lists("IT Requests").items
-    .findOne("RequestId", "abc123")
+dataService.lists("IT Requests")
+    .findItem("RequestId", "abc123")
     .then(function(request){
         console.log(request.RequestId + ": " + request.Title);
     });
@@ -122,7 +187,25 @@ searchService.query('petersen').done(function(searchResults){
     });
 });
 ```
+###Working with Promises
+All SPScript api requests are asynchronous and return promises.  The common approach to handle this in the past has been by passing a callback function.  A better way is by utilizing "promises".  
 
+The code below, retrieves photos, then retrieves all comments, then groups the comment based on which photo it is associated with.  This code could become very unruly with callbacks, but with promises, it is fairly readable.
+```javascript
+var getPhotosWithComments = function() {
+    var photoOdata = "$expand=File, File/Author&$orderby=Title";
+    var photos = [];
+    return dataService.lists("Photos")
+        .getItems(photoOdata)
+        .then(function(allPhotos) {
+            photos = allPhotos;
+            return dataService.lists("Comments").getItems();
+        })
+        .then(function(comments) {
+            return groupComments(photos, comments);
+        });
+};
+```
 ###Templating
 Display document name and category on the page
 1. Create the html container
@@ -161,12 +244,4 @@ dataService.lists("Documents").getItems().done(function(docs){
 });
 ```
 
-Builds
---------------
 
-Everything has been modularized so that you only need to include what is necessary for your app.  Currently I have Gulp tasks for the following custom builds. You can find them in the `/dist` folder.  There are also minified versions of each file.
-
-* **SPScript.RestDao.js** - The minimum amount of code you'll need use the helpers on SharePoint site in the same domain.
-* **SPScript.CrossDomain.js** - Same as the RestDao, except that it allows you to make cross-origin requests by utilizing SharePoint's sp.requestExecutor.  You'll still need to register as a SharePoint app in order for SharePoint to allow you through though.
-* **SPScript.Search.js** - The minimum amount of code you'll need to utilize the Search helper. Currently there is only a same domain build for this but it would be possible to do this cross domain as well.
-* **SPScript.Full.js** - Everything there is. 

@@ -10,7 +10,7 @@
 	<%--<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>--%>
     <script type="text/javascript" src='https://cdnjs.cloudflare.com/ajax/libs/mocha/2.1.0/mocha.min.js'></script>
 	<script type="text/javascript" src='https://cdnjs.cloudflare.com/ajax/libs/chai/2.1.0/chai.js'></script>
-    <script type="text/javascript" src='spscript.js'></script>
+    <script type="text/javascript" src='https://cdn.rawgit.com/DroopyTersen/spscript/v1/dist/v1/spscript.zepto.min.js'></script>
     <style>
         #mocha-stats {
             position:absolute;

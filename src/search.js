@@ -1,5 +1,6 @@
 SPScript = require("./spscript");
 SPScript.RestDao = require("./restDao");
+SPScript.queryString = require('./queryString');
 /* 
  * ==========
  * Search
@@ -51,7 +52,7 @@ SPScript.RestDao = require("./restDao");
 
 	Search.prototype.query = function(queryText, queryOptions) {
 		var self = this,
-			optionsQueryString = queryOptions != null ? "&" + SPScript.queryString.objectToQueryString(queryOptions, true) : "",
+			optionsQueryString = queryOptions != null ? "&" + sp.queryString.objectToQueryString(queryOptions, true) : "",
 			asyncRequest = new $.Deferred();
 
 		var url = "/search/query?querytext='" + queryText + "'" + optionsQueryString;

@@ -6,6 +6,7 @@
     <ElementFile Location="Pages\test\test.aspx" />
     <ElementFile Location="Pages\test\test.js" />
     <ElementFile Location="Pages\test\spscript.js" />
+    <ElementFile Location="Pages\test\spscript.zepto.min.js.gz" />
     <ElementManifest Location="Scripts\Elements.xml" />
     <ElementFile Location="Scripts\App.js" />
     <ElementFile Location="Scripts\jquery-1.9.1.min.map" />

@@ -55,6 +55,7 @@
     </None>
     <Content Include="Pages\Elements.xml" />
     <Content Include="Pages\Default.aspx" />
+    <None Include="Pages\test\spscript.zepto.min.js.gz" />
     <None Include="TestList\SharePointProjectItem.spdata">
       <SharePointProjectItemId>{3afa5b8e-c0fd-448c-a58e-e4ed4f5cc47a}</SharePointProjectItemId>
     </None>
