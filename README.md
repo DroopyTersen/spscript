@@ -37,7 +37,7 @@ Methods
 - `list.permissions(email)` - Looks up a user by their email address, then gets the permissions that user has for that list.  Similiar to "Check Permissions". 
 
 ###Search
-- `search.query(queryText)` - performs a SharePoint search and returns a `SearchResults`  object which contains `elapsedTime`, `suggestion`, `resultsCount`, `totalResults`, `totalResultsIncludingDuplicates`, `items`. The `items` is what contains the actual "results" array.
+- `search.query(queryText)` - performs a SharePoint search and returns a `SearchResults`  object which contains elapsedTime, suggestion, resultsCount, totalResults, totalResultsIncludingDuplicates, items. The `items` property is what contains the actual "results" array.
 - `search.query(queryText, queryOptions)` - same as `query(queryText)` but with the ability to override default search options.
 
 ###Query String Helpers
@@ -208,11 +208,14 @@ var getPhotosWithComments = function() {
 ```
 ###Templating
 Display document name and category on the page
-1. Create the html container
+
+Step 1: Create the html container
+
 ```html
 <div id='docs-webpart'><!-- Template html will be injected here --></div>
 ```
-2. Create a template using a script tag with a custom type
+Step 2: Create a template using a script tag with a custom type
+
 ```html
 <script type='custom/template' id='doc-template'>
     <div class='document'>
@@ -224,7 +227,8 @@ Display document name and category on the page
 </script>
 ```
 
-3. Use the RestDao to get the documents, and the templating to render them on the page.
+Step 3: Use the RestDao to get the documents, and the templating to render them on the page.
+
 ```javascript
 //select our template
 var template = $("#doc-template").html();
