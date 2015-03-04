@@ -1,14 +1,14 @@
 {
-  "name": "SPScript",
-  "version": "0.0.0",
+  "name": "spscript",
+  "version": "1.0.1",
   "description": "SharePoint 2013 Rest Api Wrappers",
-  "main": "GulpFile.js",
+  "main": "./src/entries/spscript.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/DroopyTersen/spscript"
   },
   "keywords": [
-    "SharePoint"
+    "sharepoint"
   ],
   "author": "Andrew Petersen",
   "bugs": {
