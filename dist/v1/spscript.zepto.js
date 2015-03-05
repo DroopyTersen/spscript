@@ -1815,12 +1815,7 @@ SPScript.List = require("./list");
 SPScript.Web = require("./web");
 SPScript.Profiles = require("./profiles")
 SPScript.helpers = require("./helpers");
-/* 
- * ==========
- * BaseDao - 'Abstract', use either RestDao or CrossDomainDao which inherit
- * Dependencies: ["$", "Web"]
- * ==========
- */
+
 (function(sp) {
 	var BaseDao = function() {
 		var self = this;
@@ -1845,15 +1840,6 @@ SPScript.helpers = require("./helpers");
 		return this.executeRequest(relativeQueryUrl, options);
 	};
 
-	//lists()
-	//lists(listname).info()
-	//lists(listname).getItemById(id)
-	//lists(listname).addItem(item)
-	//lists(listname).updateItem(id, item)
-	//lists(listname).getItems()
-	//lists(listname).getItems(odata)
-	//lists(listname).findItems(key, value)
-	//lists(listname).findItem(key, value)
 	BaseDao.prototype.lists = function(listname) {
 		if(!listname) {
 			return this.get("/web/lists").then(sp.helpers.validateODataV2);
@@ -1890,12 +1876,6 @@ SPScript = require("./spscript");
 SPScript.helpers = require("./helpers");
 SPScript.BaseDao = require("./baseDao");
 
-/* 
- * ==========
- * CrossDomainDao
- * Dependencies: ["$", "baseDao.js", "ODataHelpers.js"]
- * ==========
- */
 (function(sp) {
 	var CrossDomainDao = function(appWebUrl, hostUrl) {
 		this.appUrl = appWebUrl;
@@ -1988,12 +1968,7 @@ module.exports = global.SPScript;
 }).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{"../crossDomainDao":3,"../queryString":10,"../restDao":11,"../search":12,"../templating":14}],6:[function(require,module,exports){
 var SPScript = require("./spscript.js");
-/* 
- * ==========
- * Helpers
- * Dependencies: ["$"]
- * ==========
- */
+
 (function(sp) {
 	var helpers = {};
 	helpers.validateODataV2 = function(data, deferred) {
@@ -2382,7 +2357,6 @@ SPScript.helpers = require("./helpers");
    }
 ];
 
-
 	sp.permissions = permissions;
 })(SPScript);
 
@@ -2436,44 +2410,9 @@ SPScript.helpers = require("./helpers");
 module.exports = SPScript.Profiles;
 },{"./helpers":6}],10:[function(require,module,exports){
 SPScript = require("./spscript");
-/* 
- * ==========
- * queryString
- * Dependencies: []
- * ==========
- */
+
 (function(sp) {
 	sp.queryString = {
-		/*  === getValue ===
-		
-			Summary: Pass a string value in as the key to get the string value
-			Note: Returns empty string("") if key is not found
-			Usage: var id = QueryString.getValue("id");
-		*/
-
-		/*  === getAll ===
-		
-			Summary: returns a hash table of query string arguments
-			Usage:
-				var args = QueryString.getAll();
-				for (var i = 0; i < args.length; i++) {
-					var key = args[i];
-					var value = args[key];
-					alert(key + " : " + value);
-				}
-		*/
-
-		/*  === contains ===
-			
-			Summary: Pass in a string value as the key to see whether it exists
-					in the query string arguments.  Returns boolean.
-			Usage:
-					if (QueryString.contains("redirectUrl")){
-						window.location.href = QueryString.GetValue("redirectUrl");
-					}	
-		*/
-
-		//private variables
 		_queryString: {},
 		_processed: false,
 
@@ -2537,12 +2476,7 @@ module.exports = SPScript.queryString;
 var SPScript = require("./spscript");
 SPScript.BaseDao = require("./baseDao");
 SPScript.Search = require("./search");
-/* 
- * ==========
- * RestDao
- * Dependencies: ["$", "baseDao.js"]
- * ==========
- */
+
 (function(sp) {
 	var RestDao = function(url) {
 		var self = this;
@@ -2597,12 +2531,7 @@ module.exports = SPScript.RestDao;
 SPScript = require("./spscript");
 SPScript.RestDao = require("./restDao");
 SPScript.queryString = require('./queryString');
-/* 
- * ==========
- * Search
- * Dependencies: ["$", "restDao.js", "queryString.js" ]
- * ==========
- */
+
 (function(sp) {
 	var Search = function(urlOrDao) {
 		if (typeof urlOrDao === "string") {
@@ -2685,11 +2614,6 @@ module.exports = {};
 },{}],14:[function(require,module,exports){
 SPScript = require("./spscript");
 
-/* 
- * ==========
- * templating
- * ==========
- */
 (function(sp) {
 	sp.templating = {
 
@@ -2815,10 +2739,6 @@ SPScript.permissions = require("./permissions");
 		return sp.permissions(baseUrl, this._dao, email);
 	};
 
-	var fail = function() {
-		console.log("uh oh");
-		return null;
-	};
 	Web.prototype.getUser = function(email) {
 		var url = baseUrl + "/SiteUsers/GetByEmail('" + email + "')";
 		return this._dao.get(url).then(sp.helpers.validateODataV2);

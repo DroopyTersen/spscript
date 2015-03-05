@@ -24,10 +24,6 @@ SPScript.permissions = require("./permissions");
 		return sp.permissions(baseUrl, this._dao, email);
 	};
 
-	var fail = function() {
-		console.log("uh oh");
-		return null;
-	};
 	Web.prototype.getUser = function(email) {
 		var url = baseUrl + "/SiteUsers/GetByEmail('" + email + "')";
 		return this._dao.get(url).then(sp.helpers.validateODataV2);

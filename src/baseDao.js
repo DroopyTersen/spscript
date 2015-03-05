@@ -3,12 +3,7 @@ SPScript.List = require("./list");
 SPScript.Web = require("./web");
 SPScript.Profiles = require("./profiles")
 SPScript.helpers = require("./helpers");
-/* 
- * ==========
- * BaseDao - 'Abstract', use either RestDao or CrossDomainDao which inherit
- * Dependencies: ["$", "Web"]
- * ==========
- */
+
 (function(sp) {
 	var BaseDao = function() {
 		var self = this;
@@ -33,15 +28,6 @@ SPScript.helpers = require("./helpers");
 		return this.executeRequest(relativeQueryUrl, options);
 	};
 
-	//lists()
-	//lists(listname).info()
-	//lists(listname).getItemById(id)
-	//lists(listname).addItem(item)
-	//lists(listname).updateItem(id, item)
-	//lists(listname).getItems()
-	//lists(listname).getItems(odata)
-	//lists(listname).findItems(key, value)
-	//lists(listname).findItem(key, value)
 	BaseDao.prototype.lists = function(listname) {
 		if(!listname) {
 			return this.get("/web/lists").then(sp.helpers.validateODataV2);

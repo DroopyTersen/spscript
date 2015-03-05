@@ -1,4 +1,4 @@
-﻿(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 /* Zepto 1.1.6 - zepto event ajax ie callbacks deferred - zeptojs.com/license */
 
 
@@ -1815,12 +1815,7 @@ SPScript.List = require("./list");
 SPScript.Web = require("./web");
 SPScript.Profiles = require("./profiles")
 SPScript.helpers = require("./helpers");
-/* 
- * ==========
- * BaseDao - 'Abstract', use either RestDao or CrossDomainDao which inherit
- * Dependencies: ["$", "Web"]
- * ==========
- */
+
 (function(sp) {
 	var BaseDao = function() {
 		var self = this;
@@ -1845,15 +1840,6 @@ SPScript.helpers = require("./helpers");
 		return this.executeRequest(relativeQueryUrl, options);
 	};
 
-	//lists()
-	//lists(listname).info()
-	//lists(listname).getItemById(id)
-	//lists(listname).addItem(item)
-	//lists(listname).updateItem(id, item)
-	//lists(listname).getItems()
-	//lists(listname).getItems(odata)
-	//lists(listname).findItems(key, value)
-	//lists(listname).findItem(key, value)
 	BaseDao.prototype.lists = function(listname) {
 		if(!listname) {
 			return this.get("/web/lists").then(sp.helpers.validateODataV2);
@@ -1890,12 +1876,6 @@ SPScript = require("./spscript");
 SPScript.helpers = require("./helpers");
 SPScript.BaseDao = require("./baseDao");
 
-/* 
- * ==========
- * CrossDomainDao
- * Dependencies: ["$", "baseDao.js", "ODataHelpers.js"]
- * ==========
- */
 (function(sp) {
 	var CrossDomainDao = function(appWebUrl, hostUrl) {
 		this.appUrl = appWebUrl;
@@ -1988,12 +1968,7 @@ module.exports = global.SPScript;
 }).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{"../crossDomainDao":3,"../queryString":10,"../restDao":11,"../search":12,"../templating":14}],6:[function(require,module,exports){
 var SPScript = require("./spscript.js");
-/* 
- * ==========
- * Helpers
- * Dependencies: ["$"]
- * ==========
- */
+
 (function(sp) {
 	var helpers = {};
 	helpers.validateODataV2 = function(data, deferred) {
@@ -2382,7 +2357,6 @@ SPScript.helpers = require("./helpers");
    }
 ];
 
-
 	sp.permissions = permissions;
 })(SPScript);
 
@@ -2392,7 +2366,6 @@ var SPScript = require;("./spscript");
 SPScript.helpers = require("./helpers");
 
 (function(sp) {
-	var baseUrl = "/web";
 	var Profiles = function(dao) {
 		this._dao = dao;
 		this.baseUrl = "/SP.UserProfiles.PeopleManager";
@@ -2404,7 +2377,7 @@ SPScript.helpers = require("./helpers");
 		});
 		return profile;
 	};
-     
+
 	Profiles.prototype.current = function() {
 		var url = this.baseUrl + "/GetMyProperties";
 		return this._dao.get(url)
@@ -2414,16 +2387,18 @@ SPScript.helpers = require("./helpers");
 
 	Profiles.prototype.getProfile = function(user) {
 		var login = encodeURIComponent(user.LoginName);
-		var url = baseUrl + "/GetPropertiesFor(accountName=@v)?@v='" + login + "'";
-		return dao.get(url)
+		var url = this.baseUrl + "/GetPropertiesFor(accountName=@v)?@v='" + login + "'";
+		return this._dao.get(url)
 			.then(sp.helpers.validateODataV2)
 			.then(transformPersonProperties);
-	}
+	};
 
 	Profiles.prototype.getByEmail = function(email) {
 		var self = this;
 		return self._dao.web.getUser(email)
-			.then(self.getProfile)
+			.then(function(user) {
+				return self.getProfile(user);
+			})
 			.fail(function() {
 				throw "User not found";
 			});
@@ -2435,44 +2410,9 @@ SPScript.helpers = require("./helpers");
 module.exports = SPScript.Profiles;
 },{"./helpers":6}],10:[function(require,module,exports){
 SPScript = require("./spscript");
-/* 
- * ==========
- * queryString
- * Dependencies: []
- * ==========
- */
+
 (function(sp) {
 	sp.queryString = {
-		/*  === getValue ===
-		
-			Summary: Pass a string value in as the key to get the string value
-			Note: Returns empty string("") if key is not found
-			Usage: var id = QueryString.getValue("id");
-		*/
-
-		/*  === getAll ===
-		
-			Summary: returns a hash table of query string arguments
-			Usage:
-				var args = QueryString.getAll();
-				for (var i = 0; i < args.length; i++) {
-					var key = args[i];
-					var value = args[key];
-					alert(key + " : " + value);
-				}
-		*/
-
-		/*  === contains ===
-			
-			Summary: Pass in a string value as the key to see whether it exists
-					in the query string arguments.  Returns boolean.
-			Usage:
-					if (QueryString.contains("redirectUrl")){
-						window.location.href = QueryString.GetValue("redirectUrl");
-					}	
-		*/
-
-		//private variables
 		_queryString: {},
 		_processed: false,
 
@@ -2536,12 +2476,7 @@ module.exports = SPScript.queryString;
 var SPScript = require("./spscript");
 SPScript.BaseDao = require("./baseDao");
 SPScript.Search = require("./search");
-/* 
- * ==========
- * RestDao
- * Dependencies: ["$", "baseDao.js"]
- * ==========
- */
+
 (function(sp) {
 	var RestDao = function(url) {
 		var self = this;
@@ -2596,12 +2531,7 @@ module.exports = SPScript.RestDao;
 SPScript = require("./spscript");
 SPScript.RestDao = require("./restDao");
 SPScript.queryString = require('./queryString');
-/* 
- * ==========
- * Search
- * Dependencies: ["$", "restDao.js", "queryString.js" ]
- * ==========
- */
+
 (function(sp) {
 	var Search = function(urlOrDao) {
 		if (typeof urlOrDao === "string") {
@@ -2684,11 +2614,6 @@ module.exports = {};
 },{}],14:[function(require,module,exports){
 SPScript = require("./spscript");
 
-/* 
- * ==========
- * templating
- * ==========
- */
 (function(sp) {
 	sp.templating = {
 

@@ -2,12 +2,6 @@ SPScript = require("./spscript");
 SPScript.helpers = require("./helpers");
 SPScript.BaseDao = require("./baseDao");
 
-/* 
- * ==========
- * CrossDomainDao
- * Dependencies: ["$", "baseDao.js", "ODataHelpers.js"]
- * ==========
- */
 (function(sp) {
 	var CrossDomainDao = function(appWebUrl, hostUrl) {
 		this.appUrl = appWebUrl;

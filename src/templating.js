@@ -1,10 +1,5 @@
 SPScript = require("./spscript");
 
-/* 
- * ==========
- * templating
- * ==========
- */
 (function(sp) {
 	sp.templating = {
 

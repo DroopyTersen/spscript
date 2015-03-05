@@ -1,10 +1,5 @@
 var SPScript = require("./spscript.js");
-/* 
- * ==========
- * Helpers
- * Dependencies: ["$"]
- * ==========
- */
+
 (function(sp) {
 	var helpers = {};
 	helpers.validateODataV2 = function(data, deferred) {

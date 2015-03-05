@@ -251,7 +251,6 @@ SPScript.helpers = require("./helpers");
    }
 ];
 
-
 	sp.permissions = permissions;
 })(SPScript);
 

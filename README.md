@@ -37,8 +37,7 @@ Methods
 - `list.permissions(email)` - Looks up a user by their email address, then gets the permissions that user has for that list.  Similiar to "Check Permissions". 
 
 
-=======
-###Search
+### Search
 - `search.query(queryText)` - performs a SharePoint search and returns a `SearchResults`  object which contains elapsedTime, suggestion, resultsCount, totalResults, totalResultsIncludingDuplicates, items. The `items` property is what contains the actual "results" array.
 - `search.query(queryText, queryOptions)` - same as `query(queryText)` but with the ability to override default search options.
 - `search.people(queryText)` limits the search to just people

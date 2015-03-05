@@ -1,12 +1,7 @@
 var SPScript = require("./spscript");
 SPScript.BaseDao = require("./baseDao");
 SPScript.Search = require("./search");
-/* 
- * ==========
- * RestDao
- * Dependencies: ["$", "baseDao.js"]
- * ==========
- */
+
 (function(sp) {
 	var RestDao = function(url) {
 		var self = this;
