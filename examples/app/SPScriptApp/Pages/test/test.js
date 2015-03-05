@@ -1,4 +1,4 @@
-﻿mocha.setup('bdd');
+mocha.setup('bdd');
 chai.should();
 
 describe("SPScript.RestDao", function () {
@@ -338,7 +338,6 @@ describe("SPScript.RestDao", function () {
         before(function (done) {
             dao.profiles.current().then(function (result) {
                 profile = result;
-                console.log(profile);
                 done();
             });
         });
@@ -347,6 +346,36 @@ describe("SPScript.RestDao", function () {
             profile.should.have.property("AccountName");
             profile.should.have.property("Email");
             profile.should.have.property("PreferredName");
+        });
+    });
+
+   describe("SPScript.RestDao.profiles.getByEmail(email)", function () {
+        var profile = null;
+        var email = "andrew@andrewpetersen.onmicrosoft.com"
+        before(function (done) {
+            dao.profiles.getByEmail(email).then(function (result) {
+                profile = result;
+                done();
+            });
+        });
+        it("Should return a promise that resolves to a profile properties object", function () {
+            profile.should.be.an("object");
+            profile.should.have.property("AccountName");
+            profile.should.have.property("Email");
+            profile.should.have.property("PreferredName");
+        });
+
+        it("Should give you the matching person", function () {
+            profile.should.have.property("Email");
+            profile.Email.should.equal(email);
+        });
+
+        it("Should throw an error for an invalid email", function (done) {
+            dao.profiles.getByEmail("invalid@invalid123.com")
+            .then(function (result) {
+                false.should.be.true;
+                done();
+            });
         });
     });
 });

@@ -14,17 +14,17 @@ SPScript is a collection of javascript helpers for the SharePoint 2013 Rest API.
 Methods
 --------------
 
-###Web
+### Web
 - `web.info()` - Gets you the [SPWeb properties](https://msdn.microsoft.com/en-us/library/office/jj245288.aspx#properties) of your site
 - `web.subsites()` - Gets you all the sub sites and their [SPWeb properties](https://msdn.microsoft.com/en-us/library/office/jj245288.aspx#properties)
 - `web.permissions()` - Gets you an an array of permissions that have been setup for that site. Each permission object has a `member` (the user or group) and a `roles` array (the permissions that user or group has). 
 - `web.permissions(email)` - Looks up a user by their email address, then gets you a list of permissions that user has for your site.  Similiar to "Check Permissions". 
 
-###Lists
+### Lists
 - `lists()` - gets you all the lists and libraries on your site and their [SPList properties](https://msdn.microsoft.com/en-us/library/office/jj245826.aspx#properties)
 - `lists(listname)` - gets you a list object for a specific list.  See the '__List__' methods for what you can do with this object
 
-###List
+### List
 - `list.info()` - gets you that list's [SPList properties](https://msdn.microsoft.com/en-us/library/office/jj245826.aspx#properties)
 - `list.getItems()` - gets you all the items in that list
 - `list.getItems(odata)` - gets all the items in that list based on the [OData](http://www.odata.org/documentation/odata-version-2-0/uri-conventions/) you pass in.  This allows you to trim selection, filter, sort etc..
@@ -36,11 +36,15 @@ Methods
 - `list.permissions()` - Gets you an an array of permissions that have been setup for that list. Each permission object has a `member` (the user or group) and a `roles` array (the permissions that user or group has). 
 - `list.permissions(email)` - Looks up a user by their email address, then gets the permissions that user has for that list.  Similiar to "Check Permissions". 
 
-###Search
+### Search
 - `search.query(queryText)` - performs a SharePoint search and returns a `SearchResults`  object which contains `elapsedTime`, `suggestion`, `resultsCount`, `totalResults`, `totalResultsIncludingDuplicates`, `items`. The `items` is what contains the actual "results" array.
 - `search.query(queryText, queryOptions)` - same as `query(queryText)` but with the ability to override default search options.
+- `search.people(queryText)` limits the search to just people
 
-###Query String Helpers
+### Profiles
+- `profiles.current()` - gets you all the profile properties for the current user
+
+### Query String Helpers
 - `queryString.contains(key)` - returns true or false
 - `queryString.getValue(key)` - returns the value and "" if the key is not found
 - `queryString.getAll()` - returns a javascript object. Each query string key is a property on the object.
@@ -50,7 +54,7 @@ SPScript contains a lightweigt templating engine.  This allows you start with ht
 - `templating.renderTemplate(template, item)` - returns an html string. `template` is an html string with `{{property}}` placeholders. `item` is a javascript object whose properties will be used to fill in your html placeholders.
 
 
-###GET & POST
+### GET & POST
 If you don't see an SPScript helper method for what you need, don't worry,  You can call __ANY__ SharePoint 2013 endpoint using the core `get` or `post` methods. 
 - `dataService.get(url)` - for example, passing __"/web/SiteUsers"__ as your `url` would get you all the users on your site.
 - `dataService.post(url, body, ajaxOptions)` - `url` is the 'siteUrl/_api' relative url. `body` is a javascript object, and `ajaxOtions` allow you to set things like custom headers. 
@@ -87,7 +91,7 @@ var dataService = new SPScript.RestDao(siteUrl);
 Usage Examples
 --------------
 
-###Query List Items
+### Query List Items
 Get all **"Tasks"** with a status of **"Approved"**
 ```javascript
 var taskList = dataService.lists("Tasks")
@@ -112,7 +116,7 @@ var logApprovedTasks = function(tasks) {
 };
 ```
 
-###Get Item By Id
+### Get Item By Id
 Get the task with a SharePoint ID of 29
 ```javascript
 dataService.lists("Tasks").getItemById(29).then(displayTask);
@@ -121,7 +125,7 @@ var displayTask = function(task) {
 }
 
 ```
-###Add List Item
+### Add List Item
 Add item to the **"Tasks"** list
 ```javascript
 var newItem = { 
@@ -141,7 +145,7 @@ dataService.lists("Tasks").updateItem(29, updates);
 
 ```
 
-###Find One
+### Find One
 Get the one item whose **"RequestId"** is **"abc123"**
 ```javascript
 dataService.lists("IT Requests")
@@ -153,7 +157,7 @@ dataService.lists("IT Requests")
 ```
 If there is more than one match, it will return the first result.  If there are zero matches, it will return `null`
 
-###Get Every List Item
+### Get Every List Item
 Get all items in the **"Tasks"** list and log the 'Title'
 ```javascript
 dataService.lists("Tasks")
@@ -166,7 +170,7 @@ dataService.lists("Tasks")
 
 ```
 
-###GET & POST Requests
+### GET & POST Requests
 Every REST Api call that SharePoint supports can be called using SPService. Both the RestDao and CrossDomainDao implement a `.get()` and `post()` method that allow you to type in the api call's relative url.  For example, you could rewrite the code above as:
 ```javascript
 dataService.get("/web/lists/getByTitle('Tasks')/items").done(function(data){
@@ -176,18 +180,30 @@ dataService.get("/web/lists/getByTitle('Tasks')/items").done(function(data){
     });
 });
 ```
-
-###Search
+### Profiles
+Get the current user's profile properties
+```javascript
+dataService.profiles.current().then(function(profile){
+    console.log(JSON.stringify(profile));
+});
+```
+### Search
 Search for **"petersen"** and get the url of each search result
 ```javascript
-var searchService = new SPScript.SearchService(siteUrl);
-searchService.query('petersen').done(function(searchResults){
+dataService.search.query('petersen').then(function(searchResults){
     searchResults.items.forEach(function(item){
         console.log(item.FileRef);
     });
 });
 ```
-###Working with Promises
+
+Search for People named **"andrew"**
+```javascript
+dataService.search.people('petersen').then(function(searchResults){
+    console.log("There are " + searchResults.totalResults + " people named 'andrew'");
+});
+```
+### Working with Promises
 All SPScript api requests are asynchronous and return promises.  The common approach to handle this in the past has been by passing a callback function.  A better way is by utilizing "promises".  
 
 The code below, retrieves photos, then retrieves all comments, then groups the comment based on which photo it is associated with.  This code could become very unruly with callbacks, but with promises, it is fairly readable.
