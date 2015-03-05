@@ -36,8 +36,13 @@ Methods
 - `list.permissions()` - Gets you an an array of permissions that have been setup for that list. Each permission object has a `member` (the user or group) and a `roles` array (the permissions that user or group has). 
 - `list.permissions(email)` - Looks up a user by their email address, then gets the permissions that user has for that list.  Similiar to "Check Permissions". 
 
+<<<<<<< HEAD
 ### Search
 - `search.query(queryText)` - performs a SharePoint search and returns a `SearchResults`  object which contains `elapsedTime`, `suggestion`, `resultsCount`, `totalResults`, `totalResultsIncludingDuplicates`, `items`. The `items` is what contains the actual "results" array.
+=======
+###Search
+- `search.query(queryText)` - performs a SharePoint search and returns a `SearchResults`  object which contains elapsedTime, suggestion, resultsCount, totalResults, totalResultsIncludingDuplicates, items. The `items` property is what contains the actual "results" array.
+>>>>>>> daeafe570ba050513b2f23627c7e20d3789fcf9d
 - `search.query(queryText, queryOptions)` - same as `query(queryText)` but with the ability to override default search options.
 - `search.people(queryText)` limits the search to just people
 
@@ -137,7 +142,7 @@ dataService.lists("Tasks").addItem(newItem);
 
 ```
 
-###Update List Item
+### Update List Item
 Update item in the **"Tasks"** list.  Set item 29's status to **"Completed"**
 ```javascript
 var updates = { Status: "Completed", RemainingHours: 0 };
@@ -224,11 +229,14 @@ var getPhotosWithComments = function() {
 ```
 ###Templating
 Display document name and category on the page
-1. Create the html container
+
+Step 1: Create the html container
+
 ```html
 <div id='docs-webpart'><!-- Template html will be injected here --></div>
 ```
-2. Create a template using a script tag with a custom type
+Step 2: Create a template using a script tag with a custom type
+
 ```html
 <script type='custom/template' id='doc-template'>
     <div class='document'>
@@ -240,7 +248,8 @@ Display document name and category on the page
 </script>
 ```
 
-3. Use the RestDao to get the documents, and the templating to render them on the page.
+Step 3: Use the RestDao to get the documents, and the templating to render them on the page.
+
 ```javascript
 //select our template
 var template = $("#doc-template").html();
