@@ -45,6 +45,7 @@ Methods
 
 ### Profiles
 - `profiles.current()` - gets you all the profile properties for the current user
+- `profiles.getByEmail(email)` - looks up a user based on their email and returns their profile properties
 
 ### Query String Helpers
 - `queryString.contains(key)` - returns true or false
