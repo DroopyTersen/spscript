@@ -1,4 +1,4 @@
-﻿mocha.setup('bdd');
+mocha.setup('bdd');
 chai.should();
 
 describe("SPScript.RestDao", function () {
@@ -339,13 +339,15 @@ describe("SPScript.RestDao", function () {
             dao.profiles.current().then(function (result) {
                 profile = result;
                 done();
-            })
-        })
+            });
+        });
         it("Should return a promise that resolves to a profile properties object", function () {
-            profile.should.not.be.null;
-            profile.should.be.an("object")
-        })
-    })
+            profile.should.be.an("object");
+            profile.should.have.property("AccountName");
+            profile.should.have.property("Email");
+            profile.should.have.property("PreferredName");
+        });
+    });
 });
 
 describe("SPScript.Search", function () {

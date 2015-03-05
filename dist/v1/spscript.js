@@ -2,6 +2,7 @@
 SPScript = require("./spscript");
 SPScript.List = require("./list");
 SPScript.Web = require("./web");
+SPScript.Profiles = require("./profiles")
 SPScript.helpers = require("./helpers");
 /* 
  * ==========
@@ -14,6 +15,8 @@ SPScript.helpers = require("./helpers");
 		var self = this;
 
 		self.web = new sp.Web(self);
+		self.search = new sp.Search(self);
+		self.profiles = new sp.Profiles(self);
 	};
 
 	BaseDao.prototype.executeRequest = function() {
@@ -71,7 +74,7 @@ SPScript.helpers = require("./helpers");
 })(SPScript);
 
 module.exports = SPScript.BaseDao;
-},{"./helpers":4,"./list":5,"./spscript":10,"./web":12}],2:[function(require,module,exports){
+},{"./helpers":4,"./list":5,"./profiles":7,"./spscript":11,"./web":13}],2:[function(require,module,exports){
 SPScript = require("./spscript");
 SPScript.helpers = require("./helpers");
 SPScript.BaseDao = require("./baseDao");
@@ -155,7 +158,7 @@ SPScript.BaseDao = require("./baseDao");
 })(SPScript);
 
 module.exports = SPScript.CrossDomainDao;
-},{"./baseDao":1,"./helpers":4,"./spscript":10}],3:[function(require,module,exports){
+},{"./baseDao":1,"./helpers":4,"./spscript":11}],3:[function(require,module,exports){
 (function (global){
 global.SPScript = {};
 global.SPScript.RestDao = require("../restDao");
@@ -165,7 +168,7 @@ global.SPScript.Search = require("../search");
 global.SPScript.templating = require("../templating");
 module.exports = global.SPScript;
 }).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../crossDomainDao":2,"../queryString":7,"../restDao":8,"../search":9,"../templating":11}],4:[function(require,module,exports){
+},{"../crossDomainDao":2,"../queryString":8,"../restDao":9,"../search":10,"../templating":12}],4:[function(require,module,exports){
 var SPScript = require("./spscript.js");
 /* 
  * ==========
@@ -212,7 +215,7 @@ var SPScript = require("./spscript.js");
 })(SPScript);
 
 module.exports = SPScript.helpers;
-},{"./spscript.js":10}],5:[function(require,module,exports){
+},{"./spscript.js":11}],5:[function(require,module,exports){
 var SPScript = require("./spscript");
 SPScript.helpers = require("./helpers");
 SPScript.permissions = require("./permissions");
@@ -307,7 +310,7 @@ SPScript.permissions = require("./permissions");
 })(SPScript);
 
 module.exports = SPScript.List;
-},{"./helpers":4,"./permissions":6,"./spscript":10}],6:[function(require,module,exports){
+},{"./helpers":4,"./permissions":6,"./spscript":11}],6:[function(require,module,exports){
 var SPScript = require("./spscript");
 SPScript.helpers = require("./helpers");
 
@@ -566,7 +569,41 @@ SPScript.helpers = require("./helpers");
 })(SPScript);
 
 module.exports = SPScript.permissions;
-},{"./helpers":4,"./spscript":10}],7:[function(require,module,exports){
+},{"./helpers":4,"./spscript":11}],7:[function(require,module,exports){
+var SPScript = require;("./spscript");
+SPScript.helpers = require("./helpers");
+
+(function(sp) {
+	var baseUrl = "/web";
+	var Profiles = function(dao) {
+		this._dao = dao;
+		this.baseUrl = "/SP.UserProfiles.PeopleManager";
+	};
+
+	var transformPersonProperties = function(profile) {
+		profile.UserProfileProperties.results.forEach(function(keyvalue){
+			profile[keyvalue.Key] = keyvalue.Value;
+		});
+		return profile;
+	};
+
+	Profiles.prototype.current = function() {
+		var url = this.baseUrl + "/GetMyProperties";
+		return this._dao.get(url)
+					.then(sp.helpers.validateODataV2)
+					.then(transformPersonProperties);
+	};
+
+	// Web.prototype.getUser = function(email) {
+	// 	var url = baseUrl + "/SiteUsers/GetByEmail('" + email + "')";
+	// 	return this._dao.get(url).then(sp.helpers.validateODataV2);
+	// };
+
+	sp.Profiles = Profiles;
+})(SPScript);
+
+module.exports = SPScript.Profiles;
+},{"./helpers":4}],8:[function(require,module,exports){
 SPScript = require("./spscript");
 /* 
  * ==========
@@ -665,10 +702,10 @@ SPScript = require("./spscript");
 })(SPScript);
 
 module.exports = SPScript.queryString;
-},{"./spscript":10}],8:[function(require,module,exports){
+},{"./spscript":11}],9:[function(require,module,exports){
 var SPScript = require("./spscript");
 SPScript.BaseDao = require("./baseDao");
-
+SPScript.Search = require("./search");
 /* 
  * ==========
  * RestDao
@@ -725,9 +762,10 @@ SPScript.BaseDao = require("./baseDao");
 })(SPScript);
 
 module.exports = SPScript.RestDao;
-},{"./baseDao":1,"./spscript":10}],9:[function(require,module,exports){
+},{"./baseDao":1,"./search":10,"./spscript":11}],10:[function(require,module,exports){
 SPScript = require("./spscript");
 SPScript.RestDao = require("./restDao");
+SPScript.queryString = require('./queryString');
 /* 
  * ==========
  * Search
@@ -735,9 +773,12 @@ SPScript.RestDao = require("./restDao");
  * ==========
  */
 (function(sp) {
-	var Search = function(url) {
-		this.dao = new sp.RestDao(url);
-		this.webUrl = url;
+	var Search = function(urlOrDao) {
+		if (typeof urlOrDao === "string") {
+			this.dao = new sp.RestDao(urlOrDao);
+		} else {
+			this.dao = urlOrDao;
+		}
 	};
 
 	Search.QueryOptions = function() {
@@ -779,7 +820,7 @@ SPScript.RestDao = require("./restDao");
 
 	Search.prototype.query = function(queryText, queryOptions) {
 		var self = this,
-			optionsQueryString = queryOptions != null ? "&" + SPScript.queryString.objectToQueryString(queryOptions, true) : "",
+			optionsQueryString = queryOptions != null ? "&" + sp.queryString.objectToQueryString(queryOptions, true) : "",
 			asyncRequest = new $.Deferred();
 
 		var url = "/search/query?querytext='" + queryText + "'" + optionsQueryString;
@@ -797,13 +838,20 @@ SPScript.RestDao = require("./restDao");
 		return asyncRequest.promise();
 	};
 
+	Search.prototype.people = function(queryText, queryOptions) {
+		var options = queryOptions || {};
+		options.sourceid =  'b09a7990-05ea-4af9-81ef-edfab16c4e31';
+		return this.query(queryText, options);
+	};
+
 	sp.Search = Search;
+
 })(SPScript);
 
 module.exports = SPScript.Search;
-},{"./restDao":8,"./spscript":10}],10:[function(require,module,exports){
+},{"./queryString":8,"./restDao":9,"./spscript":11}],11:[function(require,module,exports){
 module.exports = {};
-},{}],11:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 SPScript = require("./spscript");
 
 /* 
@@ -909,7 +957,7 @@ String.prototype.UTCJsonToDate = function() {
 };
 
 module.exports = SPScript.templating;
-},{"./spscript":10}],12:[function(require,module,exports){
+},{"./spscript":11}],13:[function(require,module,exports){
 var SPScript = require;("./spscript");
 SPScript.helpers = require("./helpers");
 SPScript.permissions = require("./permissions");

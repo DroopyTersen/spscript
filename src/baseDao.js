@@ -1,6 +1,7 @@
 SPScript = require("./spscript");
 SPScript.List = require("./list");
 SPScript.Web = require("./web");
+SPScript.Profiles = require("./profiles")
 SPScript.helpers = require("./helpers");
 /* 
  * ==========
@@ -13,6 +14,8 @@ SPScript.helpers = require("./helpers");
 		var self = this;
 
 		self.web = new sp.Web(self);
+		self.search = new sp.Search(self);
+		self.profiles = new sp.Profiles(self);
 	};
 
 	BaseDao.prototype.executeRequest = function() {

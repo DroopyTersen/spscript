@@ -28,4 +28,12 @@ gulp.task('zepto', function(){
 	browserifyAndMinify('./src/entries/spscript.zepto.js', 'spscript.zepto.min.js');
 });
 
-gulp.task('default', ['full', 'jquery', 'zepto']);
+gulp.task('test-app', function(){
+	gulp.src('./dist/v1/spscript.zepto.js')
+		.pipe(rename('spscript.js'))
+		.pipe(gulp.dest('./examples/app/SPScriptApp/Pages/test'));
+
+	gulp.src('./test/test.js')
+		.pipe(gulp.dest('./examples/app/SPScriptApp/Pages/test'));
+})
+gulp.task('default', ['full', 'jquery', 'zepto', 'test-app']);

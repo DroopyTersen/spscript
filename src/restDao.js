@@ -1,6 +1,6 @@
 var SPScript = require("./spscript");
 SPScript.BaseDao = require("./baseDao");
-
+SPScript.Search = require("./search");
 /* 
  * ==========
  * RestDao

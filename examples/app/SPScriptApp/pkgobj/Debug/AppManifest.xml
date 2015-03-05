@@ -14,6 +14,9 @@
   <AppPrincipal>
     <Internal />
   </AppPrincipal>
-
-
+  <AppPermissionRequests>
+    <AppPermissionRequest Scope="http://sharepoint/search" Right="QueryAsUserIgnoreAppPrincipal" />
+    <AppPermissionRequest Scope="http://sharepoint/social/tenant" Right="Read" />
+    <AppPermissionRequest Scope="http://sharepoint/content/sitecollection/web" Right="Read" />
+  </AppPermissionRequests>
 </App>

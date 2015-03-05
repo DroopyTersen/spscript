@@ -8,9 +8,12 @@ SPScript.queryString = require('./queryString');
  * ==========
  */
 (function(sp) {
-	var Search = function(url) {
-		this.dao = new sp.RestDao(url);
-		this.webUrl = url;
+	var Search = function(urlOrDao) {
+		if (typeof urlOrDao === "string") {
+			this.dao = new sp.RestDao(urlOrDao);
+		} else {
+			this.dao = urlOrDao;
+		}
 	};
 
 	Search.QueryOptions = function() {
@@ -70,7 +73,14 @@ SPScript.queryString = require('./queryString');
 		return asyncRequest.promise();
 	};
 
+	Search.prototype.people = function(queryText, queryOptions) {
+		var options = queryOptions || {};
+		options.sourceid =  'b09a7990-05ea-4af9-81ef-edfab16c4e31';
+		return this.query(queryText, options);
+	};
+
 	sp.Search = Search;
+
 })(SPScript);
 
 module.exports = SPScript.Search;
