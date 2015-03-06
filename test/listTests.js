@@ -162,12 +162,104 @@ exports.run = function (dao) {
         });
 
         describe("SPScript.RestDao.lists(listname).addItem()", function () {
-            it("Should return a promise that resolves with the new list item");
+        	var newItem = {
+        		Title: "Test Created Item",
+        		MyColumn: "Inserted from Mocha test",
+        		RequiredColumn: "This field is required",
+        		BoolColumn: "True"
+        	};
+        	var insertedItem = null;
+        	before(function(done){
+        		list.addItem(newItem).then(function(result){
+        			insertedItem = result;
+        			done();
+        		}).fail(function(error){
+        			console.log(error);
+        			done();
+        		});
+        	});
+            it("Should return a promise that resolves with the new list item", function(){
+            	insertedItem.should.not.be.null;
+            	insertedItem.should.be.an("object");
+            	insertedItem.should.have.property("Id");
+            });
+            it("Should save the item right away so it can be queried.", function() {
+            	list.getItemById(insertedItem.Id).then(function(foundItem){
+            		foundItem.should.not.be.null;
+            		foundItem.should.have.property("Title");
+            		foundItem.Title.should.equal(newItem.Title);
+            	});
+            });
+ 			it("Should throw an error if a invalid field is set", function(done) {
+            	newItem.InvalidColumn = "test";
+            	list.addItem(newItem)
+            	.then(function(){
+            		//supposed to fail
+            		("one").should.equal("two");
+            	})
+            	.fail(function(xhr, status, msg){
+            		console.log(msg);
+            		console.log(xhr.responseText);
+            		xhr.responseText.should.be.a("string");
+            		done();
+            	});
+            });
         });
+
+        describe("SPScript.RestDao.lists(listname).deleteItem(id)", function() {
+        	var itemToDelete = null;
+        	before(function(done){
+        		list.getItems("$orderby=Id").then(function(items){
+        			itemToDelete = items[items.length - 1];
+        			return list.deleteItem(itemToDelete.Id);
+        		}).then(function(){
+        			done();
+        		});
+        	});
+        	it("Should delete that item", function(done) {
+        		list.getItemById(itemToDelete.Id)
+        			.then(function(){
+        				throw "Should have failed because item has been deleted";
+        			})
+        			.fail(function(){
+        				done();
+        			});
+        	});
+        	it("Should reject the promise if the item id can not be found", function(done){
+        		list.deleteItem(99999999).then(function(){
+        			throw "Should have failed because id doesnt exist";
+        		})
+        		.fail(function(){
+        			done();
+        		})
+        	});
+        });
+
         describe("SPScript.RestDao.lists(listname).updateItem()", function () {
-            it("Should return a promise");
-            it("Should update only the properties that were passed");
+        	var itemToUpdate = null;
+        	var updates = { Title: "Updated Title" };
+        	before(function(done){
+        		list.getItems("$orderby=Id desc").then(function(items){
+        			itemToUpdate = items[items.length - 1];
+        			done();
+        		});
+        	});
+            it("Should return a promise", function(done) {
+            	list.updateItem(itemToUpdate.Id, updates).then(function(){
+            		done();
+            	});
+            });
+            it("Should update only the properties that were passed", function(done){
+            	list.getItemById(itemToUpdate.Id).then(function(item){
+        			item.should.have.property("Title");
+        			item.Title.should.equal(updates.Title);
+        			item.should.have.property("RequiredColumn");
+        			item.RequiredColumn.should.equal(itemToUpdate.RequiredColumn);
+            		done();
+            	});
+            });
         });
+
 
         describe("SPScript.RestDao.lists(listname).permissions()", function () {
             var permissions = null;

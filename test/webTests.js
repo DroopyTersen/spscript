@@ -75,18 +75,17 @@ exports.run = function(dao) {
                 permissions.should.not.be.empty;
             });
 
-            it("Should resolve null for an invalid email", function (done) {
+            it("Should reject the promise for an invalid email", function (done) {
 
-                try {
-                    dao.web.permissions("invalid@invalid123.com")
-                    .then(function (privs) {
-                        privs.should.be.null;
-                        done();
-                    })
-                } catch (ex) {
-                    "one".should.equal("two");
+                dao.web.permissions("invalid@invalid123.com")
+                .then(function (privs) {
+                    ("one").should.equal("two");
                     done();
-                }
+                }).fail(function(xhr, status, error){
+                    console.log(error);
+                    console.log(xhr.responseText)
+                    done();
+                });
             });
         });
     });

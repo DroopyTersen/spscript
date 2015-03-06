@@ -7,7 +7,9 @@ var gzip = require('gulp-gzip');
 
 var browserifyAndMinify = function(entry, minifiedName) {
 	return gulp.src(entry)
-		.pipe(browserify())
+		.pipe(browserify({
+			debug: true
+		}))
 		.pipe(gulp.dest('./dist/v1/'))
 		.pipe(rename(minifiedName))
 		.pipe(minify())
@@ -34,7 +36,7 @@ gulp.task('test-app', ['zepto'], function(){
 		.pipe(gulp.dest('./examples/app/SPScriptApp/Pages/test'));
 
 	gulp.src('./test/test.js')
-		.pipe(browserify())
+		.pipe(browserify({ debug: true }))
 		.pipe(gulp.dest('./examples/app/SPScriptApp/Pages/test'));
 });
 gulp.task('default', ['full', 'jquery', 'zepto', 'test-app']);

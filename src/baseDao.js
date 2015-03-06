@@ -19,7 +19,7 @@ SPScript.helpers = require("./helpers");
 
 	BaseDao.prototype.get = function(relativeQueryUrl, extendedOptions, raw) {
 		var options = {
-			method: "GET"
+			type: "GET"
 		};
 
 		if (extendedOptions) {
@@ -38,7 +38,7 @@ SPScript.helpers = require("./helpers");
 	BaseDao.prototype.post = function(relativePostUrl, body, extendedOptions) {
 		var strBody = JSON.stringify(body);
 		var options = {
-			method: "POST",
+			type: "POST",
 			data: strBody,
 			contentType: "application/json;odata=verbose"
 		};

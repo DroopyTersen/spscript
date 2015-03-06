@@ -48,11 +48,9 @@ SPScript.helpers = require("./helpers");
 			return dao.get(url).then(sp.helpers.validateODataV2);
 		};
 		return dao.web.getUser(email)
-			.then(checkPrivs, function() { return []; })
+			.then(checkPrivs)
 			.then(function(privs) {
 				return permissionMaskToStrings(privs.GetUserEffectivePermissions.Low, privs.GetUserEffectivePermissions.High);
-			}).fail(function() {
-				throw "User not found";
 			});
 	};
 

@@ -57,7 +57,7 @@ SPScript.BaseDao = require("./baseDao");
 
 			var executeOptions = {
 				url: fullUrl,
-				method: "GET",
+				type: "GET",
 				headers: {
 					"Accept": "application/json; odata=verbose"
 				},

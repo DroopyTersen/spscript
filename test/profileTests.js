@@ -36,12 +36,17 @@ exports.run = function(dao) {
             profile.Email.should.equal(email);
         });
 
-        it("Should resolve to null for an invalid email", function (done) {
+        it("Should reject the promise for an invalid email", function (done) {
             dao.profiles.getByEmail("invalid@invalid123.com")
             .then(function (result) {
-                result.should.be.null;
+                ("one").should.equal("two");
                 done();
+            })
+            .fail(function(xhr, status, msg) {
+            	console.log(xhr.responseText);
+            	xhr.responseText.should.be.a("string");
+            	done();
             });
         });
     });
-}
+};
