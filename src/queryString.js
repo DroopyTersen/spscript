@@ -1,42 +1,7 @@
 SPScript = require("./spscript");
-/* 
- * ==========
- * queryString
- * Dependencies: []
- * ==========
- */
+
 (function(sp) {
 	sp.queryString = {
-		/*  === getValue ===
-		
-			Summary: Pass a string value in as the key to get the string value
-			Note: Returns empty string("") if key is not found
-			Usage: var id = QueryString.getValue("id");
-		*/
-
-		/*  === getAll ===
-		
-			Summary: returns a hash table of query string arguments
-			Usage:
-				var args = QueryString.getAll();
-				for (var i = 0; i < args.length; i++) {
-					var key = args[i];
-					var value = args[key];
-					alert(key + " : " + value);
-				}
-		*/
-
-		/*  === contains ===
-			
-			Summary: Pass in a string value as the key to see whether it exists
-					in the query string arguments.  Returns boolean.
-			Usage:
-					if (QueryString.contains("redirectUrl")){
-						window.location.href = QueryString.GetValue("redirectUrl");
-					}	
-		*/
-
-		//private variables
 		_queryString: {},
 		_processed: false,
 

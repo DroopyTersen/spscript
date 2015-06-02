@@ -1,30 +1,20 @@
 var SPScript = require("./spscript.js");
-/* 
- * ==========
- * Helpers
- * Dependencies: ["$"]
- * ==========
- */
+
 (function(sp) {
 	var helpers = {};
-	helpers.validateODataV2 = function(data, deferred) {
+	helpers.validateODataV2 = function(data) {
 		var results = data;
 		if (data.d && data.d.results && data.d.results.length != null) {
 			results = data.d.results;
 		} else if (data.d) {
 			results = data.d;
 		}
-
-		if (deferred) {
-			deferred.resolve(results);
-		} else {
-			return results;
-		}
+		return results;
 	};
 
-	helpers.validateCrossDomainODataV2 = function(response, deferred) {
+	helpers.validateCrossDomainODataV2 = function(response) {
 		var data = $.parseJSON(response.body);
-		helpers.validateODataV2(data, deferred);
+		helpers.validateODataV2(data);
 	};
 
 	//'Borrowed' from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Bitwise_Operators

@@ -34,9 +34,6 @@ SPScript.helpers = require("./helpers");
 		return self._dao.web.getUser(email)
 			.then(function(user) {
 				return self.getProfile(user);
-			})
-			.fail(function() {
-				throw "User not found";
 			});
 	};
 

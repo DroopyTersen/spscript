@@ -1,16 +1,11 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!--Published:920014D5-5E5A-442D-934A-437E4FB0A4DA-->
 <!--Created:cb85b80c-f585-40ff-8bfc-12ff4d0e34a9-->
-<App xmlns="http://schemas.microsoft.com/sharepoint/2012/app/manifest"
-     Name="SPScriptApp"
-     ProductID="{caa36a96-d7e3-470e-9355-0b09c6819fae}"
-     Version="1.0.0.0"
-     SharePointMinVersion="15.0.0.0"
->
+<App xmlns="http://schemas.microsoft.com/sharepoint/2012/app/manifest" Name="SPScriptApp" ProductID="{caa36a96-d7e3-470e-9355-0b09c6819fae}" Version="1.0.0.0" SharePointMinVersion="15.0.0.0">
   <Properties>
     <Title>SPScriptApp</Title>
-    <StartPage>~appWebUrl/Pages/Default.aspx?{StandardTokens}</StartPage>
+    <StartPage>~appWebUrl/Pages/test/test.aspx?{StandardTokens}</StartPage>
   </Properties>
-
   <AppPrincipal>
     <Internal />
   </AppPrincipal>

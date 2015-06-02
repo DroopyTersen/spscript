@@ -7,12 +7,12 @@ var gzip = require('gulp-gzip');
 
 var browserifyAndMinify = function(entry, minifiedName) {
 	return gulp.src(entry)
-		.pipe(browserify())
+		.pipe(browserify({
+			debug: false
+		}))
 		.pipe(gulp.dest('./dist/v1/'))
 		.pipe(rename(minifiedName))
 		.pipe(minify())
-		.pipe(gulp.dest('./dist/v1/'))
-		.pipe(gzip())
 		.pipe(gulp.dest('./dist/v1/'));
 };
 
@@ -24,16 +24,27 @@ gulp.task('jquery', function(){
 	browserifyAndMinify('./src/entries/spscript.jquery.js', 'spscript.jquery.min.js');
 });
 
-gulp.task('zepto', function(){
-	browserifyAndMinify('./src/entries/spscript.zepto.js', 'spscript.zepto.min.js');
+gulp.task('zepto', function() {
+	return browserifyAndMinify('./src/entries/spscript.zepto.js', 'spscript.zepto.min.js');
 });
 
-gulp.task('test-app', function(){
+gulp.task('select2', function() {
+	return browserifyAndMinify('./src/entries/spselect2.js', 'spselect2.min.js');
+});
+
+gulp.task('test-app', ['zepto'], function(){
 	gulp.src('./dist/v1/spscript.zepto.js')
 		.pipe(rename('spscript.js'))
 		.pipe(gulp.dest('./examples/app/SPScriptApp/Pages/test'));
 
 	gulp.src('./test/test.js')
+		.pipe(browserify({ debug: true }))
 		.pipe(gulp.dest('./examples/app/SPScriptApp/Pages/test'));
-})
-gulp.task('default', ['full', 'jquery', 'zepto', 'test-app']);
+});
+
+gulp.task('watch', function() {
+	var scripts = [ "src/**/*.js"];
+	gulp.watch(scripts, ['default']);
+});
+
+gulp.task('default', ['full', 'jquery', 'zepto', 'select2', 'test-app']);

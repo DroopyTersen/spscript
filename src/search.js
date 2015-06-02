@@ -1,12 +1,7 @@
 SPScript = require("./spscript");
 SPScript.RestDao = require("./restDao");
 SPScript.queryString = require('./queryString');
-/* 
- * ==========
- * Search
- * Dependencies: ["$", "restDao.js", "queryString.js" ]
- * ==========
- */
+
 (function(sp) {
 	var Search = function(urlOrDao) {
 		if (typeof urlOrDao === "string") {

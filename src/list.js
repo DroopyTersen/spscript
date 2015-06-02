@@ -17,8 +17,9 @@ SPScript.permissions = require("./permissions");
 			.then(sp.helpers.validateODataV2);
 	};
 
-	List.prototype.getItemById = function(id) {
+	List.prototype.getItemById = function(id, odata) {
 		var url = baseUrl + "/items(" + id + ")";
+		url += (odata != null) ? "?" + odata : "";
 		return this._dao.get(url).then(sp.helpers.validateODataV2);
 	};
 
@@ -42,7 +43,8 @@ SPScript.permissions = require("./permissions");
 				}
 			};
 
-			return self._dao.post(baseUrl + "/items", item, customOptions);
+			return self._dao.post(baseUrl + "/items", item, customOptions)
+				.then(sp.helpers.validateODataV2);
 		});
 	};
 
@@ -64,19 +66,36 @@ SPScript.permissions = require("./permissions");
 				}
 			};
 
-			return self._dao.post(url, updates, customOptions);
+			return self._dao.post(item.__metadata.uri, updates, customOptions);
+		});
+	};
+	
+	List.prototype.deleteItem = function(itemId) {
+		var self = this;
+		return self.getItemById(itemId).then(function(item) {
+			var customOptions = {
+				headers: {
+					"Accept": "application/json;odata=verbose",
+					"X-RequestDigest": $("#__REQUESTDIGEST").val(),
+					"X-HTTP-Method": "DELETE",
+					"If-Match": item.__metadata.etag
+				}
+			};
+			return self._dao.post(item.__metadata.uri, "", customOptions);
 		});
 	};
 
-	List.prototype.findItems = function(key, value) {
+	List.prototype.findItems = function(key, value, extraOData) {
 		//if its a string, wrap in single quotes
 		var filterValue = typeof value === "string" ? "'" + value + "'" : value;
 		var odata = "$filter=" + key + " eq " + filterValue;
+		odata += (extraOData != null) ? "&" + extraOData : "";
+
 		return this.getItems(odata);
 	};
 
-	List.prototype.findItem = function(key, value){
-		return this.findItems(key, value).then(function(items) {
+	List.prototype.findItem = function(key, value, odata) {
+		return this.findItems(key, value, odata).then(function(items) {
 			if (items && items.length && items.length > 0) {
 				return items[0];
 			}

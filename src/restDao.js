@@ -1,12 +1,7 @@
 var SPScript = require("./spscript");
 SPScript.BaseDao = require("./baseDao");
 SPScript.Search = require("./search");
-/* 
- * ==========
- * RestDao
- * Dependencies: ["$", "baseDao.js"]
- * ==========
- */
+
 (function(sp) {
 	var RestDao = function(url) {
 		var self = this;
@@ -16,41 +11,19 @@ SPScript.Search = require("./search");
 
 	RestDao.prototype = new sp.BaseDao();
 
-	RestDao.prototype.executeRequest = function(relativeUrl, options) {
+	RestDao.prototype.executeRequest = function(url, options) {
 		var self = this,
-			deferred = new $.Deferred(),
-
-			//If a callback was given execute it, passing response then the deferred
-			//otherwise just resolve the deferred.
-			successCallback = function(response) {
-				if (options.success) {
-					options.success(response, deferred);
-				} else {
-					deferred.resolve(response);
-				}
-			},
-			errorCallback = function(data, errorCode, errorMessage) {
-				if (options.error) {
-					options.error(data, errorCode, errorMessage, deferred);
-				} else {
-					deferred.reject(errorMessage);
-				}
-			},
-			fullUrl = this.webUrl + "/_api" + relativeUrl,
+			fullUrl = (/^http/i).test(url) ? url : this.webUrl + "/_api" + url,
 			executeOptions = {
 				url: fullUrl,
-				method: "GET",
+				type: "GET",
 				headers: {
 					"Accept": "application/json; odata=verbose"
-				},
-				success: successCallback,
-				error: errorCallback
+				}
 			};
 
 		$.extend(executeOptions, options);
-		$.ajax(executeOptions);
-
-		return deferred.promise();
+		return $.ajax(executeOptions);
 	};
 
 	sp.RestDao = RestDao;
