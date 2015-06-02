@@ -30,16 +30,20 @@ var init = function(field, list) {
 
 	var convertToSelect2 = function(ctx) {
 		var fieldCtx = SPClientTemplates.Utility.GetFormContextForCurrentField(ctx);
+		console.log(fieldCtx);
 		var url = fieldCtx.webAttributes.WebUrl;
 		var dao = new RestDao(url);
-		var dropdownHtml = "<select id='" + fieldCtx.fieldName + "' type='text' class='ms-long' name='" + fieldCtx.fieldName + "'><option value=''></option></select>";
+		var isMultple = fieldCtx.fieldSchema.FieldType === "LookupMulti" ? "multiple='multple'" : "";
+		var dropdownHtml = "<select id='" + fieldCtx.fieldName + "' " +  isMultple + "class='ms-long' name='" + fieldCtx.fieldName + "'><option value=''></option></select>";
 		var selector = "[name='" + fieldCtx.fieldName + "']";
 
 		fieldCtx.registerGetValueCallback(fieldCtx.fieldName, function() {
-			return $(selector).val();
+			var value = $(selector).val();
+			if (fieldCtx.fieldSchema.FieldType === "LookupMulti") {
+				value = value.join(";#");
+			}
+			return value;
 		});
-
-
 
 		$(document).ready(function(){
 			$.getScript("//cdnjs.cloudflare.com/ajax/libs/select2/4.0.0/js/select2.min.js").then(function(){
@@ -57,7 +61,7 @@ var init = function(field, list) {
 						processResults: function(items) {
 							var results = items.map(function(item){
 								return {
-									id: item.Id,
+									id: item.Id + ";#" + item.Title,
 									text: item.Title
 								};
 							});
@@ -65,7 +69,6 @@ var init = function(field, list) {
 						},
 						cache: true,
 						transport: function(params, success, failure) {
-							console.log(params);
 							var search = params.data.q || "";
 							var odata = "$top=10&$select=Title, Id&$filter=substringof('" + search + "', Title)";
 							dao.lists(list).getItems(odata).then(function(items){
