@@ -60,95 +60,12 @@ SPScript.helpers = require("./helpers");
 })(SPScript);
 
 module.exports = SPScript.BaseDao;
-},{"./helpers":4,"./list":5,"./profiles":7,"./spscript":11,"./web":13}],2:[function(require,module,exports){
-SPScript = require("./spscript");
-SPScript.helpers = require("./helpers");
-SPScript.BaseDao = require("./baseDao");
-
-(function(sp) {
-	var CrossDomainDao = function(appWebUrl, hostUrl) {
-		this.appUrl = appWebUrl;
-		this.hostUrl = hostUrl;
-		this.scriptReady = new $.Deferred();
-
-		//Load of up to RequestExecutor javascript from the host site if its not there.
-		if (!SP || !SP.RequestExecutor) {
-			this.scriptReady = $.getScript(hostUrl + "/_layouts/15/SP.RequestExecutor.js");
-		} else {
-			setTimeout(function() {
-				this.scriptReady.resolve();	
-			}, 1);
-		}
-	};
-
-	CrossDomainDao.prototype = new SPScript.BaseDao();
-
-	CrossDomainDao.prototype.executeRequest = function(hostRelativeUrl, options) {
-		var self = this,
-			deferred = new $.Deferred(),
-
-			//If a callback was given execute it, passing response then the deferred
-			//otherwise just resolve the deferred.
-			successCallback = function(response) {
-				var data = $.parseJSON(response.body);
-				//a suceess callback was passed in
-				if (options.success) {
-					options.success(data, deferred);
-				} else {
-					//no success callback so just make sure its valid OData
-					sp.helpers.validateODataV2(data, deferred);
-				}
-			},
-			errorCallback = function(data, errorCode, errorMessage) {
-				//an error callback was passed in
-				if (options.error) {
-					options.error(data, errorCode, errorMessage, deferred);
-				} else {
-					//no error callback so just reject it
-					deferred.reject(errorMessage);
-				}
-			};
-
-		this.scriptReady.done(function() {
-			//tack on the query string question mark if not there already
-			if (hostRelativeUrl.indexOf("?") === -1) {
-				hostRelativeUrl = hostRelativeUrl + "?";
-			}
-
-			var executor = new SP.RequestExecutor(self.appUrl),
-				fullUrl = self.appUrl + "/_api/SP.AppContextSite(@target)" + hostRelativeUrl + "@target='" + self.hostUrl + "'";
-
-			var executeOptions = {
-				url: fullUrl,
-				type: "GET",
-				headers: {
-					"Accept": "application/json; odata=verbose"
-				},
-				success: successCallback,
-				error: errorCallback
-			};
-			//Merge passed in options
-			$.extend(true, executeOptions, options);
-			executor.executeAsync(executeOptions);
-		});
-		return deferred.promise();
-	};
-
-	sp.CrossDomainDao = CrossDomainDao;
-})(SPScript);
-
-module.exports = SPScript.CrossDomainDao;
-},{"./baseDao":1,"./helpers":4,"./spscript":11}],3:[function(require,module,exports){
+},{"./helpers":3,"./list":4,"./profiles":7,"./spscript":11,"./web":12}],2:[function(require,module,exports){
 (function (global){
-global.SPScript = {};
-global.SPScript.RestDao = require("../restDao");
-global.SPScript.CrossDomainDao = require("../crossDomainDao");
-global.SPScript.queryString = require("../queryString");
-global.SPScript.Search = require("../search");
-global.SPScript.templating = require("../templating");
-module.exports = global.SPScript;
+global.SPSelect2 = require("../plugins/SPSelect2/spselect2");
+module.exports = global.SPSelect2;
 }).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../crossDomainDao":2,"../queryString":8,"../restDao":9,"../search":10,"../templating":12}],4:[function(require,module,exports){
+},{"../plugins/SPSelect2/spselect2":6}],3:[function(require,module,exports){
 var SPScript = require("./spscript.js");
 
 (function(sp) {
@@ -185,7 +102,7 @@ var SPScript = require("./spscript.js");
 })(SPScript);
 
 module.exports = SPScript.helpers;
-},{"./spscript.js":11}],5:[function(require,module,exports){
+},{"./spscript.js":11}],4:[function(require,module,exports){
 var SPScript = require("./spscript");
 SPScript.helpers = require("./helpers");
 SPScript.permissions = require("./permissions");
@@ -299,7 +216,7 @@ SPScript.permissions = require("./permissions");
 })(SPScript);
 
 module.exports = SPScript.List;
-},{"./helpers":4,"./permissions":6,"./spscript":11}],6:[function(require,module,exports){
+},{"./helpers":3,"./permissions":5,"./spscript":11}],5:[function(require,module,exports){
 var SPScript = require("./spscript");
 SPScript.helpers = require("./helpers");
 
@@ -555,7 +472,93 @@ SPScript.helpers = require("./helpers");
 })(SPScript);
 
 module.exports = SPScript.permissions;
-},{"./helpers":4,"./spscript":11}],7:[function(require,module,exports){
+},{"./helpers":3,"./spscript":11}],6:[function(require,module,exports){
+var RestDao = require("../../restDao");
+var init = function(field, list) {
+	
+	var head = document.getElementsByTagName("head")[0];
+	if (!window.jQuery) {
+		var script = document.createElement("script");
+		script.setAttribute("src", "//code.jquery.com/jquery-2.1.4.min.js");
+		script.setAttribute("type", "text/javascript");
+		head.appendChild(script);
+	}
+
+	//add select 2 css
+	var link = document.createElement("link");
+	link.setAttribute("rel", "stylesheet");
+	link.setAttribute("type", "text/css");
+	link.setAttribute("href", "//cdnjs.cloudflare.com/ajax/libs/select2/4.0.0/css/select2.min.css");
+	head.appendChild(link);
+
+	var registerDropdownTemplate = function(field) {
+		var overrides = {};
+		overrides.Templates = { Fields: {} };
+		overrides.Templates.Fields[field] = { 
+			'EditForm': convertToSelect2,
+			'NewForm': convertToSelect2
+		};
+
+		// Register the rendering template
+		SPClientTemplates.TemplateManager.RegisterTemplateOverrides(overrides);
+	};
+
+	var convertToSelect2 = function(ctx) {
+		var fieldCtx = SPClientTemplates.Utility.GetFormContextForCurrentField(ctx);
+		var url = fieldCtx.webAttributes.WebUrl;
+		var dao = new RestDao(url);
+		var dropdownHtml = "<select id='" + fieldCtx.fieldName + "' type='text' class='ms-long' name='" + fieldCtx.fieldName + "'><option value=''></option></select>";
+		var selector = "[name='" + fieldCtx.fieldName + "']";
+
+		fieldCtx.registerGetValueCallback(fieldCtx.fieldName, function() {
+			return $(selector).val();
+		});
+
+
+
+		$(document).ready(function(){
+			$.getScript("//cdnjs.cloudflare.com/ajax/libs/select2/4.0.0/js/select2.min.js").then(function(){
+				$(selector).select2({
+					minimumInputLength: 1,
+					placeholder: "Begin typing...",
+					ajax: {
+						delay: 150,
+						url: "",
+						data: function(params) {
+							return {
+								q: params.term
+							};
+						},
+						processResults: function(items) {
+							var results = items.map(function(item){
+								return {
+									id: item.Id,
+									text: item.Title
+								};
+							});
+							return { results: results };
+						},
+						cache: true,
+						transport: function(params, success, failure) {
+							console.log(params);
+							var search = params.data.q || "";
+							var odata = "$top=10&$select=Title, Id&$filter=substringof('" + search + "', Title)";
+							dao.lists(list).getItems(odata).then(function(items){
+								success(items);
+							}, failure);
+						}
+					},
+				});
+			});
+		});
+		return dropdownHtml;
+	};
+	
+	registerDropdownTemplate(field);
+};
+   
+exports.init = init;
+},{"../../restDao":9}],7:[function(require,module,exports){
 var SPScript = require;("./spscript");
 SPScript.helpers = require("./helpers");
 
@@ -599,7 +602,7 @@ SPScript.helpers = require("./helpers");
 })(SPScript);
 
 module.exports = SPScript.Profiles;
-},{"./helpers":4}],8:[function(require,module,exports){
+},{"./helpers":3}],8:[function(require,module,exports){
 SPScript = require("./spscript");
 
 (function(sp) {
@@ -781,107 +784,6 @@ module.exports = SPScript.Search;
 },{"./queryString":8,"./restDao":9,"./spscript":11}],11:[function(require,module,exports){
 module.exports = {};
 },{}],12:[function(require,module,exports){
-SPScript = require("./spscript");
-
-(function(sp) {
-	sp.templating = {
-
-		Placeholder: function(raw) {
-			this.raw = raw;
-			this.fullProperty = raw.slice(2, raw.length - 2);
-		},
-
-		getPlaceHolders: function(template, regexp) {
-			var regExpPattern = regexp || /\{\{[^\}]+\}\}?/g;
-			return template.match(regExpPattern);
-		},
-
-		getObjectValue: function(obj, fullProperty) {
-			var value = obj,
-				propertyChain = fullProperty.split('.');
-
-			for (var i = 0; i < propertyChain.length; i++) {
-				var property = propertyChain[i];
-				value = value[property] != null ? value[property] : "Not Found: " + fullProperty;
-			}
-
-			if(fullProperty === "_") {
-				value = obj;
-			}
-			
-			if ((typeof value === "string") && value.indexOf("/Date(") !== -1) {
-				var dateValue = value.UTCJsonToDate();
-				value = dateValue.toLocaleDateString();
-			}
-
-			return value;
-		},
-
-		populateTemplate: function(template, item, regexp) {
-			var placeholders = this.getPlaceHolders(template, regexp) || [],
-				itemHtml = template;
-
-			for (var i = 0; i < placeholders.length; i++) {
-				var placeholder = new this.Placeholder(placeholders[i]);
-				placeholder.val = this.getObjectValue(item, placeholder.fullProperty);
-				var pattern = placeholder.raw.replace("[", "\\[").replace("]", "\\]");
-				var modifier = "g";
-				itemHtml = itemHtml.replace(new RegExp(pattern, modifier), placeholder.val);
-			}
-			return itemHtml;
-		}
-	};
-
-	sp.templating.Each = {
-
-		regExp: /\{\[[^\]]+\]\}?/g,
-
-		populateEachTemplates: function(itemHtml, item) {
-			var $itemHtml = $(itemHtml),
-				eachTemplates = $itemHtml.find("[data-each]");
-
-			eachTemplates.each(function() {
-				var arrayHtml = "",
-					itemTemplate = $(this).html(),
-					arrayProp = $(this).data("each"),
-					array = sp.templating.getObjectValue(item, arrayProp);
-
-				if (array != null && $.isArray(array)) {
-					for (var i = 0; i < array.length; i++) {
-						arrayHtml += sp.templating.populateTemplate(itemTemplate, array[i], sp.templating.Each.regExp);
-					}
-				}
-
-				$itemHtml.find($(this)).html(arrayHtml);
-			});
-
-			var temp = $itemHtml.clone().wrap("<div>");
-			return temp.parent().html();
-		}
-	};
-
-	sp.templating.renderTemplate = function(template, item, renderEachTemplate) {
-		var itemHtml = sp.templating.populateTemplate(template, item);
-		if (renderEachTemplate) {
-			itemHtml = sp.templating.Each.populateEachTemplates(itemHtml, item);
-		}
-		return itemHtml;
-	};
-})(SPScript);
-
-String.prototype.UTCJsonToDate = function() {
-	var utcStr = this.substring(this.indexOf("(") + 1);
-	utcStr = utcStr.substring(0, utcStr.indexOf(")"));
-
-	var returnDate = new Date(parseInt(utcStr, 10));
-	var hourOffset = returnDate.getTimezoneOffset() / 60;
-	returnDate.setHours(returnDate.getHours() + hourOffset);
-
-	return returnDate;
-};
-
-module.exports = SPScript.templating;
-},{"./spscript":11}],13:[function(require,module,exports){
 var SPScript = require;("./spscript");
 SPScript.helpers = require("./helpers");
 SPScript.permissions = require("./permissions");
@@ -917,4 +819,4 @@ SPScript.permissions = require("./permissions");
 })(SPScript);
 
 module.exports = SPScript.Web;
-},{"./helpers":4,"./permissions":6}]},{},[3])
+},{"./helpers":3,"./permissions":5}]},{},[2])
