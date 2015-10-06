@@ -474,6 +474,11 @@ SPScript.helpers = require("./helpers");
 module.exports = SPScript.permissions;
 },{"./helpers":3,"./spscript":11}],6:[function(require,module,exports){
 var RestDao = require("../../restDao");
+
+var handleError  = function(message) {
+	alert(message);
+};
+
 var init = function(field, list) {
 	
 	var head = document.getElementsByTagName("head")[0];
@@ -584,7 +589,31 @@ SPScript.helpers = require("./helpers");
 					.then(sp.helpers.validateODataV2)
 					.then(transformPersonProperties);
 	};
-
+	
+	Profiles.prototype.setProperty = function(userOrEmail, key, value) {
+		var self = this;
+		var url = this.baseUrl + "/SetSingleValueProfileProperty";
+		var args = {
+			propertyName: key,
+			propertyValue: value,
+		};
+		var customOptions = {
+			headers: {
+				"Accept": "application/json;odata=verbose",
+				"X-RequestDigest": $("#__REQUESTDIGEST").val(),
+			}
+		};
+		if (typeof userOrEmail === "string") {
+			return self.getByEmail(userOrEmail).then(function(user){
+				args.accountName = user.AccountName;
+				return self._dao.post(url, args, customOptions);
+			})
+		} else {
+			args.accountName = userOrEmail.LoginName;
+			return self._dao.post(url, args, customOptions);
+		}
+	};
+	
 	Profiles.prototype.getProfile = function(user) {
 		var login = encodeURIComponent(user.LoginName);
 		var url = this.baseUrl + "/GetPropertiesFor(accountName=@v)?@v='" + login + "'";

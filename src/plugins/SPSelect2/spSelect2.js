@@ -1,4 +1,9 @@
 var RestDao = require("../../restDao");
+
+var handleError  = function(message) {
+	alert(message);
+};
+
 var init = function(field, list) {
 	
 	var head = document.getElementsByTagName("head")[0];
