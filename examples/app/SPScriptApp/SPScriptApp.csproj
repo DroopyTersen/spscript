@@ -41,6 +41,9 @@
     <UseVSHostingProcess>false</UseVSHostingProcess>
   </PropertyGroup>
   <ItemGroup>
+    <Content Include="Pages\plugins\plugins.aspx" />
+    <Content Include="Pages\plugins\splanguagepicker.jquery.js" />
+    <Content Include="Pages\plugins\spscript.js" />
     <Content Include="Pages\test\spscript.js" />
     <Content Include="Pages\test\test.js" />
     <Content Include="Pages\test\test.aspx" />

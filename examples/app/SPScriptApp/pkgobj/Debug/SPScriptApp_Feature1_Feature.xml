@@ -7,6 +7,9 @@
     <ElementFile Location="Pages\test\test.js" />
     <ElementFile Location="Pages\test\spscript.js" />
     <ElementFile Location="Pages\test\spscript.zepto.min.js.gz" />
+    <ElementFile Location="Pages\plugins\plugins.aspx" />
+    <ElementFile Location="Pages\plugins\spscript.js" />
+    <ElementFile Location="Pages\plugins\splanguagepicker.jquery.js" />
     <ElementManifest Location="Scripts\Elements.xml" />
     <ElementFile Location="Scripts\App.js" />
     <ElementFile Location="Scripts\jquery-1.9.1.min.map" />

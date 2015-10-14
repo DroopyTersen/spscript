@@ -64,6 +64,10 @@ exports.run = function(dao) {
                     console.log("Failed");
                     console.log(arguments); 
             });
+          
+          var languageKey = "SPS-MUILanguages";
+          var languageValue = "es-US,en-US";
+          dao.profiles.setProperty(email, languageKey, languageValue);
        }); 
     });
 };
