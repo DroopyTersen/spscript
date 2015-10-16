@@ -23,6 +23,16 @@
     <ElementManifest Location="TestListInstance\Elements.xml" />
     <ElementManifest Location="TestList\Elements.xml" />
     <ElementFile Location="TestList\Schema.xml" />
+    <ElementManifest Location="TestLibraryInstance\Elements.xml" />
+    <ElementManifest Location="TestLibrary\Elements.xml" />
+    <ElementFile Location="TestLibrary\Schema.xml" />
+    <ElementFile Location="TestLibrary\EditDlg.htm" />
+    <ElementFile Location="TestLibrary\FileDlg.htm" />
+    <ElementFile Location="TestLibrary\Repair.aspx" />
+    <ElementFile Location="TestLibrary\Upload.aspx" />
+    <ElementManifest Location="TestFiles\Elements.xml" />
+    <ElementFile Location="TestFiles\Sample.txt" />
+    <ElementFile Location="TestFiles\SubFolder\Sample.txt" />
   </ElementManifests>
   <UpgradeActions>
     <VersionRange>
@@ -33,6 +43,9 @@
         <ElementManifest Location="Images\Elements.xml" />
         <ElementManifest Location="TestListInstance\Elements.xml" />
         <ElementManifest Location="TestList\Elements.xml" />
+        <ElementManifest Location="TestLibraryInstance\Elements.xml" />
+        <ElementManifest Location="TestLibrary\Elements.xml" />
+        <ElementManifest Location="TestFiles\Elements.xml" />
       </ApplyElementManifests>
     </VersionRange>
   </UpgradeActions>

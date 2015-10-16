@@ -1,0 +1,7 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Elements xmlns="http://schemas.microsoft.com/sharepoint/">
+  <Module Name="TestFiles">
+    <File Path="TestFiles\Sample.txt" Url="Lists/TestLibrary/Sample.txt" ReplaceContent="TRUE" />
+    <File Path="TestFiles\SubFolder\Sample.txt" Url="Lists/TestLibrary/SubFolder/Sample.txt" ReplaceContent="TRUE" />
+  </Module>
+</Elements>

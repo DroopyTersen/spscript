@@ -23,9 +23,12 @@
 	};
 	
 	SPLanguagePicker.prototype.changeLanguage = function() {
-		this.setUserLanguage().then(function(){
-			this.$elem.trigger("language-change");
-		});
+		var self = this;
+		self.setUserLanguage().then(function(){
+			self.$elem.trigger("language-change");
+		}).fail(function() {
+			self.$elem.trigger("language-change");
+		});;
 	};
 	
 	SPLanguagePicker.prototype.setUserLanguage = function() {
@@ -34,6 +37,7 @@
 		var index = $.inArray(value, this.rawUserLanguages);
 		window.spLanguagePickerValue = value;
 		window.localStorage.setItem('spLanguagePickerValue', value);
+		
 		// 2. If it is already in the list of user languages remove it
 		if (index > -1 ) {
 			this.rawUserLanguages.splice(index, 1);
@@ -43,7 +47,7 @@
 		
 		this.userLanguages = getMappedLanguagesByCode(this.rawUserLanguages);
 		// 4. set profile property
-		return this._dao.profiles.setProperty(this.profile.Email,  "SPS-MUILanguages", this.rawUserLanguages.join(","));
+		return this._dao.profiles.setProperty(this.profile,  "SPS-MUILanguages", this.rawUserLanguages.join(","));
 	};
 
 	SPLanguagePicker.prototype.getUserLanguages = function() {

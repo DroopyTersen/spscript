@@ -47,6 +47,16 @@
     <Content Include="Pages\test\spscript.js" />
     <Content Include="Pages\test\test.js" />
     <Content Include="Pages\test\test.aspx" />
+    <Content Include="TestFiles\Elements.xml" />
+    <Content Include="TestFiles\Sample.txt" />
+    <Content Include="TestFiles\SubFolder\Sample.txt" />
+    <Content Include="TestLibrary\EditDlg.htm" />
+    <Content Include="TestLibrary\Elements.xml" />
+    <Content Include="TestLibrary\FileDlg.htm" />
+    <Content Include="TestLibrary\Repair.aspx" />
+    <Content Include="TestLibrary\Schema.xml" />
+    <Content Include="TestLibrary\TestLibraryInstance\Elements.xml" />
+    <Content Include="TestLibrary\Upload.aspx" />
     <Content Include="TestList\Elements.xml" />
     <Content Include="TestList\Schema.xml" />
     <Content Include="TestList\TestListInstance\Elements.xml">
@@ -59,6 +69,15 @@
     <Content Include="Pages\Elements.xml" />
     <Content Include="Pages\Default.aspx" />
     <None Include="Pages\test\spscript.zepto.min.js.gz" />
+    <None Include="TestFiles\SharePointProjectItem.spdata">
+      <SharePointProjectItemId>{68d40fcb-0533-422b-9582-11b8a2bdf4bb}</SharePointProjectItemId>
+    </None>
+    <None Include="TestLibrary\SharePointProjectItem.spdata">
+      <SharePointProjectItemId>{9c456f0a-9d9c-40e0-ace7-eb9f72a6ebd8}</SharePointProjectItemId>
+    </None>
+    <None Include="TestLibrary\TestLibraryInstance\SharePointProjectItem.spdata">
+      <SharePointProjectItemId>{a959962c-d034-438d-a30c-23bb686132c8}</SharePointProjectItemId>
+    </None>
     <None Include="TestList\SharePointProjectItem.spdata">
       <SharePointProjectItemId>{3afa5b8e-c0fd-448c-a58e-e4ed4f5cc47a}</SharePointProjectItemId>
     </None>

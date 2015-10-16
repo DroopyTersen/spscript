@@ -8,7 +8,7 @@
 >
   <Properties>
     <Title>SPScriptApp</Title>
-    <StartPage>~appWebUrl/Pages/plugins/plugins.aspx?{StandardTokens}</StartPage>
+    <StartPage>~appWebUrl/Pages/test/test.aspx?{StandardTokens}</StartPage>
   </Properties>
 
   <AppPrincipal>

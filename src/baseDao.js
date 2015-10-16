@@ -3,6 +3,9 @@ SPScript.List = require("./list");
 SPScript.Web = require("./web");
 SPScript.Profiles = require("./profiles")
 SPScript.helpers = require("./helpers");
+var fs = require("./filesystem");
+SPScript.File = fs.File;
+SPScript.Folder = fs.Folder;
 
 (function(sp) {
 	var BaseDao = function() {
@@ -44,6 +47,19 @@ SPScript.helpers = require("./helpers");
 		};
 		$.extend(options, extendedOptions);
 		return this.executeRequest(relativePostUrl, options);
+	};
+	
+	BaseDao.prototype.getFolder = function(serverRelativeUrl) {
+		if (serverRelativeUrl.charAt(0) === "/") {
+			serverRelativeUrl = serverRelativeUrl.substr(1);
+		}
+		var url = "/web/GetFolderByServerRelativeUrl('" + serverRelativeUrl + "')?$expand=Folders,Files";
+		
+		return this.get(url).then(sp.helpers.validateODataV2).then(function(spFolder) {
+			var folder = new SPScript.Folder(spFolder);
+			folder.populateChildren(spFolder);
+			return folder;
+		});
 	};
 
 	BaseDao.prototype.uploadFile = function(folderUrl, name, base64Binary) {
