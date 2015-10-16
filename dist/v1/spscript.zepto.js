@@ -2416,7 +2416,7 @@ SPScript.helpers = require("./helpers");
 				return self._dao.post(url, args, customOptions);
 			})
 		} else {
-			args.accountName = userOrEmail.LoginName;
+			args.accountName = userOrEmail.LoginName || userOrEmail.AccountName;
 			return self._dao.post(url, args, customOptions);
 		}
 	};

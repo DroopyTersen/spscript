@@ -18,6 +18,9 @@ var browserifyAndMinify = function(entry, minifiedName) {
 
 gulp.task('full', function(){
 	browserifyAndMinify('./src/entries/spscript.js', 'spscript.min.js');
+	
+	gulp.src('./src/plugins/SPLanguagePicker/splanguagepicker.jquery.js')
+		.pipe(gulp.dest('./dist/v1/'));
 });
 
 gulp.task('jquery', function(){
