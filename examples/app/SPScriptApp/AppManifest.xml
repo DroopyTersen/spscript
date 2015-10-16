@@ -8,7 +8,7 @@
 >
   <Properties>
     <Title>SPScriptApp</Title>
-    <StartPage>~appWebUrl/Pages/test/test.aspx?{StandardTokens}</StartPage>
+    <StartPage>~appWebUrl/Pages/plugins/plugins.aspx?{StandardTokens}</StartPage>
   </Properties>
 
   <AppPrincipal>
@@ -16,7 +16,7 @@
   </AppPrincipal>
   <AppPermissionRequests>
     <AppPermissionRequest Scope="http://sharepoint/search" Right="QueryAsUserIgnoreAppPrincipal" />
-    <AppPermissionRequest Scope="http://sharepoint/social/tenant" Right="Read" />
+    <AppPermissionRequest Scope="http://sharepoint/social/tenant" Right="Write" />
     <AppPermissionRequest Scope="http://sharepoint/content/sitecollection/web" Right="Read" />
   </AppPermissionRequests>
 </App>

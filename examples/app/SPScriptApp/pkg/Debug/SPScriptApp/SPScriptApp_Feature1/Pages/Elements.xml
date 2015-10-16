@@ -6,5 +6,8 @@
     <File Path="Pages\test\test.js" Url="Pages/test/test.js" ReplaceContent="TRUE" />
     <File Path="Pages\test\spscript.js" Url="Pages/test/spscript.js" ReplaceContent="TRUE" />
     <File Path="Pages\test\spscript.zepto.min.js.gz" Url="Pages/test/spscript.zepto.min.js.gz" ReplaceContent="TRUE" />
+    <File Path="Pages\plugins\plugins.aspx" Url="Pages/plugins/plugins.aspx" ReplaceContent="TRUE" />
+    <File Path="Pages\plugins\spscript.js" Url="Pages/plugins/spscript.js" ReplaceContent="TRUE" />
+    <File Path="Pages\plugins\splanguagepicker.jquery.js" Url="Pages/plugins/splanguagepicker.jquery.js" ReplaceContent="TRUE" />
   </Module>
 </Elements>

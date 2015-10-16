@@ -7,5 +7,8 @@
     <ProjectItemFile Source="test\test.js" Target="Pages\test\" Type="ElementFile" />
     <ProjectItemFile Source="test\spscript.js" Target="Pages\test\" Type="ElementFile" />
     <ProjectItemFile Source="test\spscript.zepto.min.js.gz" Target="Pages\test\" Type="ElementFile" />
+    <ProjectItemFile Source="plugins\plugins.aspx" Target="Pages\plugins\" Type="ElementFile" />
+    <ProjectItemFile Source="plugins\spscript.js" Target="Pages\plugins\" Type="ElementFile" />
+    <ProjectItemFile Source="plugins\splanguagepicker.jquery.js" Target="Pages\plugins\" Type="ElementFile" />
   </Files>
 </ProjectItem>

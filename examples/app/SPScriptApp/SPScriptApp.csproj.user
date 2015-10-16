@@ -2,13 +2,14 @@
 <Project ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <SharePointSiteUrl>https://andrewpetersen.sharepoint.com/</SharePointSiteUrl>
+    <ProjectView>ProjectFiles</ProjectView>
   </PropertyGroup>
   <ProjectExtensions>
     <VisualStudio>
       <FlavorProperties GUID="{C1CDDADD-2546-481F-9697-4EA41081F2FC}">
         <ProjectStore>
-          <AppInstancePackageModifiedTime>2015-03-06T20:20:38.465729Z</AppInstancePackageModifiedTime>
-          <AppInstanceId>aacc0adc-74e6-4c95-bc0d-161b927cd573</AppInstanceId>
+          <AppInstancePackageModifiedTime>2015-10-14T21:45:35.3115869Z</AppInstancePackageModifiedTime>
+          <AppInstanceId>82198083-6b30-4562-9365-af8228f89be2</AppInstanceId>
         </ProjectStore>
       </FlavorProperties>
     </VisualStudio>

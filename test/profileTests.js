@@ -1,4 +1,5 @@
 exports.run = function(dao) {
+    var email = "andrew@andrewpetersen.onmicrosoft.com";
 	describe("SPScript.RestDao.profiles.current()", function () {
         var profile = null;
         before(function (done) {
@@ -17,7 +18,6 @@ exports.run = function(dao) {
 
    describe("SPScript.RestDao.profiles.getByEmail(email)", function () {
         var profile = null;
-        var email = "andrew@andrewpetersen.onmicrosoft.com";
         before(function (done) {
             dao.profiles.getByEmail(email).then(function (result) {
                 profile = result;
@@ -48,5 +48,26 @@ exports.run = function(dao) {
             	done();
             });
         });
+    });
+    
+    describe("SPScript.RestDao.profile.setProperty(accountName, propertyName, propertyValue)", function(){
+       it ("Should update the About Me profile property", function(done){
+          var aboutMeValue = "Hi there. I was update with SPScript";
+          dao.profiles.setProperty(email, "AboutMe", aboutMeValue)
+            .then(dao.profiles.current.bind(dao.profiles))
+            .then(function(profile){
+                profile.should.have.property("AboutMe");
+                profile.AboutMe.should.equal(aboutMeValue);
+                done();
+            })
+            .fail(function() {
+                    console.log("Failed");
+                    console.log(arguments); 
+            });
+          
+          var languageKey = "SPS-MUILanguages";
+          var languageValue = "es-US,en-US";
+          dao.profiles.setProperty(email, languageKey, languageValue);
+       }); 
     });
 };

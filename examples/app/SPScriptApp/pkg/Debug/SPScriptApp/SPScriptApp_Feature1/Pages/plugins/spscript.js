@@ -9812,7 +9812,7 @@ SPScript.helpers = require("./helpers");
 				return self._dao.post(url, args, customOptions);
 			})
 		} else {
-			args.accountName = userOrEmail.LoginName || userOrEmail.AccountName;
+			args.accountName = userOrEmail.LoginName;
 			return self._dao.post(url, args, customOptions);
 		}
 	};

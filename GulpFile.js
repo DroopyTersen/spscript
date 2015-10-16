@@ -18,6 +18,9 @@ var browserifyAndMinify = function(entry, minifiedName) {
 
 gulp.task('full', function(){
 	browserifyAndMinify('./src/entries/spscript.js', 'spscript.min.js');
+	
+	gulp.src('./src/plugins/SPLanguagePicker/splanguagepicker.jquery.js')
+		.pipe(gulp.dest('./dist/v1/'));
 });
 
 gulp.task('jquery', function(){
@@ -42,9 +45,20 @@ gulp.task('test-app', ['zepto'], function(){
 		.pipe(gulp.dest('./examples/app/SPScriptApp/Pages/test'));
 });
 
+gulp.task('plugins-app', ['jquery'], function(){
+	gulp.src('./dist/v1/spscript.jquery.js')
+		.pipe(rename('spscript.js'))
+		.pipe(gulp.dest('./examples/app/SPScriptApp/Pages/plugins'));
+
+	// gulp.src('./dist/v1/spscript.zepto.js')
+	// 	.pipe(rename('spscript.js'))
+	// 	.pipe(gulp.dest('./examples/app/SPScriptApp/Pages/test'));
+	gulp.src('./src/plugins/SPLanguagePicker/splanguagepicker.jquery.js')
+		.pipe(gulp.dest('./examples/app/SPScriptApp/Pages/plugins'));
+});
 gulp.task('watch', function() {
 	var scripts = [ "src/**/*.js"];
 	gulp.watch(scripts, ['default']);
 });
 
-gulp.task('default', ['full', 'jquery', 'zepto', 'select2', 'test-app']);
+gulp.task('default', ['full', 'jquery', 'zepto', 'select2', 'test-app', 'plugins-app']);

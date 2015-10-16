@@ -474,6 +474,11 @@ SPScript.helpers = require("./helpers");
 module.exports = SPScript.permissions;
 },{"./helpers":3,"./spscript":11}],6:[function(require,module,exports){
 var RestDao = require("../../restDao");
+
+var handleError  = function(message) {
+	alert(message);
+};
+
 var init = function(field, list) {
 	
 	var head = document.getElementsByTagName("head")[0];
@@ -505,16 +510,20 @@ var init = function(field, list) {
 
 	var convertToSelect2 = function(ctx) {
 		var fieldCtx = SPClientTemplates.Utility.GetFormContextForCurrentField(ctx);
+		console.log(fieldCtx);
 		var url = fieldCtx.webAttributes.WebUrl;
 		var dao = new RestDao(url);
-		var dropdownHtml = "<select id='" + fieldCtx.fieldName + "' type='text' class='ms-long' name='" + fieldCtx.fieldName + "'><option value=''></option></select>";
+		var isMultple = fieldCtx.fieldSchema.FieldType === "LookupMulti" ? "multiple='multple'" : "";
+		var dropdownHtml = "<select id='" + fieldCtx.fieldName + "' " +  isMultple + "class='ms-long' name='" + fieldCtx.fieldName + "'><option value=''></option></select>";
 		var selector = "[name='" + fieldCtx.fieldName + "']";
 
 		fieldCtx.registerGetValueCallback(fieldCtx.fieldName, function() {
-			return $(selector).val();
+			var value = $(selector).val();
+			if (fieldCtx.fieldSchema.FieldType === "LookupMulti") {
+				value = value.join(";#");
+			}
+			return value;
 		});
-
-
 
 		$(document).ready(function(){
 			$.getScript("//cdnjs.cloudflare.com/ajax/libs/select2/4.0.0/js/select2.min.js").then(function(){
@@ -532,7 +541,7 @@ var init = function(field, list) {
 						processResults: function(items) {
 							var results = items.map(function(item){
 								return {
-									id: item.Id,
+									id: item.Id + ";#" + item.Title,
 									text: item.Title
 								};
 							});
@@ -540,7 +549,6 @@ var init = function(field, list) {
 						},
 						cache: true,
 						transport: function(params, success, failure) {
-							console.log(params);
 							var search = params.data.q || "";
 							var odata = "$top=10&$select=Title, Id&$filter=substringof('" + search + "', Title)";
 							dao.lists(list).getItems(odata).then(function(items){
@@ -581,7 +589,31 @@ SPScript.helpers = require("./helpers");
 					.then(sp.helpers.validateODataV2)
 					.then(transformPersonProperties);
 	};
-
+	
+	Profiles.prototype.setProperty = function(userOrEmail, key, value) {
+		var self = this;
+		var url = this.baseUrl + "/SetSingleValueProfileProperty";
+		var args = {
+			propertyName: key,
+			propertyValue: value,
+		};
+		var customOptions = {
+			headers: {
+				"Accept": "application/json;odata=verbose",
+				"X-RequestDigest": $("#__REQUESTDIGEST").val(),
+			}
+		};
+		if (typeof userOrEmail === "string") {
+			return self.getByEmail(userOrEmail).then(function(user){
+				args.accountName = user.AccountName;
+				return self._dao.post(url, args, customOptions);
+			})
+		} else {
+			args.accountName = userOrEmail.LoginName || userOrEmail.AccountName;
+			return self._dao.post(url, args, customOptions);
+		}
+	};
+	
 	Profiles.prototype.getProfile = function(user) {
 		var login = encodeURIComponent(user.LoginName);
 		var url = this.baseUrl + "/GetPropertiesFor(accountName=@v)?@v='" + login + "'";
