@@ -30,6 +30,7 @@ Methods
 - `list.getItems(odata)` - gets all the items in that list based on the [OData](http://www.odata.org/documentation/odata-version-2-0/uri-conventions/) you pass in.  This allows you to trim selection, filter, sort etc..
 - `list.getItemById(id)` - gets you a specific item based on the SharePoint Id
 - `list.findItems(key, value)` - gets you all items whose field(key) matches the value. Currently only text and number columns are supported.
+- `list.findItems(key, value, extraOdata)` - gets you all items whose field(key) matches the value. Currently only text and number columns are supported.
 - `list.findItem(key, value)` - get you an item whose field(key) matches the value. If multiple matches are found, the first is returned.  Currently only text and number columns are supported.
 - `list.addItem(item)` - takes a javascript object and creates a list item.
 - `list.updateItem(id, updates)` - takes a SharePoint Id, and updates that item ONLY with properties that are found in the passed in `updates` object.
@@ -46,6 +47,8 @@ Methods
 ### Profiles
 - `profiles.current()` - gets you all the profile properties for the current user
 - `profiles.getByEmail(email)` - looks up a user based on their email and returns their profile properties
+- `profiles.setProperty(user, key, value)` - sets a profile property (key) for the specified user.  User object should have `AccountName` or `LoginName` property
+- `profiles.setProperty(email, key, value)` - sets a profile property (key) for the user tied to that email address
 
 ### Query String Helpers
 - `queryString.contains(key)` - returns true or false
