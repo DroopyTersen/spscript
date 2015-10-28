@@ -9,7 +9,7 @@ SPScript.BaseDao = require("./baseDao");
 		this.scriptReady = new $.Deferred();
 
 		//Load of up to RequestExecutor javascript from the host site if its not there.
-		if (!SP || !SP.RequestExecutor) {
+		if (!window.SP || !window.SP.RequestExecutor) {
 			this.scriptReady = $.getScript(hostUrl + "/_layouts/15/SP.RequestExecutor.js");
 		} else {
 			setTimeout(function() {
