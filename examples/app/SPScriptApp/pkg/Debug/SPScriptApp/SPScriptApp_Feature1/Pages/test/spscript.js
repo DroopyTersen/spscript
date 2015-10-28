@@ -1815,6 +1815,9 @@ SPScript.List = require("./list");
 SPScript.Web = require("./web");
 SPScript.Profiles = require("./profiles")
 SPScript.helpers = require("./helpers");
+var fs = require("./filesystem");
+SPScript.File = fs.File;
+SPScript.Folder = fs.Folder;
 
 (function(sp) {
 	var BaseDao = function() {
@@ -1857,6 +1860,19 @@ SPScript.helpers = require("./helpers");
 		$.extend(options, extendedOptions);
 		return this.executeRequest(relativePostUrl, options);
 	};
+	
+	BaseDao.prototype.getFolder = function(serverRelativeUrl) {
+		if (serverRelativeUrl.charAt(0) === "/") {
+			serverRelativeUrl = serverRelativeUrl.substr(1);
+		}
+		var url = "/web/GetFolderByServerRelativeUrl('" + serverRelativeUrl + "')?$expand=Folders,Files";
+		
+		return this.get(url).then(sp.helpers.validateODataV2).then(function(spFolder) {
+			var folder = new SPScript.Folder(spFolder);
+			folder.populateChildren(spFolder);
+			return folder;
+		});
+	};
 
 	BaseDao.prototype.uploadFile = function(folderUrl, name, base64Binary) {
 		var uploadUrl = "/web/GetFolderByServerRelativeUrl('" + folderUrl + "')/Files/Add(url='" + name + "',overwrite=true)",
@@ -1871,7 +1887,7 @@ SPScript.helpers = require("./helpers");
 })(SPScript);
 
 module.exports = SPScript.BaseDao;
-},{"./helpers":6,"./list":7,"./profiles":9,"./spscript":13,"./web":15}],3:[function(require,module,exports){
+},{"./filesystem":6,"./helpers":7,"./list":8,"./profiles":10,"./spscript":14,"./web":16}],3:[function(require,module,exports){
 SPScript = require("./spscript");
 SPScript.helpers = require("./helpers");
 SPScript.BaseDao = require("./baseDao");
@@ -1949,7 +1965,7 @@ SPScript.BaseDao = require("./baseDao");
 })(SPScript);
 
 module.exports = SPScript.CrossDomainDao;
-},{"./baseDao":2,"./helpers":6,"./spscript":13}],4:[function(require,module,exports){
+},{"./baseDao":2,"./helpers":7,"./spscript":14}],4:[function(require,module,exports){
 (function (global){
 
 global.Zepto = require("../../lib/zepto.custom");
@@ -1966,7 +1982,59 @@ global.SPScript.Search = require("../search");
 global.SPScript.templating = require("../templating");
 module.exports = global.SPScript;
 }).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../crossDomainDao":3,"../queryString":10,"../restDao":11,"../search":12,"../templating":14}],6:[function(require,module,exports){
+},{"../crossDomainDao":3,"../queryString":11,"../restDao":12,"../search":13,"../templating":15}],6:[function(require,module,exports){
+var SPScript = require("./spscript");
+SPScript.helpers = require("./helpers");
+
+(function(sp) {
+
+	var Folder = function(spFolder) {
+		var self = this;
+		self.mapProperties(spFolder);
+	};
+	
+	Folder.prototype.populateChildren = function(spFolder) {
+		this.folders = spFolder.Folders.results.map(function(spFolder){
+			return new Folder(spFolder);
+		});
+		
+		this.files = spFolder.Files.results.map(function(spFile){
+			return new File(spFile);
+		});
+	};
+	
+	Folder.prototype.mapProperties = function(spFolder) {
+		this.name = spFolder.Name;
+		this.serverRelativeUrl = spFolder.ServerRelativeUrl;
+		this.itemCount = spFolder.ItemCount;
+		this.guid = spFolder.UniqueId;
+		this.uri = spFolder.__metadata.uri;
+	};
+	
+	var File = function(spFile) {
+		this.mapProperties(spFile);
+	};
+	
+	File.prototype.mapProperties = function(spFile) {
+		this.name = spFile.Name,
+		this.title = spFile.Title,
+		this.checkoutType = spFile.CheckOutType,
+		this.byteLength = spFile.Length,
+		this.majorVersion = spFile.MajorVersion,
+		this.minorVersion = spFile.MinorVersion,
+		this.serverRelativeUrl = spFile.ServerRelativeUrl,
+		this.uri =  spFile.__metadata.uri
+	};
+	
+	sp.File = File;
+	sp.Folder = Folder;
+})(SPScript);
+
+module.exports = {
+	File: SPScript.File,
+	Folder: SPScript.Folder
+};
+},{"./helpers":7,"./spscript":14}],7:[function(require,module,exports){
 var SPScript = require("./spscript.js");
 
 (function(sp) {
@@ -2003,7 +2071,7 @@ var SPScript = require("./spscript.js");
 })(SPScript);
 
 module.exports = SPScript.helpers;
-},{"./spscript.js":13}],7:[function(require,module,exports){
+},{"./spscript.js":14}],8:[function(require,module,exports){
 var SPScript = require("./spscript");
 SPScript.helpers = require("./helpers");
 SPScript.permissions = require("./permissions");
@@ -2117,7 +2185,7 @@ SPScript.permissions = require("./permissions");
 })(SPScript);
 
 module.exports = SPScript.List;
-},{"./helpers":6,"./permissions":8,"./spscript":13}],8:[function(require,module,exports){
+},{"./helpers":7,"./permissions":9,"./spscript":14}],9:[function(require,module,exports){
 var SPScript = require("./spscript");
 SPScript.helpers = require("./helpers");
 
@@ -2373,7 +2441,7 @@ SPScript.helpers = require("./helpers");
 })(SPScript);
 
 module.exports = SPScript.permissions;
-},{"./helpers":6,"./spscript":13}],9:[function(require,module,exports){
+},{"./helpers":7,"./spscript":14}],10:[function(require,module,exports){
 var SPScript = require;("./spscript");
 SPScript.helpers = require("./helpers");
 
@@ -2416,7 +2484,7 @@ SPScript.helpers = require("./helpers");
 				return self._dao.post(url, args, customOptions);
 			})
 		} else {
-			args.accountName = userOrEmail.LoginName;
+			args.accountName = userOrEmail.LoginName || userOrEmail.AccountName;
 			return self._dao.post(url, args, customOptions);
 		}
 	};
@@ -2441,7 +2509,7 @@ SPScript.helpers = require("./helpers");
 })(SPScript);
 
 module.exports = SPScript.Profiles;
-},{"./helpers":6}],10:[function(require,module,exports){
+},{"./helpers":7}],11:[function(require,module,exports){
 SPScript = require("./spscript");
 
 (function(sp) {
@@ -2505,7 +2573,7 @@ SPScript = require("./spscript");
 })(SPScript);
 
 module.exports = SPScript.queryString;
-},{"./spscript":13}],11:[function(require,module,exports){
+},{"./spscript":14}],12:[function(require,module,exports){
 var SPScript = require("./spscript");
 SPScript.BaseDao = require("./baseDao");
 SPScript.Search = require("./search");
@@ -2538,7 +2606,7 @@ SPScript.Search = require("./search");
 })(SPScript);
 
 module.exports = SPScript.RestDao;
-},{"./baseDao":2,"./search":12,"./spscript":13}],12:[function(require,module,exports){
+},{"./baseDao":2,"./search":13,"./spscript":14}],13:[function(require,module,exports){
 SPScript = require("./spscript");
 SPScript.RestDao = require("./restDao");
 SPScript.queryString = require('./queryString');
@@ -2620,9 +2688,9 @@ SPScript.queryString = require('./queryString');
 })(SPScript);
 
 module.exports = SPScript.Search;
-},{"./queryString":10,"./restDao":11,"./spscript":13}],13:[function(require,module,exports){
+},{"./queryString":11,"./restDao":12,"./spscript":14}],14:[function(require,module,exports){
 module.exports = {};
-},{}],14:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 SPScript = require("./spscript");
 
 (function(sp) {
@@ -2723,7 +2791,7 @@ String.prototype.UTCJsonToDate = function() {
 };
 
 module.exports = SPScript.templating;
-},{"./spscript":13}],15:[function(require,module,exports){
+},{"./spscript":14}],16:[function(require,module,exports){
 var SPScript = require;("./spscript");
 SPScript.helpers = require("./helpers");
 SPScript.permissions = require("./permissions");
@@ -2759,4 +2827,4 @@ SPScript.permissions = require("./permissions");
 })(SPScript);
 
 module.exports = SPScript.Web;
-},{"./helpers":6,"./permissions":8}]},{},[4])
+},{"./helpers":7,"./permissions":9}]},{},[4])

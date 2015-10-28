@@ -9,6 +9,35 @@
     <ProjectItemFile Source="test\spscript.zepto.min.js.gz" Target="Pages\test\" Type="ElementFile" />
     <ProjectItemFile Source="plugins\plugins.aspx" Target="Pages\plugins\" Type="ElementFile" />
     <ProjectItemFile Source="plugins\spscript.js" Target="Pages\plugins\" Type="ElementFile" />
-    <ProjectItemFile Source="plugins\splanguagepicker.jquery.js" Target="Pages\plugins\" Type="ElementFile" />
+    <ProjectItemFile Source="plugins\SPFileTree\spfiletree.js" Target="Pages\plugins\SPFileTree\" Type="ElementFile" />
+    <ProjectItemFile Source="plugins\SPFileTree\images\application.png" Target="Pages\plugins\SPFileTree\images\" Type="ElementFile" />
+    <ProjectItemFile Source="plugins\SPFileTree\images\code.png" Target="Pages\plugins\SPFileTree\images\" Type="ElementFile" />
+    <ProjectItemFile Source="plugins\SPFileTree\images\css.png" Target="Pages\plugins\SPFileTree\images\" Type="ElementFile" />
+    <ProjectItemFile Source="plugins\SPFileTree\images\db.png" Target="Pages\plugins\SPFileTree\images\" Type="ElementFile" />
+    <ProjectItemFile Source="plugins\SPFileTree\images\directory.png" Target="Pages\plugins\SPFileTree\images\" Type="ElementFile" />
+    <ProjectItemFile Source="plugins\SPFileTree\images\doc.png" Target="Pages\plugins\SPFileTree\images\" Type="ElementFile" />
+    <ProjectItemFile Source="plugins\SPFileTree\images\file.png" Target="Pages\plugins\SPFileTree\images\" Type="ElementFile" />
+    <ProjectItemFile Source="plugins\SPFileTree\images\film.png" Target="Pages\plugins\SPFileTree\images\" Type="ElementFile" />
+    <ProjectItemFile Source="plugins\SPFileTree\images\flash.png" Target="Pages\plugins\SPFileTree\images\" Type="ElementFile" />
+    <ProjectItemFile Source="plugins\SPFileTree\images\folder_open.png" Target="Pages\plugins\SPFileTree\images\" Type="ElementFile" />
+    <ProjectItemFile Source="plugins\SPFileTree\images\html.png" Target="Pages\plugins\SPFileTree\images\" Type="ElementFile" />
+    <ProjectItemFile Source="plugins\SPFileTree\images\java.png" Target="Pages\plugins\SPFileTree\images\" Type="ElementFile" />
+    <ProjectItemFile Source="plugins\SPFileTree\images\linux.png" Target="Pages\plugins\SPFileTree\images\" Type="ElementFile" />
+    <ProjectItemFile Source="plugins\SPFileTree\images\music.png" Target="Pages\plugins\SPFileTree\images\" Type="ElementFile" />
+    <ProjectItemFile Source="plugins\SPFileTree\images\pdf.png" Target="Pages\plugins\SPFileTree\images\" Type="ElementFile" />
+    <ProjectItemFile Source="plugins\SPFileTree\images\php.png" Target="Pages\plugins\SPFileTree\images\" Type="ElementFile" />
+    <ProjectItemFile Source="plugins\SPFileTree\images\picture.png" Target="Pages\plugins\SPFileTree\images\" Type="ElementFile" />
+    <ProjectItemFile Source="plugins\SPFileTree\images\ppt.png" Target="Pages\plugins\SPFileTree\images\" Type="ElementFile" />
+    <ProjectItemFile Source="plugins\SPFileTree\images\psd.png" Target="Pages\plugins\SPFileTree\images\" Type="ElementFile" />
+    <ProjectItemFile Source="plugins\SPFileTree\images\ruby.png" Target="Pages\plugins\SPFileTree\images\" Type="ElementFile" />
+    <ProjectItemFile Source="plugins\SPFileTree\images\script.png" Target="Pages\plugins\SPFileTree\images\" Type="ElementFile" />
+    <ProjectItemFile Source="plugins\SPFileTree\images\spinner.gif" Target="Pages\plugins\SPFileTree\images\" Type="ElementFile" />
+    <ProjectItemFile Source="plugins\SPFileTree\images\txt.png" Target="Pages\plugins\SPFileTree\images\" Type="ElementFile" />
+    <ProjectItemFile Source="plugins\SPFileTree\images\xls.png" Target="Pages\plugins\SPFileTree\images\" Type="ElementFile" />
+    <ProjectItemFile Source="plugins\SPFileTree\images\zip.png" Target="Pages\plugins\SPFileTree\images\" Type="ElementFile" />
+    <ProjectItemFile Source="plugins\SPFileTree\skin-win8\icons.gif" Target="Pages\plugins\SPFileTree\skin-win8\" Type="ElementFile" />
+    <ProjectItemFile Source="plugins\SPFileTree\skin-win8\loading.gif" Target="Pages\plugins\SPFileTree\skin-win8\" Type="ElementFile" />
+    <ProjectItemFile Source="plugins\SPFileTree\skin-win8\ui.fancytree.css" Target="Pages\plugins\SPFileTree\skin-win8\" Type="ElementFile" />
+    <ProjectItemFile Source="plugins\SPLanguagePicker\splanguagepicker.jquery.js" Target="Pages\plugins\SPLanguagePicker\" Type="ElementFile" />
   </Files>
 </ProjectItem>

@@ -17,6 +17,9 @@ describe("SPScript.RestDao", function () {
 
     var profileTests = require("./profileTests");
     profileTests.run(dao);
+    
+    var fileTests = require("./fileTests");
+    fileTests.run(dao);
 });
 
 var queryStringTests = require("./queryStringTests");

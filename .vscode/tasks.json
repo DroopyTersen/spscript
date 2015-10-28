@@ -7,7 +7,7 @@
     ],
     "tasks": [
         {
-            "taskName": "plugins-app",
+            "taskName": "default",
             "args": [],
             "isTestCommand": true,
             "isBuildCommand": true
