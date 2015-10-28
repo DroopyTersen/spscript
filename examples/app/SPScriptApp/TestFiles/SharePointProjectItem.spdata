@@ -4,5 +4,9 @@
     <ProjectItemFile Source="Elements.xml" Target="TestFiles\" Type="ElementManifest" />
     <ProjectItemFile Source="Sample.txt" Target="TestFiles\" Type="ElementFile" />
     <ProjectItemFile Source="SubFolder\Sample.txt" Target="TestFiles\SubFolder\" Type="ElementFile" />
+    <ProjectItemFile Source="Subfolder1\Sample.txt" Target="TestFiles\Subfolder1\" Type="ElementFile" />
+    <ProjectItemFile Source="Subfolder2\Sample.txt" Target="TestFiles\Subfolder2\" Type="ElementFile" />
+    <ProjectItemFile Source="Subfolder1\Subfolder1.1\Sample.txt" Target="TestFiles\Subfolder1\Subfolder1.1\" Type="ElementFile" />
+    <ProjectItemFile Source="Subfolder1\Subfolder1.2\Sample.txt" Target="TestFiles\Subfolder1\Subfolder1.2\" Type="ElementFile" />
   </Files>
 </ProjectItem>

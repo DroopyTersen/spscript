@@ -6,19 +6,34 @@
 <asp:Content ContentPlaceHolderId="PlaceHolderAdditionalPageHead" runat="server">
     <title>Tests</title>
     <SharePoint:ScriptLink name="sp.js" runat="server" OnDemand="true" LoadAfterUI="true" Localizable="false" />
-	<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/mocha/2.1.0/mocha.min.css">
-	<%--<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>--%>
-    <script type="text/javascript" src='https://cdnjs.cloudflare.com/ajax/libs/mocha/2.1.0/mocha.min.js'></script>
-	<script type="text/javascript" src='https://cdnjs.cloudflare.com/ajax/libs/chai/2.1.0/chai.js'></script>
+	<link rel="stylesheet" type="text/css" href="spfiletree/skin-win8/ui.fancytree.css" />
     <script type="text/javascript" src='spscript.js'></script>
-    <script type="text/javascript" src='splanguagepicker.jquery.js'></script>
+    <script type="text/javascript" src='splanguagepicker/splanguagepicker.jquery.js'></script>
+    <script type='text/javascript' src='spfiletree/spfiletree.js'></script>
 </asp:Content>
 
 <asp:Content ContentPlaceHolderId="PlaceHolderMain" runat="server">
     <div id="spLanguagePicker">
         <select id="language-picker"></select>
     </div>
+    
+    <div id='spFileTree'>
+        <ul id="treeData">
+            <li id="id3" class="folder">Folder
+            <ul>
+                <li id="id3.1">Sub-item 3.1
+                    <ul>
+                        <li id="id3.1.1">Sub-item 3.1.1</li>
+                        <li id="id3.1.2">Sub-item 3.1.2</li>
+                    </ul>
+                </li>
+            </ul>
+            </li>
+        </ul>
+    </div>
     <script>
         var picker = $("#language-picker").spLanguagePicker();
+
+        var tree = $("#spFileTree").spFileTree({ library: "TestLibrary" });
     </script>
 </asp:Content>

@@ -9,7 +9,36 @@
     <ElementFile Location="Pages\test\spscript.zepto.min.js.gz" />
     <ElementFile Location="Pages\plugins\plugins.aspx" />
     <ElementFile Location="Pages\plugins\spscript.js" />
-    <ElementFile Location="Pages\plugins\splanguagepicker.jquery.js" />
+    <ElementFile Location="Pages\plugins\SPFileTree\spfiletree.js" />
+    <ElementFile Location="Pages\plugins\SPFileTree\images\application.png" />
+    <ElementFile Location="Pages\plugins\SPFileTree\images\code.png" />
+    <ElementFile Location="Pages\plugins\SPFileTree\images\css.png" />
+    <ElementFile Location="Pages\plugins\SPFileTree\images\db.png" />
+    <ElementFile Location="Pages\plugins\SPFileTree\images\directory.png" />
+    <ElementFile Location="Pages\plugins\SPFileTree\images\doc.png" />
+    <ElementFile Location="Pages\plugins\SPFileTree\images\file.png" />
+    <ElementFile Location="Pages\plugins\SPFileTree\images\film.png" />
+    <ElementFile Location="Pages\plugins\SPFileTree\images\flash.png" />
+    <ElementFile Location="Pages\plugins\SPFileTree\images\folder_open.png" />
+    <ElementFile Location="Pages\plugins\SPFileTree\images\html.png" />
+    <ElementFile Location="Pages\plugins\SPFileTree\images\java.png" />
+    <ElementFile Location="Pages\plugins\SPFileTree\images\linux.png" />
+    <ElementFile Location="Pages\plugins\SPFileTree\images\music.png" />
+    <ElementFile Location="Pages\plugins\SPFileTree\images\pdf.png" />
+    <ElementFile Location="Pages\plugins\SPFileTree\images\php.png" />
+    <ElementFile Location="Pages\plugins\SPFileTree\images\picture.png" />
+    <ElementFile Location="Pages\plugins\SPFileTree\images\ppt.png" />
+    <ElementFile Location="Pages\plugins\SPFileTree\images\psd.png" />
+    <ElementFile Location="Pages\plugins\SPFileTree\images\ruby.png" />
+    <ElementFile Location="Pages\plugins\SPFileTree\images\script.png" />
+    <ElementFile Location="Pages\plugins\SPFileTree\images\spinner.gif" />
+    <ElementFile Location="Pages\plugins\SPFileTree\images\txt.png" />
+    <ElementFile Location="Pages\plugins\SPFileTree\images\xls.png" />
+    <ElementFile Location="Pages\plugins\SPFileTree\images\zip.png" />
+    <ElementFile Location="Pages\plugins\SPFileTree\skin-win8\icons.gif" />
+    <ElementFile Location="Pages\plugins\SPFileTree\skin-win8\loading.gif" />
+    <ElementFile Location="Pages\plugins\SPFileTree\skin-win8\ui.fancytree.css" />
+    <ElementFile Location="Pages\plugins\SPLanguagePicker\splanguagepicker.jquery.js" />
     <ElementManifest Location="Scripts\Elements.xml" />
     <ElementFile Location="Scripts\App.js" />
     <ElementFile Location="Scripts\jquery-1.9.1.min.map" />
@@ -33,6 +62,10 @@
     <ElementManifest Location="TestFiles\Elements.xml" />
     <ElementFile Location="TestFiles\Sample.txt" />
     <ElementFile Location="TestFiles\SubFolder\Sample.txt" />
+    <ElementFile Location="TestFiles\Subfolder1\Sample.txt" />
+    <ElementFile Location="TestFiles\Subfolder2\Sample.txt" />
+    <ElementFile Location="TestFiles\Subfolder1\Subfolder1.1\Sample.txt" />
+    <ElementFile Location="TestFiles\Subfolder1\Subfolder1.2\Sample.txt" />
   </ElementManifests>
   <UpgradeActions>
     <VersionRange>

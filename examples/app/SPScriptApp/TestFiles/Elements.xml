@@ -3,5 +3,9 @@
   <Module Name="TestFiles">
     <File Path="TestFiles\Sample.txt" Url="Lists/TestLibrary/Sample.txt" ReplaceContent="TRUE" />
     <File Path="TestFiles\SubFolder\Sample.txt" Url="Lists/TestLibrary/SubFolder/Sample.txt" ReplaceContent="TRUE" />
+    <File Path="TestFiles\Subfolder1\Sample.txt" Url="TestFiles/Subfolder1/Sample.txt" ReplaceContent="TRUE" />
+    <File Path="TestFiles\Subfolder2\Sample.txt" Url="TestFiles/Subfolder2/Sample.txt" ReplaceContent="TRUE" />
+    <File Path="TestFiles\Subfolder1\Subfolder1.1\Sample.txt" Url="TestFiles/Subfolder1/Subfolder1.1/Sample.txt" ReplaceContent="TRUE" />
+    <File Path="TestFiles\Subfolder1\Subfolder1.2\Sample.txt" Url="TestFiles/Subfolder1/Subfolder1.2/Sample.txt" ReplaceContent="TRUE" />
   </Module>
 </Elements>
