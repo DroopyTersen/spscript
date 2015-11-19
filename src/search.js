@@ -68,6 +68,14 @@ SPScript.queryString = require('./queryString');
 		return asyncRequest.promise();
 	};
 
+	Search.prototype.sites = function(queryText, scope, queryOptions) {
+		queryText += " contentclass:STS_Web" 
+		if (scope) {
+			queryText += " Path:" + scope;
+		}
+		return this.query(queryText, queryOptions);
+	}
+	
 	Search.prototype.people = function(queryText, queryOptions) {
 		var options = queryOptions || {};
 		options.sourceid =  'b09a7990-05ea-4af9-81ef-edfab16c4e31';
