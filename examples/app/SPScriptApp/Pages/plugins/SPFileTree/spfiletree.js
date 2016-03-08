@@ -13,7 +13,7 @@ return t.ui.ddmanager&&(t.ui.ddmanager.current=this),t.ui.ddmanager&&!a.dropBeha
 
 	var Folder = function (spItem) {
 		this.url = spItem.Folder.ServerRelativeUrl;
-		this.parentUrl = spItem.Folder.ParentFolder.ServerRelativeUrl
+		this.parentUrl = spItem.Folder.ParentFolder.ServerRelativeUrl;
 		this.name = spItem.Folder.Name;
 		this._spItem = spItem;
 		this.folders = [];
@@ -51,7 +51,8 @@ return t.ui.ddmanager&&(t.ui.ddmanager.current=this),t.ui.ddmanager&&!a.dropBeha
 		};
 		this._name = pluginName;
 		this.options = $.extend(this._defaults, options);
-		this.options.odata = "$expand=Folder,File,Folder/ParentFolder&$top=2000";
+		var select = "&$select=File/ServerRelativeUrl, Folder/ServerRelativeUrl, Folder/ParentFolder/ServerRelativeUrl, Folder/Name, File/Name";
+		this.options.odata = "$expand=Folder,File,Folder/ParentFolder&$top=2000" + select;
 		this.library = {
 			name: options.library
 		};
