@@ -2,7 +2,7 @@ var SPScript = require("./spscript");
 SPScript.helpers = require("./helpers");
 SPScript.permissions = require("./permissions");
 
-(function(sp) {
+(function(sp, $) {
 	var baseUrl = null;
 	var List = function(listname, dao) {
 		this.listname = listname;
@@ -108,6 +108,6 @@ SPScript.permissions = require("./permissions");
 	};
 
 	sp.List = List;
-})(SPScript);
+})(SPScript, jQuery);
 
 module.exports = SPScript.List;

@@ -8,7 +8,7 @@ var fs = require("./filesystem");
 SPScript.File = fs.File;
 SPScript.Folder = fs.Folder;
 
-(function(sp) {
+(function(sp, $) {
 	var BaseDao = function() {
 		var self = this;
 
@@ -73,7 +73,7 @@ SPScript.Folder = fs.Folder;
 	};
 
 	sp.BaseDao = BaseDao;
-})(SPScript);
+})(SPScript, jQuery);
 
 module.exports = SPScript.BaseDao;
 },{"./filesystem":3,"./helpers":4,"./list":5,"./profiles":8,"./spscript":12,"./web":13}],2:[function(require,module,exports){
@@ -175,7 +175,7 @@ var SPScript = require("./spscript");
 SPScript.helpers = require("./helpers");
 SPScript.permissions = require("./permissions");
 
-(function(sp) {
+(function(sp, $) {
 	var baseUrl = null;
 	var List = function(listname, dao) {
 		this.listname = listname;
@@ -281,7 +281,7 @@ SPScript.permissions = require("./permissions");
 	};
 
 	sp.List = List;
-})(SPScript);
+})(SPScript, jQuery);
 
 module.exports = SPScript.List;
 },{"./helpers":4,"./permissions":6,"./spscript":12}],6:[function(require,module,exports){
@@ -771,7 +771,7 @@ var SPScript = require("./spscript");
 SPScript.BaseDao = require("./baseDao");
 SPScript.Search = require("./search");
 
-(function(sp) {
+(function(sp, $) {
 	var RestDao = function(url) {
 		var self = this;
 		sp.BaseDao.call(this);
@@ -796,7 +796,7 @@ SPScript.Search = require("./search");
 	};
 
 	sp.RestDao = RestDao;
-})(SPScript);
+})(SPScript, jQuery);
 
 module.exports = SPScript.RestDao;
 },{"./baseDao":1,"./search":11,"./spscript":12}],11:[function(require,module,exports){

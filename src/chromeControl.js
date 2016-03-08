@@ -4,7 +4,7 @@
  * Dependencies: ["$"]
  * ==========
  */
-(function(sp) {
+(function(sp, $) {
 	var ChromeControl = function(hostUrl, placeholderId, options) {
 		this.scriptReady = new $.Deferred();
 		spCssReady = new $.Deferred();
@@ -54,4 +54,4 @@
 	};
 
 	sp.ChromeControl = ChromeControl;
-})(SPScript);
+})(SPScript, jQuery);

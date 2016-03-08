@@ -7,7 +7,7 @@ var fs = require("./filesystem");
 SPScript.File = fs.File;
 SPScript.Folder = fs.Folder;
 
-(function(sp) {
+(function(sp, $) {
 	var BaseDao = function() {
 		var self = this;
 
@@ -72,6 +72,6 @@ SPScript.Folder = fs.Folder;
 	};
 
 	sp.BaseDao = BaseDao;
-})(SPScript);
+})(SPScript, jQuery);
 
 module.exports = SPScript.BaseDao;

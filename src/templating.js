@@ -1,6 +1,6 @@
 SPScript = require("./spscript");
 
-(function(sp) {
+(function(sp, $) {
 	sp.templating = {
 
 		Placeholder: function(raw) {
@@ -84,7 +84,7 @@ SPScript = require("./spscript");
 		}
 		return itemHtml;
 	};
-})(SPScript);
+})(SPScript, jQuery);
 
 String.prototype.UTCJsonToDate = function() {
 	var utcStr = this.substring(this.indexOf("(") + 1);

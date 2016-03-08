@@ -8,7 +8,7 @@ var fs = require("./filesystem");
 SPScript.File = fs.File;
 SPScript.Folder = fs.Folder;
 
-(function(sp) {
+(function(sp, $) {
 	var BaseDao = function() {
 		var self = this;
 
@@ -73,7 +73,7 @@ SPScript.Folder = fs.Folder;
 	};
 
 	sp.BaseDao = BaseDao;
-})(SPScript);
+})(SPScript, jQuery);
 
 module.exports = SPScript.BaseDao;
 },{"./filesystem":4,"./helpers":5,"./list":6,"./profiles":8,"./spscript":12,"./web":14}],2:[function(require,module,exports){
@@ -81,7 +81,7 @@ SPScript = require("./spscript");
 SPScript.helpers = require("./helpers");
 SPScript.BaseDao = require("./baseDao");
 
-(function(sp) {
+(function(sp, $) {
 	var CrossDomainDao = function(appWebUrl, hostUrl) {
 		this.appUrl = appWebUrl;
 		this.hostUrl = hostUrl;
@@ -151,7 +151,7 @@ SPScript.BaseDao = require("./baseDao");
 	};
 
 	sp.CrossDomainDao = CrossDomainDao;
-})(SPScript);
+})(SPScript, jQuery);
 
 module.exports = SPScript.CrossDomainDao;
 },{"./baseDao":1,"./helpers":5,"./spscript":12}],3:[function(require,module,exports){
@@ -258,7 +258,7 @@ var SPScript = require("./spscript");
 SPScript.helpers = require("./helpers");
 SPScript.permissions = require("./permissions");
 
-(function(sp) {
+(function(sp, $) {
 	var baseUrl = null;
 	var List = function(listname, dao) {
 		this.listname = listname;
@@ -364,7 +364,7 @@ SPScript.permissions = require("./permissions");
 	};
 
 	sp.List = List;
-})(SPScript);
+})(SPScript, jQuery);
 
 module.exports = SPScript.List;
 },{"./helpers":5,"./permissions":7,"./spscript":12}],7:[function(require,module,exports){
@@ -760,7 +760,7 @@ var SPScript = require("./spscript");
 SPScript.BaseDao = require("./baseDao");
 SPScript.Search = require("./search");
 
-(function(sp) {
+(function(sp, $) {
 	var RestDao = function(url) {
 		var self = this;
 		sp.BaseDao.call(this);
@@ -785,7 +785,7 @@ SPScript.Search = require("./search");
 	};
 
 	sp.RestDao = RestDao;
-})(SPScript);
+})(SPScript, jQuery);
 
 module.exports = SPScript.RestDao;
 },{"./baseDao":1,"./search":11,"./spscript":12}],11:[function(require,module,exports){
@@ -875,7 +875,7 @@ module.exports = {};
 },{}],13:[function(require,module,exports){
 SPScript = require("./spscript");
 
-(function(sp) {
+(function(sp, $) {
 	sp.templating = {
 
 		Placeholder: function(raw) {
@@ -959,7 +959,7 @@ SPScript = require("./spscript");
 		}
 		return itemHtml;
 	};
-})(SPScript);
+})(SPScript, jQuery);
 
 String.prototype.UTCJsonToDate = function() {
 	var utcStr = this.substring(this.indexOf("(") + 1);

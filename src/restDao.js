@@ -2,7 +2,7 @@ var SPScript = require("./spscript");
 SPScript.BaseDao = require("./baseDao");
 SPScript.Search = require("./search");
 
-(function(sp) {
+(function(sp, $) {
 	var RestDao = function(url) {
 		var self = this;
 		sp.BaseDao.call(this);
@@ -27,6 +27,6 @@ SPScript.Search = require("./search");
 	};
 
 	sp.RestDao = RestDao;
-})(SPScript);
+})(SPScript, jQuery);
 
 module.exports = SPScript.RestDao;
