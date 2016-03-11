@@ -9841,7 +9841,7 @@ var fs = require("./filesystem");
 SPScript.File = fs.File;
 SPScript.Folder = fs.Folder;
 
-(function(sp) {
+(function(sp, $) {
 	var BaseDao = function() {
 		var self = this;
 
@@ -9906,7 +9906,7 @@ SPScript.Folder = fs.Folder;
 	};
 
 	sp.BaseDao = BaseDao;
-})(SPScript);
+})(SPScript, jQuery);
 
 module.exports = SPScript.BaseDao;
 },{"./filesystem":6,"./helpers":7,"./list":8,"./profiles":10,"./spscript":14,"./web":16}],3:[function(require,module,exports){
@@ -9914,7 +9914,7 @@ SPScript = require("./spscript");
 SPScript.helpers = require("./helpers");
 SPScript.BaseDao = require("./baseDao");
 
-(function(sp) {
+(function(sp, $) {
 	var CrossDomainDao = function(appWebUrl, hostUrl) {
 		this.appUrl = appWebUrl;
 		this.hostUrl = hostUrl;
@@ -9984,7 +9984,7 @@ SPScript.BaseDao = require("./baseDao");
 	};
 
 	sp.CrossDomainDao = CrossDomainDao;
-})(SPScript);
+})(SPScript, jQuery);
 
 module.exports = SPScript.CrossDomainDao;
 },{"./baseDao":2,"./helpers":7,"./spscript":14}],4:[function(require,module,exports){
@@ -10098,7 +10098,7 @@ var SPScript = require("./spscript");
 SPScript.helpers = require("./helpers");
 SPScript.permissions = require("./permissions");
 
-(function(sp) {
+(function(sp, $) {
 	var baseUrl = null;
 	var List = function(listname, dao) {
 		this.listname = listname;
@@ -10204,7 +10204,7 @@ SPScript.permissions = require("./permissions");
 	};
 
 	sp.List = List;
-})(SPScript);
+})(SPScript, jQuery);
 
 module.exports = SPScript.List;
 },{"./helpers":7,"./permissions":9,"./spscript":14}],9:[function(require,module,exports){
@@ -10253,12 +10253,14 @@ SPScript.helpers = require("./helpers");
 		}
 		//An email was passed so check privs on that specific user
 		var checkPrivs = function(user) {
+         console.log(user);
 			var login = encodeURIComponent(user.LoginName);
 			var url = baseUrl + "/getusereffectivepermissions(@v)?@v='" + login + "'";
 			return dao.get(url).then(sp.helpers.validateODataV2);
 		};
-		return dao.web.getUser(email)
-			.then(checkPrivs)
+
+      var req = email === "current" ? dao.get('/web/getuserbyid(' + _spPageContextInfo.userId + ')') : dao.web.getUser(email)
+		return req.then(checkPrivs)
 			.then(function(privs) {
 				return permissionMaskToStrings(privs.GetUserEffectivePermissions.Low, privs.GetUserEffectivePermissions.High);
 			});
@@ -10600,7 +10602,7 @@ var SPScript = require("./spscript");
 SPScript.BaseDao = require("./baseDao");
 SPScript.Search = require("./search");
 
-(function(sp) {
+(function(sp, $) {
 	var RestDao = function(url) {
 		var self = this;
 		sp.BaseDao.call(this);
@@ -10625,7 +10627,7 @@ SPScript.Search = require("./search");
 	};
 
 	sp.RestDao = RestDao;
-})(SPScript);
+})(SPScript, jQuery);
 
 module.exports = SPScript.RestDao;
 },{"./baseDao":2,"./search":13,"./spscript":14}],13:[function(require,module,exports){
@@ -10715,7 +10717,7 @@ module.exports = {};
 },{}],15:[function(require,module,exports){
 SPScript = require("./spscript");
 
-(function(sp) {
+(function(sp, $) {
 	sp.templating = {
 
 		Placeholder: function(raw) {
@@ -10799,7 +10801,7 @@ SPScript = require("./spscript");
 		}
 		return itemHtml;
 	};
-})(SPScript);
+})(SPScript, jQuery);
 
 String.prototype.UTCJsonToDate = function() {
 	var utcStr = this.substring(this.indexOf("(") + 1);

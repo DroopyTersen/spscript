@@ -10253,12 +10253,14 @@ SPScript.helpers = require("./helpers");
 		}
 		//An email was passed so check privs on that specific user
 		var checkPrivs = function(user) {
+         console.log(user);
 			var login = encodeURIComponent(user.LoginName);
 			var url = baseUrl + "/getusereffectivepermissions(@v)?@v='" + login + "'";
 			return dao.get(url).then(sp.helpers.validateODataV2);
 		};
-		return dao.web.getUser(email)
-			.then(checkPrivs)
+
+      var req = email === "current" ? dao.get('/web/getuserbyid(' + _spPageContextInfo.userId + ')').then(function(data) { return data.d }) : dao.web.getUser(email)
+		return req.then(checkPrivs)
 			.then(function(privs) {
 				return permissionMaskToStrings(privs.GetUserEffectivePermissions.Low, privs.GetUserEffectivePermissions.High);
 			});
