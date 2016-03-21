@@ -6,7 +6,7 @@ SPScript.helpers = require("./helpers");
 var fs = require("./filesystem");
 SPScript.File = fs.File;
 SPScript.Folder = fs.Folder;
-
+SPScript.Search = require("./search");
 (function(sp, $) {
 	var BaseDao = function() {
 		var self = this;

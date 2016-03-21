@@ -4,4 +4,5 @@ global.SPScript.CrossDomainDao = require("../crossDomainDao");
 global.SPScript.queryString = require("../queryString");
 global.SPScript.Search = require("../search");
 global.SPScript.templating = require("../templating");
+debugger;
 module.exports = global.SPScript;

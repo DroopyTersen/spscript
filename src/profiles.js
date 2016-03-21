@@ -1,4 +1,4 @@
-var SPScript = require;("./spscript");
+var SPScript = require("./spscript");
 SPScript.helpers = require("./helpers");
 
 (function(sp) {

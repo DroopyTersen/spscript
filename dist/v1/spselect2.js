@@ -7,7 +7,7 @@ SPScript.helpers = require("./helpers");
 var fs = require("./filesystem");
 SPScript.File = fs.File;
 SPScript.Folder = fs.Folder;
-
+SPScript.Search = require("./search");
 (function(sp, $) {
 	var BaseDao = function() {
 		var self = this;
@@ -76,7 +76,7 @@ SPScript.Folder = fs.Folder;
 })(SPScript, jQuery);
 
 module.exports = SPScript.BaseDao;
-},{"./filesystem":3,"./helpers":4,"./list":5,"./profiles":8,"./spscript":12,"./web":13}],2:[function(require,module,exports){
+},{"./filesystem":3,"./helpers":4,"./list":5,"./profiles":8,"./search":11,"./spscript":12,"./web":13}],2:[function(require,module,exports){
 (function (global){
 global.SPSelect2 = require("../plugins/SPSelect2/spselect2");
 module.exports = global.SPSelect2;
@@ -637,7 +637,7 @@ var init = function(field, list) {
    
 exports.init = init;
 },{"../../restDao":10}],8:[function(require,module,exports){
-var SPScript = require;("./spscript");
+var SPScript = require("./spscript");
 SPScript.helpers = require("./helpers");
 
 (function(sp) {
@@ -704,7 +704,7 @@ SPScript.helpers = require("./helpers");
 })(SPScript);
 
 module.exports = SPScript.Profiles;
-},{"./helpers":4}],9:[function(require,module,exports){
+},{"./helpers":4,"./spscript":12}],9:[function(require,module,exports){
 SPScript = require("./spscript");
 
 (function(sp) {
@@ -771,7 +771,6 @@ module.exports = SPScript.queryString;
 },{"./spscript":12}],10:[function(require,module,exports){
 var SPScript = require("./spscript");
 SPScript.BaseDao = require("./baseDao");
-SPScript.Search = require("./search");
 
 (function(sp, $) {
 	var RestDao = function(url) {
@@ -801,9 +800,8 @@ SPScript.Search = require("./search");
 })(SPScript, jQuery);
 
 module.exports = SPScript.RestDao;
-},{"./baseDao":1,"./search":11,"./spscript":12}],11:[function(require,module,exports){
+},{"./baseDao":1,"./spscript":12}],11:[function(require,module,exports){
 SPScript = require("./spscript");
-SPScript.RestDao = require("./restDao");
 SPScript.queryString = require('./queryString');
 
 (function(sp) {
@@ -883,10 +881,10 @@ SPScript.queryString = require('./queryString');
 })(SPScript);
 
 module.exports = SPScript.Search;
-},{"./queryString":9,"./restDao":10,"./spscript":12}],12:[function(require,module,exports){
+},{"./queryString":9,"./spscript":12}],12:[function(require,module,exports){
 module.exports = {};
 },{}],13:[function(require,module,exports){
-var SPScript = require;("./spscript");
+var SPScript = require("./spscript");
 SPScript.helpers = require("./helpers");
 SPScript.permissions = require("./permissions");
 
@@ -921,4 +919,4 @@ SPScript.permissions = require("./permissions");
 })(SPScript);
 
 module.exports = SPScript.Web;
-},{"./helpers":4,"./permissions":6}]},{},[2])
+},{"./helpers":4,"./permissions":6,"./spscript":12}]},{},[2])

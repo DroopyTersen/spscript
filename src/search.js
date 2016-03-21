@@ -1,5 +1,4 @@
 SPScript = require("./spscript");
-SPScript.RestDao = require("./restDao");
 SPScript.queryString = require('./queryString');
 
 (function(sp) {

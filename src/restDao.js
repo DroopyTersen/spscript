@@ -1,6 +1,5 @@
 var SPScript = require("./spscript");
 SPScript.BaseDao = require("./baseDao");
-SPScript.Search = require("./search");
 
 (function(sp, $) {
 	var RestDao = function(url) {

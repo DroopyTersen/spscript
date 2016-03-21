@@ -1,6 +1,6 @@
 {
   "name": "spscript",
-  "version": "1.1.0",
+  "version": "1.1.2",
   "description": "SharePoint 2013 Rest Api Wrappers",
   "main": "./src/entries/spscript.js",
   "repository": {
