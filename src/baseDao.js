@@ -7,7 +7,9 @@ var fs = require("./filesystem");
 SPScript.File = fs.File;
 SPScript.Folder = fs.Folder;
 SPScript.Search = require("./search");
-(function(sp, $) {
+var $ = require("jquery");
+
+(function(sp) {
 	var BaseDao = function() {
 		var self = this;
 
@@ -72,6 +74,6 @@ SPScript.Search = require("./search");
 	};
 
 	sp.BaseDao = BaseDao;
-})(SPScript, jQuery);
+})(SPScript);
 
 module.exports = SPScript.BaseDao;

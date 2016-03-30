@@ -1,5 +1,6 @@
 SPScript = require("./spscript");
 SPScript.queryString = require('./queryString');
+var $ = require("jquery");
 
 (function(sp) {
 	var Search = function(urlOrDao) {
@@ -45,7 +46,22 @@ SPScript.queryString = require('./queryString');
 		this.totalResults = queryResponse.PrimaryQueryResult.RelevantResults.TotalRows;
 		this.totalResultsIncludingDuplicates = queryResponse.PrimaryQueryResult.RelevantResults.TotalRowsIncludingDuplicates;
 		this.items = convertRowsToObjects(queryResponse.PrimaryQueryResult.RelevantResults.Table.Rows.results);
+		this.refiners = queryResponse.PrimaryQueryResult.RefinementResults ? MapRefiners(queryResponse.PrimaryQueryResult.RefinementResults.Refiners.results) : null;
 	};
+
+	var MapRefiners = function(refinerResults) {
+		var refiners = [];
+
+		for (var i = 0; i < refinerResults.length; i++) {
+			var entry = {};
+			entry.RefinerName = refinerResults[i].Name;
+			entry.RefinerOptions = refinerResults[i].Entries.results;
+
+			refiners.push(entry);
+		}
+
+		return refiners;
+	}
 
 	Search.prototype.query = function(queryText, queryOptions) {
 		var self = this,

@@ -7,14 +7,16 @@ SPScript = require("./spscript");
 
 		//private method (only run on the first 'GetValue' request)
 		_processQueryString: function(text) {
-			var qs = text || window.location.search.substring(1),
-				keyValue,
-				keyValues = qs.split('&');
+			if (text || window.location.search) {
+				var qs = text || window.location.search.substring(1),
+					keyValue,
+					keyValues = qs.split('&');
 
-			for (var i = 0; i < keyValues.length; i++) {
-				keyValue = keyValues[i].split('=');
-				//this._queryString.push(keyValue[0]);
-				this._queryString[keyValue[0]] = decodeURIComponent(keyValue[1].replace(/\+/g, " "));
+				for (var i = 0; i < keyValues.length; i++) {
+					keyValue = keyValues[i].split('=');
+					//this._queryString.push(keyValue[0]);
+					this._queryString[keyValue[0]] = decodeURIComponent(keyValue[1].replace(/\+/g, " "));
+				}				
 			}
 
 			this._processed = true;

@@ -1,8 +1,9 @@
 SPScript = require("./spscript");
 SPScript.helpers = require("./helpers");
 SPScript.BaseDao = require("./baseDao");
+var $ = require("jquery");
 
-(function(sp, $) {
+(function(sp) {
 	var CrossDomainDao = function(appWebUrl, hostUrl) {
 		this.appUrl = appWebUrl;
 		this.hostUrl = hostUrl;
@@ -72,6 +73,6 @@ SPScript.BaseDao = require("./baseDao");
 	};
 
 	sp.CrossDomainDao = CrossDomainDao;
-})(SPScript, jQuery);
+})(SPScript);
 
 module.exports = SPScript.CrossDomainDao;

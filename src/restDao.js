@@ -1,7 +1,8 @@
 var SPScript = require("./spscript");
 SPScript.BaseDao = require("./baseDao");
+var $ = require("jquery");
 
-(function(sp, $) {
+(function(sp) {
 	var RestDao = function(url) {
 		var self = this;
 		sp.BaseDao.call(this);
@@ -26,6 +27,6 @@ SPScript.BaseDao = require("./baseDao");
 	};
 
 	sp.RestDao = RestDao;
-})(SPScript, jQuery);
+})(SPScript);
 
 module.exports = SPScript.RestDao;
