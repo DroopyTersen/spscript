@@ -9832,86 +9832,124 @@ return jQuery;
 }));
 
 },{}],2:[function(require,module,exports){
-SPScript = require("./spscript");
-SPScript.List = require("./list");
-SPScript.Web = require("./web");
-SPScript.Profiles = require("./profiles")
-SPScript.helpers = require("./helpers");
-var fs = require("./filesystem");
-SPScript.File = fs.File;
-SPScript.Folder = fs.Folder;
-SPScript.Search = require("./search");
-var $ = require("jquery");
+/* eslint-disable no-unused-vars */
+'use strict';
+var hasOwnProperty = Object.prototype.hasOwnProperty;
+var propIsEnumerable = Object.prototype.propertyIsEnumerable;
 
-(function(sp) {
-	var BaseDao = function() {
-		var self = this;
+function toObject(val) {
+	if (val === null || val === undefined) {
+		throw new TypeError('Object.assign cannot be called with null or undefined');
+	}
 
-		self.web = new sp.Web(self);
-		self.search = new sp.Search(self);
-		self.profiles = new sp.Profiles(self);
+	return Object(val);
+}
+
+module.exports = Object.assign || function (target, source) {
+	var from;
+	var to = toObject(target);
+	var symbols;
+
+	for (var s = 1; s < arguments.length; s++) {
+		from = Object(arguments[s]);
+
+		for (var key in from) {
+			if (hasOwnProperty.call(from, key)) {
+				to[key] = from[key];
+			}
+		}
+
+		if (Object.getOwnPropertySymbols) {
+			symbols = Object.getOwnPropertySymbols(from);
+			for (var i = 0; i < symbols.length; i++) {
+				if (propIsEnumerable.call(from, symbols[i])) {
+					to[symbols[i]] = from[symbols[i]];
+				}
+			}
+		}
+	}
+
+	return to;
+};
+
+},{}],3:[function(require,module,exports){
+var objAssign = require("object-assign");
+
+var List 		= require("./list");
+var Web 		= require("./web");
+var Profiles 	= require("./profiles")
+var Search 		= require("./search");
+var fs 			= require("./filesystem");
+var utils 		= require("./utils");
+
+var Folder = fs.Folder;
+
+var BaseDao = function() {
+	var self = this;
+
+	self.web = new Web(self);
+	self.search = new Search(self);
+	self.profiles = new Profiles(self);
+};
+
+BaseDao.prototype.executeRequest = function() {
+	throw "Not implemented exception";
+};
+
+BaseDao.prototype.get = function(relativeQueryUrl, extendedOptions, raw) {
+	var options = {
+		type: "GET"
 	};
 
-	BaseDao.prototype.executeRequest = function() {
-		throw "Not implemented exception";
-	};
+	if (extendedOptions) {
+		objAssign({}, options, extendedOptions);
+	}
+	return this.executeRequest(relativeQueryUrl, options);
+};
 
-	BaseDao.prototype.get = function(relativeQueryUrl, extendedOptions, raw) {
-		var options = {
-			type: "GET"
+BaseDao.prototype.lists = function(listname) {
+	if (!listname) {
+		return this.get("/web/lists").then(utils.validateODataV2);
+	}
+	return new List(listname, this);
+};
+
+BaseDao.prototype.post = function(relativePostUrl, body, extendedOptions) {
+	var strBody = JSON.stringify(body);
+	var options = {
+		type: "POST",
+		data: strBody,
+		contentType: "application/json;odata=verbose"
+	};
+	objAssign({}, options, extendedOptions);
+	return this.executeRequest(relativePostUrl, options);
+};
+
+BaseDao.prototype.getFolder = function(serverRelativeUrl) {
+	if (serverRelativeUrl.charAt(0) === "/") {
+		serverRelativeUrl = serverRelativeUrl.substr(1);
+	}
+	var url = "/web/GetFolderByServerRelativeUrl('" + serverRelativeUrl + "')?$expand=Folders,Files";
+
+	return this.get(url).then(utils.validateODataV2).then(function(spFolder) {
+		var folder = new Folder(spFolder);
+		folder.populateChildren(spFolder);
+		return folder;
+	});
+};
+
+BaseDao.prototype.uploadFile = function(folderUrl, name, base64Binary) {
+	var uploadUrl = "/web/GetFolderByServerRelativeUrl('" + folderUrl + "')/Files/Add(url='" + name + "',overwrite=true)",
+		options = {
+			binaryStringRequestBody: true,
+			state: "Update"
 		};
+	return this.post(uploadUrl, base64Binary, options);
+};
 
-		if (extendedOptions) {
-			$.extend(options, extendedOptions);
-		}
-		return this.executeRequest(relativeQueryUrl, options);
-	};
 
-	BaseDao.prototype.lists = function(listname) {
-		if(!listname) {
-			return this.get("/web/lists").then(sp.helpers.validateODataV2);
-		}
-		return new sp.List(listname, this);
-	};
-
-	BaseDao.prototype.post = function(relativePostUrl, body, extendedOptions) {
-		var strBody = JSON.stringify(body);
-		var options = {
-			type: "POST",
-			data: strBody,
-			contentType: "application/json;odata=verbose"
-		};
-		$.extend(options, extendedOptions);
-		return this.executeRequest(relativePostUrl, options);
-	};
-	
-	BaseDao.prototype.getFolder = function(serverRelativeUrl) {
-		if (serverRelativeUrl.charAt(0) === "/") {
-			serverRelativeUrl = serverRelativeUrl.substr(1);
-		}
-		var url = "/web/GetFolderByServerRelativeUrl('" + serverRelativeUrl + "')?$expand=Folders,Files";
-		
-		return this.get(url).then(sp.helpers.validateODataV2).then(function(spFolder) {
-			var folder = new SPScript.Folder(spFolder);
-			folder.populateChildren(spFolder);
-			return folder;
-		});
-	};
-
-	BaseDao.prototype.uploadFile = function(folderUrl, name, base64Binary) {
-		var uploadUrl = "/web/GetFolderByServerRelativeUrl('" + folderUrl + "')/Files/Add(url='" + name + "',overwrite=true)",
-			options = {
-				binaryStringRequestBody: true,
-				state: "Update"
-			};
-		return this.post(uploadUrl, base64Binary, options);
-	};
-
-	sp.BaseDao = BaseDao;
-})(SPScript);
-
-module.exports = SPScript.BaseDao;
-},{"./filesystem":5,"./helpers":6,"./list":7,"./profiles":9,"./search":12,"./spscript":13,"./web":16,"jquery":1}],3:[function(require,module,exports){
+module.exports = BaseDao;
+},{"./filesystem":6,"./list":8,"./profiles":10,"./search":13,"./utils":16,"./web":17,"object-assign":2}],4:[function(require,module,exports){
 SPScript = require("./spscript");
 SPScript.helpers = require("./helpers");
 SPScript.BaseDao = require("./baseDao");
@@ -9990,7 +10028,7 @@ var $ = require("jquery");
 })(SPScript);
 
 module.exports = SPScript.CrossDomainDao;
-},{"./baseDao":2,"./helpers":6,"./spscript":13,"jquery":1}],4:[function(require,module,exports){
+},{"./baseDao":3,"./helpers":7,"./spscript":14,"jquery":1}],5:[function(require,module,exports){
 (function (global){
 global.SPScript = {};
 global.SPScript.RestDao = require("../restDao");
@@ -10001,59 +10039,53 @@ global.SPScript.templating = require("../templating");
 global.SPScript.utils = require("../utils");
 module.exports = global.SPScript;
 }).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../crossDomainDao":3,"../queryString":10,"../restDao":11,"../search":12,"../templating":14,"../utils":15}],5:[function(require,module,exports){
-var SPScript = require("./spscript");
-SPScript.helpers = require("./helpers");
+},{"../crossDomainDao":4,"../queryString":11,"../restDao":12,"../search":13,"../templating":15,"../utils":16}],6:[function(require,module,exports){
+var utils = require("./utils");
 
-(function(sp) {
+var Folder = function(spFolder) {
+	var self = this;
+	self.mapProperties(spFolder);
+};
 
-	var Folder = function(spFolder) {
-		var self = this;
-		self.mapProperties(spFolder);
-	};
+Folder.prototype.populateChildren = function(spFolder) {
+	this.folders = spFolder.Folders.results.map(function(spFolder){
+		return new Folder(spFolder);
+	});
 	
-	Folder.prototype.populateChildren = function(spFolder) {
-		this.folders = spFolder.Folders.results.map(function(spFolder){
-			return new Folder(spFolder);
-		});
-		
-		this.files = spFolder.Files.results.map(function(spFile){
-			return new File(spFile);
-		});
-	};
+	this.files = spFolder.Files.results.map(function(spFile){
+		return new File(spFile);
+	});
+};
+
+Folder.prototype.mapProperties = function(spFolder) {
+	this.name = spFolder.Name;
+	this.serverRelativeUrl = spFolder.ServerRelativeUrl;
+	this.itemCount = spFolder.ItemCount;
+	this.guid = spFolder.UniqueId;
+	this.uri = spFolder.__metadata.uri;
+};
+
+var File = function(spFile) {
+	this.mapProperties(spFile);
+};
+
+File.prototype.mapProperties = function(spFile) {
+	this.name = spFile.Name,
+	this.title = spFile.Title,
+	this.checkoutType = spFile.CheckOutType,
+	this.byteLength = spFile.Length,
+	this.majorVersion = spFile.MajorVersion,
+	this.minorVersion = spFile.MinorVersion,
+	this.serverRelativeUrl = spFile.ServerRelativeUrl,
+	this.uri =  spFile.__metadata.uri
+};
 	
-	Folder.prototype.mapProperties = function(spFolder) {
-		this.name = spFolder.Name;
-		this.serverRelativeUrl = spFolder.ServerRelativeUrl;
-		this.itemCount = spFolder.ItemCount;
-		this.guid = spFolder.UniqueId;
-		this.uri = spFolder.__metadata.uri;
-	};
-	
-	var File = function(spFile) {
-		this.mapProperties(spFile);
-	};
-	
-	File.prototype.mapProperties = function(spFile) {
-		this.name = spFile.Name,
-		this.title = spFile.Title,
-		this.checkoutType = spFile.CheckOutType,
-		this.byteLength = spFile.Length,
-		this.majorVersion = spFile.MajorVersion,
-		this.minorVersion = spFile.MinorVersion,
-		this.serverRelativeUrl = spFile.ServerRelativeUrl,
-		this.uri =  spFile.__metadata.uri
-	};
-	
-	sp.File = File;
-	sp.Folder = Folder;
-})(SPScript);
 
 module.exports = {
-	File: SPScript.File,
-	Folder: SPScript.Folder
+	File: File,
+	Folder: Folder
 };
-},{"./helpers":6,"./spscript":13}],6:[function(require,module,exports){
+},{"./utils":16}],7:[function(require,module,exports){
 var SPScript = require("./spscript.js");
 
 (function(sp) {
@@ -10090,7 +10122,7 @@ var SPScript = require("./spscript.js");
 })(SPScript);
 
 module.exports = SPScript.helpers;
-},{"./spscript.js":13}],7:[function(require,module,exports){
+},{"./spscript.js":14}],8:[function(require,module,exports){
 var SPScript = require("./spscript");
 SPScript.helpers = require("./helpers");
 SPScript.permissions = require("./permissions");
@@ -10205,7 +10237,7 @@ var $ = require("jquery");
 })(SPScript);
 
 module.exports = SPScript.List;
-},{"./helpers":6,"./permissions":8,"./spscript":13,"jquery":1}],8:[function(require,module,exports){
+},{"./helpers":7,"./permissions":9,"./spscript":14,"jquery":1}],9:[function(require,module,exports){
 var SPScript = require("./spscript");
 SPScript.helpers = require("./helpers");
 
@@ -10463,7 +10495,7 @@ SPScript.helpers = require("./helpers");
 })(SPScript);
 
 module.exports = SPScript.permissions;
-},{"./helpers":6,"./spscript":13}],9:[function(require,module,exports){
+},{"./helpers":7,"./spscript":14}],10:[function(require,module,exports){
 var SPScript = require("./spscript");
 SPScript.helpers = require("./helpers");
 
@@ -10531,7 +10563,7 @@ SPScript.helpers = require("./helpers");
 })(SPScript);
 
 module.exports = SPScript.Profiles;
-},{"./helpers":6,"./spscript":13}],10:[function(require,module,exports){
+},{"./helpers":7,"./spscript":14}],11:[function(require,module,exports){
 SPScript = require("./spscript");
 
 (function(sp) {
@@ -10597,7 +10629,7 @@ SPScript = require("./spscript");
 })(SPScript);
 
 module.exports = SPScript.queryString;
-},{"./spscript":13}],11:[function(require,module,exports){
+},{"./spscript":14}],12:[function(require,module,exports){
 var SPScript = require("./spscript");
 SPScript.BaseDao = require("./baseDao");
 var $ = require("jquery");
@@ -10630,7 +10662,7 @@ var $ = require("jquery");
 })(SPScript);
 
 module.exports = SPScript.RestDao;
-},{"./baseDao":2,"./spscript":13,"jquery":1}],12:[function(require,module,exports){
+},{"./baseDao":3,"./spscript":14,"jquery":1}],13:[function(require,module,exports){
 SPScript = require("./spscript");
 SPScript.queryString = require('./queryString');
 var $ = require("jquery");
@@ -10727,9 +10759,9 @@ var $ = require("jquery");
 })(SPScript);
 
 module.exports = SPScript.Search;
-},{"./queryString":10,"./spscript":13,"jquery":1}],13:[function(require,module,exports){
+},{"./queryString":11,"./spscript":14,"jquery":1}],14:[function(require,module,exports){
 module.exports = {};
-},{}],14:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 SPScript = require("./spscript");
 var $ = require("jquery");
 (function(sp) {
@@ -10830,7 +10862,35 @@ String.prototype.UTCJsonToDate = function() {
 };
 
 module.exports = SPScript.templating;
-},{"./spscript":13,"jquery":1}],15:[function(require,module,exports){
+},{"./spscript":14,"jquery":1}],16:[function(require,module,exports){
+var validateODataV2 = exports.validateODataV2= function(data) {
+	var results = data;
+	if (data.d && data.d.results && data.d.results.length != null) {
+		results = data.d.results;
+	} else if (data.d) {
+		results = data.d;
+	}
+	return results;
+};
+
+var validateCrossDomainODataV2 = exports.validateCrossDomainODataV2 = function(response) {
+	var data = $.parseJSON(response.body);
+	helpers.validateODataV2(data);
+};
+
+//'Borrowed' from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Bitwise_Operators
+var arrayFromBitMask = exports.arrayFromBitMask = function(nMask) {
+	// nMask must be between -2147483648 and 2147483647
+	if (typeof nMask === "string") {
+		nMask = parseInt(nMask);
+	}
+	// if (nMask > 0x7fffffff || nMask < -0x80000000) { 
+	// 	throw new TypeError("arrayFromMask - out of range"); 
+	// }
+	for (var nShifted = nMask, aFromMask = []; nShifted; aFromMask.push(Boolean(nShifted & 1)), nShifted >>>= 1);
+	return aFromMask;
+};
+
 var waitForLibraries = exports.waitForLibraries = function(namespaces, cb) {
 	var missing = namespaces.filter(function(namespace) {
 		return !validateNamespace(namespace);
@@ -10839,7 +10899,7 @@ var waitForLibraries = exports.waitForLibraries = function(namespaces, cb) {
 	if (missing.length === 0) {
 		cb();
 	} else {
-		setTimeout(function() { 
+		setTimeout(function() {
 			waitForLibraries(namespaces, cb);
 		}, 25);
 	}
@@ -10863,9 +10923,7 @@ var validateNamespace = exports.validateNamespace = function(namespace) {
 	}
 	return true;
 };
-
-
-},{}],16:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 var SPScript = require("./spscript");
 SPScript.helpers = require("./helpers");
 SPScript.permissions = require("./permissions");
@@ -10901,4 +10959,4 @@ SPScript.permissions = require("./permissions");
 })(SPScript);
 
 module.exports = SPScript.Web;
-},{"./helpers":6,"./permissions":8,"./spscript":13}]},{},[4])
+},{"./helpers":7,"./permissions":9,"./spscript":14}]},{},[5])

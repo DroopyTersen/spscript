@@ -10548,14 +10548,16 @@ SPScript = require("./spscript");
 
 		//private method (only run on the first 'GetValue' request)
 		_processQueryString: function(text) {
-			var qs = text || window.location.search.substring(1),
-				keyValue,
-				keyValues = qs.split('&');
+			if (text || window.location.search) {
+				var qs = text || window.location.search.substring(1),
+					keyValue,
+					keyValues = qs.split('&');
 
-			for (var i = 0; i < keyValues.length; i++) {
-				keyValue = keyValues[i].split('=');
-				//this._queryString.push(keyValue[0]);
-				this._queryString[keyValue[0]] = decodeURIComponent(keyValue[1].replace(/\+/g, " "));
+				for (var i = 0; i < keyValues.length; i++) {
+					keyValue = keyValues[i].split('=');
+					//this._queryString.push(keyValue[0]);
+					this._queryString[keyValue[0]] = decodeURIComponent(keyValue[1].replace(/\+/g, " "));
+				}				
 			}
 
 			this._processed = true;
@@ -10638,6 +10640,7 @@ module.exports = SPScript.RestDao;
 },{"./baseDao":2,"./spscript":14,"jquery":1}],13:[function(require,module,exports){
 SPScript = require("./spscript");
 SPScript.queryString = require('./queryString');
+var $ = require("jquery");
 
 (function(sp) {
 	var Search = function(urlOrDao) {
@@ -10731,7 +10734,7 @@ SPScript.queryString = require('./queryString');
 })(SPScript);
 
 module.exports = SPScript.Search;
-},{"./queryString":11,"./spscript":14}],14:[function(require,module,exports){
+},{"./queryString":11,"./spscript":14,"jquery":1}],14:[function(require,module,exports){
 module.exports = {};
 },{}],15:[function(require,module,exports){
 SPScript = require("./spscript");
