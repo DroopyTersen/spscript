@@ -1,8 +1,8 @@
-global.SPScript = {};
-global.SPScript.RestDao = require("../restDao");
-global.SPScript.CrossDomainDao = require("../crossDomainDao");
-global.SPScript.queryString = require("../queryString");
-global.SPScript.Search = require("../search");
-global.SPScript.templating = require("../templating");
-debugger;
-module.exports = global.SPScript;
+var SPScript = {};
+SPScript.RestDao = require("../restDao");
+SPScript.queryString = require("../queryString");
+SPScript.templating = require("droopy-templating");
+SPScript.utils = require("../utils");
+
+module.exports = global.SPScript = SPScript;
+

@@ -1,31 +1,30 @@
-var SPScript = require("./spscript");
-SPScript.BaseDao = require("./baseDao");
+var BaseDao = require("./baseDao");
+var objAssign = require("object-assign");
+var ajax = require('client-ajax') 
 
-(function(sp, $) {
-	var RestDao = function(url) {
-		var self = this;
-		sp.BaseDao.call(this);
-		this.webUrl = url;
+var RestDao = function(url) {
+	var self = this;
+	BaseDao.call(this);
+	this.webUrl = url || _spPageContextInfo.webAbsoluteUrl;
+};
+
+RestDao.prototype = new BaseDao();
+
+RestDao.prototype.executeRequest = function(url, options) {
+	var self = this;
+	var fullUrl = (/^http/i).test(url) ? url : this.webUrl + "/_api" + url;
+
+	var executeOptions = {
+		url: fullUrl,
+		method: "GET",
+		headers: {
+			"Accept": "application/json; odata=verbose"
+		}
 	};
 
-	RestDao.prototype = new sp.BaseDao();
+	executeOptions = objAssign({}, executeOptions, options);
+	return ajax(executeOptions);
+};
 
-	RestDao.prototype.executeRequest = function(url, options) {
-		var self = this,
-			fullUrl = (/^http/i).test(url) ? url : this.webUrl + "/_api" + url,
-			executeOptions = {
-				url: fullUrl,
-				type: "GET",
-				headers: {
-					"Accept": "application/json; odata=verbose"
-				}
-			};
 
-		$.extend(executeOptions, options);
-		return $.ajax(executeOptions);
-	};
-
-	sp.RestDao = RestDao;
-})(SPScript, jQuery);
-
-module.exports = SPScript.RestDao;
+module.exports = RestDao;
