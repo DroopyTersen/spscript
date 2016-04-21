@@ -23,11 +23,11 @@ BaseDao.prototype.executeRequest = function() {
 
 BaseDao.prototype.get = function(relativeQueryUrl, extendedOptions, raw) {
 	var options = {
-		type: "GET"
+		method: "GET"
 	};
 
 	if (extendedOptions) {
-		objAssign({}, options, extendedOptions);
+		options = objAssign({}, options, extendedOptions);
 	}
 	return this.executeRequest(relativeQueryUrl, options);
 };
@@ -42,11 +42,11 @@ BaseDao.prototype.lists = function(listname) {
 BaseDao.prototype.post = function(relativePostUrl, body, extendedOptions) {
 	var strBody = JSON.stringify(body);
 	var options = {
-		type: "POST",
+		method: "POST",
 		data: strBody,
 		contentType: "application/json;odata=verbose"
 	};
-	objAssign({}, options, extendedOptions);
+	options = objAssign({}, options, extendedOptions);
 	return this.executeRequest(relativePostUrl, options);
 };
 

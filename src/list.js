@@ -1,11 +1,12 @@
-var utils = require("./utils");
-var permissions = require("./permissions");
-var objAssign = require("object-assign");
+var utils 			= require("./utils");
+var Permissions 	= require("./permissions");
+var objAssign 		= require("object-assign");
 
 var List = function(listname, dao) {
 	this.listname = listname;
 	this.baseUrl = "/web/lists/getbytitle('" + listname + "')";
 	this._dao = dao;
+	this.permissions = new Permissions(this.baseUrl, this._dao);
 };
 
 List.prototype.getItems = function(odataQuery) {
@@ -36,8 +37,8 @@ List.prototype.addItem = function(item) {
 
 		var customOptions = {
 			headers: {
-				"Accept": "application/json;odata=verbose",
-				"X-RequestDigest": document.querySelector("#__REQUESTDIGEST").value,
+				"Accept": utils.acceptHeader,
+				"X-RequestDigest": utils.getRequestDigest()
 			}
 		};
 
@@ -57,8 +58,8 @@ List.prototype.updateItem = function(itemId, updates) {
 
 		var customOptions = {
 			headers: {
-				"Accept": "application/json;odata=verbose",
-				"X-RequestDigest": document.querySelector("#__REQUESTDIGEST").value,
+				"Accept": utils.acceptHeader,
+				"X-RequestDigest": utils.getRequestDigest(),
 				"X-HTTP-Method": "MERGE",
 				"If-Match": item.__metadata.etag
 			}
@@ -73,8 +74,8 @@ List.prototype.deleteItem = function(itemId) {
 	return self.getItemById(itemId).then(function(item) {
 		var customOptions = {
 			headers: {
-				"Accept": "application/json;odata=verbose",
-				"X-RequestDigest": document.querySelector("#__REQUESTDIGEST").value,
+				"Accept": utils.acceptHeader,
+				"X-RequestDigest": utils.getRequestDigest(),
 				"X-HTTP-Method": "DELETE",
 				"If-Match": item.__metadata.etag
 			}
@@ -100,10 +101,6 @@ List.prototype.findItem = function(key, value, odata) {
 		}
 		return null;
 	});
-};
-
-List.prototype.permissions = function(email) {
-	return permissions(this.baseUrl, this._dao, email);
 };
 
 module.exports = List;

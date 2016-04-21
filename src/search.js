@@ -1,96 +1,79 @@
-SPScript = require("./spscript");
-SPScript.queryString = require('./queryString');
-var $ = require("jquery");
+var queryString = require('./queryString');
 
-(function(sp) {
-	var Search = function(urlOrDao) {
-		if (typeof urlOrDao === "string") {
-			this.dao = new sp.RestDao(urlOrDao);
-		} else {
-			this.dao = urlOrDao;
-		}
-	};
+var Search = function(dao) {
+	this._dao = dao;
+};
 
-	Search.QueryOptions = function() {
-		this.sourceid = null;
-		this.startrow = null;
-		this.rowlimit = 30;
-		this.selectedproperties = null;
-		this.refiners = null;
-		this.refinementfilters = null;
-		this.hiddenconstraints = null;
-		this.sortlist = null;
-	};
+Search.QueryOptions = function() {
+	this.sourceid = null;
+	this.startrow = null;
+	this.rowlimit = 30;
+	this.selectedproperties = null;
+	this.refiners = null;
+	this.refinementfilters = null;
+	this.hiddenconstraints = null;
+	this.sortlist = null;
+};
 
-	var convertRowsToObjects = function(itemRows) {
-		var items = [];
+var convertRowsToObjects = function(itemRows) {
+	var items = [];
 
-		for (var i = 0; i < itemRows.length; i++) {
-			var row = itemRows[i],
-				item = {};
-			for (var j = 0; j < row.Cells.results.length; j++) {
-				item[row.Cells.results[j].Key] = row.Cells.results[j].Value;
-			}
-
-			items.push(item);
+	for (var i = 0; i < itemRows.length; i++) {
+		var row = itemRows[i],
+			item = {};
+		for (var j = 0; j < row.Cells.results.length; j++) {
+			item[row.Cells.results[j].Key] = row.Cells.results[j].Value;
 		}
 
-		return items;
-	};
-
-	//sealed class used to format results
-	var SearchResults = function(queryResponse) {
-		this.elapsedTime = queryResponse.ElapsedTime;
-		this.suggestion = queryResponse.SpellingSuggestion;
-		this.resultsCount = queryResponse.PrimaryQueryResult.RelevantResults.RowCount;
-		this.totalResults = queryResponse.PrimaryQueryResult.RelevantResults.TotalRows;
-		this.totalResultsIncludingDuplicates = queryResponse.PrimaryQueryResult.RelevantResults.TotalRowsIncludingDuplicates;
-		this.items = convertRowsToObjects(queryResponse.PrimaryQueryResult.RelevantResults.Table.Rows.results);
-		this.refiners = queryResponse.PrimaryQueryResult.RefinementResults ? MapRefiners(queryResponse.PrimaryQueryResult.RefinementResults.Refiners.results) : null;
-	};
-
-	var MapRefiners = function(refinerResults) {
-		var refiners = [];
-
-		for (var i = 0; i < refinerResults.length; i++) {
-			var entry = {};
-			entry.RefinerName = refinerResults[i].Name;
-			entry.RefinerOptions = refinerResults[i].Entries.results;
-
-			refiners.push(entry);
-		}
-
-		return refiners;
+		items.push(item);
 	}
 
-	Search.prototype.query = function(queryText, queryOptions) {
-		var self = this,
-			optionsQueryString = queryOptions != null ? "&" + sp.queryString.objectToQueryString(queryOptions, true) : "",
-			asyncRequest = new $.Deferred();
+	return items;
+};
 
-		var url = "/search/query?querytext='" + queryText + "'" + optionsQueryString;
-		var getRequest = self.dao.get(url);
+//sealed class used to format results
+var SearchResults = function(queryResponse) {
+	this.elapsedTime = queryResponse.ElapsedTime;
+	this.suggestion = queryResponse.SpellingSuggestion;
+	this.resultsCount = queryResponse.PrimaryQueryResult.RelevantResults.RowCount;
+	this.totalResults = queryResponse.PrimaryQueryResult.RelevantResults.TotalRows;
+	this.totalResultsIncludingDuplicates = queryResponse.PrimaryQueryResult.RelevantResults.TotalRowsIncludingDuplicates;
+	this.items = convertRowsToObjects(queryResponse.PrimaryQueryResult.RelevantResults.Table.Rows.results);
+	this.refiners = queryResponse.PrimaryQueryResult.RefinementResults ? MapRefiners(queryResponse.PrimaryQueryResult.RefinementResults.Refiners.results) : null;
+};
 
-		getRequest.done(function(data) {
-			if (data.d && data.d.query) {
-				var results = new SearchResults(data.d.query);
-				asyncRequest.resolve(results);
-			} else {
-				asyncRequest.reject(data);
-			}
-		});
+var MapRefiners = function(refinerResults) {
+	var refiners = [];
 
-		return asyncRequest.promise();
-	};
+	for (var i = 0; i < refinerResults.length; i++) {
+		var entry = {};
+		entry.RefinerName = refinerResults[i].Name;
+		entry.RefinerOptions = refinerResults[i].Entries.results;
 
-	Search.prototype.people = function(queryText, queryOptions) {
-		var options = queryOptions || {};
-		options.sourceid =  'b09a7990-05ea-4af9-81ef-edfab16c4e31';
-		return this.query(queryText, options);
-	};
+		refiners.push(entry);
+	}
 
-	sp.Search = Search;
+	return refiners;
+};
 
-})(SPScript);
+Search.prototype.query = function(queryText, queryOptions) {
+	var self = this;
+	var optionsQueryString = queryOptions != null ? "&" + queryString.objectToQueryString(queryOptions, true) : "";
 
-module.exports = SPScript.Search;
+	var url = "/search/query?querytext='" + queryText + "'" + optionsQueryString;
+	return self._dao.get(url).then(function(data) {
+		if (data.d && data.d.query) {
+			return new SearchResults(data.d.query);
+		}
+		throw new Error("Invalid response back from search service");
+	});
+};
+
+Search.prototype.people = function(queryText, queryOptions) {
+	var options = queryOptions || {};
+	options.sourceid = 'b09a7990-05ea-4af9-81ef-edfab16c4e31';
+	return this.query(queryText, options);
+};
+
+
+module.exports = Search;

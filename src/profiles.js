@@ -1,67 +1,64 @@
-var SPScript = require("./spscript");
-SPScript.helpers = require("./helpers");
+var utils = require("./utils");
 
-(function(sp) {
-	var Profiles = function(dao) {
-		this._dao = dao;
-		this.baseUrl = "/SP.UserProfiles.PeopleManager";
-	};
+var Profiles = function(dao) {
+	this._dao = dao;
+	this.baseUrl = "/SP.UserProfiles.PeopleManager";
+};
 
-	var transformPersonProperties = function(profile) {
-		profile.UserProfileProperties.results.forEach(function(keyvalue){
-			profile[keyvalue.Key] = keyvalue.Value;
-		});
-		return profile;
-	};
+var transformPersonProperties = function(profile) {
+	profile.UserProfileProperties.results.forEach(function(keyvalue){
+		profile[keyvalue.Key] = keyvalue.Value;
+	});
+	return profile;
+};
 
-	Profiles.prototype.current = function() {
-		var url = this.baseUrl + "/GetMyProperties";
-		return this._dao.get(url)
-					.then(sp.helpers.validateODataV2)
-					.then(transformPersonProperties);
+Profiles.prototype.current = function() {
+	var url = this.baseUrl + "/GetMyProperties";
+	return this._dao.get(url)
+				.then(utils.validateODataV2)
+				.then(transformPersonProperties);
+};
+
+Profiles.prototype.setProperty = function(userOrEmail, key, value) {
+	var self = this;
+	var url = this.baseUrl + "/SetSingleValueProfileProperty";
+	var args = {
+		propertyName: key,
+		propertyValue: value,
 	};
-	
-	Profiles.prototype.setProperty = function(userOrEmail, key, value) {
-		var self = this;
-		var url = this.baseUrl + "/SetSingleValueProfileProperty";
-		var args = {
-			propertyName: key,
-			propertyValue: value,
-		};
-		var customOptions = {
-			headers: {
-				"Accept": "application/json;odata=verbose",
-				"X-RequestDigest": $("#__REQUESTDIGEST").val(),
-			}
-		};
-		if (typeof userOrEmail === "string") {
-			return self.getByEmail(userOrEmail).then(function(user){
-				args.accountName = user.AccountName;
-				return self._dao.post(url, args, customOptions);
-			})
-		} else {
-			args.accountName = userOrEmail.LoginName || userOrEmail.AccountName;
-			return self._dao.post(url, args, customOptions);
+	var customOptions = {
+		headers: {
+			"Accept": utils.acceptHeader,
+			"X-RequestDigest": utils.getRequestDigest()
 		}
 	};
-	
-	Profiles.prototype.getProfile = function(user) {
-		var login = encodeURIComponent(user.LoginName);
-		var url = this.baseUrl + "/GetPropertiesFor(accountName=@v)?@v='" + login + "'";
-		return this._dao.get(url)
-			.then(sp.helpers.validateODataV2)
-			.then(transformPersonProperties);
-	};
 
-	Profiles.prototype.getByEmail = function(email) {
-		var self = this;
-		return self._dao.web.getUser(email)
-			.then(function(user) {
-				return self.getProfile(user);
-			});
-	};
+	// if a string is passed, assume its an email address
+	if (typeof userOrEmail === "string") {
+		return self.getByEmail(userOrEmail).then(function(user){
+			args.accountName = user.AccountName;
+			return self._dao.post(url, args, customOptions);
+		})
+	} else {
+		args.accountName = userOrEmail.LoginName || userOrEmail.AccountName;
+		return self._dao.post(url, args, customOptions);
+	}
+};
 
-	sp.Profiles = Profiles;
-})(SPScript);
+Profiles.prototype.getProfile = function(user) {
+	var login = encodeURIComponent(user.LoginName);
+	var url = this.baseUrl + "/GetPropertiesFor(accountName=@v)?@v='" + login + "'";
+	return this._dao.get(url)
+		.then(utils.validateODataV2)
+		.then(transformPersonProperties);
+};
 
-module.exports = SPScript.Profiles;
+Profiles.prototype.getByEmail = function(email) {
+	var self = this;
+	return self._dao.web.getUser(email)
+		.then(function(user) {
+			return self.getProfile(user);
+		});
+};
+
+module.exports = Profiles;

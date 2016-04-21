@@ -1,3 +1,8 @@
+var getRequestDigest = exports.getRequestDigest = function() {
+	return document.querySelector("#__REQUESTDIGEST").value
+};
+var acceptHeader = exports.acceptHeader = "application/json;odata=verbose";
+
 var validateODataV2 = exports.validateODataV2= function(data) {
 	var results = data;
 	if (data.d && data.d.results && data.d.results.length != null) {

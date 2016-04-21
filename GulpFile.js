@@ -18,8 +18,6 @@ var browserifyAndMinify = function(entry, minifiedName) {
 
 gulp.task('full', function(){
 	browserifyAndMinify('./src/entries/spscript.js', 'spscript.min.js');
-	
-
 });
 
 gulp.task('jquery', function(){
