@@ -349,7 +349,7 @@ var templating = {
 
 		for (var i = 0; i < propertyChain.length; i++) {
 			var property = propertyChain[i];
-			value = value[property] != null ? value[property] : "Not Found: " + fullProperty;
+			value = value[property] != null ? value[property] : "";
 		}
 
 		if(fullProperty === "_") {
