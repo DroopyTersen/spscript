@@ -1,6 +1,6 @@
 var BaseDao = require("./baseDao");
 var objAssign = require("object-assign");
-var ajax = require('client-ajax') 
+var ajax = require('./ajax') 
 
 var RestDao = function(url) {
 	var self = this;

@@ -1,5 +1,5 @@
 var queryString = require('./queryString');
-
+var utils = require('./utils')
 var Search = function(dao) {
 	this._dao = dao;
 };
@@ -61,9 +61,9 @@ Search.prototype.query = function(queryText, queryOptions) {
 	var optionsQueryString = queryOptions != null ? "&" + queryString.objectToQueryString(queryOptions, true) : "";
 
 	var url = "/search/query?querytext='" + queryText + "'" + optionsQueryString;
-	return self._dao.get(url).then(function(data) {
-		if (data.d && data.d.query) {
-			return new SearchResults(data.d.query);
+	return self._dao.get(url).then(utils.validateODataV2).then(function(resp) {
+		if (resp.query) {
+			return new SearchResults(resp.query);
 		}
 		throw new Error("Invalid response back from search service");
 	});

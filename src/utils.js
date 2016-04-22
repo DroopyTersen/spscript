@@ -4,13 +4,16 @@ var getRequestDigest = exports.getRequestDigest = function() {
 var acceptHeader = exports.acceptHeader = "application/json;odata=verbose";
 
 var validateODataV2 = exports.validateODataV2= function(data) {
-	var results = data;
-	if (data.d && data.d.results && data.d.results.length != null) {
-		results = data.d.results;
-	} else if (data.d) {
-		results = data.d;
-	}
-	return results;
+		if (typeof data === "string") {
+			data = JSON.parse(data);
+		}	
+		var results = data;
+		if (data.d && data.d.results && data.d.results.length != null) {
+			results = data.d.results;
+		} else if (data.d) {
+			results = data.d;
+		}
+		return results;	
 };
 
 var validateCrossDomainODataV2 = exports.validateCrossDomainODataV2 = function(response) {
