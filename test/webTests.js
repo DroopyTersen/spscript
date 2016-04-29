@@ -36,7 +36,7 @@ exports.run = function(dao) {
         })
 
         var folderPath = "/shared documents";
-        describe("SPScript.RestDao.web.getFolder(serverRelativeUrl)", function() {
+        describe("web.getFolder(serverRelativeUrl)", function() {
             var folder = null;
             before(function(done) {
                 dao.web.getFolder(folderPath).then(function(result) {

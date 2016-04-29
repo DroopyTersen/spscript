@@ -62,7 +62,7 @@
 /* 1 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var require;var __WEBPACK_AMD_DEFINE_RESULT__;/* WEBPACK VAR INJECTION */(function(process, global, module) {/*!
+	var __WEBPACK_AMD_DEFINE_RESULT__;var require;/* WEBPACK VAR INJECTION */(function(process, global, module) {/*!
 	 * @overview es6-promise - a tiny implementation of Promises/A+.
 	 * @copyright Copyright (c) 2014 Yehuda Katz, Tom Dale, Stefan Penner and contributors (Conversion to ES6 API by Jake Archibald)
 	 * @license   Licensed under MIT license
@@ -1991,13 +1991,13 @@
 		this.totalResults = queryResponse.PrimaryQueryResult.RelevantResults.TotalRows;
 		this.totalResultsIncludingDuplicates = queryResponse.PrimaryQueryResult.RelevantResults.TotalRowsIncludingDuplicates;
 		this.items = convertRowsToObjects(queryResponse.PrimaryQueryResult.RelevantResults.Table.Rows.results);
-		this.refiners = mapRefiners(queryResponse.PrimaryQueryResult.RefinementResults.Refiners.results);
+		this.refiners = mapRefiners(queryResponse.PrimaryQueryResult.RefinementResults);
 	};
 
-	var mapRefiners = function mapRefiners(refinerResults) {
+	var mapRefiners = function mapRefiners(refinementResults) {
 		var refiners = [];
 
-		if (refinerResults && refinerResults.length) {
+		if (refinementResults && refinementResults.Refiners && refinementResults.Refiners.results) {
 			refiners = refinerResults.map(function (r) {
 				return {
 					RefinerName: r.Name,

@@ -1,1 +1,0 @@
-C:\gitwip\SPScript\examples\app\SPScriptApp\bin\Debug\app.publish\1.0.0.0\SPScriptApp.app

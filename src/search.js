@@ -40,13 +40,13 @@ var SearchResults = function(queryResponse) {
 	this.totalResults = queryResponse.PrimaryQueryResult.RelevantResults.TotalRows;
 	this.totalResultsIncludingDuplicates = queryResponse.PrimaryQueryResult.RelevantResults.TotalRowsIncludingDuplicates;
 	this.items = convertRowsToObjects(queryResponse.PrimaryQueryResult.RelevantResults.Table.Rows.results);
-	this.refiners = mapRefiners(queryResponse.PrimaryQueryResult.RefinementResults.Refiners.results);
+	this.refiners = mapRefiners(queryResponse.PrimaryQueryResult.RefinementResults);
 };
 
-var mapRefiners = function(refinerResults) {
+var mapRefiners = function(refinementResults) {
 	var refiners = [];
 
-	if (refinerResults && refinerResults.length) {
+	if (refinementResults && refinementResults.Refiners && refinementResults.Refiners.results) {
 		refiners = refinerResults.map(r => {
 			return {
 				RefinerName: r.Name,

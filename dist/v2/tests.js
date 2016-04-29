@@ -59,6 +59,8 @@
 	        dao.should.not.be.null;
 	        dao.should.have.property("web");
 	        dao.should.have.property("lists");
+	        dao.should.have.property("search");
+	        dao.should.have.property("profiles");
 	    });
 	});
 
@@ -68,14 +70,11 @@
 	var listTests = __webpack_require__(24);
 	listTests.run(dao);
 
-	// var searchTests = require("./searchTests");
-	// searchTests.run(dao);
+	var searchTests = __webpack_require__(25);
+	searchTests.run(dao);
 
-	// var profileTests = require("./profileTests");
-	// profileTests.run(dao);
-
-	// var queryStringTests = require("./queryStringTests");
-	// queryStringTests.run();
+	var profileTests = __webpack_require__(26);
+	profileTests.run(dao);
 
 	mocha.run();
 
@@ -930,13 +929,13 @@
 		this.totalResults = queryResponse.PrimaryQueryResult.RelevantResults.TotalRows;
 		this.totalResultsIncludingDuplicates = queryResponse.PrimaryQueryResult.RelevantResults.TotalRowsIncludingDuplicates;
 		this.items = convertRowsToObjects(queryResponse.PrimaryQueryResult.RelevantResults.Table.Rows.results);
-		this.refiners = mapRefiners(queryResponse.PrimaryQueryResult.RefinementResults.Refiners.results);
+		this.refiners = mapRefiners(queryResponse.PrimaryQueryResult.RefinementResults);
 	};
 
-	var mapRefiners = function mapRefiners(refinerResults) {
+	var mapRefiners = function mapRefiners(refinementResults) {
 		var refiners = [];
 
-		if (refinerResults && refinerResults.length) {
+		if (refinementResults && refinementResults.Refiners && refinementResults.Refiners.results) {
 			refiners = refinerResults.map(function (r) {
 				return {
 					RefinerName: r.Name,
@@ -1500,7 +1499,7 @@
 	        });
 
 	        var folderPath = "/shared documents";
-	        describe("SPScript.RestDao.web.getFolder(serverRelativeUrl)", function () {
+	        describe("web.getFolder(serverRelativeUrl)", function () {
 	            var folder = null;
 	            before(function (done) {
 	                dao.web.getFolder(folderPath).then(function (result) {
@@ -1933,6 +1932,144 @@
 	        describe("list.permissions.check()", permissionsTests.create(list, "check"));
 
 	        describe("list.permissions.check(email)", permissionsTests.create(list, "check", "andrew@andrewpetersen.onmicrosoft.com"));
+	    });
+	};
+
+/***/ },
+/* 25 */
+/***/ function(module, exports) {
+
+	"use strict";
+
+	exports.run = function (dao) {
+	    describe("var search = dao.search;", function () {
+	        this.timeout(10000);
+	        describe("search.query(queryText)", function () {
+	            it("Should return promise that resolves to a SearchResults object", function (done) {
+	                var queryText = "andrew";
+	                dao.search.query(queryText).then(function (searchResults) {
+	                    searchResults.should.be.an("object");
+	                    searchResults.should.have.property("resultsCount");
+	                    searchResults.should.have.property("totalResults");
+	                    searchResults.should.have.property("items");
+	                    searchResults.should.have.property("refiners");
+	                    searchResults.items.should.be.an("array");
+	                    searchResults.items.should.not.be.empty;
+	                    done();
+	                });
+	            });
+	        });
+	        describe("search.query(queryText, queryOptions)", function () {
+	            it("Should obey the extra query options that were passed", function (done) {
+	                var queryText = "andrew";
+	                var options = {
+	                    rowLimit: 1
+	                };
+	                dao.search.query(queryText, options).then(function (searchResults) {
+	                    searchResults.should.be.an("object");
+	                    searchResults.should.have.property("resultsCount");
+	                    searchResults.should.have.property("totalResults");
+	                    searchResults.should.have.property("items");
+	                    searchResults.should.have.property("refiners");
+	                    searchResults.items.should.be.an("array");
+	                    searchResults.items.should.not.be.empty;
+	                    searchResults.items.length.should.equal(1);
+	                    done();
+	                });
+	            });
+	        });
+	        describe("search.people(queryText)", function () {
+	            it("Should only return search results that are people", function (done) {
+	                var queryText = "andrew";
+	                dao.search.people(queryText).then(function (searchResults) {
+	                    searchResults.should.be.an("object");
+	                    searchResults.should.have.property("items");
+	                    searchResults.items.should.be.an("array");
+	                    searchResults.items.should.not.be.empty;
+
+	                    var person = searchResults.items[0];
+	                    person.should.have.property("AccountName");
+	                    person.should.have.property("PreferredName");
+	                    person.should.have.property("AboutMe");
+	                    person.should.have.property("WorkEmail");
+	                    person.should.have.property("PictureURL");
+	                    done();
+	                });
+	            });
+	        });
+	    });
+	};
+
+/***/ },
+/* 26 */
+/***/ function(module, exports) {
+
+	"use strict";
+
+	exports.run = function (dao) {
+	    var email = "andrew@andrewpetersen.onmicrosoft.com";
+	    describe("var profiles = dao.profiles", function () {
+	        this.timeout(10000);
+
+	        describe("profiles.current()", function () {
+	            var profile = null;
+	            before(function (done) {
+	                dao.profiles.current().then(function (result) {
+	                    profile = result;
+	                    done();
+	                });
+	            });
+	            it("Should return a promise that resolves to a profile properties object", function () {
+	                profile.should.be.an("object");
+	                profile.should.have.property("AccountName");
+	                profile.should.have.property("Email");
+	                profile.should.have.property("PreferredName");
+	            });
+	        });
+
+	        describe("profiles.getByEmail(email)", function () {
+	            var profile = null;
+	            before(function (done) {
+	                dao.profiles.getByEmail(email).then(function (result) {
+	                    profile = result;
+	                    done();
+	                });
+	            });
+	            it("Should return a promise that resolves to a profile properties object", function () {
+	                profile.should.be.an("object");
+	                profile.should.have.property("AccountName");
+	                profile.should.have.property("Email");
+	                profile.should.have.property("PreferredName");
+	            });
+
+	            it("Should give you the matching person", function () {
+	                profile.should.have.property("Email");
+	                profile.Email.should.equal(email);
+	            });
+
+	            it("Should reject the promise for an invalid email", function (done) {
+	                dao.profiles.getByEmail("invalid@invalid123.com").then(function (result) {
+	                    "one".should.equal("two");
+	                    done();
+	                }).catch(function () {
+	                    done();
+	                });
+	            });
+	        });
+
+	        describe("profiles.setProperty(email, propertyName, propertyValue)", function () {
+	            it("Should update the About Me profile property", function (done) {
+	                var aboutMeValue = "Hi there. I was updated with SPScript";
+	                dao.profiles.setProperty(email, "AboutMe", aboutMeValue).then(dao.profiles.current.bind(dao.profiles)).then(function (profile) {
+	                    profile.should.have.property("AboutMe");
+	                    profile.AboutMe.should.equal(aboutMeValue);
+	                    done();
+	                }).catch(function () {
+	                    console.log("Failed");
+	                    console.log(arguments);
+	                });
+	            });
+	        });
 	    });
 	};
 
