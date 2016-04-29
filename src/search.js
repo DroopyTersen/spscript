@@ -1,5 +1,6 @@
 var queryString = require('./queryString');
 var utils = require('./utils')
+
 var Search = function(dao) {
 	this._dao = dao;
 };
@@ -39,34 +40,35 @@ var SearchResults = function(queryResponse) {
 	this.totalResults = queryResponse.PrimaryQueryResult.RelevantResults.TotalRows;
 	this.totalResultsIncludingDuplicates = queryResponse.PrimaryQueryResult.RelevantResults.TotalRowsIncludingDuplicates;
 	this.items = convertRowsToObjects(queryResponse.PrimaryQueryResult.RelevantResults.Table.Rows.results);
-	this.refiners = queryResponse.PrimaryQueryResult.RefinementResults ? MapRefiners(queryResponse.PrimaryQueryResult.RefinementResults.Refiners.results) : null;
+	this.refiners = mapRefiners(queryResponse.PrimaryQueryResult.RefinementResults.Refiners.results);
 };
 
-var MapRefiners = function(refinerResults) {
+var mapRefiners = function(refinerResults) {
 	var refiners = [];
 
-	for (var i = 0; i < refinerResults.length; i++) {
-		var entry = {};
-		entry.RefinerName = refinerResults[i].Name;
-		entry.RefinerOptions = refinerResults[i].Entries.results;
-
-		refiners.push(entry);
+	if (refinerResults && refinerResults.length) {
+		refiners = refinerResults.map(r => {
+			return {
+				RefinerName: r.Name,
+				RefinerOptions: r.Entries.results
+			};
+		});
 	}
-
 	return refiners;
 };
 
 Search.prototype.query = function(queryText, queryOptions) {
-	var self = this;
-	var optionsQueryString = queryOptions != null ? "&" + queryString.objectToQueryString(queryOptions, true) : "";
+	var optionsQueryString = queryOptions != null ? "&" + queryString.fromObj(queryOptions, true) : "";
 
 	var url = "/search/query?querytext='" + queryText + "'" + optionsQueryString;
-	return self._dao.get(url).then(utils.validateODataV2).then(function(resp) {
-		if (resp.query) {
-			return new SearchResults(resp.query);
-		}
-		throw new Error("Invalid response back from search service");
-	});
+	return this._dao.get(url)
+		.then(utils.validateODataV2)
+		.then(resp => {
+			if (resp.query) {
+				return new SearchResults(resp.query);
+			}
+			throw new Error("Invalid response back from search service");
+		});
 };
 
 Search.prototype.people = function(queryText, queryOptions) {

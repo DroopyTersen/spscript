@@ -1,61 +1,32 @@
-var queryString = {
-	_queryString: {},
-	_processed: false,
+var qs = require("querystring");
 
-	//private method (only run on the first 'GetValue' request)
-	_processQueryString: function(text) {
-		if (text || window.location.search) {
-			var qs = text || window.location.search.substring(1),
-				keyValue,
-				keyValues = qs.split('&');
+var fromObj = exports.fromObj = function(obj, quoteValues) {
 
-			for (var i = 0; i < keyValues.length; i++) {
-				keyValue = keyValues[i].split('=');
-				//this._queryString.push(keyValue[0]);
-				this._queryString[keyValue[0]] = decodeURIComponent(keyValue[1].replace(/\+/g, " "));
-			}
-		}
+	var writeParam = function(key) {
+		var value = (obj[key] + "").trim();
+		// if there is a space, wrap in single quotes
+		if (value.indexOf(" ") > -1 || quoteValues) value = "'" + value + "'";
 
-		this._processed = true;
-	},
+		return key + "=" + value;
+	};
 
-	//Public Methods
-	contains: function(key, text) {
-		if (!this._processed) {
-			this._processQueryString(text);
-		}
-		return this._queryString.hasOwnProperty(key);
-	},
-
-	getValue: function(key, text) {
-		if (!this._processed) {
-			this._processQueryString(text);
-		}
-		return this.contains(key) ? this._queryString[key] : "";
-	},
-
-	getAll: function(text) {
-		if (!this._processed) {
-			this._processQueryString(text);
-		}
-		return this._queryString;
-	},
-
-	objectToQueryString: function(obj, quoteValues) {
-		var params = [];
-		for (var key in obj) {
-			value = obj[key];
-			if (value !== null) {
-				if (quoteValues) {
-					params.push(encodeURIComponent(key) + "='" + encodeURIComponent(value) + "'");
-				} else {
-					params.push(encodeURIComponent(key) + "=" + encodeURIComponent(value));
-				}
-			}
-
-		}
-		return params.join("&");
-	}
+	var str = Object.keys(obj)
+					.map(writeParam)
+					.join("&");
+	return str;
 };
 
-module.exports = queryString;
+var toObj = exports.toObj = function(str) {
+	//if no string is passed use window.location.search
+	if (str === undefined && window && window.location && window.location.search) {
+		str = window.location.search;
+	}
+	if (!str) return {};
+	//trim off the leading '?' if its there
+	if (str[0] === "?") str = str.substr(1);
+
+	return qs.parse(str);
+};
+
+exports.contains = (key, text) => toObj(text).hasOwnProperty(key);
+exports.getValue = (key, text) => toObj(text)[key] || "";

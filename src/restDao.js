@@ -1,5 +1,4 @@
 var BaseDao = require("./baseDao");
-var objAssign = require("object-assign");
 var ajax = require('./ajax') 
 
 var RestDao = function(url) {
@@ -11,19 +10,19 @@ var RestDao = function(url) {
 RestDao.prototype = new BaseDao();
 
 RestDao.prototype.executeRequest = function(url, options) {
-	var self = this;
 	var fullUrl = (/^http/i).test(url) ? url : this.webUrl + "/_api" + url;
 
-	var executeOptions = {
+	var defaultOptions = {
 		url: fullUrl,
 		method: "GET",
 		headers: {
-			"Accept": "application/json; odata=verbose"
+			"Accept": "application/json; odata=verbose",
+			"Content-Type": "application/json; odata=verbose"
 		}
 	};
 
-	executeOptions = objAssign({}, executeOptions, options);
-	return ajax(executeOptions);
+	var ajaxOptions = Object.assign({}, defaultOptions, options);
+	return ajax(ajaxOptions);
 };
 
 

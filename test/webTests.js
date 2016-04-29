@@ -1,8 +1,11 @@
+var permissionsTests = require("./permissionsTests.js");
+
 exports.run = function(dao) {
-    describe("SPScript.RestDao.web", function () {
-        describe("SPScript.RestDao.web.info()", function () {
-            it("Should return a promise that resolves to web info", function (done) {
-                dao.web.info().then(function (webInfo) {
+    describe("var web = dao.web", function() {
+        this.timeout(10000);
+        describe("web.info()", function() {
+            it("Should return a promise that resolves to web info", function(done) {
+                dao.web.info().then(function(webInfo) {
                     webInfo.should.have.property("Url");
                     webInfo.should.have.property("Title");
                     done();
@@ -10,9 +13,9 @@ exports.run = function(dao) {
             });
         });
 
-        describe("SPScript.RestDao.web.subsites()", function () {
-            it("Should return a promise that resolves to an array of subsite web infos.", function (done) {
-                dao.web.subsites().then(function (subsites) {
+        describe("web.subsites()", function() {
+            it("Should return a promise that resolves to an array of subsite web infos.", function(done) {
+                dao.web.subsites().then(function(subsites) {
                     subsites.should.be.an("array");
                     if (subsites.length) {
                         subsites[0].should.have.property("Title");
@@ -23,71 +26,131 @@ exports.run = function(dao) {
             });
         });
 
-        describe("SPScript.RestDao.web.permissions()", function () {
-            var permissions = null;
-            before(function (done) {
-                dao.web.permissions().then(function (privs) {
-                    permissions = privs;
-                    console.log("Permission:");
-                    console.log(privs);
+        describe("web.getRequestDigest()", function() {
+            it("Should return a promise that resolves to a request digest string", function(done) {
+                dao.web.getRequestDigest().then(function(digest) {
+                    digest.should.not.be.null;
+                    done();
+                })
+            });
+        })
+
+        var folderPath = "/shared documents";
+        describe("SPScript.RestDao.web.getFolder(serverRelativeUrl)", function() {
+            var folder = null;
+            before(function(done) {
+                dao.web.getFolder(folderPath).then(function(result) {
+                    folder = result;
                     done();
                 });
             });
-            it("Should return a promise that resolves to an array of objects", function () {
-                permissions.should.be.an("array");
-                permissions.should.not.be.empty;
-            });
-            it("Should return objects that each have a member and a roles array", function () {
-                permissions.forEach(function (permission) {
-                    permission.should.have.property("member");
-                    permission.should.have.property("roles");
-                    permission.roles.should.be.an("array");
-                });
-            });
-            it("Should return permission objects that contain member.name, member.login, and member.id", function () {
-                permissions.forEach(function (permission) {
-                    permission.member.should.have.property("name");
-                    permission.member.should.have.property("login");
-                    permission.member.should.have.property("id");
-                });
-            });
-            it("Should return permission objects, each with a roles array that has a name and description", function () {
-                permissions.forEach(function (permission) {
-                    permission.roles.forEach(function (role) {
-                        role.should.have.property("name");
-                        role.should.have.property("description");
-                    });
-                });
+            it("Should return a promise that resolves to a folder with files and folders", function() {
+                folder.should.be.an("object");
+                folder.should.have.property("name");
+                folder.should.have.property("serverRelativeUrl");
+                folder.should.have.property("files");
+                folder.files.should.be.an("array");
+                folder.should.have.property("folders");
+                folder.folders.should.be.an("array");
             });
         });
 
-        describe("SPScript.RestDao.web.permissions(email)", function () {
-            var permissions = null;
-            var email = "andrew@andrewpetersen.onmicrosoft.com"
-            before(function (done) {
-                dao.web.permissions(email).then(function (privs) {
-                    permissions = privs;
+        var email = "andrew@andrewpetersen.onmicrosoft.com";
+        describe("web.getUser(email)", function() {
+            var user = null;
+            before(function(done){
+                dao.web.getUser(email).then(function(result){
+                    user = result;
                     done();
-                });
-            });
-            it("Should return a promise that resolves to an array of base permission strings", function () {
-                permissions.should.be.an("array");
-                permissions.should.not.be.empty;
-            });
+                })
+            })
 
-            it("Should reject the promise for an invalid email", function (done) {
+            it("Should return a promise that resolves to a user object", function(){
+                user.should.not.be.null;
+                user.should.have.property("Id");
+                user.should.have.property("LoginName");
+                user.should.have.property("Email");
+            })
+        })
 
-                dao.web.permissions("invalid@invalid123.com")
-                .then(function (privs) {
-                    ("one").should.equal("two");
+        var fileUrl = "/spscript/Shared%20Documents/testfile.txt";
+        describe("web.getFile(serverRelativeFileUrl)", function() {
+            var file = null;
+            before(function(done){
+                dao.web.getFile(fileUrl).then(function(result) {
+                    file = result;
                     done();
-                }).fail(function(xhr, status, error){
-                    console.log(error);
-                    console.log(xhr.responseText)
-                    done();
-                });
-            });
+                })
+            })
+            it("Should return a promise that resolves to a file object", function() {
+                file.should.not.be.null;
+                file.should.property("CheckOutType");
+                file.should.property("ETag");
+                file.should.property("Exists");
+                file.should.property("TimeLastModified");
+                file.should.property("Name");
+                file.should.property("UIVersionLabel");
+            })
         });
+
+        var destinationUrl = "/spscript/Shared%20Documents/testfile2.txt";
+
+        describe("web.copyFile(serverRelativeFileUrl)", function() {
+            var startTestTime = new Date();
+            var file = null;
+            before(function(done){
+                dao.web.copyFile(fileUrl, destinationUrl)
+                .then(function(){
+                    return dao.web.getFile(destinationUrl);
+                })
+                .then(function(result) {
+                    file = result;
+                    done();
+                })
+            })
+            it("Should return a promise, and once resolved, the new (copied) file should be retrievable.", function() {
+                file.should.not.be.null;
+                file.should.property("CheckOutType");
+                file.should.property("ETag");
+                file.should.property("Exists");
+                file.should.property("TimeLastModified");
+                file.should.property("Name");
+                file.should.property("UIVersionLabel");
+                var modified = new Date(file["TimeLastModified"])
+                modified.should.be.above(startTestTime);
+            })
+        })
+
+        describe("web.deleteFile(serverRelativeFileUrl)", function() {
+            var file = null;
+            it("Ensure there is a file to delete.", function(done){
+                dao.web.getFile(destinationUrl).then(function(result){
+                    result.should.not.be.null;
+                    result.should.have.property("Name");
+                    done();
+                });
+            })
+
+            it("Should return a promise, and once resolved, the file should NOT be retrievable", function(done){
+                dao.web.deleteFile(destinationUrl).then(function(result){
+                    dao.web.getFile(destinationUrl)
+                        .then(function(){
+                            // the call to get file succeeded so for a a failure
+                            ("one").should.equal("two");
+                            done();
+                        })
+                        .catch(function(){
+                            console.log(arguments);
+                            done();
+                            // call to get file failed as expected because file is gone
+                        })
+                })
+            })
+        }); 
+        describe("web.permissions.getRoleAssignments()", permissionsTests.create(dao.web));
+
+        describe("web.permissions.check()", permissionsTests.create(dao.web, "check"));
+
+        describe("web.permissions.check(email)", permissionsTests.create(dao.web, "check", "andrew@andrewpetersen.onmicrosoft.com"))
     });
 };
-    

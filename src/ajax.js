@@ -51,8 +51,6 @@
  *	@params callback
  *	@return Promise
  */
- var Promise = require('es6-promise').Promise;
- 
 (function () {
 
 	// create default options
@@ -118,28 +116,6 @@
 		return /^url|method|async|data|format|timeout|body|type|headers|before|success|error|complete$/.test(key)
 	}
 
-	function querystring (data) {
-		var search = []
-		forEach(data, recursion)
-
-		function recursion (value, key) {
-			if (value === null || value === undefined || isFunction(value)) {
-				search.push(encodeURIComponent(key) + "=")
-			}
-			else if (isObject(value)) {
-				forEach(value, function (v, k) { recursion(v, key + "[" + k + "]") })
-			} 
-			else if (isArray(value)) {
-				forEach(value, function (v) { recursion(v, key + "[]") })
-			} 
-			else {
-				search.push(encodeURIComponent(key) + "=" + encodeURIComponent(value))
-			}
-		}
-
-		return search.join("&")
-	}
-
 	function xhr () {
 		if (typeof XMLHttpRequest !== 'undefined') return new XMLHttpRequest()
 		if (typeof ActiveXObject !== 'undefined') return new ActiveXObject('Microsoft.XMLHTTP')
@@ -181,41 +157,7 @@
 		// get method
 		isValidMethod(options.method) && (method = options.method.toUpperCase())
 
-		// handle url template
-	  //url = url.replace(/:([^\/]+)|\{([^\/]+)\}/g, function (match, p) {return options[p] ? options[p] : p})
-
-		// handle data
-		if (method === "POST" || method === "PUT" || method === "DELETE") {
-			switch (options.format) {
-				case "json":
-					options.headers['Content-Type'] = 'application/json;charset=UTF-8'
-					data = JSON.stringify(options.data)
-					break
-				case "formdata":
-					if (typeof FormData !== "undefined") {
-						options.headers['Content-Type'] = "multipart/form-data"
-						if (options.data instanceof FormData) {
-							data = options.data
-						} else {
-							data = new FormData()
-							forEach(options.data, function (value, key) {
-								data.append(key, value)
-							})
-						}
-						break
-					}
-				case "form":
-				default:
-					options.headers['Content-Type'] = 'application/x-www-form-urlencoded;charset=UTF-8'
-					qs = querystring(options.data)
-					qs && (data = qs)
-					break
-			}
-		} 
-		else {
-			qs = querystring(options.data)
-			qs && (url += (url.indexOf('?') >= 0 ? '&' : '?') + qs)
-		}
+		data = options.data;
 
 		// create XMLHttpRequest
 		var http = xhr()

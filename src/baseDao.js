@@ -1,34 +1,28 @@
-var objAssign = require("object-assign");
-
 var List 		= require("./list");
 var Web 		= require("./web");
 var Profiles 	= require("./profiles")
 var Search 		= require("./search");
-var fs 			= require("./filesystem");
 var utils 		= require("./utils");
 
-var Folder = fs.Folder;
 
 var BaseDao = function() {
-	var self = this;
-
-	self.web = new Web(self);
-	self.search = new Search(self);
-	self.profiles = new Profiles(self);
+	this.web = new Web(this);
+	this.search = new Search(this);
+	this.profiles = new Profiles(this);
 };
 
 BaseDao.prototype.executeRequest = function() {
 	throw "Not implemented exception";
 };
 
-BaseDao.prototype.get = function(relativeQueryUrl, extendedOptions, raw) {
-	var options = {
-		method: "GET"
-	};
+BaseDao.prototype.getRequestDigest = function() {
+	return this.web.getRequestDigest();
+};
 
-	if (extendedOptions) {
-		options = objAssign({}, options, extendedOptions);
-	}
+BaseDao.prototype.get = function(relativeQueryUrl, extendedOptions) {
+	var options = Object.assign({}, {
+		method: "GET"
+	}, extendedOptions);
 	return this.executeRequest(relativeQueryUrl, options);
 };
 
@@ -46,31 +40,8 @@ BaseDao.prototype.post = function(relativePostUrl, body, extendedOptions) {
 		data: strBody,
 		contentType: "application/json;odata=verbose"
 	};
-	options = objAssign({}, options, extendedOptions);
+	options = Object.assign({}, options, extendedOptions);
 	return this.executeRequest(relativePostUrl, options);
 };
-
-BaseDao.prototype.getFolder = function(serverRelativeUrl) {
-	if (serverRelativeUrl.charAt(0) === "/") {
-		serverRelativeUrl = serverRelativeUrl.substr(1);
-	}
-	var url = "/web/GetFolderByServerRelativeUrl('" + serverRelativeUrl + "')?$expand=Folders,Files";
-
-	return this.get(url).then(utils.validateODataV2).then(function(spFolder) {
-		var folder = new Folder(spFolder);
-		folder.populateChildren(spFolder);
-		return folder;
-	});
-};
-
-BaseDao.prototype.uploadFile = function(folderUrl, name, base64Binary) {
-	var uploadUrl = "/web/GetFolderByServerRelativeUrl('" + folderUrl + "')/Files/Add(url='" + name + "',overwrite=true)",
-		options = {
-			binaryStringRequestBody: true,
-			state: "Update"
-		};
-	return this.post(uploadUrl, base64Binary, options);
-};
-
 
 module.exports = BaseDao;

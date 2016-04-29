@@ -1,4 +1,5 @@
-var utils = require("./utils");
+var utils 		= require("./utils");
+var headers 	= require("./requestHeaders");
 
 var Profiles = function(dao) {
 	this._dao = dao;
@@ -6,7 +7,7 @@ var Profiles = function(dao) {
 };
 
 var transformPersonProperties = function(profile) {
-	profile.UserProfileProperties.results.forEach(function(keyvalue){
+	profile.UserProfileProperties.results.forEach(keyvalue => {
 		profile[keyvalue.Key] = keyvalue.Value;
 	});
 	return profile;
@@ -19,29 +20,33 @@ Profiles.prototype.current = function() {
 				.then(transformPersonProperties);
 };
 
-Profiles.prototype.setProperty = function(userOrEmail, key, value) {
-	var self = this;
+
+Profiles.prototype.setProperty = function(userOrEmail, key, value, digest) {
+	if (digest) return this._setProperty(userOrEmail, key, value, digest);
+	return this._dao.getRequestDigest().then(digest => this._setProperty(userOrEmail, key, value, digest));
+};
+
+// Supports email string or a user object
+Profiles.prototype._setProperty = function(userOrEmail, key, value, digest) {
 	var url = this.baseUrl + "/SetSingleValueProfileProperty";
 	var args = {
 		propertyName: key,
 		propertyValue: value,
 	};
+
 	var customOptions = {
-		headers: {
-			"Accept": utils.acceptHeader,
-			"X-RequestDigest": utils.getRequestDigest()
-		}
+		headers: headers.getStandardHeaders(digest)
 	};
 
-	// if a string is passed, assume its an email address
+	// if a string is passed, assume its an email address, otherwise a user was passed
 	if (typeof userOrEmail === "string") {
-		return self.getByEmail(userOrEmail).then(function(user){
+		return this.getByEmail(userOrEmail).then(user => {
 			args.accountName = user.AccountName;
-			return self._dao.post(url, args, customOptions);
+			return this._dao.post(url, args, customOptions);
 		})
 	} else {
 		args.accountName = userOrEmail.LoginName || userOrEmail.AccountName;
-		return self._dao.post(url, args, customOptions);
+		return this._dao.post(url, args, customOptions);
 	}
 };
 
@@ -54,11 +59,7 @@ Profiles.prototype.getProfile = function(user) {
 };
 
 Profiles.prototype.getByEmail = function(email) {
-	var self = this;
-	return self._dao.web.getUser(email)
-		.then(function(user) {
-			return self.getProfile(user);
-		});
+	return this._dao.web.getUser(email).then(user => this.getProfile(user));
 };
 
 module.exports = Profiles;

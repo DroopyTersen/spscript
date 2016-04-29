@@ -6,31 +6,27 @@ var Permissions = function(baseUrl, dao) {
 };
 
 Permissions.prototype.getRoleAssignments = function() {
-   var url = baseUrl + "/RoleAssignments?$expand=Member,RoleDefinitionBindings";
-   return dao.get(url)
+   var url = this.baseUrl + "/RoleAssignments?$expand=Member,RoleDefinitionBindings";
+   return this._dao.get(url)
       .then(utils.validateODataV2)
-      .then(function(results) {
-         return results.map(transforms.roleAssignment);
-      });
+      .then(results => results.map(transforms.roleAssignment));
 };
 
 Permissions.prototype.check = function(email) {
-   var self = this;
-   var checkPrivs = function(user) {
+
+   var checkPrivs = (user) => {
       var login = encodeURIComponent(user.LoginName);
-      var url = self.baseUrl + "/getusereffectivepermissions(@v)?@v='" + login + "'";
-      return self._dao.get(url).then(utils.validateODataV2);
+      var url = this.baseUrl + "/getusereffectivepermissions(@v)?@v='" + login + "'";
+      return this._dao.get(url).then(utils.validateODataV2);
    };
 
    // If no email is passed, then get current user, else get user by email
-   var req = !email ? self._dao.get('/web/getuserbyid(' + _spPageContextInfo.userId + ')').then(function(data) {
-      return data.d
-   }) : self._dao.web.getUser(email)
+   var req = !email 
+      ? this._dao.get('/web/getuserbyid(' + _spPageContextInfo.userId + ')').then(data => data.d)
+      : this._dao.web.getUser(email)
 
    return req.then(checkPrivs)
-      .then(function(privs) {
-         return permissionMaskToStrings(privs.GetUserEffectivePermissions.Low, privs.GetUserEffectivePermissions.High);
-      });
+      .then(privs => permissionMaskToStrings(privs.GetUserEffectivePermissions.Low, privs.GetUserEffectivePermissions.High));
 }
 
 var transforms = {

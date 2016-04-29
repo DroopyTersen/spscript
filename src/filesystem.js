@@ -1,18 +1,12 @@
 var utils = require("./utils");
 
 var Folder = function(spFolder) {
-	var self = this;
-	self.mapProperties(spFolder);
+	this.mapProperties(spFolder);
 };
 
 Folder.prototype.populateChildren = function(spFolder) {
-	this.folders = spFolder.Folders.results.map(function(spFolder){
-		return new Folder(spFolder);
-	});
-	
-	this.files = spFolder.Files.results.map(function(spFile){
-		return new File(spFile);
-	});
+	this.folders = spFolder.Folders.results.map(f => new Folder(f));
+	this.files = spFolder.Files.results.map(f => new File(f));
 };
 
 Folder.prototype.mapProperties = function(spFolder) {

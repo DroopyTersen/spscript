@@ -16,11 +16,6 @@ var validateODataV2 = exports.validateODataV2= function(data) {
 		return results;	
 };
 
-var validateCrossDomainODataV2 = exports.validateCrossDomainODataV2 = function(response) {
-	var data = $.parseJSON(response.body);
-	helpers.validateODataV2(data);
-};
-
 //'Borrowed' from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Bitwise_Operators
 var arrayFromBitMask = exports.arrayFromBitMask = function(nMask) {
 	// nMask must be between -2147483648 and 2147483647
@@ -35,22 +30,18 @@ var arrayFromBitMask = exports.arrayFromBitMask = function(nMask) {
 };
 
 var waitForLibraries = exports.waitForLibraries = function(namespaces, cb) {
-	var missing = namespaces.filter(function(namespace) {
-		return !validateNamespace(namespace);
+	return new Promise(function(deferred){
+		var missing = namespaces.filter(namespace => !validateNamespace(namespace));
+
+		if (missing.length === 0) {
+			if (cb) cb();
+			deferred.resolve();
+		}
+		else setTimeout(() => waitForLibraries(namespaces, cb), 25);
 	});
-
-	if (missing.length === 0) {
-		cb();
-	} else {
-		setTimeout(function() {
-			waitForLibraries(namespaces, cb);
-		}, 25);
-	}
 };
 
-var waitForLibrary = exports.waitForLibrary = function(namespace, cb) {
-	return waitForLibraries([namespace], cb);
-};
+var waitForLibrary = exports.waitForLibrary = (namespace, cb) => waitForLibraries([namespace], cb)
 
 var validateNamespace = exports.validateNamespace = function(namespace) {
 	var scope = window;
@@ -66,3 +57,14 @@ var validateNamespace = exports.validateNamespace = function(namespace) {
 	}
 	return true;
 };
+
+var getScript = exports.getScript = function(url, namespace) {
+	var scriptTag = window.document.createElement("script");
+	scriptTag.type ='text/javascript';
+	scriptTag.src = url;
+	window.document.querySelector("head").appendChild(scriptTag);
+
+	if (namespace) {
+		return waitForLibrary(namespace)
+	}
+}

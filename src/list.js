@@ -1,6 +1,6 @@
 var utils 			= require("./utils");
 var Permissions 	= require("./permissions");
-var objAssign 		= require("object-assign");
+var headers 		= require("./requestHeaders");
 
 var List = function(listname, dao) {
 	this.listname = listname;
@@ -10,15 +10,13 @@ var List = function(listname, dao) {
 };
 
 List.prototype.getItems = function(odataQuery) {
-	var query = (odataQuery != null) ? "?" + odataQuery : "";
 	return this._dao
-		.get(this.baseUrl + "/items" + query)
+		.get(this.baseUrl + "/items" + appendOData(odataQuery))
 		.then(utils.validateODataV2);
 };
 
 List.prototype.getItemById = function(id, odata) {
-	var url = this.baseUrl + "/items(" + id + ")";
-	url += (odata != null) ? "?" + odata : "";
+	var url = this.baseUrl + "/items(" + id + ")" + appendOData(odata);
 	return this._dao.get(url).then(utils.validateODataV2);
 };
 
@@ -26,81 +24,89 @@ List.prototype.info = function() {
 	return this._dao.get(this.baseUrl).then(utils.validateODataV2);
 };
 
-List.prototype.addItem = function(item) {
-	var self = this;
-	return self._dao.get(self.baseUrl).then(function(data) {
-		item = objAssign({}, {
+List.prototype.addItem = function(item, requestDigest) {
+	if (requestDigest) return this._addItem(item, requestDigest);
+
+	return this._dao.getRequestDigest().then(requestDigest => this._addItem(item, requestDigest));
+};
+
+List.prototype._addItem = function(item, requestDigest) {
+	return this._dao.get(this.baseUrl).then(data => {
+
+		//decorate the item with the 'type' metadata
+		item = Object.assign({}, {
 			"__metadata": {
 				"type": data.d.ListItemEntityTypeFullName
 			}
 		}, item);
 
 		var customOptions = {
-			headers: {
-				"Accept": utils.acceptHeader,
-				"X-RequestDigest": utils.getRequestDigest()
-			}
+			headers: headers.getAddHeaders(requestDigest)
 		};
-
-		return self._dao.post(baseUrl + "/items", item, customOptions)
-			.then(utils.validateODataV2);
-	});
+		return this._dao.post(this.baseUrl + "/items", item, customOptions)
+	})
+	.then(utils.validateODataV2);
 };
 
-List.prototype.updateItem = function(itemId, updates) {
-	var self = this;
-	return self.getItemById(itemId).then(function(item) {
-		updates = objAssign({}, {
+List.prototype.updateItem = function(item, updates, requestDigest) {
+	if (requestDigest) return this._updateItem(item, updates, requestDigest);
+
+	return this._dao.getRequestDigest().then(requestDigest => this._updateItem(item, updates, requestDigest));
+};
+
+List.prototype._updateItem = function(itemId, updates, digest) {
+	return this.getItemById(itemId).then(item => {
+		//decorate the item with the 'type' metadata
+		updates = Object.assign({}, {
 			"__metadata": {
 				"type": item.__metadata.type
 			}
 		}, updates);
 
 		var customOptions = {
-			headers: {
-				"Accept": utils.acceptHeader,
-				"X-RequestDigest": utils.getRequestDigest(),
-				"X-HTTP-Method": "MERGE",
-				"If-Match": item.__metadata.etag
-			}
+			headers: headers.getUpdateHeaders(digest, item.__metadata.etag)
 		};
 
-		return self._dao.post(item.__metadata.uri, updates, customOptions);
+		return this._dao.post(item.__metadata.uri, updates, customOptions);
 	});
 };
 
-List.prototype.deleteItem = function(itemId) {
-	var self = this;
-	return self.getItemById(itemId).then(function(item) {
+List.prototype.deleteItem = function(itemId, requestDigest) {
+	if (requestDigest) return this._deleteItem(itemId, requestDigest);
+
+	return this._dao.getRequestDigest().then(requestDigest => this._deleteItem(itemId, requestDigest));
+};
+
+List.prototype._deleteItem = function(itemId, digest) {
+	return this.getItemById(itemId).then(item => {
 		var customOptions = {
-			headers: {
-				"Accept": utils.acceptHeader,
-				"X-RequestDigest": utils.getRequestDigest(),
-				"X-HTTP-Method": "DELETE",
-				"If-Match": item.__metadata.etag
-			}
+			headers: headers.getDeleteHeaders(digest, item.__metadata.etag)
 		};
-		return self._dao.post(item.__metadata.uri, "", customOptions);
+		return this._dao.post(item.__metadata.uri, "", customOptions);
 	});
 };
 
 List.prototype.findItems = function(key, value, extraOData) {
 	//if its a string, wrap in single quotes
 	var filterValue = typeof value === "string" ? "'" + value + "'" : value;
-
-	var odata = "$filter=" + key + " eq " + filterValue;
-	odata += (extraOData != null) ? "&" + extraOData : "";
+	var odata = "$filter=" + key + " eq " + filterValue + appendOData(extraOData, "&");
 
 	return this.getItems(odata);
 };
 
 List.prototype.findItem = function(key, value, odata) {
-	return this.findItems(key, value, odata).then(function(items) {
+	return this.findItems(key, value, odata).then(items => {
 		if (items && items.length && items.length > 0) {
 			return items[0];
 		}
 		return null;
 	});
+};
+
+var appendOData = function(odata, prefix) {
+	prefix = prefix || "?";
+	if (odata) return prefix + odata;
+	return "";
 };
 
 module.exports = List;
