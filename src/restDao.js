@@ -11,6 +11,8 @@ var ajax = require('./ajax')
  * @property {Web} web - Allows interacting with the SharePoint site you connected to
  * @property {Search} search - Allows querying through the SP Search Service
  * @property {Profiles} profiles - Allows interacting with the SP Profile Service
+ * @example
+ * var dao = new SPScript.RestDao(_spPageContextInfo.webAbsoluteUrl);
  */
 var RestDao = function(url) {
 	var self = this;

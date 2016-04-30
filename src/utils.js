@@ -3,13 +3,13 @@
 */
 
 /**
- * If you pass in string, it will try to run JSON.parse(). Different browsers handle JSON response differently so it is safest to call this method if you are making a generic GET or POST request
+ * If you pass in string, it will try to run JSON.parse(). The SPScript get() and post() methods already run the response through this method, so you'd really only need this if you are doing a manual ajax request. Different browsers handle JSON response differently so it is safest to call this method if you aren't going through SPScript.
  * @param {string} data - Raw response from JSON request
  * @returns {object} - JSON parsed object. Returns null if JSON.parse fails
  * @function parseJSON
  * @memberof SPScript.utils
  * @example
- * dao.get('/web/contentTypes')
+ * dao.executeRequest('/web/contentTypes')
  *		.then(SPScript.utils.parseJSON)
  *		.then(function(data) { console.log(data.d.results)})
  */

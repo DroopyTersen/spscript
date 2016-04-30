@@ -4,7 +4,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width">
-	<title>Documentation Class: Folder</title>
+	<title>Documentation Class: SearchResults</title>
 
 	<!--[if lt IE 9]>
 	<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
@@ -77,13 +77,13 @@
 		<div id="main">
 			
 
-	<h1 class="page-title">Class: Folder</h1>
+	<h1 class="page-title">Class: SearchResults</h1>
 <section>
 
 <header>
     
         <h2>
-        Folder
+        SearchResults
         </h2>
         
     
@@ -96,7 +96,7 @@
         
 <hr>
 <dt>
-    <h4 class="name" id="Folder"><span class="type-signature"></span>new Folder(spFolder)</h4>
+    <h4 class="name" id="SearchResults"><span class="type-signature"></span>new SearchResults(rawResponse)</h4>
     
     
 </dt>
@@ -104,7 +104,7 @@
 
     
     <div class="description">
-        Represents a SharePoint Folder.  Keep in mind, and File or Folder objects obtained from the 'files' and 'folders' array will not have their child items populated.
+        Represents the response sent back from the Search Service after a query
     </div>
     
 
@@ -139,13 +139,13 @@
 
         <tr>
             
-                <td class="name"><code>spFolder</code></td>
+                <td class="name"><code>rawResponse</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">SP.Folder</span>
+<span class="param-type">object</span>
 
 
 
@@ -156,7 +156,7 @@
 
             
 
-            <td class="description last">A raw SP.Folder object</td>
+            <td class="description last">The raw response from the search service. Very nasty stuff.</td>
         </tr>
 
     
@@ -183,6 +183,8 @@
         <th>Type</th>
 
         
+        <th>Argument</th>
+        
 
         
 
@@ -195,7 +197,7 @@
 
         <tr>
             
-                <td class="name"><code>name</code></td>
+                <td class="name"><code>elapsedTime</code></td>
             
 
             <td class="type">
@@ -209,23 +211,29 @@
             </td>
 
             
+                <td class="attributes">
+                
+
+                
+                </td>
+            
 
             
 
-            <td class="description last">Folder name</td>
+            <td class="description last">How long the query took</td>
         </tr>
 
     
 
         <tr>
             
-                <td class="name"><code>serverRelativeUrl</code></td>
+                <td class="name"><code>suggestion</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">string</span>
+<span class="param-type">object</span>
 
 
 
@@ -233,17 +241,23 @@
             </td>
 
             
+                <td class="attributes">
+                
+
+                
+                </td>
+            
 
             
 
-            <td class="description last">Server relative url</td>
+            <td class="description last">Spelling suggestion</td>
         </tr>
 
     
 
         <tr>
             
-                <td class="name"><code>itemCount</code></td>
+                <td class="name"><code>resultsCount</code></td>
             
 
             <td class="type">
@@ -257,23 +271,29 @@
             </td>
 
             
+                <td class="attributes">
+                
+
+                
+                </td>
+            
 
             
 
-            <td class="description last">Number of items in the folder</td>
+            <td class="description last">Number of results in this batch</td>
         </tr>
 
     
 
         <tr>
             
-                <td class="name"><code>guid</code></td>
+                <td class="name"><code>totalResults</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">string</span>
+<span class="param-type">int</span>
 
 
 
@@ -281,23 +301,29 @@
             </td>
 
             
+                <td class="attributes">
+                
+
+                
+                </td>
+            
 
             
 
-            <td class="description last">Unique ID of the folder</td>
+            <td class="description last">Total number of results that could be returned</td>
         </tr>
 
     
 
         <tr>
             
-                <td class="name"><code>uri</code></td>
+                <td class="name"><code>totalResultsIncludingDuplicates</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">string</span>
+<span class="param-type">int</span>
 
 
 
@@ -305,23 +331,29 @@
             </td>
 
             
+                <td class="attributes">
+                
+
+                
+                </td>
+            
 
             
 
-            <td class="description last">API url to get the raw SP.Folder object</td>
+            <td class="description last">Total number of results that could be returned including duplicates</td>
         </tr>
 
     
 
         <tr>
             
-                <td class="name"><code>files</code></td>
+                <td class="name"><code>items</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">Array.&lt;<a href="File.html">File</a>></span>
+<span class="param-type">Array</span>
 
 
 
@@ -329,23 +361,29 @@
             </td>
 
             
+                <td class="attributes">
+                
+
+                
+                </td>
+            
 
             
 
-            <td class="description last">An array of files in that folder</td>
+            <td class="description last">An array of search result items.  Properties will depend of the item type.</td>
         </tr>
 
     
 
         <tr>
             
-                <td class="name"><code>folders</code></td>
+                <td class="name"><code>refiners</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">Array.&lt;<a href="Folder.html">Folder</a>></span>
+<span class="param-type">Array.&lt;<a href="Refiner.html">Refiner</a>></span>
 
 
 
@@ -353,10 +391,18 @@
             </td>
 
             
+                <td class="attributes">
+                
+
+                
+                    &lt;nullable><br>
+                
+                </td>
+            
 
             
 
-            <td class="description last">An array of sub folders</td>
+            <td class="description last">An array of refiners. Can be null.</td>
         </tr>
 
     
@@ -413,12 +459,6 @@
     
 
     
-
-    
-        <h5>Example</h5>
-        
-    <pre class="sunlight-highlight-javascript">dao.web.getFolder(&quot;/sites/mysite/Shared Documents&quot;)			.then(function(folder) { 				console.log(folder.name);				console.log(folder.files);			});</pre>
-
 
     
 </dd>

@@ -4,7 +4,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width">
-	<title>Documentation Class: Folder</title>
+	<title>Documentation Namespace: queryString</title>
 
 	<!--[if lt IE 9]>
 	<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
@@ -77,13 +77,13 @@
 		<div id="main">
 			
 
-	<h1 class="page-title">Class: Folder</h1>
+	<h1 class="page-title">Namespace: queryString</h1>
 <section>
 
 <header>
     
         <h2>
-        Folder
+        queryString
         </h2>
         
     
@@ -94,9 +94,71 @@
     <div class="container-overview">
     
         
+
+        
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+        
+    
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <h3 class="subsection-title">Methods</h3>
+
+        <dl>
+            
 <hr>
 <dt>
-    <h4 class="name" id="Folder"><span class="type-signature"></span>new Folder(spFolder)</h4>
+    <h4 class="name" id=".fromObj"><span class="type-signature">&lt;static> </span>fromObj(obj, <span class="optional">[quoteValues]</span>)</h4>
     
     
 </dt>
@@ -104,7 +166,209 @@
 
     
     <div class="description">
-        Represents a SharePoint Folder.  Keep in mind, and File or Folder objects obtained from the 'files' and 'folders' array will not have their child items populated.
+        Turns a normal js Object into a string in form of "key1=value1&key2=value2..."
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Argument</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>obj</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">Javascript object to query stringify</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>[quoteValues]</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">bool</span>
+
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">By default, if the value has a space, it will be single quoted. Passing true will cause all values to be quoted.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    - Note: tt does NOT prepend '?' char
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">string</span>
+
+
+
+    </dd>
+</dl>
+
+
+        
+
+    
+        <h5>Example</h5>
+        
+    <pre class="sunlight-highlight-javascript">var myObj = { id: 123, title: &quot;My Title&quot; }var qs = SPScript.queryString.fromObj(myObj);// qs would output: &quot;id=123&amp;title=&#x27;MyTitle&#x27;&quot;</pre>
+
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id=".toObj"><span class="type-signature">&lt;static> </span>toObj(str)</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Turns a string in form of "key1=value1&key2=value2..." into a javascript object
     </div>
     
 
@@ -139,13 +403,13 @@
 
         <tr>
             
-                <td class="name"><code>spFolder</code></td>
+                <td class="name"><code>str</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">SP.Folder</span>
+<span class="param-type">string</span>
 
 
 
@@ -156,7 +420,7 @@
 
             
 
-            <td class="description last">A raw SP.Folder object</td>
+            <td class="description last">must be in query string format to work</td>
         </tr>
 
     
@@ -169,203 +433,6 @@
 <dl class="details">
     
 
-    <h5 class="subsection-title">Properties:</h5>
-
-    <dl>
-
-<table class="props table table-striped">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>name</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">Folder name</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>serverRelativeUrl</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">Server relative url</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>itemCount</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">int</span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">Number of items in the folder</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>guid</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">Unique ID of the folder</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>uri</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">API url to get the raw SP.Folder object</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>files</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Array.&lt;<a href="File.html">File</a>></span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">An array of files in that folder</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>folders</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Array.&lt;<a href="Folder.html">Folder</a>></span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">An array of sub folders</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-</dl>
-
-    
-
 	
 
 	
@@ -413,31 +480,41 @@
     
 
     
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    - A javascript object with properties for each key found in the query string passed in.
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Object</span>
+
+
+
+    </dd>
+</dl>
+
+
+        
 
     
         <h5>Example</h5>
         
-    <pre class="sunlight-highlight-javascript">dao.web.getFolder(&quot;/sites/mysite/Shared Documents&quot;)			.then(function(folder) { 				console.log(folder.name);				console.log(folder.files);			});</pre>
+    <pre class="sunlight-highlight-javascript">// your url is &quot;https://sharepoint.com/sites/mysite/home.aspx?id=123&amp;title=&#x27;My Title&#x27;&quot;var myObj = SPScript.queryString.toObj(window.location.search);//myObj would be { id: 123, title: &quot;My Title&quot; }</pre>
 
 
     
 </dd>
 
-    
-    </div>
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
+        </dl>
     
 
     

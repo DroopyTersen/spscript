@@ -4,7 +4,7 @@ var headers = require("./requestHeaders");
 var Folder = require("./filesystem").Folder;
 
 /**
- * Represents a SharePoint site
+ * Represents a SharePoint site. You shouldn't ever be new'ing this class up up yourself, instead you'll get it from your dao as shown in first example.
  * @class
  * @param {BaseDao} dao - Data access object used to make requests.
  * @property {Permissions} permissions - allows checking security information of the Web
@@ -109,7 +109,7 @@ Web.prototype.getFile = function(url) {
  * Copies a file
  * @param {string} sourceUrl - The server relative url of the file you want to copy
  * @param {string} destinationUrl - The server relative url of the destination
- * @param {string} [requestDigest] - The request digest token used to authorize the request. One will be automatically retrieve if not passed.
+ * @param {string} [[requestDigest]] - The request digest token used to authorize the request. One will be automatically retrieved if not passed.
  * @example
  * var sourceFile = "/sites/mysite/Shared Documents/myfile.docx";
  * var destination = "/sites/mysite/Restricted Docs/myFile.docx";
@@ -132,7 +132,7 @@ Web.prototype._copyFile = function(sourceUrl, destinationUrl, digest) {
 /**
  * Deletes a file
  * @param {string} fileUrl - The server relative url of the file you want to delete
- * @param {string} [requestDigest] - The request digest token used to authorize the request. One will be automatically retrieve if not passed.
+ * @param {string} [[requestDigest]] - The request digest token used to authorize the request. One will be automatically retrieved if not passed.
  * @example
  * dao.web.deleteFile("/sites/mysite/Shared Documents/myFile.docx")
  *			.then(function() { console.log("Success")});
