@@ -1,4 +1,32 @@
-/**
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: utils.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: utils.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
 * @namespace SPScript.utils
 */
 
@@ -37,7 +65,7 @@ var parseJSON = exports.parseJSON = function(data) {
  */
 var validateODataV2 = exports.validateODataV2= function(data) {
 		var results = parseJSON(data);
-		if (data.d && data.d.results && data.d.results.length != null) {
+		if (data.d &amp;&amp; data.d.results &amp;&amp; data.d.results.length != null) {
 			results = data.d.results;
 		} else if (data.d) {
 			results = data.d;
@@ -51,10 +79,10 @@ var arrayFromBitMask = exports.arrayFromBitMask = function(nMask) {
 	if (typeof nMask === "string") {
 		nMask = parseInt(nMask);
 	}
-	// if (nMask > 0x7fffffff || nMask < -0x80000000) { 
+	// if (nMask > 0x7fffffff || nMask &lt; -0x80000000) { 
 	// 	throw new TypeError("arrayFromMask - out of range"); 
 	// }
-	for (var nShifted = nMask, aFromMask = []; nShifted; aFromMask.push(Boolean(nShifted & 1)), nShifted >>>= 1);
+	for (var nShifted = nMask, aFromMask = []; nShifted; aFromMask.push(Boolean(nShifted &amp; 1)), nShifted >>>= 1);
 	return aFromMask;
 };
 
@@ -81,7 +109,7 @@ var waitForLibraries = exports.waitForLibraries = function(namespaces) {
 
 /**
  * A method to allow you to wait for a single script dependency to load.
- * @param {string} namespace - A global namespace. For example, when jQuery is on the page, window.jQuery is valid. So 'jQuery' is the namespace.
+ * @param {Array} namespaces - A global namespace. For example, when jQuery is on the page, window.jQuery is valid. So 'jQuery' is the namespace.
  * @returns {Promise} - A Promise that resolves when all your namespace is on the page
  * @function waitForLibrary
  * @memberof SPScript.utils
@@ -91,21 +119,11 @@ var waitForLibraries = exports.waitForLibraries = function(namespaces) {
  */
 var waitForLibrary = exports.waitForLibrary = (namespace) => waitForLibraries([namespace])
 
-
-/**
- * A method to check if a given namespace is on the global object (window).
- * @param {string} namespace - A global namespace
- * @returns {Bool} - True or False if the namespace is on the page
- * @function validateNamespace
- * @memberof SPScript.utils
- * @example
- * var canUseModals = SPScript.utils.validateNamespace("SP.UI.Dialog");
- */
 var validateNamespace = exports.validateNamespace = function(namespace) {
 	var scope = window;
 	var sections = namespace.split(".");
 	var sectionsLength = sections.length;
-	for (var i = 0; i < sectionsLength; i++) {
+	for (var i = 0; i &lt; sectionsLength; i++) {
 		var prop = sections[i];
 		if (prop in scope) {
 			scope = scope[prop]
@@ -116,33 +134,10 @@ var validateNamespace = exports.validateNamespace = function(namespace) {
 	return true;
 };
 
-/**
- * A method to load a javascript file onto your page
- * @param {Array<string>} urls - An Array of urls to javascript files you want to load on your page
- * @returns {Promise} - A Promise that resolves when all the files are done loading
- * @function getScripts
- * @memberof SPScript.utils
- * @example
- * function doMyStuff() { };
- * var momentjsUrl = "https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.13.0/moment.min.js"
- * var jQueryUrl = "https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.3/jquery.min.js"
- * SPScript.utils.getScript([momentjsUrl, jQueryUrl]).then(doMyStuff);
- */
 var getScripts = exports.getScripts = function(urls) {
 	return Promise.all(urls.map(getScript));
 };
 
-/**
- * A method to load a javascript file onto your page
- * @param {string} url - Url to the java script file you want to load
- * @returns {Promise} - A Promise that resolves when the file is done loading
- * @function getScript
- * @memberof SPScript.utils
- * @example
- * function doMyStuff() { };
- * var momentjsUrl = "https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.13.0/moment.min.js"
- * SPScript.utils.getScript(momentjsUrl).then(doMyStuff);
- */
 var getScript = exports.getScript = function(url) {
 	return new Promise((resolve, reject) => {
 		var scriptTag = window.document.createElement("script");
@@ -164,4 +159,26 @@ var getScript = exports.getScript = function(url) {
 		}
 		scriptTag.src = url;
 	});
-};
+};</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="RestDao.html">RestDao</a></li><li><a href="Web.html">Web</a></li></ul><h3>Namespaces</h3><ul><li><a href="SPScript.utils.html">utils</a></li></ul><h3>Global</h3><ul><li><a href="global.html#BaseDao">BaseDao</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Sat Apr 30 2016 14:47:11 GMT-0500 (Central Daylight Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

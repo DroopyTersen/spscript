@@ -1,6 +1,17 @@
 var BaseDao = require("./baseDao");
 var ajax = require('./ajax') 
 
+/**
+ * Main point of entry. Big Daddy class that all SP requests are routed through. 
+ * @class
+ * @augments BaseDao
+
+ * @param {string} [url] - Url of the site you are connected to. _spPageContextInfo.webAbsoluteUrl will be used if no value is passed.
+ * @property {string} webUrl - Url of the site you are connected to
+ * @property {Web} web - Allows interacting with the SharePoint site you connected to
+ * @property {Search} search - Allows querying through the SP Search Service
+ * @property {Profiles} profiles - Allows interacting with the SP Profile Service
+ */
 var RestDao = function(url) {
 	var self = this;
 	BaseDao.call(this);

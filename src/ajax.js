@@ -1,3 +1,7 @@
+/**
+* @namespace SPScript.ajax
+*/
+
 var defaults = {
 	method: "GET",
 	async: true,
@@ -30,6 +34,23 @@ var setHeaders = function(xhr, headersObj) {
 	}
 };
 
+/**
+ * Performs and AJAX request based on options you pass you. Your options must at least have a url.
+ * @param {object} options - Request options like { url, headers, method };
+ * @returns {Promise} - A ES6 Promise that resolves or rejects when the request comes back
+ * @function ajax
+ * @memberof SPScript.ajax
+ * @example
+ * var ajaxOptions = { 
+ *    url: '/_api/web/contentTypes', 
+ *    method: "GET", 
+ *    headers: { Accept: "application/json;odata=verbose" } 
+ * };
+ * SPScript.utils.ajax(ajaxOptions)
+ *		.then(SPScript.utils.parseJSON)
+ *		.then(function(data){ console.log(data.d.results) })
+ *		.catch(function(error) { console.log(error)})
+ */
 var ajax = function(options) {
 	var opts = Object.assign({}, defaults, options);
 	if (!validateOptions(options))

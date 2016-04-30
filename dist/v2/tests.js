@@ -90,7 +90,7 @@
 /* 1 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var __WEBPACK_AMD_DEFINE_RESULT__;var require;/* WEBPACK VAR INJECTION */(function(process, global, module) {/*!
+	var require;var __WEBPACK_AMD_DEFINE_RESULT__;/* WEBPACK VAR INJECTION */(function(process, global, module) {/*!
 	 * @overview es6-promise - a tiny implementation of Promises/A+.
 	 * @copyright Copyright (c) 2014 Yehuda Katz, Tom Dale, Stefan Penner and contributors (Conversion to ES6 API by Jake Archibald)
 	 * @license   Licensed under MIT license
@@ -1184,6 +1184,17 @@
 	var BaseDao = __webpack_require__(7);
 	var ajax = __webpack_require__(20);
 
+	/**
+	 * Main point of entry. Big Daddy class that all SP requests are routed through. 
+	 * @class
+	 * @augments BaseDao
+
+	 * @param {string} [url] - Url of the site you are connected to. _spPageContextInfo.webAbsoluteUrl will be used if no value is passed.
+	 * @property {string} webUrl - Url of the site you are connected to
+	 * @property {Web} web - Allows interacting with the SharePoint site you connected to
+	 * @property {Search} search - Allows querying through the SP Search Service
+	 * @property {Profiles} profiles - Allows interacting with the SP Profile Service
+	 */
 	var RestDao = function RestDao(url) {
 		var self = this;
 		BaseDao.call(this);
@@ -1224,43 +1235,75 @@
 	var Search = __webpack_require__(15);
 	var utils = __webpack_require__(9);
 
+	/**
+	 * Abstract class. You'll never work with this directly. 
+	 * @abstract
+	 * @requires src/utils
+	 * @requires src/list
+	 * @requires src/profiles
+	 * @requires src/web
+	 * @requires src/search
+	 * @property {Web} web - Allows interacting with the SharePoint site you connected to
+	 * @property {Search} search - Allows querying through the SP Search Service
+	 * @property {Profiles} profiles - Allows interacting with the SP Profile Service
+	 */
 	var BaseDao = function BaseDao() {
-		this.web = new Web(this);
-		this.search = new Search(this);
-		this.profiles = new Profiles(this);
+	  this.web = new Web(this);
+	  this.search = new Search(this);
+	  this.profiles = new Profiles(this);
 	};
 
 	BaseDao.prototype.executeRequest = function () {
-		throw "Not implemented exception";
+	  throw "Not implemented exception";
 	};
 
-	BaseDao.prototype.getRequestDigest = function () {
-		return this.web.getRequestDigest();
-	};
-
+	/**
+	 * Generic helper to make AJAX GET request
+	  * @example <caption>Example usage of to log a site's content types</caption>
+	 * dao.get('/web/contentTypes').then(function(data) { console.log(data.d.results)})
+	 * @param {string} relativeQueryUrl - the API url relative to "/_api"
+	 * @param {Object} [extendedOptions] - AJAX options (like custom request headers)
+	 * @returns {Promise} - An ES6 Promise that resolves to the an object probably in the form of data.d
+	 */
 	BaseDao.prototype.get = function (relativeQueryUrl, extendedOptions) {
-		var options = _extends({}, {
-			method: "GET"
-		}, extendedOptions);
-		return this.executeRequest(relativeQueryUrl, options).then(utils.parseJSON);
+	  var options = _extends({}, {
+	    method: "GET"
+	  }, extendedOptions);
+	  return this.executeRequest(relativeQueryUrl, options).then(utils.parseJSON);
 	};
 
+	/**
+	 * If a list name is passed, an SPScript.List object, otherwise performs a request to get all the site's lists
+	 * @param {string} [listname] - If a list name is passed, method is synchronous returning an SPScript.List
+	 * @returns {List|Promise<lists[]>} - SPScript.List object or a Promise that resolves to an Array of lists
+	 * @example <caption>Option 1: No List Name gets all the lists of a site</caption>
+	 * dao.lists().then(function(lists) { console.log(lists)});
+	 * @example <caption>Option 2: Pass a List Name to get a list object</caption>
+	 * var list = dao.lists('MyList');
+	 * list.getItemById(12).then(function(item) { console.log(item)});
+	 */
 	BaseDao.prototype.lists = function (listname) {
-		if (!listname) {
-			return this.get("/web/lists").then(utils.validateODataV2);
-		}
-		return new List(listname, this);
+	  if (!listname) {
+	    return this.get("/web/lists").then(utils.validateODataV2);
+	  }
+	  return new List(listname, this);
 	};
 
+	/**
+	 * Generic helper to make AJAX POST request
+	 * @param {string} relativeQueryUrl - the API url relative to "/_api"
+	 * @param {Object} [extendedOptions] - AJAX options (like custom request headers)
+	 * @returns {Promise} - An ES6 Promise
+	 */
 	BaseDao.prototype.post = function (relativePostUrl, body, extendedOptions) {
-		var strBody = JSON.stringify(body);
-		var options = {
-			method: "POST",
-			data: strBody,
-			contentType: "application/json;odata=verbose"
-		};
-		options = _extends({}, options, extendedOptions);
-		return this.executeRequest(relativePostUrl, options).then(utils.parseJSON);
+	  var strBody = JSON.stringify(body);
+	  var options = {
+	    method: "POST",
+	    data: strBody,
+	    contentType: "application/json;odata=verbose"
+	  };
+	  options = _extends({}, options, extendedOptions);
+	  return this.executeRequest(relativePostUrl, options).then(utils.parseJSON);
 	};
 
 	module.exports = BaseDao;
@@ -1407,94 +1450,177 @@
 
 	"use strict";
 
+	/**
+	* @namespace SPScript.utils
+	*/
+
+	/**
+	 * If you pass in string, it will try to run JSON.parse(). Different browsers handle JSON response differently so it is safest to call this method if you are making a generic GET or POST request
+	 * @param {string} data - Raw response from JSON request
+	 * @returns {object} - JSON parsed object. Returns null if JSON.parse fails
+	 * @function parseJSON
+	 * @memberof SPScript.utils
+	 * @example
+	 * dao.get('/web/contentTypes')
+	 *		.then(SPScript.utils.parseJSON)
+	 *		.then(function(data) { console.log(data.d.results)})
+	 */
 	var parseJSON = exports.parseJSON = function (data) {
-		if (typeof data === "string") {
-			data = JSON.parse(data);
-		}
-		return data;
+	  if (typeof data === "string") {
+	    try {
+	      data = JSON.parse(data);
+	    } catch (e) {
+	      return null;
+	    }
+	  }
+	  return data;
 	};
+
+	/**
+	 * Helps parse raw json response to remove ceremonious OData data.d namespace. Tries JSON.parse() and then pulling out actual result from data.d or data.d.results
+	 * @function validateODataV2
+	 * @memberof SPScript.utils
+	 * @param {string|object} data - Raw response from JSON request
+	 * @returns {object} - JSON parsed object with that removes data.d OData structure 
+	 * @example
+	 * dao.get('/web/contentTypes')
+	 *		.then(SPScript.utils.validateODataV2)
+	 *		.then(function(contentTypes) { console.log(contentTypes)})
+	 */
 	var validateODataV2 = exports.validateODataV2 = function (data) {
-		var results = parseJSON(data);
-		if (data.d && data.d.results && data.d.results.length != null) {
-			results = data.d.results;
-		} else if (data.d) {
-			results = data.d;
-		}
-		return results;
+	  var results = parseJSON(data);
+	  if (data.d && data.d.results && data.d.results.length != null) {
+	    results = data.d.results;
+	  } else if (data.d) {
+	    results = data.d;
+	  }
+	  return results;
 	};
 
 	//'Borrowed' from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Bitwise_Operators
 	var arrayFromBitMask = exports.arrayFromBitMask = function (nMask) {
-		// nMask must be between -2147483648 and 2147483647
-		if (typeof nMask === "string") {
-			nMask = parseInt(nMask);
-		}
-		// if (nMask > 0x7fffffff || nMask < -0x80000000) {
-		// 	throw new TypeError("arrayFromMask - out of range");
-		// }
-		for (var nShifted = nMask, aFromMask = []; nShifted; aFromMask.push(Boolean(nShifted & 1)), nShifted >>>= 1) {}
-		return aFromMask;
+	  // nMask must be between -2147483648 and 2147483647
+	  if (typeof nMask === "string") {
+	    nMask = parseInt(nMask);
+	  }
+	  // if (nMask > 0x7fffffff || nMask < -0x80000000) {
+	  // 	throw new TypeError("arrayFromMask - out of range");
+	  // }
+	  for (var nShifted = nMask, aFromMask = []; nShifted; aFromMask.push(Boolean(nShifted & 1)), nShifted >>>= 1) {}
+	  return aFromMask;
 	};
 
 	var _waitForLibraries = function _waitForLibraries(namespaces, resolve) {
-		var missing = namespaces.filter(function (namespace) {
-			return !validateNamespace(namespace);
-		});
+	  var missing = namespaces.filter(function (namespace) {
+	    return !validateNamespace(namespace);
+	  });
 
-		if (missing.length === 0) resolve();else setTimeout(function () {
-			return _waitForLibraries(namespaces, resolve);
-		}, 25);
+	  if (missing.length === 0) resolve();else setTimeout(function () {
+	    return _waitForLibraries(namespaces, resolve);
+	  }, 25);
 	};
 
+	/**
+	 * A method to allow you to wait for script dependencies to load.
+	 * @param {Array} namespaces - An array of global namespaces, things on the global 'window'. For example, when jQuery is on the page, window.jQuery is valid.  So 'jQuery' is the namespace.
+	 * @returns {Promise} - A Promise that resolves when all your namespaces are on the page
+	 * @function waitForLibraries
+	 * @memberof SPScript.utils
+	 * @example
+	 * function doMyStuff() { };
+	 * SPScript.utils.waitForLibraries(["jQuery", "SP.UI.Dialog"]).then(doMyStuff);
+	 */
 	var waitForLibraries = exports.waitForLibraries = function (namespaces) {
-		return new Promise(function (resolve, reject) {
-			return _waitForLibraries(namespaces, resolve);
-		});
+	  return new Promise(function (resolve, reject) {
+	    return _waitForLibraries(namespaces, resolve);
+	  });
 	};
 
+	/**
+	 * A method to allow you to wait for a single script dependency to load.
+	 * @param {string} namespace - A global namespace. For example, when jQuery is on the page, window.jQuery is valid. So 'jQuery' is the namespace.
+	 * @returns {Promise} - A Promise that resolves when all your namespace is on the page
+	 * @function waitForLibrary
+	 * @memberof SPScript.utils
+	 * @example
+	 * function doMyStuff() { };
+	 * SPScript.utils.waitForLibrary("jQuery").then(doMyStuff);
+	 */
 	var waitForLibrary = exports.waitForLibrary = function (namespace) {
-		return waitForLibraries([namespace]);
+	  return waitForLibraries([namespace]);
 	};
 
+	/**
+	 * A method to check if a given namespace is on the global object (window).
+	 * @param {string} namespace - A global namespace
+	 * @returns {Bool} - True or False if the namespace is on the page
+	 * @function validateNamespace
+	 * @memberof SPScript.utils
+	 * @example
+	 * var canUseModals = SPScript.utils.validateNamespace("SP.UI.Dialog");
+	 */
 	var validateNamespace = exports.validateNamespace = function (namespace) {
-		var scope = window;
-		var sections = namespace.split(".");
-		var sectionsLength = sections.length;
-		for (var i = 0; i < sectionsLength; i++) {
-			var prop = sections[i];
-			if (prop in scope) {
-				scope = scope[prop];
-			} else {
-				return false;
-			}
-		}
-		return true;
+	  var scope = window;
+	  var sections = namespace.split(".");
+	  var sectionsLength = sections.length;
+	  for (var i = 0; i < sectionsLength; i++) {
+	    var prop = sections[i];
+	    if (prop in scope) {
+	      scope = scope[prop];
+	    } else {
+	      return false;
+	    }
+	  }
+	  return true;
 	};
 
+	/**
+	 * A method to load a javascript file onto your page
+	 * @param {Array<string>} urls - An Array of urls to javascript files you want to load on your page
+	 * @returns {Promise} - A Promise that resolves when all the files are done loading
+	 * @function getScripts
+	 * @memberof SPScript.utils
+	 * @example
+	 * function doMyStuff() { };
+	 * var momentjsUrl = "https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.13.0/moment.min.js"
+	 * var jQueryUrl = "https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.3/jquery.min.js"
+	 * SPScript.utils.getScript([momentjsUrl, jQueryUrl]).then(doMyStuff);
+	 */
 	var getScripts = exports.getScripts = function (urls) {
-		return Promise.all(urls.map(getScript));
+	  return Promise.all(urls.map(getScript));
 	};
 
+	/**
+	 * A method to load a javascript file onto your page
+	 * @param {string} url - Url to the java script file you want to load
+	 * @returns {Promise} - A Promise that resolves when the file is done loading
+	 * @function getScript
+	 * @memberof SPScript.utils
+	 * @example
+	 * function doMyStuff() { };
+	 * var momentjsUrl = "https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.13.0/moment.min.js"
+	 * SPScript.utils.getScript(momentjsUrl).then(doMyStuff);
+	 */
 	var getScript = exports.getScript = function (url) {
-		return new Promise(function (resolve, reject) {
-			var scriptTag = window.document.createElement("script");
-			var firstScriptTag = document.getElementsByTagName('script')[0];
-			scriptTag.async = 1;
-			firstScriptTag.parentNode.insertBefore(scriptTag, firstScriptTag);
+	  return new Promise(function (resolve, reject) {
+	    var scriptTag = window.document.createElement("script");
+	    var firstScriptTag = document.getElementsByTagName('script')[0];
+	    scriptTag.async = 1;
+	    firstScriptTag.parentNode.insertBefore(scriptTag, firstScriptTag);
 
-			scriptTag.onload = scriptTag.onreadystatechange = function (arg, isAbort) {
-				// if its been aborted, readyState is gone, or readyState is in a 'done' status
-				if (isAbort || !scriptTag.readyState || /loaded|complete/.test(script.readyState)) {
-					//clean up
-					scriptTag.onload = scriptTag.onreadystatechange = null;
-					scriptTag = undefined;
+	    scriptTag.onload = scriptTag.onreadystatechange = function (arg, isAbort) {
+	      // if its been aborted, readyState is gone, or readyState is in a 'done' status
+	      if (isAbort || !scriptTag.readyState || /loaded|complete/.test(script.readyState)) {
+	        //clean up
+	        scriptTag.onload = scriptTag.onreadystatechange = null;
+	        scriptTag = undefined;
 
-					// resolve/reject the promise
-					if (!isAbort) resolve();else reject;
-				}
-			};
-			scriptTag.src = url;
-		});
+	        // resolve/reject the promise
+	        if (!isAbort) resolve();else reject;
+	      }
+	    };
+	    scriptTag.src = url;
+	  });
 	};
 
 /***/ },
@@ -1778,38 +1904,74 @@
 	var headers = __webpack_require__(11);
 	var Folder = __webpack_require__(13).Folder;
 
+	/**
+	 * Represents a SharePoint site
+	 * @class
+	 * @param {BaseDao} dao - Data access object used to make requests.
+	 * @property {Permissions} permissions - allows checking security information of the Web
+	 * @property {string} baseUrl - API relative url (value = "/web")
+	 * @example <caption>You access this Web class using the 'web' property of the dao</caption>
+	 * var dao = new SPScript.RestDao(_spPageContextInfo.webAbsoluteUrl);
+	 * dao.web.info().then(function(info) { console.log(info) });
+	 */
 	var Web = function Web(dao) {
-		this._dao = dao;
-		this.baseUrl = "/web";
-		this.permissions = new Permissions(this.baseUrl, this._dao);
+	  this._dao = dao;
+	  this.baseUrl = "/web";
+	  this.permissions = new Permissions(this.baseUrl, this._dao);
 	};
 
+	/**
+	 * Retrieves basic information about the site
+	 * @returns {Promise<SP.Web>} - A Promise that resolves to an object containing non-deferred properties of SP.Web (https://msdn.microsoft.com/en-us/library/office/jj244873.aspx)
+	 * @example
+	 * dao.web.info().then(function(info) { console.log(info) });
+	 */
 	Web.prototype.info = function () {
-		return this._dao.get(this.baseUrl).then(utils.validateODataV2);
+	  return this._dao.get(this.baseUrl).then(utils.validateODataV2);
 	};
 
+	/**
+	 * Retrieves all of the subsites
+	 * @returns {Promise<SP.Web[]>} - A Promise that resolves to an array of subsite object, each loaded with all non-deferred properties
+	 * @example
+	 *  dao.web.subsites().then(function(sites) { console.log(sites) });
+	 */
 	Web.prototype.subsites = function () {
-		return this._dao.get(this.baseUrl + "/webinfos").then(utils.validateODataV2);
+	  return this._dao.get(this.baseUrl + "/webinfos").then(utils.validateODataV2);
 	};
 
+	/**
+	 * Retrieves a token needed to authorize any updates
+	 * @return {string} - A Promise that resolves to a the token that needs to added to the "X-RequestDigest" request header
+	 * @example
+	 *  dao.web.getRequestDigest().then(function(digest) { console.log(digest) });
+	 */
 	Web.prototype.getRequestDigest = function () {
-		return this._dao.post('/contextinfo', {}).then(function (data) {
-			return data.d.GetContextWebInformation.FormDigestValue;
-		});
+	  return this._dao.post('/contextinfo', {}).then(function (data) {
+	    return data.d.GetContextWebInformation.FormDigestValue;
+	  });
 	};
 
+	/**
+	 * Retrieves a folder
+	 * @param {string} serverRelativeUrl - The server relative url of the folder
+	 * @returns {Promise<Folder>} - A Promise that resolves to a folder object contain a files and folders arrays
+	 * @example
+	 *  dao.web.getFolder("/sites/mysite/Shared Documents")
+	 *			.then(function(folder) { console.log(folder) });
+	*/
 	Web.prototype.getFolder = function (serverRelativeUrl) {
-		//remove leading slash
-		if (serverRelativeUrl.charAt(0) === "/") {
-			serverRelativeUrl = serverRelativeUrl.substr(1);
-		}
-		var url = "/web/GetFolderByServerRelativeUrl('" + serverRelativeUrl + "')?$expand=Folders,Files";
+	  //remove leading slash
+	  if (serverRelativeUrl.charAt(0) === "/") {
+	    serverRelativeUrl = serverRelativeUrl.substr(1);
+	  }
+	  var url = "/web/GetFolderByServerRelativeUrl('" + serverRelativeUrl + "')?$expand=Folders,Files";
 
-		return this._dao.get(url).then(utils.validateODataV2).then(function (spFolder) {
-			var folder = new Folder(spFolder);
-			folder.populateChildren(spFolder);
-			return folder;
-		});
+	  return this._dao.get(url).then(utils.validateODataV2).then(function (spFolder) {
+	    var folder = new Folder(spFolder);
+	    folder.populateChildren(spFolder);
+	    return folder;
+	  });
 	};
 
 	// Web.prototype.uploadFile = function(folderUrl, name, base64Binary, digest) {
@@ -1827,50 +1989,84 @@
 	// 	return this.post(uploadUrl, base64Binary, options);
 	// };
 
+	/**
+	 * Retrieves a file object
+	 * @param {string} url - The server relative url of the file
+	 * @returns {Promise<File>} - A Promise that resolves to a file object
+	 * @example
+	 *  dao.web.getFile("/sites/mysite/Shared Documents/myfile.docx")
+	 *			.then(function(file) { console.log(file) });
+	 */
 	Web.prototype.getFile = function (url) {
-		var url = "/web/getfilebyserverrelativeurl('" + url + "')";
-		return this._dao.get(url).then(utils.validateODataV2);
+	  var url = "/web/getfilebyserverrelativeurl('" + url + "')";
+	  return this._dao.get(url).then(utils.validateODataV2);
 	};
 
+	/**
+	 * Copies a file
+	 * @param {string} sourceUrl - The server relative url of the file you want to copy
+	 * @param {string} destinationUrl - The server relative url of the destination
+	 * @param {string} [requestDigest] - The request digest token used to authorize the request. One will be automatically retrieve if not passed.
+	 * @example
+	 * var sourceFile = "/sites/mysite/Shared Documents/myfile.docx";
+	 * var destination = "/sites/mysite/Restricted Docs/myFile.docx";
+	 * dao.web.copyFile(sourceFile, destination).then(function() { console.log("Success") });
+	 */
 	Web.prototype.copyFile = function (sourceUrl, destinationUrl, digest) {
-		var _this = this;
+	  var _this = this;
 
-		if (digest) return this._copyFile(sourceUrl, destinationUrl, digest);
+	  if (digest) return this._copyFile(sourceUrl, destinationUrl, digest);
 
-		return this.getRequestDigest().then(function (requestDigest) {
-			return _this._copyFile(sourceUrl, destinationUrl, requestDigest);
-		});
+	  return this.getRequestDigest().then(function (requestDigest) {
+	    return _this._copyFile(sourceUrl, destinationUrl, requestDigest);
+	  });
 	};
 
 	Web.prototype._copyFile = function (sourceUrl, destinationUrl, digest) {
-		var url = "/web/getfilebyserverrelativeurl('" + sourceUrl + "')/CopyTo(strnewurl='" + destinationUrl + "',boverwrite=true)";
-		var options = {
-			headers: headers.getAddHeaders(digest)
-		};
-		return this._dao.post(url, {}, options);
+	  var url = "/web/getfilebyserverrelativeurl('" + sourceUrl + "')/CopyTo(strnewurl='" + destinationUrl + "',boverwrite=true)";
+	  var options = {
+	    headers: headers.getAddHeaders(digest)
+	  };
+	  return this._dao.post(url, {}, options);
 	};
 
-	Web.prototype.deleteFile = function (sourceUrl, digest) {
-		var _this2 = this;
+	/**
+	 * Deletes a file
+	 * @param {string} fileUrl - The server relative url of the file you want to delete
+	 * @param {string} [requestDigest] - The request digest token used to authorize the request. One will be automatically retrieve if not passed.
+	 * @example
+	 * dao.web.deleteFile("/sites/mysite/Shared Documents/myFile.docx")
+	 *			.then(function() { console.log("Success")});
+	 */
+	Web.prototype.deleteFile = function (fileUrl, digest) {
+	  var _this2 = this;
 
-		if (digest) return this._deleteFile(sourceUrl, digest);
+	  if (digest) return this._deleteFile(fileUrl, digest);
 
-		return this.getRequestDigest().then(function (requestDigest) {
-			return _this2._deleteFile(sourceUrl, requestDigest);
-		});
+	  return this.getRequestDigest().then(function (requestDigest) {
+	    return _this2._deleteFile(fileUrl, requestDigest);
+	  });
 	};
 
 	Web.prototype._deleteFile = function (sourceUrl, requestDigest) {
-		var url = "/web/getfilebyserverrelativeurl(@url)/?@Url='" + sourceUrl + "'";
-		var options = {
-			headers: headers.getDeleteHeaders(requestDigest)
-		};
-		return this._dao.post(url, {}, options);
+	  var url = "/web/getfilebyserverrelativeurl(@url)/?@Url='" + sourceUrl + "'";
+	  var options = {
+	    headers: headers.getDeleteHeaders(requestDigest)
+	  };
+	  return this._dao.post(url, {}, options);
 	};
 
+	/**
+	 * Retrieves a users object based on an email address
+	 * @param {string} email - The email address of the user to retrieve
+	 * @returns {Promise<SP.User>} - A Promise that resolves to a an SP.User object
+	  * @example
+	 * dao.web.getUser("andrew@andrewpetersen.onmicrosoft.com")
+	 * 			.then(function(user) { console.log(user)});
+	 */
 	Web.prototype.getUser = function (email) {
-		var url = this.baseUrl + "/SiteUsers/GetByEmail('" + email + "')";
-		return this._dao.get(url).then(utils.validateODataV2);
+	  var url = this.baseUrl + "/SiteUsers/GetByEmail('" + email + "')";
+	  return this._dao.get(url).then(utils.validateODataV2);
 	};
 
 	module.exports = Web;
@@ -1883,38 +2079,80 @@
 
 	var utils = __webpack_require__(9);
 
+	/**
+	 * Represents a SharePoint Folder.  Keep in mind, and File or Folder objects obtained from the 'files' and 'folders' array will not have their child items populated.
+	 * @class
+	 * @param {SP.Folder} spFolder - A raw SP.Folder object
+	 * @property {string} name - Folder name
+	 * @property {string} serverRelativeUrl - Server relative url
+	 * @property {int} itemCount - Number of items in the folder
+	 * @property {string} guid - Unique ID of the folder
+	 * @property {string} uri - API url to get the raw SP.Folder object
+	 * @property {Array<File>} files - An array of files in that folder
+	 * @property {Array<Folder>} folders - An array of sub folders
+	 * @example
+	 *  dao.web.getFolder("/sites/mysite/Shared Documents")
+	 *			.then(function(folder) { 
+	 *				console.log(folder.name);
+	 *				console.log(folder.files);
+	 *			});
+	 */
 	var Folder = function Folder(spFolder) {
-		this.mapProperties(spFolder);
+	  this.mapProperties(spFolder);
+	  this.populateChildren(spFolder);
 	};
 
 	Folder.prototype.populateChildren = function (spFolder) {
-		this.folders = spFolder.Folders.results.map(function (f) {
-			return new Folder(f);
-		});
-		this.files = spFolder.Files.results.map(function (f) {
-			return new File(f);
-		});
+	  if (spFolder && spFolder.Folders && spFolder.Folders.results) {
+	    this.folders = spFolder.Folders.results.map(function (f) {
+	      return new Folder(f);
+	    });
+	  }
+	  if (spFolder && spFolder.Files && spFolder.Files.results) {
+	    this.files = spFolder.Files.results.map(function (f) {
+	      return new File(f);
+	    });
+	  }
 	};
 
 	Folder.prototype.mapProperties = function (spFolder) {
-		this.name = spFolder.Name;
-		this.serverRelativeUrl = spFolder.ServerRelativeUrl;
-		this.itemCount = spFolder.ItemCount;
-		this.guid = spFolder.UniqueId;
-		this.uri = spFolder.__metadata.uri;
+	  this.name = spFolder.Name;
+	  this.serverRelativeUrl = spFolder.ServerRelativeUrl;
+	  this.itemCount = spFolder.ItemCount;
+	  this.guid = spFolder.UniqueId;
+	  this.uri = spFolder.__metadata.uri;
 	};
 
+	/**
+	 * Represents a SharePoint File
+	 * @class
+	 * @param {SP.File} spFile - A raw SP.File object
+	 * @property {string} name - Folder name
+	 * @property {string} title - Folder title
+	 * @property {string} serverRelativeUrl - Server relative url
+	 * @property {int} byteLength - File size in bytes
+	 * @property {string} checkoutType - Checked out status of file.  "none", "offline", "online".
+	 * @property {number} majorVersion - Major version of the file
+	 * @property {number} minorVersion - Minor version of the file
+	 * @property {string} uri - API url to get the raw SP.Folder object
+	 * @example
+	 *  dao.web.getFile("/sites/mysite/Shared Documents/myFile.docx")
+	 *			.then(function(file) { 
+	 *				console.log(file.name);
+	 *				console.log("Size:" + (file.byteLength / 1000) + "KB");
+	 *			});
+	 */
 	var File = function File(spFile) {
-		this.mapProperties(spFile);
+	  this.mapProperties(spFile);
 	};
 
 	File.prototype.mapProperties = function (spFile) {
-		this.name = spFile.Name, this.title = spFile.Title, this.checkoutType = spFile.CheckOutType, this.byteLength = spFile.Length, this.majorVersion = spFile.MajorVersion, this.minorVersion = spFile.MinorVersion, this.serverRelativeUrl = spFile.ServerRelativeUrl, this.uri = spFile.__metadata.uri;
+	  this.name = spFile.Name, this.title = spFile.Title, this.checkoutType = spFile.CheckOutType, this.byteLength = spFile.Length, this.majorVersion = spFile.MajorVersion, this.minorVersion = spFile.MinorVersion, this.serverRelativeUrl = spFile.ServerRelativeUrl, this.uri = spFile.__metadata.uri;
 	};
 
 	module.exports = {
-		File: File,
-		Folder: Folder
+	  File: File,
+	  Folder: Folder
 	};
 
 /***/ },
@@ -2294,6 +2532,10 @@
 
 	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
+	/**
+	* @namespace SPScript.ajax
+	*/
+
 	var defaults = {
 		method: "GET",
 		async: true,
@@ -2317,6 +2559,23 @@
 		}
 	};
 
+	/**
+	 * Performs and AJAX request based on options you pass you. Your options must at least have a url.
+	 * @param {object} options - Request options like { url, headers, method };
+	 * @returns {Promise} - A ES6 Promise that resolves or rejects when the request comes back
+	 * @function ajax
+	 * @memberof SPScript.ajax
+	 * @example
+	 * var ajaxOptions = { 
+	 *    url: '/_api/web/contentTypes', 
+	 *    method: "GET", 
+	 *    headers: { Accept: "application/json;odata=verbose" } 
+	 * };
+	 * SPScript.utils.ajax(ajaxOptions)
+	 *		.then(SPScript.utils.parseJSON)
+	 *		.then(function(data){ console.log(data.d.results) })
+	 *		.catch(function(error) { console.log(error)})
+	 */
 	var ajax = function ajax(options) {
 		var opts = _extends({}, defaults, options);
 		if (!validateOptions(options)) return Promise.reject(new Error("Invalid options passed into ajax call."));
