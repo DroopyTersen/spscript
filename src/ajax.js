@@ -1,273 +1,70 @@
-/*
- *	@description ajax in broswer 
- *	@author liaozhongwu
- *	@params options {
- *		@key url
- *			@Class String
- *			@default ""
- *			@description request url, support url template :param and {param}
- *		@key method
- *			@Class Enum('GET', 'POST', 'PUT', 'HEAD', 'DELETE', 'PATCH')
- *			@default GET
- *			@description request method
- *		@key async
- *			@Class Boolean
- *			@default true
- *		@key data 
- *			@Class Object
- *			@default {}
- *			@description request data, append to query while method in [GET HEAD PATCH]
- *		@key format
- *			@Class Enum('form', 'json', 'formdata')
- *			@default form
- *			@description request data type, effective while method in [POST PUT DELETE]
- *		@key timeout
- *			@Class Number
- *			@description request timeout
- *    @key origin
- *			@Class Boolean
- *			@default false
- *			@description return origin response instead of body
- *		@key type  
- *			@Class Enum("", "arraybuffer", "blob", "document", "json", "text")
- *			@default json
- *			@description XMLHttpRequest.responseType
- *		@key headers
- *			@Class Object
- *			@default {}
- *			@description request headers
- *		@key before 
- *			@Class Function
- *			@description before request will be sent
- *		@key success
- *			@Class Function
- *			@description while request succeed
- *		@key error 
- *			@Class Function
- *			@description while request made mistakes
- *		@key complete
- *			@Class Function
- *			@description while request completed
- *	@params callback
- *	@return Promise
- */
-(function () {
+var defaults = {
+	method: "GET",
+	async: true,
+	type: "json", //XMLHttpRequest.responseType
+	data: undefined
+};
 
-	// create default options
-	var defaultOptions = {
-		url: ''
-		, method: 'GET'
-		, async: true
-		, data: {}
-		, origin: false
-		, type: "json"
-		, headers: {}
+var validMethods = [
+	"GET",
+	"POST",
+	"PUT",
+	"HEAD",
+	"DELETE",
+	"PATCH"
+];
+
+var errorHandlers = [];
+
+var validateOptions = function(options) {
+	if (!options || !options.url || validMethods.indexOf(options.method) < 0)
+		return false
+	else return true
+};
+
+var setHeaders = function(xhr, headersObj) {
+	if (headersObj) {
+		Object.keys(headersObj).forEach(key => {
+			xhr.setRequestHeader(key, headersObj[key]);
+		})
 	}
-	,	errorInterceptors = []
+};
 
-	// util function
-	function forEach (obj, callback) {
-		if (!isFunction(callback)) return
-		if (isArray(obj)) {
-			if (obj.forEach) return obj.forEach(callback)
-			for (var i = 0; i < obj.length; ++i) {
-				callback(obj[i], i)
-			}
-		} 
-		else if (isObject(obj)) {
-			for (var key in obj) {
-				obj.hasOwnProperty(key) && callback(obj[key], key)
-			}
-		}
-	}
+var ajax = function(options) {
+	var opts = Object.assign({}, defaults, options);
+	if (!validateOptions(options))
+		return Promise.reject(new Error("Invalid options passed into ajax call."));
 
-	function extend () {
-		var n = {}
-		for (var i = 0; i < arguments.length; ++i) {
-			forEach(arguments[i], function (value, key) {
-				n[key] = value
-			})
-		}
-		return n
-	}
+	var xhr = new XMLHttpRequest();
+	if (xhr == null) 
+		return Promise.reject(new Error("Your browser doesn't support XMLHttpRequest (ajax)."));
 
-	function isString (str) {
-		return typeof str === 'string' || Object.prototype.toString.call(str) === '[object String]'
-	}
 
-	function isObject (obj) {
-		return Object.prototype.toString.call(obj) === '[object Object]'
-	}
+	xhr.open(opts.method, opts.url, opts.async);
+	setHeaders(xhr, opts.headers);
+	xhr.responseType = opts.type;
 
-	function isFunction (func) {
-		return typeof func === 'function'
-	}
-
-	function isArray (arr) {
-		if (Array.isArray) return Array.isArray(arr)
-		return arr instanceof Array
-	}
-
-	function isValidMethod (method) {
-		return isString(method) && /^GET|POST|PUT|HEAD|DELETE|PATCH$/.test(method.toUpperCase())
-	}
-
-	function isValidKey (key) {
-		return /^url|method|async|data|format|timeout|body|type|headers|before|success|error|complete$/.test(key)
-	}
-
-	function xhr () {
-		if (typeof XMLHttpRequest !== 'undefined') return new XMLHttpRequest()
-		if (typeof ActiveXObject !== 'undefined') return new ActiveXObject('Microsoft.XMLHTTP')
-		return null
-	}
-
- 	// main funciton
-	function _request () {
-		var url = ''
-		,	qs = ""
-		, method = 'GET'
-		, data = null
-		, options = {}
-		, callback
-		, isTimeout = false
-		, isFinished = false
-		, err
-
-		// handle arguments
-		for (var i = 0; i < arguments.length; ++i) {
-			var arg = arguments[i]
-			if (isString(arg)) {
-				url = arg
-			} 
-			else if (isObject(arg)) {
-				options = arg
-			} 
-			else if (isFunction(arg)) {
-				callback = arg
-			}
-		}
-
-		// extend default options
-		options = extend(defaultOptions, options)
-
-		// get url
-		isString(options.url) && (url = options.url)
-
-		// get method
-		isValidMethod(options.method) && (method = options.method.toUpperCase())
-
-		data = options.data;
-
-		// create XMLHttpRequest
-		var http = xhr()
-
-		// handle error
-		if (http === null) {
-			err = new Error("Your broswer don't support ajax!")
-			isFunction(options.error) && options.error(err)
-			isFunction(callback) && callback(err)
-			if (typeof Promise !== "undefined") return Promise.reject(err)
-			return
-		}
-
-		// open XMLHttpRequest
-		http.open(method, url, options.async)
-
-		// set request headers
-		forEach(options.headers, function (value, key) {http.setRequestHeader(key, value)})
-
-		// set response type
-		options.type && (http.responseType = options.type)
-
-		function send (resolve, reject) {
-
-			http.onreadystatechange = function () {
-				// complete
-				if (http.readyState === 4 && !isTimeout) {
-					isFinished = true
-					var res = http.response
-					http.body = http.response
-					options.origin && (res = http)
-
-					if (http.status < 400 && http.status >= 100) {
-						isFunction(options.success) && options.success(res)
-						isFunction(callback) && callback(null, res)
-						isFunction(resolve) && resolve(res)
-					} 
-					else {
-						err = new Error('Request Error, Response Code: ' + http.status)
-						err.code = http.status
-						http.error = err
-						forEach(errorInterceptors, function (interceptor) {
-							isFunction(interceptor) && interceptor(err, http)
-						})
-						isFunction(options.error) && options.error(err)
-						isFunction(callback) && callback(err, res)
-						isFunction(reject) && reject(err)
-					}
-					isFunction(options.complete) && options.complete(res)
+	return new Promise((resolve, reject) => {
+		xhr.onreadystatechange = function() {
+			//completed
+			if (xhr.readyState === 4) {
+				// SUCCESS
+				if (xhr.status < 400 && xhr.status >= 100) {
+					resolve(xhr.response);
+				} else {
+					var error = new Error("AJAX Request Error: Response Code = " + xhr.status);
+					error.code = xhr.status;
+					errorHandlers.forEach(fn => fn(error, xhr));
+					reject(error);
 				}
 			}
+		};
 
-			// call before send
-			isFunction(options.before) && options.before()
+		xhr.send(opts.data);
+	})
+}
 
-			// set timeout
-			if (options.timeout) {
-				setTimeout(function () {
-					if (!isFinished) {
-						isTimeout = true
-						err = new Error('Request Timeout, Response Code: 408')
-						err.code = 408
-						http.error = err
-						forEach(errorInterceptors, function (interceptor) {
-							isFunction(interceptor) && interceptor(err, http)
-						})
-						isFunction(options.error) && options.error(err)
-						isFunction(callback) && callback(err, http)
-						isFunction(reject) && reject(err)
-						isFunction(options.complete) && options.complete(http)
-					}
-				}, options.timeout)
-			}
+ajax.addErrorHandler = (fn) => errorHandlers.push(fn);
+ajax.setDefaults = (options) => Object.assign(defaults, options);
 
-			// send data
-			http.send(data)
-		}
-
-		// create Promise
-		if (typeof Promise !== "undefined") return new Promise(send)
-		send()
-	}
-
-	function ajax () {
-		return _request.apply(this, arguments)
-	}
-
-	ajax.get = function (url, data, callback) {
-		return _request.call(this, {url: url, method: 'GET', data: data}, callback)
-	}
-
-	ajax.post = function (url, data, callback) {
-		return _request.call(this, {url: url, method: 'POST', data: data}, callback)
-	}
-
-	ajax.setDefault = function (options) {
-		defaultOptions = extend(defaultOptions, options)
-		return ajax
-	}
-
-	ajax.setErrorInterceptor = function (interceptor) {
-		errorInterceptors.push(interceptor)
-		return ajax
-	}
-
-	if (typeof module !== 'undefined' && module.exports) {
-		module.exports = ajax
-	} else if (typeof define === "function" && define.amd) {
-		define("ajax", [], function () {return ajax})
-	} else {
-		window.ajax = ajax
-	}
-})()
+module.exports = ajax;

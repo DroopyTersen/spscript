@@ -1,9 +1,10 @@
 var utils = require("./utils");
 
+var jsonMimeType = "application/json;odata=verbose";
 var getStandardHeaders = exports.getStandardHeaders = function(digest) {
 	var headers = {
-		"Accept": utils.acceptHeader,
-		"Content-Type": utils.acceptHeader
+		"Accept": jsonMimeType,
+		"Content-Type": jsonMimeType
 	};
 	if (digest) headers["X-RequestDigest"] = digest;
 	return headers;

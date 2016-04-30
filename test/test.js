@@ -1,6 +1,9 @@
+var promisePolyfill = require("es6-promise");
+if (!global.Promise) {
+    global.Promise = promisePolyfill;
+}
+
 var RestDao = require("../src/restDao");
-
-
 mocha.setup('bdd');
 chai.should();
 
@@ -28,5 +31,8 @@ searchTests.run(dao);
 
 var profileTests = require("./profileTests");
 profileTests.run(dao);
+
+var utilsTests = require("./utilsTests");
+utilsTests.run();
 
 mocha.run();

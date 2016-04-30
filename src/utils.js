@@ -1,13 +1,11 @@
-var getRequestDigest = exports.getRequestDigest = function() {
-	return document.querySelector("#__REQUESTDIGEST").value
-};
-var acceptHeader = exports.acceptHeader = "application/json;odata=verbose";
-
-var validateODataV2 = exports.validateODataV2= function(data) {
+var parseJSON = exports.parseJSON = function(data) {
 		if (typeof data === "string") {
 			data = JSON.parse(data);
-		}	
-		var results = data;
+		}
+		return data;	
+};
+var validateODataV2 = exports.validateODataV2= function(data) {
+		var results = parseJSON(data);
 		if (data.d && data.d.results && data.d.results.length != null) {
 			results = data.d.results;
 		} else if (data.d) {
@@ -29,19 +27,18 @@ var arrayFromBitMask = exports.arrayFromBitMask = function(nMask) {
 	return aFromMask;
 };
 
-var waitForLibraries = exports.waitForLibraries = function(namespaces, cb) {
-	return new Promise(function(deferred){
-		var missing = namespaces.filter(namespace => !validateNamespace(namespace));
-
-		if (missing.length === 0) {
-			if (cb) cb();
-			deferred.resolve();
-		}
-		else setTimeout(() => waitForLibraries(namespaces, cb), 25);
-	});
+var _waitForLibraries = function(namespaces, resolve) {
+	var missing = namespaces.filter(namespace => !validateNamespace(namespace));
+		
+	if (missing.length === 0) resolve();
+	else setTimeout(() => _waitForLibraries(namespaces, resolve), 25);
 };
 
-var waitForLibrary = exports.waitForLibrary = (namespace, cb) => waitForLibraries([namespace], cb)
+var waitForLibraries = exports.waitForLibraries = function(namespaces) {
+	return new Promise((resolve, reject) => _waitForLibraries(namespaces, resolve));
+};
+
+var waitForLibrary = exports.waitForLibrary = (namespace) => waitForLibraries([namespace])
 
 var validateNamespace = exports.validateNamespace = function(namespace) {
 	var scope = window;
@@ -58,13 +55,29 @@ var validateNamespace = exports.validateNamespace = function(namespace) {
 	return true;
 };
 
-var getScript = exports.getScript = function(url, namespace) {
-	var scriptTag = window.document.createElement("script");
-	scriptTag.type ='text/javascript';
-	scriptTag.src = url;
-	window.document.querySelector("head").appendChild(scriptTag);
+var getScripts = exports.getScripts = function(urls) {
+	return Promise.all(urls.map(getScript));
+};
 
-	if (namespace) {
-		return waitForLibrary(namespace)
-	}
-}
+var getScript = exports.getScript = function(url) {
+	return new Promise((resolve, reject) => {
+		var scriptTag = window.document.createElement("script");
+		var firstScriptTag = document.getElementsByTagName('script')[0];
+		scriptTag.async = 1;
+		firstScriptTag.parentNode.insertBefore(scriptTag, firstScriptTag);
+
+		scriptTag.onload = scriptTag.onreadystatechange = function(arg, isAbort) {
+			// if its been aborted, readyState is gone, or readyState is in a 'done' status
+			if(isAbort || !scriptTag.readyState || /loaded|complete/.test(script.readyState)) {
+				//clean up
+				scriptTag.onload = scriptTag.onreadystatechange = null;
+				scriptTag = undefined;
+
+				// resolve/reject the promise
+				if (!isAbort) resolve();
+				else reject;
+			}
+		}
+		scriptTag.src = url;
+	});
+};

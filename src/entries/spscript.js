@@ -1,5 +1,6 @@
+var promisePolyfill = require("es6-promise");
 if (!global.Promise) {
-	global.Promise = require("es6-promise");
+	global.Promise = promisePolyfill;
 }
 var SPScript = {};
 SPScript.RestDao = require("../restDao");

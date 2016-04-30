@@ -46,8 +46,9 @@
 
 	/* WEBPACK VAR INJECTION */(function(global) {"use strict";
 
+	var promisePolyfill = __webpack_require__(1);
 	if (!global.Promise) {
-		global.Promise = __webpack_require__(1);
+		global.Promise = promisePolyfill;
 	}
 	var SPScript = {};
 	SPScript.RestDao = __webpack_require__(6);
@@ -62,7 +63,7 @@
 /* 1 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var __WEBPACK_AMD_DEFINE_RESULT__;var require;/* WEBPACK VAR INJECTION */(function(process, global, module) {/*!
+	var require;var __WEBPACK_AMD_DEFINE_RESULT__;/* WEBPACK VAR INJECTION */(function(process, global, module) {/*!
 	 * @overview es6-promise - a tiny implementation of Promises/A+.
 	 * @copyright Copyright (c) 2014 Yehuda Katz, Tom Dale, Stefan Penner and contributors (Conversion to ES6 API by Jake Archibald)
 	 * @license   Licensed under MIT license
@@ -1151,6 +1152,8 @@
 
 	"use strict";
 
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 	var BaseDao = __webpack_require__(7);
 	var ajax = __webpack_require__(20);
 
@@ -1174,7 +1177,7 @@
 			}
 		};
 
-		var ajaxOptions = Object.assign({}, defaultOptions, options);
+		var ajaxOptions = _extends({}, defaultOptions, options);
 		return ajax(ajaxOptions);
 	};
 
@@ -1185,6 +1188,8 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
+
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 	var List = __webpack_require__(8);
 	var Web = __webpack_require__(12);
@@ -1207,10 +1212,10 @@
 	};
 
 	BaseDao.prototype.get = function (relativeQueryUrl, extendedOptions) {
-		var options = Object.assign({}, {
+		var options = _extends({}, {
 			method: "GET"
 		}, extendedOptions);
-		return this.executeRequest(relativeQueryUrl, options);
+		return this.executeRequest(relativeQueryUrl, options).then(utils.parseJSON);
 	};
 
 	BaseDao.prototype.lists = function (listname) {
@@ -1227,8 +1232,8 @@
 			data: strBody,
 			contentType: "application/json;odata=verbose"
 		};
-		options = Object.assign({}, options, extendedOptions);
-		return this.executeRequest(relativePostUrl, options);
+		options = _extends({}, options, extendedOptions);
+		return this.executeRequest(relativePostUrl, options).then(utils.parseJSON);
 	};
 
 	module.exports = BaseDao;
@@ -1238,6 +1243,8 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
+
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 	var utils = __webpack_require__(9);
 	var Permissions = __webpack_require__(10);
@@ -1279,7 +1286,7 @@
 		return this._dao.get(this.baseUrl).then(function (data) {
 
 			//decorate the item with the 'type' metadata
-			item = Object.assign({}, {
+			item = _extends({}, {
 				"__metadata": {
 					"type": data.d.ListItemEntityTypeFullName
 				}
@@ -1307,7 +1314,7 @@
 
 		return this.getItemById(itemId).then(function (item) {
 			//decorate the item with the 'type' metadata
-			updates = Object.assign({}, {
+			updates = _extends({}, {
 				"__metadata": {
 					"type": item.__metadata.type
 				}
@@ -1373,16 +1380,14 @@
 
 	"use strict";
 
-	var getRequestDigest = exports.getRequestDigest = function () {
-		return document.querySelector("#__REQUESTDIGEST").value;
-	};
-	var acceptHeader = exports.acceptHeader = "application/json;odata=verbose";
-
-	var validateODataV2 = exports.validateODataV2 = function (data) {
+	var parseJSON = exports.parseJSON = function (data) {
 		if (typeof data === "string") {
 			data = JSON.parse(data);
 		}
-		var results = data;
+		return data;
+	};
+	var validateODataV2 = exports.validateODataV2 = function (data) {
+		var results = parseJSON(data);
 		if (data.d && data.d.results && data.d.results.length != null) {
 			results = data.d.results;
 		} else if (data.d) {
@@ -1404,23 +1409,24 @@
 		return aFromMask;
 	};
 
-	var waitForLibraries = exports.waitForLibraries = function (namespaces, cb) {
-		return new Promise(function (deferred) {
-			var missing = namespaces.filter(function (namespace) {
-				return !validateNamespace(namespace);
-			});
+	var _waitForLibraries = function _waitForLibraries(namespaces, resolve) {
+		var missing = namespaces.filter(function (namespace) {
+			return !validateNamespace(namespace);
+		});
 
-			if (missing.length === 0) {
-				if (cb) cb();
-				deferred.resolve();
-			} else setTimeout(function () {
-				return waitForLibraries(namespaces, cb);
-			}, 25);
+		if (missing.length === 0) resolve();else setTimeout(function () {
+			return _waitForLibraries(namespaces, resolve);
+		}, 25);
+	};
+
+	var waitForLibraries = exports.waitForLibraries = function (namespaces) {
+		return new Promise(function (resolve, reject) {
+			return _waitForLibraries(namespaces, resolve);
 		});
 	};
 
-	var waitForLibrary = exports.waitForLibrary = function (namespace, cb) {
-		return waitForLibraries([namespace], cb);
+	var waitForLibrary = exports.waitForLibrary = function (namespace) {
+		return waitForLibraries([namespace]);
 	};
 
 	var validateNamespace = exports.validateNamespace = function (namespace) {
@@ -1438,15 +1444,30 @@
 		return true;
 	};
 
-	var getScript = exports.getScript = function (url, namespace) {
-		var scriptTag = window.document.createElement("script");
-		scriptTag.type = 'text/javascript';
-		scriptTag.src = url;
-		window.document.querySelector("head").appendChild(scriptTag);
+	var getScripts = exports.getScripts = function (urls) {
+		return Promise.all(urls.map(getScript));
+	};
 
-		if (namespace) {
-			return waitForLibrary(namespace);
-		}
+	var getScript = exports.getScript = function (url) {
+		return new Promise(function (resolve, reject) {
+			var scriptTag = window.document.createElement("script");
+			var firstScriptTag = document.getElementsByTagName('script')[0];
+			scriptTag.async = 1;
+			firstScriptTag.parentNode.insertBefore(scriptTag, firstScriptTag);
+
+			scriptTag.onload = scriptTag.onreadystatechange = function (arg, isAbort) {
+				// if its been aborted, readyState is gone, or readyState is in a 'done' status
+				if (isAbort || !scriptTag.readyState || /loaded|complete/.test(script.readyState)) {
+					//clean up
+					scriptTag.onload = scriptTag.onreadystatechange = null;
+					scriptTag = undefined;
+
+					// resolve/reject the promise
+					if (!isAbort) resolve();else reject;
+				}
+			};
+			scriptTag.src = url;
+		});
 	};
 
 /***/ },
@@ -1687,12 +1708,15 @@
 
 	"use strict";
 
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 	var utils = __webpack_require__(9);
 
+	var jsonMimeType = "application/json;odata=verbose";
 	var getStandardHeaders = exports.getStandardHeaders = function (digest) {
 		var headers = {
-			"Accept": utils.acceptHeader,
-			"Content-Type": utils.acceptHeader
+			"Accept": jsonMimeType,
+			"Content-Type": jsonMimeType
 		};
 		if (digest) headers["X-RequestDigest"] = digest;
 		return headers;
@@ -1701,7 +1725,7 @@
 	exports.getAddHeaders = getStandardHeaders;
 
 	var getActionHeaders = function getActionHeaders(verb, digest) {
-		return Object.assign({}, getStandardHeaders(digest), { "X-HTTP-Method": verb });
+		return _extends({}, getStandardHeaders(digest), { "X-HTTP-Method": verb });
 	};
 
 	var decorateETag = function decorateETag(headers, etag) {
@@ -1792,7 +1816,7 @@
 	};
 
 	Web.prototype._copyFile = function (sourceUrl, destinationUrl, digest) {
-		var url = "/web/getfilebyserverrelativeurl(@url)/CopyTo?@Url='" + sourceUrl + "'&strNewUrl='" + destinationUrl + "'&bOverWrite='true'";
+		var url = "/web/getfilebyserverrelativeurl('" + sourceUrl + "')/CopyTo(strnewurl='" + destinationUrl + "',boverwrite=true)";
 		var options = {
 			headers: headers.getAddHeaders(digest)
 		};
@@ -2237,284 +2261,76 @@
 
 /***/ },
 /* 20 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ function(module, exports) {
 
-	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;'use strict';
+	"use strict";
 
-	/*
-	 *	@description ajax in broswer 
-	 *	@author liaozhongwu
-	 *	@params options {
-	 *		@key url
-	 *			@Class String
-	 *			@default ""
-	 *			@description request url, support url template :param and {param}
-	 *		@key method
-	 *			@Class Enum('GET', 'POST', 'PUT', 'HEAD', 'DELETE', 'PATCH')
-	 *			@default GET
-	 *			@description request method
-	 *		@key async
-	 *			@Class Boolean
-	 *			@default true
-	 *		@key data 
-	 *			@Class Object
-	 *			@default {}
-	 *			@description request data, append to query while method in [GET HEAD PATCH]
-	 *		@key format
-	 *			@Class Enum('form', 'json', 'formdata')
-	 *			@default form
-	 *			@description request data type, effective while method in [POST PUT DELETE]
-	 *		@key timeout
-	 *			@Class Number
-	 *			@description request timeout
-	 *    @key origin
-	 *			@Class Boolean
-	 *			@default false
-	 *			@description return origin response instead of body
-	 *		@key type  
-	 *			@Class Enum("", "arraybuffer", "blob", "document", "json", "text")
-	 *			@default json
-	 *			@description XMLHttpRequest.responseType
-	 *		@key headers
-	 *			@Class Object
-	 *			@default {}
-	 *			@description request headers
-	 *		@key before 
-	 *			@Class Function
-	 *			@description before request will be sent
-	 *		@key success
-	 *			@Class Function
-	 *			@description while request succeed
-	 *		@key error 
-	 *			@Class Function
-	 *			@description while request made mistakes
-	 *		@key complete
-	 *			@Class Function
-	 *			@description while request completed
-	 *	@params callback
-	 *	@return Promise
-	 */
-	(function () {
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-		// create default options
-		var defaultOptions = {
-			url: '',
-			method: 'GET',
-			async: true,
-			data: {},
-			origin: false,
-			type: "json",
-			headers: {}
-		},
-		    errorInterceptors = [];
+	var defaults = {
+		method: "GET",
+		async: true,
+		type: "json", //XMLHttpRequest.responseType
+		data: undefined
+	};
 
-		// util function
-		function forEach(obj, callback) {
-			if (!isFunction(callback)) return;
-			if (isArray(obj)) {
-				if (obj.forEach) return obj.forEach(callback);
-				for (var i = 0; i < obj.length; ++i) {
-					callback(obj[i], i);
-				}
-			} else if (isObject(obj)) {
-				for (var key in obj) {
-					obj.hasOwnProperty(key) && callback(obj[key], key);
-				}
-			}
-		}
+	var validMethods = ["GET", "POST", "PUT", "HEAD", "DELETE", "PATCH"];
 
-		function extend() {
-			var n = {};
-			for (var i = 0; i < arguments.length; ++i) {
-				forEach(arguments[i], function (value, key) {
-					n[key] = value;
-				});
-			}
-			return n;
-		}
+	var errorHandlers = [];
 
-		function isString(str) {
-			return typeof str === 'string' || Object.prototype.toString.call(str) === '[object String]';
-		}
+	var validateOptions = function validateOptions(options) {
+		if (!options || !options.url || validMethods.indexOf(options.method) < 0) return false;else return true;
+	};
 
-		function isObject(obj) {
-			return Object.prototype.toString.call(obj) === '[object Object]';
-		}
-
-		function isFunction(func) {
-			return typeof func === 'function';
-		}
-
-		function isArray(arr) {
-			if (Array.isArray) return Array.isArray(arr);
-			return arr instanceof Array;
-		}
-
-		function isValidMethod(method) {
-			return isString(method) && /^GET|POST|PUT|HEAD|DELETE|PATCH$/.test(method.toUpperCase());
-		}
-
-		function isValidKey(key) {
-			return (/^url|method|async|data|format|timeout|body|type|headers|before|success|error|complete$/.test(key)
-			);
-		}
-
-		function xhr() {
-			if (typeof XMLHttpRequest !== 'undefined') return new XMLHttpRequest();
-			if (typeof ActiveXObject !== 'undefined') return new ActiveXObject('Microsoft.XMLHTTP');
-			return null;
-		}
-
-		// main funciton
-		function _request() {
-			var url = '',
-			    qs = "",
-			    method = 'GET',
-			    data = null,
-			    options = {},
-			    callback,
-			    isTimeout = false,
-			    isFinished = false,
-			    err;
-
-			// handle arguments
-			for (var i = 0; i < arguments.length; ++i) {
-				var arg = arguments[i];
-				if (isString(arg)) {
-					url = arg;
-				} else if (isObject(arg)) {
-					options = arg;
-				} else if (isFunction(arg)) {
-					callback = arg;
-				}
-			}
-
-			// extend default options
-			options = extend(defaultOptions, options);
-
-			// get url
-			isString(options.url) && (url = options.url);
-
-			// get method
-			isValidMethod(options.method) && (method = options.method.toUpperCase());
-
-			data = options.data;
-
-			// create XMLHttpRequest
-			var http = xhr();
-
-			// handle error
-			if (http === null) {
-				err = new Error("Your broswer don't support ajax!");
-				isFunction(options.error) && options.error(err);
-				isFunction(callback) && callback(err);
-				if (typeof Promise !== "undefined") return Promise.reject(err);
-				return;
-			}
-
-			// open XMLHttpRequest
-			http.open(method, url, options.async);
-
-			// set request headers
-			forEach(options.headers, function (value, key) {
-				http.setRequestHeader(key, value);
+	var setHeaders = function setHeaders(xhr, headersObj) {
+		if (headersObj) {
+			Object.keys(headersObj).forEach(function (key) {
+				xhr.setRequestHeader(key, headersObj[key]);
 			});
+		}
+	};
 
-			// set response type
-			options.type && (http.responseType = options.type);
+	var ajax = function ajax(options) {
+		var opts = _extends({}, defaults, options);
+		if (!validateOptions(options)) return Promise.reject(new Error("Invalid options passed into ajax call."));
 
-			function send(resolve, reject) {
+		var xhr = new XMLHttpRequest();
+		if (xhr == null) return Promise.reject(new Error("Your browser doesn't support XMLHttpRequest (ajax)."));
 
-				http.onreadystatechange = function () {
-					// complete
-					if (http.readyState === 4 && !isTimeout) {
-						isFinished = true;
-						var res = http.response;
-						http.body = http.response;
-						options.origin && (res = http);
+		xhr.open(opts.method, opts.url, opts.async);
+		setHeaders(xhr, opts.headers);
+		xhr.responseType = opts.type;
 
-						if (http.status < 400 && http.status >= 100) {
-							isFunction(options.success) && options.success(res);
-							isFunction(callback) && callback(null, res);
-							isFunction(resolve) && resolve(res);
-						} else {
-							err = new Error('Request Error, Response Code: ' + http.status);
-							err.code = http.status;
-							http.error = err;
-							forEach(errorInterceptors, function (interceptor) {
-								isFunction(interceptor) && interceptor(err, http);
-							});
-							isFunction(options.error) && options.error(err);
-							isFunction(callback) && callback(err, res);
-							isFunction(reject) && reject(err);
-						}
-						isFunction(options.complete) && options.complete(res);
+		return new Promise(function (resolve, reject) {
+			xhr.onreadystatechange = function () {
+				//completed
+				if (xhr.readyState === 4) {
+					// SUCCESS
+					if (xhr.status < 400 && xhr.status >= 100) {
+						resolve(xhr.response);
+					} else {
+						var error = new Error("AJAX Request Error: Response Code = " + xhr.status);
+						error.code = xhr.status;
+						errorHandlers.forEach(function (fn) {
+							return fn(error, xhr);
+						});
+						reject(error);
 					}
-				};
-
-				// call before send
-				isFunction(options.before) && options.before();
-
-				// set timeout
-				if (options.timeout) {
-					setTimeout(function () {
-						if (!isFinished) {
-							isTimeout = true;
-							err = new Error('Request Timeout, Response Code: 408');
-							err.code = 408;
-							http.error = err;
-							forEach(errorInterceptors, function (interceptor) {
-								isFunction(interceptor) && interceptor(err, http);
-							});
-							isFunction(options.error) && options.error(err);
-							isFunction(callback) && callback(err, http);
-							isFunction(reject) && reject(err);
-							isFunction(options.complete) && options.complete(http);
-						}
-					}, options.timeout);
 				}
+			};
 
-				// send data
-				http.send(data);
-			}
+			xhr.send(opts.data);
+		});
+	};
 
-			// create Promise
-			if (typeof Promise !== "undefined") return new Promise(send);
-			send();
-		}
+	ajax.addErrorHandler = function (fn) {
+		return errorHandlers.push(fn);
+	};
+	ajax.setDefaults = function (options) {
+		return _extends(defaults, options);
+	};
 
-		function ajax() {
-			return _request.apply(this, arguments);
-		}
-
-		ajax.get = function (url, data, callback) {
-			return _request.call(this, { url: url, method: 'GET', data: data }, callback);
-		};
-
-		ajax.post = function (url, data, callback) {
-			return _request.call(this, { url: url, method: 'POST', data: data }, callback);
-		};
-
-		ajax.setDefault = function (options) {
-			defaultOptions = extend(defaultOptions, options);
-			return ajax;
-		};
-
-		ajax.setErrorInterceptor = function (interceptor) {
-			errorInterceptors.push(interceptor);
-			return ajax;
-		};
-
-		if (typeof module !== 'undefined' && module.exports) {
-			module.exports = ajax;
-		} else if (true) {
-			!(__WEBPACK_AMD_DEFINE_ARRAY__ = [], __WEBPACK_AMD_DEFINE_RESULT__ = function () {
-				return ajax;
-			}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-		} else {
-			window.ajax = ajax;
-		}
-	})();
+	module.exports = ajax;
 
 /***/ },
 /* 21 */

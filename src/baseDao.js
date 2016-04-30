@@ -23,7 +23,7 @@ BaseDao.prototype.get = function(relativeQueryUrl, extendedOptions) {
 	var options = Object.assign({}, {
 		method: "GET"
 	}, extendedOptions);
-	return this.executeRequest(relativeQueryUrl, options);
+	return this.executeRequest(relativeQueryUrl, options).then(utils.parseJSON);
 };
 
 BaseDao.prototype.lists = function(listname) {
@@ -41,7 +41,7 @@ BaseDao.prototype.post = function(relativePostUrl, body, extendedOptions) {
 		contentType: "application/json;odata=verbose"
 	};
 	options = Object.assign({}, options, extendedOptions);
-	return this.executeRequest(relativePostUrl, options);
+	return this.executeRequest(relativePostUrl, options).then(utils.parseJSON);
 };
 
 module.exports = BaseDao;

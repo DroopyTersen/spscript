@@ -68,7 +68,7 @@ Web.prototype.copyFile = function(sourceUrl, destinationUrl, digest) {
 };
 
 Web.prototype._copyFile = function(sourceUrl, destinationUrl, digest) {
-	var url = "/web/getfilebyserverrelativeurl(@url)/CopyTo?@Url='" + sourceUrl + "'&strNewUrl='" + destinationUrl + "'&bOverWrite='true'";
+	var url = `/web/getfilebyserverrelativeurl('${sourceUrl}')/CopyTo(strnewurl='${destinationUrl}',boverwrite=true)`
 	var options = {
 		headers: headers.getAddHeaders(digest)
 	};
