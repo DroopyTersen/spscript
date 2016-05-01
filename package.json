@@ -5,6 +5,7 @@
   "main": "./src/entries/spscript.js",
   "scripts": {
     "docs": "jsdoc -c ./jsdoc/jsdoc.config.json -r readme.md"
+    // "postdocs": "copy -Recurse .\\dist\\docs ..\\spscript-site\\docs"
   },
   "repository": {
     "type": "git",

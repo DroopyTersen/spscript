@@ -17,15 +17,14 @@ Including SPScript in your project
 Option 1: NPM Module
 ```
 >> npm install spscript
-
 ```
 
 Option 2: Traditional Include
 
  - __Dev__ - Add the following script tag to your page
-     - `<script type="text/javascript" src='https://cdn.rawgit.com/DroopyTersen/spscript/dist/v2/spscript.js'></script>`
+     - `<script type="text/javascript" src='https://raw.githubusercontent.com/DroopyTersen/spscript/master/dist/v2/spscript.js'></script>`
  - __Prod__ - Save the following file into your project
--      https://raw.githubusercontent.com/DroopyTersen/spscript/dist/v2/spscript.js
+-      https://raw.githubusercontent.com/DroopyTersen/spscript/master/dist/v2/spscript.js
 
 
 Initialization
