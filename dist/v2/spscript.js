@@ -64,7 +64,7 @@
 /* 1 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var __WEBPACK_AMD_DEFINE_RESULT__;var require;/* WEBPACK VAR INJECTION */(function(process, global, module) {/*!
+	var require;var __WEBPACK_AMD_DEFINE_RESULT__;/* WEBPACK VAR INJECTION */(function(process, global, module) {/*!
 	 * @overview es6-promise - a tiny implementation of Promises/A+.
 	 * @copyright Copyright (c) 2014 Yehuda Katz, Tom Dale, Stefan Penner and contributors (Conversion to ES6 API by Jake Archibald)
 	 * @license   Licensed under MIT license
@@ -1168,6 +1168,8 @@
 	 * @property {Web} web - Allows interacting with the SharePoint site you connected to
 	 * @property {Search} search - Allows querying through the SP Search Service
 	 * @property {Profiles} profiles - Allows interacting with the SP Profile Service
+	 * @example
+	 * var dao = new SPScript.RestDao(_spPageContextInfo.webAbsoluteUrl);
 	 */
 	var RestDao = function RestDao(url) {
 		var self = this;
@@ -1212,11 +1214,7 @@
 	/**
 	 * Abstract class. You'll never work with this directly. 
 	 * @abstract
-	 * @requires src/utils
-	 * @requires src/list
-	 * @requires src/profiles
-	 * @requires src/web
-	 * @requires src/search
+	 * @private
 	 * @property {Web} web - Allows interacting with the SharePoint site you connected to
 	 * @property {Search} search - Allows querying through the SP Search Service
 	 * @property {Profiles} profiles - Allows interacting with the SP Profile Service
@@ -1246,6 +1244,9 @@
 	  return this.executeRequest(relativeQueryUrl, options).then(utils.parseJSON);
 	};
 
+	BaseDao.prototype.getRequestDigest = function () {
+	  return this.web.getRequestDigest();
+	};
 	/**
 	 * If a list name is passed, an SPScript.List object, otherwise performs a request to get all the site's lists
 	 * @param {string} [listname] - If a list name is passed, method is synchronous returning an SPScript.List
@@ -1429,13 +1430,13 @@
 	*/
 
 	/**
-	 * If you pass in string, it will try to run JSON.parse(). Different browsers handle JSON response differently so it is safest to call this method if you are making a generic GET or POST request
+	 * If you pass in string, it will try to run JSON.parse(). The SPScript get() and post() methods already run the response through this method, so you'd really only need this if you are doing a manual ajax request. Different browsers handle JSON response differently so it is safest to call this method if you aren't going through SPScript.
 	 * @param {string} data - Raw response from JSON request
 	 * @returns {object} - JSON parsed object. Returns null if JSON.parse fails
 	 * @function parseJSON
 	 * @memberof SPScript.utils
 	 * @example
-	 * dao.get('/web/contentTypes')
+	 * dao.executeRequest('/web/contentTypes')
 	 *		.then(SPScript.utils.parseJSON)
 	 *		.then(function(data) { console.log(data.d.results)})
 	 */
@@ -1879,9 +1880,9 @@
 	var Folder = __webpack_require__(13).Folder;
 
 	/**
-	 * Represents a SharePoint site
+	 * Represents a SharePoint site. You shouldn't ever be new'ing this class up up yourself, instead you'll get it from your dao as shown in first example.
 	 * @class
-	 * @param {BaseDao} dao - Data access object used to make requests.
+	 * @param {IBaseDao} dao - Data access object used to make requests.
 	 * @property {Permissions} permissions - allows checking security information of the Web
 	 * @property {string} baseUrl - API relative url (value = "/web")
 	 * @example <caption>You access this Web class using the 'web' property of the dao</caption>
@@ -1980,7 +1981,7 @@
 	 * Copies a file
 	 * @param {string} sourceUrl - The server relative url of the file you want to copy
 	 * @param {string} destinationUrl - The server relative url of the destination
-	 * @param {string} [requestDigest] - The request digest token used to authorize the request. One will be automatically retrieve if not passed.
+	 * @param {string} [[requestDigest]] - The request digest token used to authorize the request. One will be automatically retrieved if not passed.
 	 * @example
 	 * var sourceFile = "/sites/mysite/Shared Documents/myfile.docx";
 	 * var destination = "/sites/mysite/Restricted Docs/myFile.docx";
@@ -2007,7 +2008,7 @@
 	/**
 	 * Deletes a file
 	 * @param {string} fileUrl - The server relative url of the file you want to delete
-	 * @param {string} [requestDigest] - The request digest token used to authorize the request. One will be automatically retrieve if not passed.
+	 * @param {string} [[requestDigest]] - The request digest token used to authorize the request. One will be automatically retrieved if not passed.
 	 * @example
 	 * dao.web.deleteFile("/sites/mysite/Shared Documents/myFile.docx")
 	 *			.then(function() { console.log("Success")});
@@ -2055,8 +2056,7 @@
 
 	/**
 	 * Represents a SharePoint Folder.  Keep in mind, and File or Folder objects obtained from the 'files' and 'folders' array will not have their child items populated.
-	 * @class
-	 * @param {SP.Folder} spFolder - A raw SP.Folder object
+	 * @typedef Folder
 	 * @property {string} name - Folder name
 	 * @property {string} serverRelativeUrl - Server relative url
 	 * @property {int} itemCount - Number of items in the folder
@@ -2099,8 +2099,7 @@
 
 	/**
 	 * Represents a SharePoint File
-	 * @class
-	 * @param {SP.File} spFile - A raw SP.File object
+	 * @typedef File
 	 * @property {string} name - Folder name
 	 * @property {string} title - Folder title
 	 * @property {string} serverRelativeUrl - Server relative url
@@ -2215,10 +2214,29 @@
 	var queryString = __webpack_require__(16);
 	var utils = __webpack_require__(9);
 
+	/**
+	 * Allows you to perform queries agains the SP Search Service. You shouldn't ever be new'ing this class up up yourself, instead you'll get it from your dao as shown in first example.
+	 * @class
+	 * @param {IBaseDao} dao - Data access object used to make requests.
+	 * @example <caption>You access this Search class using the 'search' property of the dao</caption>
+	 * var dao = new SPScript.RestDao(_spPageContextInfo.webAbsoluteUrl);
+	 * dao.search.query('andrew').then(function(result) { console.log(result.items) });
+	 */
 	var Search = function Search(dao) {
 		this._dao = dao;
 	};
 
+	/**
+	 * Represents the response sent back from the Search Service after a query
+	 * @typedef {Object} QueryOptions
+	 * @property {string} sourceid - Special id that allows filter of types
+	 * @property {int} startrow - 
+	 * @property {int} rowlimit - How many items to bring back
+	 * @property {Array<string>} selectedproperties - An array of the property names to bring back
+	 * @property {Array<string>} refiners - An array of the refiners to bring back
+	 * @property {?} hiddenconstraints - 
+	 * @property {?} sortlist - 
+	 */
 	Search.QueryOptions = function () {
 		this.sourceid = null;
 		this.startrow = null;
@@ -2246,7 +2264,17 @@
 		return items;
 	};
 
-	//sealed class used to format results
+	/**
+	 * Represents the response sent back from the Search Service after a query
+	 * @typedef {Object} SearchResults
+	 * @property {string} elapsedTime - How long the query took
+	 * @property {object} suggestion - Spelling suggestion
+	 * @property {int} resultsCount - Number of results in this batch
+	 * @property {int} totalResults - Total number of results that could be returned
+	 * @property {int} totalResultsIncludingDuplicates - Total number of results that could be returned including duplicates
+	 * @property {Array} items - An array of search result items.  Properties will depend of the item type.
+	 * @property {?Array<Refiner>} refiners - An array of refiners. Can be null.
+	 */
 	var SearchResults = function SearchResults(queryResponse) {
 		this.elapsedTime = queryResponse.ElapsedTime;
 		this.suggestion = queryResponse.SpellingSuggestion;
@@ -2256,6 +2284,13 @@
 		this.items = convertRowsToObjects(queryResponse.PrimaryQueryResult.RelevantResults.Table.Rows.results);
 		this.refiners = mapRefiners(queryResponse.PrimaryQueryResult.RefinementResults);
 	};
+
+	/**
+	 * Represents the response sent back from the Search Service after a query
+	 * @typedef {Object} Refiner
+	 * @property {string} RefinerName - How long the query took
+	 * @property {Array} RefinerOptions - An array of valid refiner values
+	 */
 
 	var mapRefiners = function mapRefiners(refinementResults) {
 		var refiners = [];
@@ -2271,6 +2306,14 @@
 		return refiners;
 	};
 
+	/**
+	 * Performs a query using the search service
+	 * @param {string} queryText - The query text to send to the Search Service
+	 * @param {QueryOptions} [[queryOptions]] - Override the default query options
+	 * @returns {Promise<SearchResults>} - A Promise that resolves to a SearchResults object
+	 * @example
+	 * dao.search.query('audit').then(function(result) { console.log(result.items) });
+	 */
 	Search.prototype.query = function (queryText, queryOptions) {
 		var optionsQueryString = queryOptions != null ? "&" + queryString.fromObj(queryOptions, true) : "";
 
@@ -2283,6 +2326,14 @@
 		});
 	};
 
+	/**
+	 * Performs a query using the search service
+	 * @param {string} queryText - The query text to send to the Search Service
+	 * @param {QueryOptions} [[queryOptions]] - Override the default query options
+	 * @returns {Promise<SearchResults>} - A Promise that resolves to a SearchResults object
+	 * @example
+	 * dao.search.people('andrew').then(function(result) { console.log(result.items) });
+	 */
 	Search.prototype.people = function (queryText, queryOptions) {
 		var options = queryOptions || {};
 		options.sourceid = 'b09a7990-05ea-4af9-81ef-edfab16c4e31';
@@ -2299,37 +2350,64 @@
 
 	var qs = __webpack_require__(17);
 
+	/**
+	* @namespace SPScript.queryString
+	*/
+
+	/**
+	 * Turns a normal js Object into a string in form of "key1=value1&key2=value2..."
+	 * @param {Object} obj - Javascript object to query stringify
+	 * @param {bool} [[quoteValues]] - By default, if the value has a space, it will be single quoted. Passing true will cause all values to be quoted.
+	 * @returns {string} - Note: tt does NOT prepend '?' char
+	 * @function fromObj
+	 * @memberof SPScript.queryString
+	 * @example
+	 * var myObj = { id: 123, title: "My Title" }
+	 * var qs = SPScript.queryString.fromObj(myObj);
+	 * // qs would output: "id=123&title='MyTitle'"
+	 */
 	var fromObj = exports.fromObj = function (obj, quoteValues) {
 
-		var writeParam = function writeParam(key) {
-			var value = (obj[key] + "").trim();
-			// if there is a space, wrap in single quotes
-			if (value.indexOf(" ") > -1 || quoteValues) value = "'" + value + "'";
+	  var writeParam = function writeParam(key) {
+	    var value = (obj[key] + "").trim();
+	    // if there is a space, wrap in single quotes
+	    if (value.indexOf(" ") > -1 || quoteValues) value = "'" + value + "'";
 
-			return key + "=" + value;
-		};
+	    return key + "=" + value;
+	  };
 
-		var str = Object.keys(obj).map(writeParam).join("&");
-		return str;
+	  var str = Object.keys(obj).map(writeParam).join("&");
+	  return str;
 	};
 
+	/**
+	 * Turns a string in form of "key1=value1&key2=value2..." into a javascript object
+	 * @param {string} str - must be in query string format to work
+	 * @returns {Object} - A javascript object with properties for each key found in the query string passed in.
+	 * @function toObj
+	 * @memberof SPScript.queryString
+	 * @example
+	 * // your url is "https://sharepoint.com/sites/mysite/home.aspx?id=123&title='My Title'"
+	 * var myObj = SPScript.queryString.toObj(window.location.search);
+	 * //myObj would be { id: 123, title: "My Title" }
+	 */
 	var toObj = exports.toObj = function (str) {
-		//if no string is passed use window.location.search
-		if (str === undefined && window && window.location && window.location.search) {
-			str = window.location.search;
-		}
-		if (!str) return {};
-		//trim off the leading '?' if its there
-		if (str[0] === "?") str = str.substr(1);
+	  //if no string is passed use window.location.search
+	  if (str === undefined && window && window.location && window.location.search) {
+	    str = window.location.search;
+	  }
+	  if (!str) return {};
+	  //trim off the leading '?' if its there
+	  if (str[0] === "?") str = str.substr(1);
 
-		return qs.parse(str);
+	  return qs.parse(str);
 	};
 
 	exports.contains = function (key, text) {
-		return toObj(text).hasOwnProperty(key);
+	  return toObj(text).hasOwnProperty(key);
 	};
 	exports.getValue = function (key, text) {
-		return toObj(text)[key] || "";
+	  return toObj(text)[key] || "";
 	};
 
 /***/ },

@@ -4,7 +4,7 @@
   "description": "SharePoint 2013 Rest Api Wrappers",
   "main": "./src/entries/spscript.js",
   "scripts": {
-    "docs": "jsdoc -c jsdoc.config.json -r -t ./node_modules/ink-docstrap/template"
+    "docs": "jsdoc -c ./jsdoc/jsdoc.config.json -r readme.md"
   },
   "repository": {
     "type": "git",

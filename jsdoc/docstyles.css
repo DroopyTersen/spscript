@@ -1,0 +1,15 @@
+h4.name {
+    font-size: 25px;
+    border-top: 1px solid #ddd;
+    margin-top: 25px;
+    padding-top: 15px;
+}
+.prettyprint code {
+    padding: 0px 12px;
+}
+article > h1:first-child {
+	display:none;
+}
+#main h1.page-title {
+	margin-bottom: -10px;
+}

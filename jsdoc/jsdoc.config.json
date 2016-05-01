@@ -1,0 +1,21 @@
+{
+	"source": {
+		"include": ["src"]
+	},
+	"opts": {
+		"destination": "./dist/docs"
+	},
+	"templates": {
+		"mainpage" : {
+			"layoutFile": "./jsdoc/mainpage.tmpl"
+		},
+		"default": {
+			"staticFiles": {
+				"include": [
+					"./jsdoc/docstyles.css"
+				]
+			},
+			"layoutFile": "./jsdoc/layout.tmpl"
+		}
+	}
+}
