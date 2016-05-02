@@ -1,16 +1,45 @@
-var utils = require("./utils");
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: permissions.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+    <link type="text/css" rel="stylesheet" href="docstyles.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">SPScript Docs<br/><span style='display:none'>Source: permissions.js</span></h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>var utils = require("./utils");
 
 /**
  * Allows you to to check on the security of a list or site. You shouldn't be creating instances of the this class, you will get it from the Web or List class.
  * @class
  * @param {string} baseUrl - Url to the securable
  * @param {IBaseDao} dao - Data access object used to make requests.
- * @example <caption>Access Permissions class using the 'permissions' property on a Web</caption>
+ * @example &lt;caption>Access Permissions class using the 'permissions' property on a Web&lt;/caption>
  * var dao = new SPScript.RestDao(_spPageContextInfo.webAbsoluteUrl);
  *
  * dao.web.permissions.getRoleAssignments()
  *     .then(function(roleAssignments) { console.log(roleAssignments) });
- * @example <caption>Access Permissions class using the 'permissions' property on a List</caption>
+ * @example &lt;caption>Access Permissions class using the 'permissions' property on a List&lt;/caption>
  * dao.lists("Restricted Library").permissions.getRoleAssignments()
  *     .then(function(roleAssignments) { console.log(roleAssignments) });
  */
@@ -21,7 +50,7 @@ var Permissions = function(baseUrl, dao) {
 
 /**
  * Gets all the role assignments on that securable
- * @returns {Promise<Array<RoleAssignment>>} - A Promise that resolves to an array of role assignments
+ * @returns {Promise&lt;Array&lt;RoleAssignment>>} - A Promise that resolves to an array of role assignments
  * @example
  * dao.web.permissions.getRoleAssignments()
  *     .then(function(roleAssignments) { console.log(roleAssignments) });
@@ -36,11 +65,11 @@ Permissions.prototype.getRoleAssignments = function() {
 /**
  * Gets all the role assignments on that securable. If you don't pass an email, it will use the current user.
  * @param {string} [email] - If you don't pass an email it will use current user
- * @returns {Promise<Array>} - A Promise that resolves to an array of string base permission values
- * @example <caption>Get the current users permissions on a site</caption>
+ * @returns {Promise&lt;Array>} - A Promise that resolves to an array of string base permission values
+ * @example &lt;caption>Get the current users permissions on a site&lt;/caption>
  * dao.web.permissions.check()
  *     .then(function(basePermissions) { console.log(basePermissions) });
- * @example <caption>Get a specified user's permissions on a list</caption>
+ * @example &lt;caption>Get a specified user's permissions on a list&lt;/caption>
  * var email = "andrew@andrewpetersen.onmicrosoft.com"
  * dao.lists("Restricted Library").permissions.check(email)
  *     .then(function(basePermissions) { console.log(basePermissions) });
@@ -82,7 +111,7 @@ Permissions.prototype.check = function(email) {
  * Represents a permission on the securable
  * @typedef {Object} RoleAssignment
  * @property {RoleMember} member - User or group
- * @property {Array<RoleDef>} roles - An array of role definitions
+ * @property {Array&lt;RoleDef>} roles - An array of role definitions
  */
 var transforms = {
    roleAssignment: function(raw) {
@@ -107,7 +136,7 @@ var transforms = {
 var permissionMaskToStrings = function(lowMask, highMask) {
    var basePermissions = [];
    spBasePermissions.forEach(function(basePermission) {
-      if ((basePermission.low & lowMask) > 0 || (basePermission.high & highMask) > 0) {
+      if ((basePermission.low &amp; lowMask) > 0 || (basePermission.high &amp; highMask) > 0) {
          basePermissions.push(basePermission.name);
       }
    });
@@ -275,4 +304,50 @@ var spBasePermissions = [{
    "high": 1073741824
 }];
 
-module.exports = Permissions; 
+module.exports = Permissions; </code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="List.html">List</a></li><li><a href="Permissions.html">Permissions</a></li><li><a href="Profiles.html">Profiles</a></li><li><a href="RestDao.html">RestDao</a></li><li><a href="Search.html">Search</a></li><li><a href="Web.html">Web</a></li></ul><h3>Namespaces</h3><ul><li><a href="SPScript.ajax.html">ajax</a></li><li><a href="SPScript.queryString.html">queryString</a></li><li><a href="SPScript.utils.html">utils</a></li></ul><h3><a href="global.html">Global</a></h3>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Mon May 02 2016 11:29:33 GMT-0500 (Central Daylight Time)
+</footer>
+
+<script> prettyPrint(); 
+
+(function() {
+    //home link override
+    document.querySelector("a[href='index.html']").href = "../index.html";
+    [].slice.call(document.querySelectorAll(".type-signature")).forEach(function(e) {
+        var text = (e.innerHTML.trim() === "(static)") ? "" : e.innerHTML
+        text = text.replace(/\./g, "");
+        e.innerHTML = text;
+    }) 
+
+    //methods lists
+    var methods = [].slice.call(document.querySelectorAll("h4.name"))
+    var links = methods.map(function(e) {
+        var text = e.id;
+        if (text[0] === ".") text = text.substr(1);
+        return "<li><a href='#" + e.id + "'>" + text + "</a></li>";
+    })
+    var html = "<section class='methods-list'><ul>" + links.join(" ") + "</ul></section";
+    var article = document.querySelector("article");
+    article.innerHTML = html + article.innerHTML;            
+
+})()
+
+</script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

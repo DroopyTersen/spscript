@@ -1,4 +1,33 @@
-var utils 			= require("./utils");
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: list.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+    <link type="text/css" rel="stylesheet" href="docstyles.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">SPScript Docs<br/><span style='display:none'>Source: list.js</span></h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>var utils 			= require("./utils");
 var Permissions 	= require("./permissions");
 var headers 		= require("./requestHeaders");
 
@@ -8,7 +37,7 @@ var headers 		= require("./requestHeaders");
  * @param {IBaseDao} dao - Data access object used to make requests.
  * @property {Permissions} permissions - allows checking security information of the Web
  * @property {string} baseUrl - API relative url (value = "/web")
- * @example <caption>You access a 'List' by passing a name to the 'lists' property of the dao.</caption>
+ * @example &lt;caption>You access a 'List' by passing a name to the 'lists' property of the dao.&lt;/caption>
  * var dao = new SPScript.RestDao(_spPageContextInfo.webAbsoluteUrl);
  * var list = dao.lists("Tasks");
  * list.getItemById(12).then(function(item) { console.log(item) });
@@ -23,10 +52,10 @@ var List = function(listname, dao) {
 /**
  * Retrieves items in the lists
  * @param {string} [odata] - OData string
- * @returns {Promise<Array>} - A Promise that resolves an array of list items
- * @example <caption>Get all items</caption>
+ * @returns {Promise&lt;Array>} - A Promise that resolves an array of list items
+ * @example &lt;caption>Get all items&lt;/caption>
  * list.getItems().then(function(items) { console.log(items) });
- * @example <caption>Get first 5 items by passing in optional OData.</caption>
+ * @example &lt;caption>Get first 5 items by passing in optional OData.&lt;/caption>
  * list.getItems("$top=5").then(function(items) { console.log(items) });
  */
 List.prototype.getItems = function(odataQuery) {
@@ -40,9 +69,9 @@ List.prototype.getItems = function(odataQuery) {
  * @param {int} id - SharePoint integer Id
  * @param {string} [odata] - OData string
  * @returns {Promise} - A Promise that resolves to a single list item
- * @example <caption>Get the item with ID of 5.</caption>
+ * @example &lt;caption>Get the item with ID of 5.&lt;/caption>
  * list.getItemById(5).then(function(item) { console.log(item) });
- * @example <caption>Only bring back 'Title' and 'Status' using optional OData string</caption>
+ * @example &lt;caption>Only bring back 'Title' and 'Status' using optional OData string&lt;/caption>
  * list.getItemById(5, "$select=Title,Status").then(function(items) { console.log(items) });
  */
 List.prototype.getItemById = function(id, odata) {
@@ -52,7 +81,7 @@ List.prototype.getItemById = function(id, odata) {
 
 /**
  * Retrieves basic information about the list
- * @returns {Promise<SP.Web>} - A Promise that resolves to an object containing non-deferred properties of an SP.List (https://msdn.microsoft.com/en-us/library/office/jj244873.aspx)
+ * @returns {Promise&lt;SP.Web>} - A Promise that resolves to an object containing non-deferred properties of an SP.List (https://msdn.microsoft.com/en-us/library/office/jj244873.aspx)
  * @example
  * list.info().then(function(info) { console.log(info) });
  */
@@ -65,7 +94,7 @@ List.prototype.info = function() {
  * @param {object} item - Javascript object representing the list item
  * @param {string} [requestDigest] - Optional request digest token used to authorize the action. One will be automatically retrieved if not provided.
  * @returns {Promise} - A Promise that resolves to the inserted list item
- * @example <caption>Add a list item. Set Title and Status.</caption>
+ * @example &lt;caption>Add a list item. Set Title and Status.&lt;/caption>
  * var newItem = {
  *    Title: "Test Created Item",
  *    MyStatus: "Red"
@@ -102,7 +131,7 @@ List.prototype._addItem = function(item, requestDigest) {
  * @param {object} updates - Javascript object representing columns you want to update
  * @param {string} [requestDigest] - Optional request digest token used to authorize the action. One will be automatically retrieved if not provided.
  * @returns {Promise} - A Promise
- * @example <caption>Update the item's Title</caption>
+ * @example &lt;caption>Update the item's Title&lt;/caption>
  * var updates = {
  *    Title: "Updated Title"
  * };
@@ -136,7 +165,7 @@ List.prototype._updateItem = function(itemId, updates, digest) {
  * @param {int} itemId - The SharePoint Id of the item to update
  * @param {string} [requestDigest] - Optional request digest token used to authorize the action. One will be automatically retrieved if not provided.
  * @returns {Promise} - A Promise
- * @example <caption>Delete the item with an ID of 12</caption>
+ * @example &lt;caption>Delete the item with an ID of 12&lt;/caption>
  * list.deleteItem(12).then(function() { console.log"Success") });
  */
 List.prototype.deleteItem = function(itemId, requestDigest) {
@@ -159,16 +188,16 @@ List.prototype._deleteItem = function(itemId, digest) {
  * @param {string} key - The column name
  * @param {string} value - The column value to match on
  * @param {string} [odata] - OData string
- * @returns {Promise<Array>} - A Promise that resolves an array of list items
- * @example <caption>Get all items whose status is "In Progress"</caption>
+ * @returns {Promise&lt;Array>} - A Promise that resolves an array of list items
+ * @example &lt;caption>Get all items whose status is "In Progress"&lt;/caption>
  * list.findItems("Status", "In Progress").then(function(items) { console.log(items) });
- * @example <caption>Get first 5 items whose Yes/No field is 'Yes'</caption>
+ * @example &lt;caption>Get first 5 items whose Yes/No field is 'Yes'&lt;/caption>
  * list.getItems("MyYesNoField", true, "$top=5").then(function(items) { console.log(items) });
  */
 List.prototype.findItems = function(key, value, extraOData) {
 	//if its a string, wrap in single quotes
 	var filterValue = typeof value === "string" ? "'" + value + "'" : value;
-	var odata = "$filter=" + key + " eq " + filterValue + appendOData(extraOData, "&");
+	var odata = "$filter=" + key + " eq " + filterValue + appendOData(extraOData, "&amp;");
 
 	return this.getItems(odata);
 };
@@ -179,12 +208,12 @@ List.prototype.findItems = function(key, value, extraOData) {
  * @param {string} value - The column value to match on
  * @param {string} [odata] - OData string
  * @returns {Promise} - A Promise that resolves to a list items
- * @example <caption>The first item whose Title is "TODO"</caption>
+ * @example &lt;caption>The first item whose Title is "TODO"&lt;/caption>
  * list.findItem("Title", "TODO").then(function(item) { console.log(item) });
  */
 List.prototype.findItem = function(key, value, odata) {
 	return this.findItems(key, value, odata).then(items => {
-		if (items && items.length && items.length > 0) {
+		if (items &amp;&amp; items.length &amp;&amp; items.length > 0) {
 			return items[0];
 		}
 		return null;
@@ -197,4 +226,50 @@ var appendOData = function(odata, prefix) {
 	return "";
 };
 
-module.exports = List;
+module.exports = List;</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="List.html">List</a></li><li><a href="Permissions.html">Permissions</a></li><li><a href="Profiles.html">Profiles</a></li><li><a href="RestDao.html">RestDao</a></li><li><a href="Search.html">Search</a></li><li><a href="Web.html">Web</a></li></ul><h3>Namespaces</h3><ul><li><a href="SPScript.ajax.html">ajax</a></li><li><a href="SPScript.queryString.html">queryString</a></li><li><a href="SPScript.utils.html">utils</a></li></ul><h3><a href="global.html">Global</a></h3>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Mon May 02 2016 11:29:33 GMT-0500 (Central Daylight Time)
+</footer>
+
+<script> prettyPrint(); 
+
+(function() {
+    //home link override
+    document.querySelector("a[href='index.html']").href = "../index.html";
+    [].slice.call(document.querySelectorAll(".type-signature")).forEach(function(e) {
+        var text = (e.innerHTML.trim() === "(static)") ? "" : e.innerHTML
+        text = text.replace(/\./g, "");
+        e.innerHTML = text;
+    }) 
+
+    //methods lists
+    var methods = [].slice.call(document.querySelectorAll("h4.name"))
+    var links = methods.map(function(e) {
+        var text = e.id;
+        if (text[0] === ".") text = text.substr(1);
+        return "<li><a href='#" + e.id + "'>" + text + "</a></li>";
+    })
+    var html = "<section class='methods-list'><ul>" + links.join(" ") + "</ul></section";
+    var article = document.querySelector("article");
+    article.innerHTML = html + article.innerHTML;            
+
+})()
+
+</script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

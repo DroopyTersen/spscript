@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Class: Search</title>
+    <title>JSDoc: Class: Profiles</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -18,7 +18,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">SPScript Docs<br/><span style='display:none'>Class: Search</span></h1>
+    <h1 class="page-title">SPScript Docs<br/><span style='display:none'>Class: Profiles</span></h1>
 
     
 
@@ -29,7 +29,7 @@
 
 <header>
     
-        <h2>Search</h2>
+        <h2>Profiles</h2>
         
     
 </header>
@@ -41,14 +41,14 @@
 
     
 
-    <h4 class="name" id="Search"><span class="type-signature"></span>new Search<span class="signature">(dao)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="Profiles"><span class="type-signature"></span>new Profiles<span class="signature">(dao)</span><span class="type-signature"></span></h4>
 
     
 
 
 
 <div class="description">
-    Allows you to perform queries agains the SP Search Service. You shouldn't ever be new'ing this class up up yourself, instead you'll get it from your dao as shown in first example.
+    Allows you to perform queries agains the SP Profile Service. You shouldn't ever be new'ing this class up up yourself, instead you'll get it from your dao as shown in first example.
 </div>
 
 
@@ -141,7 +141,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="search.js.html">search.js</a>, <a href="search.js.html#line12">line 12</a>
+        <a href="profiles.js.html">profiles.js</a>, <a href="profiles.js.html#line12">line 12</a>
     </li></ul></dd>
     
 
@@ -168,9 +168,9 @@
 
     <h5>Example</h5>
     
-        <p class="code-caption">You access this Search class using the 'search' property of the dao</p>
+        <p class="code-caption">You access this Profiles class using the 'profiles' property of the dao</p>
     
-    <pre class="prettyprint"><code>var dao = new SPScript.RestDao(_spPageContextInfo.webAbsoluteUrl);dao.search.query('andrew').then(function(result) { console.log(result.items) });</code></pre>
+    <pre class="prettyprint"><code>var dao = new SPScript.RestDao(_spPageContextInfo.webAbsoluteUrl);dao.profiles.current().then(function(profile) { console.log(profile) });</code></pre>
 
 
 
@@ -197,14 +197,232 @@
 
     
 
-    <h4 class="name" id="people"><span class="type-signature"></span>people<span class="signature">(queryText, [queryOptions]<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Promise.&lt;<a href="global.html#SearchResults">SearchResults</a>>}</span></h4>
+    <h4 class="name" id="current"><span class="type-signature"></span>current<span class="signature">()</span><span class="type-signature"> &rarr; {Promise}</span></h4>
 
     
 
 
 
 <div class="description">
-    Performs a query using the search service
+    Gets the profile of the current user
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="profiles.js.html">profiles.js</a>, <a href="profiles.js.html#line30">line 30</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    - A Promise that resolves an object containing all the profile properties
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Promise</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+    <h5>Example</h5>
+    
+    <pre class="prettyprint"><code>dao.profiles.current().then(function(profile) { console.log(profile.PreferredName) });</code></pre>
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="getByEmail"><span class="type-signature"></span>getByEmail<span class="signature">()</span><span class="type-signature"> &rarr; {Promise}</span></h4>
+
+    
+
+
+
+<div class="description">
+    Gets the profile of the user tied to the specified email
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="profiles.js.html">profiles.js</a>, <a href="profiles.js.html#line91">line 91</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    - A Promise that resolves an object containing all the profile properties
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Promise</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+    <h5>Example</h5>
+    
+    <pre class="prettyprint"><code>var email = "andrew@andrewpetersen.onmicrosoft.com";dao.profiles.getByEmail(email)   .then(function(profile) { console.log(profile.PreferredName) });</code></pre>
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="setProperty"><span class="type-signature"></span>setProperty<span class="signature">(userOrEmail)</span><span class="type-signature"> &rarr; {Promise}</span></h4>
+
+    
+
+
+
+<div class="description">
+    Sets a profile property
 </div>
 
 
@@ -228,8 +446,6 @@
         <th>Type</th>
 
         
-        <th>Attributes</th>
-        
 
         
 
@@ -242,12 +458,15 @@
 
         <tr>
             
-                <td class="name"><code>queryText</code></td>
+                <td class="name"><code>userOrEmail</code></td>
             
 
             <td class="type">
             
                 
+<span class="param-type">User</span>
+|
+
 <span class="param-type">string</span>
 
 
@@ -255,51 +474,10 @@
             </td>
 
             
-                <td class="attributes">
-                
-
-                
-
-                
-                </td>
-            
 
             
 
-            <td class="description last">The query text to send to the Search Service</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>[queryOptions]</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><a href="global.html#QueryOptions">QueryOptions</a></span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last">Override the default query options</td>
+            <td class="description last">Pass in a User object (must have 'AccountName' or 'LoginName') or an email address</td>
         </tr>
 
     
@@ -340,7 +518,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="search.js.html">search.js</a>, <a href="search.js.html#line126">line 126</a>
+        <a href="profiles.js.html">profiles.js</a>, <a href="profiles.js.html#line46">line 46</a>
     </li></ul></dd>
     
 
@@ -367,7 +545,7 @@
 
         
 <div class="param-desc">
-    - A Promise that resolves to a SearchResults object
+    - A Promise
 </div>
 
 
@@ -378,7 +556,7 @@
     </dt>
     <dd>
         
-<span class="param-type">Promise.&lt;<a href="global.html#SearchResults">SearchResults</a>></span>
+<span class="param-type">Promise</span>
 
 
     </dd>
@@ -389,208 +567,7 @@
 
     <h5>Example</h5>
     
-    <pre class="prettyprint"><code>dao.search.people('andrew').then(function(result) { console.log(result.items) });</code></pre>
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="query"><span class="type-signature"></span>query<span class="signature">(queryText, [queryOptions]<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Promise.&lt;<a href="global.html#SearchResults">SearchResults</a>>}</span></h4>
-
-    
-
-
-
-<div class="description">
-    Performs a query using the search service
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-        <th>Attributes</th>
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>queryText</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last">The query text to send to the Search Service</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>[queryOptions]</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><a href="global.html#QueryOptions">QueryOptions</a></span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last">Override the default query options</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="search.js.html">search.js</a>, <a href="search.js.html#line104">line 104</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    - A Promise that resolves to a SearchResults object
-</div>
-
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">Promise.&lt;<a href="global.html#SearchResults">SearchResults</a>></span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-    <h5>Example</h5>
-    
-    <pre class="prettyprint"><code>dao.search.query('audit').then(function(result) { console.log(result.items) });</code></pre>
+    <pre class="prettyprint"><code>var email = "andrew@andrewpetersen.onmicrosoft.com";var aboutMe = "I am a web developer";dao.profiles.setProperty(email, "AboutMe", aboutMe).then(function() { console.log("Success") });</code></pre>
 
 
 

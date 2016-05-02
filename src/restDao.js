@@ -2,7 +2,7 @@ var BaseDao = require("./baseDao");
 var ajax = require('./ajax') 
 
 /**
- * Main point of entry. Big Daddy class that all SP requests are routed through. 
+ * Main point of entry. Big Daddy class that all SP requests are routed through. Data Access Object (DAO)
  * @class
  * @augments BaseDao
 
@@ -11,7 +11,7 @@ var ajax = require('./ajax')
  * @property {Web} web - Allows interacting with the SharePoint site you connected to
  * @property {Search} search - Allows querying through the SP Search Service
  * @property {Profiles} profiles - Allows interacting with the SP Profile Service
- * @example
+ * @example <caption>Create a new instance of a RestDao</caption>
  * var dao = new SPScript.RestDao(_spPageContextInfo.webAbsoluteUrl);
  */
 var RestDao = function(url) {

@@ -1,10 +1,11 @@
 {
   "name": "spscript",
-  "version": "1.2.6",
+  "version": "1.3.0",
   "description": "SharePoint 2013 Rest Api Wrappers",
   "main": "./src/entries/spscript.js",
   "scripts": {
-    "docs": "jsdoc -c ./jsdoc/jsdoc.config.json -r readme.md"
+    "docs": "jsdoc -c ./jsdoc/jsdoc.config.json -r readme.md",
+    "test": "node test/run.js"
   },
   "repository": {
     "type": "git",

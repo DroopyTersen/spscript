@@ -4,11 +4,11 @@ SPScript
 
 SPScript is a collection of javascript helpers for the SharePoint 2013 Rest API.  Some features include...
 
-  - Easy querying of list data with helpers for making either same-origin or cross-origin requests.
+  - Easy querying of list data.
   - Add and Update list items in 1 line of code.
   - Easily utilize SharePoint search
   - Integrated templating engine
-  - Chrome control helper to make your app look more like the host SharePoint site.
+  - Check permissions on sites and lists
 
 
 Including SPScript in your project
@@ -41,8 +41,8 @@ Methods
 #### Web
 - `web.info()` - Gets you the [SPWeb properties](https://msdn.microsoft.com/en-us/library/office/jj245288.aspx#properties) of your site
 - `web.subsites()` - Gets you all the sub sites and their [SPWeb properties](https://msdn.microsoft.com/en-us/library/office/jj245288.aspx#properties)
-- `web.permissions()` - Gets you an an array of permissions that have been setup for that site. Each permission object has a `member` (the user or group) and a `roles` array (the permissions that user or group has). 
-- `web.permissions(email)` - Looks up a user by their email address, then gets you a list of permissions that user has for your site.  Similiar to "Check Permissions". 
+- `web.permissions.getRoleAssignments()` - Gets you an an array of permissions that have been setup for that site. Each permission object has a `member` (the user or group) and a `roles` array (the permissions that user or group has). 
+- `web.permissions.check(email)` - Looks up a user by their email address, then gets you a list of permissions that user has for your site.  Similiar to "Check Permissions". 
 
 #### Lists
 - `lists()` - gets you all the lists and libraries on your site and their [SPList properties](https://msdn.microsoft.com/en-us/library/office/jj245826.aspx#properties)
@@ -59,8 +59,8 @@ Methods
 - `list.addItem(item)` - takes a javascript object and creates a list item.
 - `list.updateItem(id, updates)` - takes a SharePoint Id, and updates that item ONLY with properties that are found in the passed in `updates` object.
 - `list.deleteItem(id)` - deletes the item with the specified SharePoint Id
-- `list.permissions()` - Gets you an an array of permissions that have been setup for that list. Each permission object has a `member` (the user or group) and a `roles` array (the permissions that user or group has). 
-- `list.permissions(email)` - Looks up a user by their email address, then gets the permissions that user has for that list.  Similiar to "Check Permissions". 
+- `list.permissions.getRoleAssignments()` - Gets you an an array of permissions that have been setup for that list. Each permission object has a `member` (the user or group) and a `roles` array (the permissions that user or group has). 
+- `list.permissions.check(email)` - Looks up a user by their email address, then gets the permissions that user has for that list.  Similiar to "Check Permissions". 
 
 
 #### Search

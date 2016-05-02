@@ -25,7 +25,7 @@ BaseDao.prototype.executeRequest = function() {
 
 /**
  * Generic helper to make AJAX GET request
-  * @example <caption>Example usage of to log a site's content types</caption>
+  * @example <caption>Use generic GET method to retrieve a site's content types</caption>
  * dao.get('/web/contentTypes').then(function(data) { console.log(data.d.results)})
  * @param {string} relativeQueryUrl - the API url relative to "/_api"
  * @param {Object} [extendedOptions] - AJAX options (like custom request headers)
@@ -44,7 +44,7 @@ BaseDao.prototype.getRequestDigest = function() {
 /**
  * If a list name is passed, an SPScript.List object, otherwise performs a request to get all the site's lists
  * @param {string} [listname] - If a list name is passed, method is synchronous returning an SPScript.List
- * @returns {List|Promise<lists[]>} - SPScript.List object or a Promise that resolves to an Array of lists
+ * @returns {List|Promise} - SPScript.List object or a Promise that resolves to an Array of lists
  * @example <caption>Option 1: No List Name gets all the lists of a site</caption>
  * dao.lists().then(function(lists) { console.log(lists)});
  * @example <caption>Option 2: Pass a List Name to get a list object</caption>

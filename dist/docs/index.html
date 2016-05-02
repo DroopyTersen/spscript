@@ -47,11 +47,11 @@
         <article><h1>SPScript</h1><hr>
 <p>SPScript is a collection of javascript helpers for the SharePoint 2013 Rest API.  Some features include...</p>
 <ul>
-<li>Easy querying of list data with helpers for making either same-origin or cross-origin requests.</li>
+<li>Easy querying of list data.</li>
 <li>Add and Update list items in 1 line of code.</li>
 <li>Easily utilize SharePoint search</li>
 <li>Integrated templating engine</li>
-<li>Chrome control helper to make your app look more like the host SharePoint site.</li>
+<li>Check permissions on sites and lists</li>
 </ul>
 <h2>Including SPScript in your project</h2><p>Option 1: NPM Module</p>
 <pre class="prettyprint source"><code>>> npm install spscript</code></pre><p>Option 2: Traditional Include</p>
@@ -70,8 +70,8 @@
 var dao = new SPScript.RestDao(siteUrl);</code></pre><h2>Methods</h2><h4>Web</h4><ul>
 <li><code>web.info()</code> - Gets you the <a href="https://msdn.microsoft.com/en-us/library/office/jj245288.aspx#properties">SPWeb properties</a> of your site</li>
 <li><code>web.subsites()</code> - Gets you all the sub sites and their <a href="https://msdn.microsoft.com/en-us/library/office/jj245288.aspx#properties">SPWeb properties</a></li>
-<li><code>web.permissions()</code> - Gets you an an array of permissions that have been setup for that site. Each permission object has a <code>member</code> (the user or group) and a <code>roles</code> array (the permissions that user or group has). </li>
-<li><code>web.permissions(email)</code> - Looks up a user by their email address, then gets you a list of permissions that user has for your site.  Similiar to &quot;Check Permissions&quot;. </li>
+<li><code>web.permissions.getRoleAssignments()</code> - Gets you an an array of permissions that have been setup for that site. Each permission object has a <code>member</code> (the user or group) and a <code>roles</code> array (the permissions that user or group has). </li>
+<li><code>web.permissions.check(email)</code> - Looks up a user by their email address, then gets you a list of permissions that user has for your site.  Similiar to &quot;Check Permissions&quot;. </li>
 </ul>
 <h4>Lists</h4><ul>
 <li><code>lists()</code> - gets you all the lists and libraries on your site and their <a href="https://msdn.microsoft.com/en-us/library/office/jj245826.aspx#properties">SPList properties</a></li>
@@ -88,8 +88,8 @@ var dao = new SPScript.RestDao(siteUrl);</code></pre><h2>Methods</h2><h4>Web</h4
 <li><code>list.addItem(item)</code> - takes a javascript object and creates a list item.</li>
 <li><code>list.updateItem(id, updates)</code> - takes a SharePoint Id, and updates that item ONLY with properties that are found in the passed in <code>updates</code> object.</li>
 <li><code>list.deleteItem(id)</code> - deletes the item with the specified SharePoint Id</li>
-<li><code>list.permissions()</code> - Gets you an an array of permissions that have been setup for that list. Each permission object has a <code>member</code> (the user or group) and a <code>roles</code> array (the permissions that user or group has). </li>
-<li><code>list.permissions(email)</code> - Looks up a user by their email address, then gets the permissions that user has for that list.  Similiar to &quot;Check Permissions&quot;. </li>
+<li><code>list.permissions.getRoleAssignments()</code> - Gets you an an array of permissions that have been setup for that list. Each permission object has a <code>member</code> (the user or group) and a <code>roles</code> array (the permissions that user or group has). </li>
+<li><code>list.permissions.check(email)</code> - Looks up a user by their email address, then gets the permissions that user has for that list.  Similiar to &quot;Check Permissions&quot;. </li>
 </ul>
 <h4>Search</h4><ul>
 <li><code>search.query(queryText)</code> - performs a SharePoint search and returns a <code>SearchResults</code>  object which contains elapsedTime, suggestion, resultsCount, totalResults, totalResultsIncludingDuplicates, items. The <code>items</code> property is what contains the actual &quot;results&quot; array.</li>
@@ -217,18 +217,39 @@ dao.lists(&quot;Documents&quot;).getItems().then(function(docs){
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="RestDao.html">RestDao</a></li><li><a href="Search.html">Search</a></li><li><a href="Web.html">Web</a></li></ul><h3>Namespaces</h3><ul><li><a href="SPScript.ajax.html">ajax</a></li><li><a href="SPScript.queryString.html">queryString</a></li><li><a href="SPScript.utils.html">utils</a></li></ul><h3><a href="global.html">Global</a></h3>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="List.html">List</a></li><li><a href="Permissions.html">Permissions</a></li><li><a href="Profiles.html">Profiles</a></li><li><a href="RestDao.html">RestDao</a></li><li><a href="Search.html">Search</a></li><li><a href="Web.html">Web</a></li></ul><h3>Namespaces</h3><ul><li><a href="SPScript.ajax.html">ajax</a></li><li><a href="SPScript.queryString.html">queryString</a></li><li><a href="SPScript.utils.html">utils</a></li></ul><h3><a href="global.html">Global</a></h3>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Sun May 01 2016 01:51:52 GMT-0500 (Central Daylight Time)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Mon May 02 2016 11:29:34 GMT-0500 (Central Daylight Time)
 </footer>
 
 <script> prettyPrint(); 
-console.log("here");
-document.querySelector("a[href='index.html']").href = "../index.html";
+
+(function() {
+    //home link override
+    document.querySelector("a[href='index.html']").href = "../index.html";
+    [].slice.call(document.querySelectorAll(".type-signature")).forEach(function(e) {
+        var text = (e.innerHTML.trim() === "(static)") ? "" : e.innerHTML
+        text = text.replace(/\./g, "");
+        e.innerHTML = text;
+    }) 
+
+    //methods lists
+    var methods = [].slice.call(document.querySelectorAll("h4.name"))
+    var links = methods.map(function(e) {
+        var text = e.id;
+        if (text[0] === ".") text = text.substr(1);
+        return "<li><a href='#" + e.id + "'>" + text + "</a></li>";
+    })
+    var html = "<section class='methods-list'><ul>" + links.join(" ") + "</ul></section";
+    var article = document.querySelector("article");
+    article.innerHTML = html + article.innerHTML;            
+
+})()
+
 </script>
 <script src="scripts/linenumber.js"> </script>
 </body>

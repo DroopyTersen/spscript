@@ -34,8 +34,29 @@
 </footer>
 
 <script> prettyPrint(); 
-console.log("here");
-document.querySelector("a[href='index.html']").href = "../index.html";
+
+(function() {
+    //home link override
+    document.querySelector("a[href='index.html']").href = "../index.html";
+    [].slice.call(document.querySelectorAll(".type-signature")).forEach(function(e) {
+        var text = (e.innerHTML.trim() === "(static)") ? "" : e.innerHTML
+        text = text.replace(/\./g, "");
+        e.innerHTML = text;
+    }) 
+
+    //methods lists
+    var methods = [].slice.call(document.querySelectorAll("h4.name"))
+    var links = methods.map(function(e) {
+        var text = e.id;
+        if (text[0] === ".") text = text.substr(1);
+        return "<li><a href='#" + e.id + "'>" + text + "</a></li>";
+    })
+    var html = "<section class='methods-list'><ul>" + links.join(" ") + "</ul></section";
+    var article = document.querySelector("article");
+    article.innerHTML = html + article.innerHTML;            
+
+})()
+
 </script>
 <script src="scripts/linenumber.js"> </script>
 </body>

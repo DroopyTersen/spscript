@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Class: Search</title>
+    <title>JSDoc: Class: Permissions</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -18,7 +18,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">SPScript Docs<br/><span style='display:none'>Class: Search</span></h1>
+    <h1 class="page-title">SPScript Docs<br/><span style='display:none'>Class: Permissions</span></h1>
 
     
 
@@ -29,7 +29,7 @@
 
 <header>
     
-        <h2>Search</h2>
+        <h2>Permissions</h2>
         
     
 </header>
@@ -41,14 +41,14 @@
 
     
 
-    <h4 class="name" id="Search"><span class="type-signature"></span>new Search<span class="signature">(dao)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="Permissions"><span class="type-signature"></span>new Permissions<span class="signature">(baseUrl, dao)</span><span class="type-signature"></span></h4>
 
     
 
 
 
 <div class="description">
-    Allows you to perform queries agains the SP Search Service. You shouldn't ever be new'ing this class up up yourself, instead you'll get it from your dao as shown in first example.
+    Allows you to to check on the security of a list or site. You shouldn't be creating instances of the this class, you will get it from the Web or List class.
 </div>
 
 
@@ -80,6 +80,29 @@
     </thead>
 
     <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>baseUrl</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Url to the securable</td>
+        </tr>
+
     
 
         <tr>
@@ -141,7 +164,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="search.js.html">search.js</a>, <a href="search.js.html#line12">line 12</a>
+        <a href="permissions.js.html">permissions.js</a>, <a href="permissions.js.html#line17">line 17</a>
     </li></ul></dd>
     
 
@@ -166,11 +189,15 @@
 
 
 
-    <h5>Example</h5>
+    <h5>Examples</h5>
     
-        <p class="code-caption">You access this Search class using the 'search' property of the dao</p>
+        <p class="code-caption">Access Permissions class using the 'permissions' property on a Web</p>
     
-    <pre class="prettyprint"><code>var dao = new SPScript.RestDao(_spPageContextInfo.webAbsoluteUrl);dao.search.query('andrew').then(function(result) { console.log(result.items) });</code></pre>
+    <pre class="prettyprint"><code>var dao = new SPScript.RestDao(_spPageContextInfo.webAbsoluteUrl);dao.web.permissions.getRoleAssignments()    .then(function(roleAssignments) { console.log(roleAssignments) });</code></pre>
+
+        <p class="code-caption">Access Permissions class using the 'permissions' property on a List</p>
+    
+    <pre class="prettyprint"><code>dao.lists("Restricted Library").permissions.getRoleAssignments()    .then(function(roleAssignments) { console.log(roleAssignments) });</code></pre>
 
 
 
@@ -197,14 +224,14 @@
 
     
 
-    <h4 class="name" id="people"><span class="type-signature"></span>people<span class="signature">(queryText, [queryOptions]<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Promise.&lt;<a href="global.html#SearchResults">SearchResults</a>>}</span></h4>
+    <h4 class="name" id="check"><span class="type-signature"></span>check<span class="signature">(email<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Promise.&lt;Array>}</span></h4>
 
     
 
 
 
 <div class="description">
-    Performs a query using the search service
+    Gets all the role assignments on that securable. If you don't pass an email, it will use the current user.
 </div>
 
 
@@ -242,44 +269,13 @@
 
         <tr>
             
-                <td class="name"><code>queryText</code></td>
+                <td class="name"><code>email</code></td>
             
 
             <td class="type">
             
                 
 <span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last">The query text to send to the Search Service</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>[queryOptions]</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><a href="global.html#QueryOptions">QueryOptions</a></span>
 
 
             
@@ -299,7 +295,7 @@
 
             
 
-            <td class="description last">Override the default query options</td>
+            <td class="description last">If you don't pass an email it will use current user</td>
         </tr>
 
     
@@ -340,7 +336,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="search.js.html">search.js</a>, <a href="search.js.html#line126">line 126</a>
+        <a href="permissions.js.html">permissions.js</a>, <a href="permissions.js.html#line48">line 48</a>
     </li></ul></dd>
     
 
@@ -367,7 +363,7 @@
 
         
 <div class="param-desc">
-    - A Promise that resolves to a SearchResults object
+    - A Promise that resolves to an array of string base permission values
 </div>
 
 
@@ -378,7 +374,7 @@
     </dt>
     <dd>
         
-<span class="param-type">Promise.&lt;<a href="global.html#SearchResults">SearchResults</a>></span>
+<span class="param-type">Promise.&lt;Array></span>
 
 
     </dd>
@@ -387,9 +383,15 @@
     
 
 
-    <h5>Example</h5>
+    <h5>Examples</h5>
     
-    <pre class="prettyprint"><code>dao.search.people('andrew').then(function(result) { console.log(result.items) });</code></pre>
+        <p class="code-caption">Get the current users permissions on a site</p>
+    
+    <pre class="prettyprint"><code>dao.web.permissions.check()    .then(function(basePermissions) { console.log(basePermissions) });</code></pre>
+
+        <p class="code-caption">Get a specified user's permissions on a list</p>
+    
+    <pre class="prettyprint"><code>var email = "andrew@andrewpetersen.onmicrosoft.com"dao.lists("Restricted Library").permissions.check(email)    .then(function(basePermissions) { console.log(basePermissions) });</code></pre>
 
 
 
@@ -398,14 +400,14 @@
 
     
 
-    <h4 class="name" id="query"><span class="type-signature"></span>query<span class="signature">(queryText, [queryOptions]<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Promise.&lt;<a href="global.html#SearchResults">SearchResults</a>>}</span></h4>
+    <h4 class="name" id="getRoleAssignments"><span class="type-signature"></span>getRoleAssignments<span class="signature">()</span><span class="type-signature"> &rarr; {Promise.&lt;Array.&lt;<a href="global.html#RoleAssignment">RoleAssignment</a>>>}</span></h4>
 
     
 
 
 
 <div class="description">
-    Performs a query using the search service
+    Gets all the role assignments on that securable
 </div>
 
 
@@ -414,98 +416,6 @@
 
 
 
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-        <th>Attributes</th>
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>queryText</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last">The query text to send to the Search Service</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>[queryOptions]</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><a href="global.html#QueryOptions">QueryOptions</a></span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last">Override the default query options</td>
-        </tr>
-
-    
-    </tbody>
-</table>
 
 
 
@@ -541,7 +451,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="search.js.html">search.js</a>, <a href="search.js.html#line104">line 104</a>
+        <a href="permissions.js.html">permissions.js</a>, <a href="permissions.js.html#line29">line 29</a>
     </li></ul></dd>
     
 
@@ -568,7 +478,7 @@
 
         
 <div class="param-desc">
-    - A Promise that resolves to a SearchResults object
+    - A Promise that resolves to an array of role assignments
 </div>
 
 
@@ -579,7 +489,7 @@
     </dt>
     <dd>
         
-<span class="param-type">Promise.&lt;<a href="global.html#SearchResults">SearchResults</a>></span>
+<span class="param-type">Promise.&lt;Array.&lt;<a href="global.html#RoleAssignment">RoleAssignment</a>>></span>
 
 
     </dd>
@@ -590,7 +500,7 @@
 
     <h5>Example</h5>
     
-    <pre class="prettyprint"><code>dao.search.query('audit').then(function(result) { console.log(result.items) });</code></pre>
+    <pre class="prettyprint"><code>dao.web.permissions.getRoleAssignments()    .then(function(roleAssignments) { console.log(roleAssignments) });</code></pre>
 
 
 
