@@ -3,12 +3,11 @@ if (!global.Promise) {
     global.Promise = promisePolyfill;
 }
 
-var RestDao = require("../src/restDao");
 mocha.setup('bdd');
 chai.should();
 
 var url = _spPageContextInfo.webAbsoluteUrl;
-var dao = new RestDao(url);
+var dao = new SPScript.RestDao(url);
 
 describe("var dao = new SPScript.RestDao(_spPageContextInfo.webAbsoluteUrl)", function() {
     it("Should create the primary Data Access Objec (DAO) you use to interact with the site", function() {

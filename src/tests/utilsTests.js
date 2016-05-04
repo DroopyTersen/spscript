@@ -1,4 +1,5 @@
-var utils = require("../src/utils");
+var utils = SPScript.utils;
+
 exports.run = function() {
 	describe("var utils = SPScript.utils", function() {
 		this.timeout(10000);
@@ -40,7 +41,7 @@ exports.run = function() {
 				});
 
 				// delay it a bit on purpose
-				setTimeout(() => utils.getScript(momentUrl), 1000);
+				setTimeout(function() { utils.getScript(momentUrl) }, 1000);
 			})
 		});
 	})

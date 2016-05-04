@@ -54,8 +54,8 @@ exports.run = function(dao) {
 
             it("Should return a promise that resolves to an array of items", function() {
                 items.should.be.an("array");
-                items.should.not.be.empty;
             });
+            
             it("Should return all the items in the list", function(done) {
                 list.info().then(function(listInfo) {
                     items.length.should.equal(listInfo.ItemCount);
