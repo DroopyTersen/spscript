@@ -2,6 +2,8 @@ SPScript
 =========
 ----------
 
+Public Website w/ full documentation: [http://droopytersen.github.io/spscript/](http://droopytersen.github.io/spscript/)
+
 SPScript is a collection of javascript helpers for the SharePoint 2013 Rest API.  Some features include...
 
   - Easy querying of list data.
