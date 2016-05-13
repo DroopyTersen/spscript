@@ -1,31 +1,5 @@
-// var http = require('http');
-
-// http.createServer(function (req, res) {
-//   res.writeHead(200, {'Content-Type': 'text/plain'});
-//   res.end("Hiya");
-// }).listen(9615);
-
 var ServerDao = require("./serverDao");
-var config = {
-    spLanguage: "en-us",
-    clientKey: "bb0fade0-5336-40a1-857c-2a9f2946da83",
-    clientSecret: "ehmNv5jEnHM5U9FaHEVuWBrRhpZg9ooOC+KELZRMYKU=",
-    spSiteUrl: "https://andrewpetersen.sharepoint.com/spscript"
-};
-
-// dao.lists("TestList").getItems("$select=Title,Id").then(items => {
-//     console.log(items);
-// })
-// var dao = new ServerDao(config.spSiteUrl, config.clientKey, config.clientSecret);
-// var email = "andrew@andrewpetersen.onmicrosoft.com";
-// var aboutMeValue = "Hi there. I was updated with SPScript";
-// dao.profiles.setProperty(email, "AboutMe", aboutMeValue)
-// dao.search.query("andrew").then(function(searchResults) {
-//     console.log(searchResults);
-// }).catch(res => {
-//     console.log(res);
-// })
-// var should = require('chai').should();
+var config = require("../app.config");
 
 describe('ServerDao', function () {
     var dao = new ServerDao(config.spSiteUrl, config.clientKey, config.clientSecret);
