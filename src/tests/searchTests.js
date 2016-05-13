@@ -1,6 +1,8 @@
+var should = require("chai").should();
+
 exports.run = function(dao) {
     describe("var search = dao.search;", function() {
-        this.timeout(10000);
+        this.timeout(5000);
         describe("search.query(queryText)", function() {
             it("Should return promise that resolves to a SearchResults object", function(done) {
                 var queryText = "andrew";

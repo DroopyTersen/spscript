@@ -1,6 +1,8 @@
-var utils = SPScript.utils;
+var should = require("chai").should();
 
-exports.run = function() {
+exports.run = function(utils) {
+	utils = utils || SPScript.utils;
+	
 	describe("var utils = SPScript.utils", function() {
 		this.timeout(10000);
 

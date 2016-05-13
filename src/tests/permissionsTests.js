@@ -1,3 +1,4 @@
+var should = require("chai").should();
 var create = exports.create = function(securable, action, email) {
 	if (action === "check") {
 		return function() {
@@ -6,7 +7,9 @@ var create = exports.create = function(securable, action, email) {
                 securable.permissions.check(email).then(function (privs) {
                     permissions = privs;
                     done();
-                });
+                }).catch(function (err) {
+					done();
+				});
             });
             
             it("Should return a promise that resolves to an array of base permission strings", function () {

@@ -53,6 +53,11 @@ Permissions.prototype.check = function(email) {
       return this._dao.get(url).then(utils.validateODataV2);
    };
 
+   //if no email, and no current user id, reject
+   if (!email && !utils.isBrowser()) {
+      return Promise.reject("Can't Check Permissions.  No email passed and no current user")
+   }
+   
    // If no email is passed, then get current user, else get user by email
    var req = !email 
       ? this._dao.get('/web/getuserbyid(' + _spPageContextInfo.userId + ')').then(data => data.d)

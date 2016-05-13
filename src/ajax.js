@@ -83,7 +83,7 @@ var ajax = function(options) {
 
 		xhr.send(opts.data);
 	})
-}
+};
 
 ajax.addErrorHandler = (fn) => errorHandlers.push(fn);
 ajax.setDefaults = (options) => Object.assign(defaults, options);

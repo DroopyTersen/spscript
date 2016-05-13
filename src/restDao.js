@@ -20,7 +20,7 @@ var RestDao = function(url) {
 	this.webUrl = url || _spPageContextInfo.webAbsoluteUrl;
 };
 
-RestDao.prototype = new BaseDao();
+RestDao.prototype = Object.create(BaseDao.prototype);
 
 RestDao.prototype.executeRequest = function(url, options) {
 	var fullUrl = (/^http/i).test(url) ? url : this.webUrl + "/_api" + url;

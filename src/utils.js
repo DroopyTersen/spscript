@@ -2,6 +2,10 @@
 * @namespace SPScript.utils
 */
 
+
+var isBrowser = exports.isBrowser = function() {
+	return (!(typeof window === 'undefined'));
+};
 /**
  * If you pass in string, it will try to run JSON.parse(). The SPScript get() and post() methods already run the response through this method, so you'd really only need this if you are doing a manual ajax request. Different browsers handle JSON response differently so it is safest to call this method if you aren't going through SPScript.
  * @param {string} data - Raw response from JSON request
@@ -22,7 +26,7 @@ var parseJSON = exports.parseJSON = function(data) {
 			}
 		}
 		return data;	
-};
+}; 
 
 /**
  * Helps parse raw json response to remove ceremonious OData data.d namespace. Tries JSON.parse() and then pulling out actual result from data.d or data.d.results

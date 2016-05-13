@@ -1,8 +1,10 @@
 var permissionsTests = require("./permissionsTests.js");
+var should = require("chai").should();
+var utils = require("../utils");
 
 exports.run = function(dao) {
     describe("var web = dao.web", function() {
-        this.timeout(10000);
+        this.timeout(5000);
         describe("web.info()", function() {
             it("Should return a promise that resolves to web info", function(done) {
                 dao.web.info().then(function(webInfo) {
@@ -94,7 +96,10 @@ exports.run = function(dao) {
         });
 
         var destinationUrl = "/spscript/Shared%20Documents/testfile2.txt";
-
+        var fileUrl = "/spscript/Shared%20Documents/testfile.txt";
+        dao.web.copyFile(fileUrl, destinationUrl);
+        
+        
         describe("web.copyFile(serverRelativeSourceUrl, serverRelativeDestUrl)", function() {
             var startTestTime = new Date();
             var file = null;
@@ -105,6 +110,9 @@ exports.run = function(dao) {
                 })
                 .then(function(result) {
                     file = result;
+                    done();
+                }).catch(function(resp) {
+                    ("one").should.equal("two", "Error in CopyFile requst");
                     done();
                 })
             })
@@ -140,7 +148,6 @@ exports.run = function(dao) {
                             done();
                         })
                         .catch(function(){
-                            console.log(arguments);
                             done();
                             // call to get file failed as expected because file is gone
                         })
@@ -148,8 +155,10 @@ exports.run = function(dao) {
             })
         }); 
         describe("web.permissions.getRoleAssignments()", permissionsTests.create(dao.web));
-
-        describe("web.permissions.check()", permissionsTests.create(dao.web, "check"));
+        
+        if (utils.isBrowser()) {
+            describe("web.permissions.check()", permissionsTests.create(dao.web, "check"));
+        }
 
         describe("web.permissions.check(email)", permissionsTests.create(dao.web, "check", "andrew@andrewpetersen.onmicrosoft.com"))
     });

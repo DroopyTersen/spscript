@@ -1180,7 +1180,7 @@
 		this.webUrl = url || _spPageContextInfo.webAbsoluteUrl;
 	};
 	
-	RestDao.prototype = new BaseDao();
+	RestDao.prototype = Object.create(BaseDao.prototype);
 	
 	RestDao.prototype.executeRequest = function (url, options) {
 		var fullUrl = /^http/i.test(url) ? url : this.webUrl + "/_api" + url;
@@ -1523,6 +1523,9 @@
 	* @namespace SPScript.utils
 	*/
 	
+	var isBrowser = exports.isBrowser = function () {
+	  return !(typeof window === 'undefined');
+	};
 	/**
 	 * If you pass in string, it will try to run JSON.parse(). The SPScript get() and post() methods already run the response through this method, so you'd really only need this if you are doing a manual ajax request. Different browsers handle JSON response differently so it is safest to call this method if you aren't going through SPScript.
 	 * @param {string} data - Raw response from JSON request
@@ -1762,6 +1765,11 @@
 	      var url = _this.baseUrl + "/getusereffectivepermissions(@v)?@v='" + login + "'";
 	      return _this._dao.get(url).then(utils.validateODataV2);
 	   };
+	
+	   //if no email, and no current user id, reject
+	   if (!email && !utils.isBrowser()) {
+	      return Promise.reject("Can't Check Permissions.  No email passed and no current user");
+	   }
 	
 	   // If no email is passed, then get current user, else get user by email
 	   var req = !email ? this._dao.get('/web/getuserbyid(' + _spPageContextInfo.userId + ')').then(function (data) {

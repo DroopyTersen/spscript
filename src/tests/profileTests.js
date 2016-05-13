@@ -1,7 +1,9 @@
+var should = require("chai").should();
+
 exports.run = function(dao) {
     var email = "andrew@andrewpetersen.onmicrosoft.com";
     describe("var profiles = dao.profiles", function() {
-        this.timeout(10000);
+        this.timeout(5000);
 
         describe("profiles.current()", function() {
             var profile = null;
@@ -55,15 +57,18 @@ exports.run = function(dao) {
             it("Should update the About Me profile property", function(done) {
                 var aboutMeValue = "Hi there. I was updated with SPScript";
                 dao.profiles.setProperty(email, "AboutMe", aboutMeValue)
-                    .then(dao.profiles.current.bind(dao.profiles))
+                    .then(function() {
+                        console.log("HERE");
+                        return dao.profiles.getByEmail(email);
+                    })
                     .then(function(profile) {
                         profile.should.have.property("AboutMe");
                         profile.AboutMe.should.equal(aboutMeValue);
                         done();
                     })
                     .catch(function() {
-                        console.log("Failed");
-                        console.log(arguments);
+                        ("one").should.equal("two");
+                        done();
                     });
             });
         });

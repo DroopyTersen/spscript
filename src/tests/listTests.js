@@ -1,4 +1,5 @@
 var permissionsTests = require("./permissionsTests.js");
+var utils = require("../utils");
 
 exports.run = function(dao) {
     describe("dao.lists()", function() {
@@ -110,6 +111,14 @@ exports.run = function(dao) {
                 item.should.have.property("Id");
                 item.Id.should.equal(validId);
             });
+            it("Should be able to return attachments using the optional odata query", function(done) {
+                list.getItemById(validId, "$expand=AttachmentFiles").then(function(item) {
+                    item.should.have.property("AttachmentFiles");
+                    item.AttachmentFiles.should.have.property("results");
+                    item.AttachmentFiles.results.should.be.an("Array");
+                    done();
+                })
+            })
         });
 
         describe("list.findItems(key, value)", function() {
@@ -244,7 +253,9 @@ exports.run = function(dao) {
 
         describe("list.permissions.getRoleAssignments()", permissionsTests.create(list));
 
-        describe("list.permissions.check()", permissionsTests.create(list, "check"));
+        if (utils.isBrowser()) {
+            describe("list.permissions.check()", permissionsTests.create(list, "check"));
+        }
 
         describe("list.permissions.check(email)", permissionsTests.create(list, "check", "andrew@andrewpetersen.onmicrosoft.com"))
 
