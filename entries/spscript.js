@@ -8,6 +8,6 @@ SPScript.queryString = require("../lib/queryString");
 SPScript.templating = require("droopy-templating");
 SPScript.utils = require("../lib/utils");
 SPScript.ajax = require("../lib/ajax");
-SPScript.jsLink = require("../lib/jslink");
+SPScript.jsLink = require("../lib/jsLink");
 module.exports = global.SPScript = SPScript;
 
