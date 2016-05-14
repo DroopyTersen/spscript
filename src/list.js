@@ -155,6 +155,35 @@ List.prototype._deleteItem = function(itemId, digest) {
 };
 
 /**
+ * Attach file to an item in the list
+ * @param {int} itemId - The SharePoint Id of the item to update
+ * @param {string} filename - Filename to be put in SharePoint
+ * @param {string} content - File content
+ * @returns {Promise} - A Promise
+ * @example <caption>Attach 'hello.txt' with content 'Hello World' to itemId 12</caption>
+ * list.addAttachment(12, 'hello.txt', 'Hello World').then(function() { console.log"Success") });
+ */
+List.prototype.addAttachment = function (itemId, filename, content, requestDigest) {
+    if (requestDigest) return this._addAttachment(itemId, filename, content, requestDigest);
+    return this._dao.getRequestDigest().then(requestDigest => {
+    	return this._addAttachment(itemId, filename, content, requestDigest)
+    });
+}
+List.prototype._addAttachment = function (itemId, filename, content, requestDigest) {
+    return this._dao.get(this.baseUrl).then(data => {
+        var customOptions = {
+            headers: {
+                'Accept': 'application/json;odata=verbose',
+                'X-RequestDigest': requestDigest,
+                'Content-Type': "application/octet-stream;odata=verbose"
+            },
+            data: content
+        };
+        return this._dao.post(this.baseUrl + "/items("+itemId+")/AttachmentFiles/add(FileName='"+filename+"')", null ,customOptions)
+    });
+}
+
+/**
  * Retrieves items in the list based on the value of a column
  * @param {string} key - The column name
  * @param {string} value - The column value to match on
