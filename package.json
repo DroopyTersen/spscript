@@ -1,6 +1,6 @@
 {
   "name": "spscript",
-  "version": "1.3.3",
+  "version": "1.3.4",
   "description": "SharePoint 2013 Rest Api Wrappers",
   "main": "./entries/spscript.js",
   "scripts": {
@@ -16,7 +16,6 @@
     "lint": "eslint src/*",
     "minify": "uglifyjs dist/v2/spscript.js -o dist/v2/spscript.min.js --stats",
     "watch": "nodemon -w src -x \"npm run --silent build\"",
-    "coverage": "istanbul cover _mocha -- -R spec server/test.js",
     "clean": "rimraf lib"
   },
   "repository": {
@@ -39,7 +38,6 @@
     "css-loader": "^0.23.1",
     "file-loader": "^0.8.5",
     "html-loader": "^0.4.3",
-    "istanbul": "^0.4.3",
     "ngrok": "^2.1.7",
     "rimraf": "^2.5.2",
     "spbrander": "^1.0.6",
