@@ -184,6 +184,33 @@ List.prototype._addAttachment = function (itemId, filename, content, requestDige
 }
 
 /**
+ * Delete attachment of an item in the list
+ * @param {int} itemId - The SharePoint Id of the item to update
+ * @param {string} filename - Filename to be deleted in SharePoint
+ * @returns {Promise} - A Promise
+ * @example <caption>Delete attachment 'hello.txt' in itemId 12</caption>
+ * list.deleteAttachment(12, 'hello.txt').then(function() { console.log"Success") });
+ */
+List.prototype.deleteAttachment = function (itemId, filename, requestDigest) {
+    if (requestDigest) return this._deleteAttachment(itemId, filename, requestDigest);
+    return this._dao.getRequestDigest().then(requestDigest => {
+    	return this._deleteAttachment(itemId, filename, requestDigest)
+    });
+}
+List.prototype._deleteAttachment = function (itemId, filename, requestDigest) {
+    return this._dao.get(this.baseUrl).then(data => {
+        var customOptions = {
+            headers: {
+                'Accept': 'application/json;odata=verbose',
+                'X-RequestDigest': requestDigest,
+                'X-HTTP-Method': "DELETE"
+            }
+        };
+        return this._dao.post(this.baseUrl + "/items("+itemId+")/AttachmentFiles/filename('"+filename+"')", null ,customOptions)
+    });
+}
+
+/**
  * Retrieves items in the list based on the value of a column
  * @param {string} key - The column name
  * @param {string} value - The column value to match on
