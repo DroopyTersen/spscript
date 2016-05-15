@@ -1,6 +1,6 @@
-var utils 			= require("./utils");
-var Permissions 	= require("./permissions");
-var headers 		= require("./requestHeaders");
+var utils = require("./utils");
+var Permissions = require("./permissions");
+var headers = require("./requestHeaders");
 
 /**
  * Represents a SharePoint list. You shouldn't ever be new'ing this class up up yourself, instead you'll get it from your dao as shown in first example.
@@ -81,19 +81,19 @@ List.prototype.addItem = function(item, requestDigest) {
 List.prototype._addItem = function(item, requestDigest) {
 	return this._dao.get(this.baseUrl).then(data => {
 
-		//decorate the item with the 'type' metadata
-		item = Object.assign({}, {
-			"__metadata": {
-				"type": data.d.ListItemEntityTypeFullName
-			}
-		}, item);
+			//decorate the item with the 'type' metadata
+			item = Object.assign({}, {
+				"__metadata": {
+					"type": data.d.ListItemEntityTypeFullName
+				}
+			}, item);
 
-		var customOptions = {
-			headers: headers.getAddHeaders(requestDigest)
-		};
-		return this._dao.post(this.baseUrl + "/items", item, customOptions)
-	})
-	.then(utils.validateODataV2);
+			var customOptions = {
+				headers: headers.getAddHeaders(requestDigest)
+			};
+			return this._dao.post(this.baseUrl + "/items", item, customOptions)
+		})
+		.then(utils.validateODataV2);
 };
 
 /**
@@ -163,25 +163,20 @@ List.prototype._deleteItem = function(itemId, digest) {
  * @example <caption>Attach 'hello.txt' with content 'Hello World' to itemId 12</caption>
  * list.addAttachment(12, 'hello.txt', 'Hello World').then(function() { console.log"Success") });
  */
-List.prototype.addAttachment = function (itemId, filename, content, requestDigest) {
-    if (requestDigest) return this._addAttachment(itemId, filename, content, requestDigest);
-    return this._dao.getRequestDigest().then(requestDigest => {
-    	return this._addAttachment(itemId, filename, content, requestDigest)
-    });
-}
-List.prototype._addAttachment = function (itemId, filename, content, requestDigest) {
-    return this._dao.get(this.baseUrl).then(data => {
-        var customOptions = {
-            headers: {
-                'Accept': 'application/json;odata=verbose',
-                'X-RequestDigest': requestDigest,
-                'Content-Type': "application/octet-stream;odata=verbose"
-            },
-            data: content
-        };
-        return this._dao.post(this.baseUrl + "/items("+itemId+")/AttachmentFiles/add(FileName='"+filename+"')", null ,customOptions)
-    });
-}
+List.prototype.addAttachment = function(itemId, filename, content, requestDigest) {
+	if (requestDigest) return this._addAttachment(itemId, filename, content, requestDigest);
+	return this._dao.getRequestDigest().then(requestDigest => {
+		return this._addAttachment(itemId, filename, content, requestDigest)
+	});
+};
+
+List.prototype._addAttachment = function(itemId, filename, content, requestDigest) {
+	var customOptions = {
+		headers: headers.getFilestreamHeaders(requestDigest),
+		data: content
+	};
+	return this._dao.post(this.baseUrl + "/items(" + itemId + ")/AttachmentFiles/add(FileName='" + filename + "')", null, customOptions)
+};
 
 /**
  * Delete attachment of an item in the list
@@ -191,23 +186,23 @@ List.prototype._addAttachment = function (itemId, filename, content, requestDige
  * @example <caption>Delete attachment 'hello.txt' in itemId 12</caption>
  * list.deleteAttachment(12, 'hello.txt').then(function() { console.log"Success") });
  */
-List.prototype.deleteAttachment = function (itemId, filename, requestDigest) {
-    if (requestDigest) return this._deleteAttachment(itemId, filename, requestDigest);
-    return this._dao.getRequestDigest().then(requestDigest => {
-    	return this._deleteAttachment(itemId, filename, requestDigest)
-    });
+List.prototype.deleteAttachment = function(itemId, filename, requestDigest) {
+	if (requestDigest) return this._deleteAttachment(itemId, filename, requestDigest);
+	return this._dao.getRequestDigest().then(requestDigest => {
+		return this._deleteAttachment(itemId, filename, requestDigest)
+	});
 }
-List.prototype._deleteAttachment = function (itemId, filename, requestDigest) {
-    return this._dao.get(this.baseUrl).then(data => {
-        var customOptions = {
-            headers: {
-                'Accept': 'application/json;odata=verbose',
-                'X-RequestDigest': requestDigest,
-                'X-HTTP-Method': "DELETE"
-            }
-        };
-        return this._dao.post(this.baseUrl + "/items("+itemId+")/AttachmentFiles/filename('"+filename+"')", null ,customOptions)
-    });
+List.prototype._deleteAttachment = function(itemId, filename, requestDigest) {
+	return this._dao.get(this.baseUrl).then(data => {
+		var customOptions = {
+			headers: {
+				'Accept': 'application/json;odata=verbose',
+				'X-RequestDigest': requestDigest,
+				'X-HTTP-Method': "DELETE"
+			}
+		};
+		return this._dao.post(this.baseUrl + "/items(" + itemId + ")/AttachmentFiles('" + filename + "')", null, customOptions)
+	});
 }
 
 /**

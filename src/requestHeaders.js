@@ -12,8 +12,18 @@ var getStandardHeaders = exports.getStandardHeaders = function(digest) {
 
 exports.getAddHeaders = getStandardHeaders;
 
+var getFilestreamHeaders = exports.getFilestreamHeaders = function(digest) {
+	return {
+		'Accept': jsonMimeType,
+		'X-RequestDigest': digest,
+		'Content-Type': "application/octet-stream;odata=verbose"
+	}
+};
+
 var getActionHeaders = function(verb, digest) {
-	return Object.assign({}, getStandardHeaders(digest), { "X-HTTP-Method": verb });
+	return Object.assign({}, getStandardHeaders(digest), {
+		"X-HTTP-Method": verb
+	});
 };
 
 var decorateETag = function(headers, etag) {

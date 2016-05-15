@@ -1,5 +1,5 @@
-var https       = require("https");
-var urlUtils    = require("url");
+var https = require("https");
+var urlUtils = require("url");
 var querystring = require("querystring");
 
 var request = function(url, method, headers, body) {
@@ -13,17 +13,23 @@ var request = function(url, method, headers, body) {
         agent: false,
         secureOptions: require('constants').SSL_OP_NO_TLSv1_2
     };
+    if (body && !headers["Content-Length"]) {
+        headers["Content-Length"] = body.length;
+    }
 
-    return new Promise(function (resolve, reject) {
+    return new Promise(function(resolve, reject) {
         var req = https.request(options, res => {
             var respBody = "";
             res.setEncoding('utf8');
             res.on('data', data => respBody += data);
 
             res.on('end', () => {
-                    res.body = respBody;
-                    if (res.statusCode < 400) resolve(res);
-                    else reject(res);                    
+                res.body = respBody;
+
+                if (res.statusCode < 400) resolve(res);
+                else {
+                    reject(res)
+                };
             });
 
             res.on("error", (e) => {
@@ -52,7 +58,7 @@ exports.post = function(url, body, headers) {
         'Content-Type': 'application/x-www-form-urlencoded',
         "Content-Length": bodyStr.length
     });
-    
+
     return request(url, "POST", headers, bodyStr);
 };
 

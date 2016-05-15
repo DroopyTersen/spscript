@@ -1299,8 +1299,6 @@
 	
 	        var destinationUrl = "/spscript/Shared%20Documents/testfile2.txt";
 	        var fileUrl = "/spscript/Shared%20Documents/testfile.txt";
-	        dao.web.copyFile(fileUrl, destinationUrl);
-	        
 	        
 	        describe("web.copyFile(serverRelativeSourceUrl, serverRelativeDestUrl)", function() {
 	            var startTestTime = new Date();
@@ -1326,8 +1324,8 @@
 	                file.should.property("TimeLastModified");
 	                file.should.property("Name");
 	                file.should.property("UIVersionLabel");
-	                var modified = new Date(file["TimeLastModified"])
-	                modified.should.be.above(startTestTime);
+	                // var modified = new Date(file["TimeLastModified"])
+	                // modified.should.be.above(startTestTime);
 	            })
 	        })
 	
@@ -9314,7 +9312,7 @@
 	            it("Should return a promise that resolves to an array of items", function() {
 	                items.should.be.an("array");
 	            });
-	            
+	
 	            it("Should return all the items in the list", function(done) {
 	                list.info().then(function(listInfo) {
 	                    items.length.should.equal(listInfo.ItemCount);
@@ -9453,6 +9451,56 @@
 	                        done();
 	                    });
 	            });
+	        });
+	
+	        var itemIdWithAttachment = null;
+	        var attachmentFilename = "testAttachment.txt";
+	        var attachmentContent = "test content";
+	
+	        describe("list.addAttachment(id, filename, content)", function() {
+	
+	            before(function(done) {
+	                list.getItems("$orderby=Id").then(function(items) {
+	                    itemIdWithAttachment = items[items.length - 1].Id;
+	                    return list.addAttachment(itemIdWithAttachment, attachmentFilename, attachmentContent);
+	                }).then(function() {
+	                    done();
+	                });
+	            });
+	            it("Should add an attachment file to the list item", function(done) {
+	                list.getItemById(itemIdWithAttachment, "$expand=AttachmentFiles").then(function(item){
+	                    item.should.have.property('AttachmentFiles');
+	                    item.AttachmentFiles.should.have.property('results');
+	                    item.AttachmentFiles.results.should.be.an('Array');
+	                    item.AttachmentFiles.results.should.not.be.empty;
+	                    done();
+	                });
+	            })
+	        });
+	
+	        describe("list.deleteAttachment(id, filename)", function() {
+	            var getAttachment = function(id, filename) {
+	                return list.getItemById(itemIdWithAttachment, "$expand=AttachmentFiles").then(function(item){
+	                    var attachments = item.AttachmentFiles.results;
+	                    return attachments.find(a => a.FileName === attachmentFilename);
+	                });
+	            };
+	            before(function(done) {
+	                getAttachment(itemIdWithAttachment, attachmentFilename).then(attachment => {
+	                    if (attachment) {
+	                        return list.deleteAttachment(itemIdWithAttachment, attachmentFilename);
+	                    }
+	                    return false;
+	                }).then(function(){
+	                    done();
+	                }).catch(res => console.log("REQUEST ERROR"));
+	            });
+	            it("Should delete the attachment", function(done) {
+	                getAttachment(itemIdWithAttachment, attachmentFilename).then(attachment => {
+	                    if (attachment) ("attachment").should.equal("null");
+	                    done();
+	                });
+	            })
 	        });
 	
 	        describe("list.deleteItem(id)", function() {
@@ -9595,7 +9643,7 @@
 	exports.run = function(dao) {
 	    var email = "andrew@andrewpetersen.onmicrosoft.com";
 	    describe("var profiles = dao.profiles", function() {
-	        this.timeout(10000);
+	        this.timeout(5000);
 	
 	        describe("profiles.current()", function() {
 	            var profile = null;
