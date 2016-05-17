@@ -9613,9 +9613,9 @@
 	            });
 	        });
 	
-	        describe("search.query(queryText, { refiners: ['Author'] }) - w/ Refiners", function() {
+	        describe("search.query(queryText, queryOptions) - w/ Refiners", function() {
 	            it("Should return SearchResults that include a refiners array", function(done) {
-	                var refinerName = "InternalWriter";
+	                var refinerName = "FileType";
 	                var queryText = "andrew";
 	                var options = {
 	                    refiners: refinerName
