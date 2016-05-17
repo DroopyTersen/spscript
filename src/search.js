@@ -83,7 +83,7 @@ var mapRefiners = function(refinementResults) {
 	var refiners = [];
 
 	if (refinementResults && refinementResults.Refiners && refinementResults.Refiners.results) {
-		refiners = refinerResults.map(r => {
+		refiners = refinementResults.Refiners.results.map(r => {
 			return {
 				RefinerName: r.Name,
 				RefinerOptions: r.Entries.results

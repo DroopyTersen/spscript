@@ -9592,6 +9592,7 @@
 	                });
 	            });
 	        });
+	
 	        describe("search.query(queryText, queryOptions)", function() {
 	            it("Should obey the extra query options that were passed", function(done) {
 	                var queryText = "andrew";
@@ -9607,6 +9608,28 @@
 	                    searchResults.items.should.be.an("array");
 	                    searchResults.items.should.not.be.empty;
 	                    searchResults.items.length.should.equal(1);
+	                    done();
+	                });
+	            });
+	        });
+	
+	        describe("search.query(queryText, { refiners: ['Author'] }) - w/ Refiners", function() {
+	            it("Should return SearchResults that include a refiners array", function(done) {
+	                var refinerName = "InternalWriter";
+	                var queryText = "andrew";
+	                var options = {
+	                    refiners: refinerName
+	                };
+	                debugger;
+	                dao.search.query(queryText, options).then(function(searchResults) {
+	                    searchResults.should.be.an("object");
+	                    searchResults.should.have.property("refiners");
+	                    searchResults.refiners.should.not.be.empty;
+	                    var firstRefiner = searchResults.refiners[0];
+	                    firstRefiner.should.have.property("RefinerName");
+	                    firstRefiner.should.have.property("RefinerOptions");
+	                    firstRefiner.RefinerName.should.equal(refinerName);
+	                    firstRefiner.RefinerOptions.should.be.an("array");
 	                    done();
 	                });
 	            });

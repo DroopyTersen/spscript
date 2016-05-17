@@ -2565,7 +2565,7 @@
 		var refiners = [];
 	
 		if (refinementResults && refinementResults.Refiners && refinementResults.Refiners.results) {
-			refiners = refinerResults.map(function (r) {
+			refiners = refinementResults.Refiners.results.map(function (r) {
 				return {
 					RefinerName: r.Name,
 					RefinerOptions: r.Entries.results
