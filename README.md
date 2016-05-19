@@ -2,6 +2,8 @@ SPScript
 =========
 ----------
 
+[![Join the chat at https://gitter.im/DroopyTersen/spscript](https://badges.gitter.im/DroopyTersen/spscript.svg)](https://gitter.im/DroopyTersen/spscript?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 Public Website w/ full documentation: [http://droopytersen.github.io/spscript/](http://droopytersen.github.io/spscript/)
 
 SPScript is a collection of javascript helpers for the SharePoint 2013 Rest API.  Some features include...
