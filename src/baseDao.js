@@ -64,14 +64,15 @@ BaseDao.prototype.lists = function(listname) {
  * @param {Object} [extendedOptions] - AJAX options (like custom request headers)
  * @returns {Promise} - An ES6 Promise
  */
-BaseDao.prototype.post = function(relativePostUrl, body, extendedOptions) {
-	var strBody = JSON.stringify(body);
+BaseDao.prototype.post = function(relativePostUrl, body, opts) {
+	if (typeof body !== "string" && !(opts && opts.headers && opts.headers["Content-Type"])) {
+		body = JSON.stringify(body)
+	}
 	var options = {
 		method: "POST",
-		data: strBody,
-		contentType: "application/json;odata=verbose"
+		data: body
 	};
-	options = Object.assign({}, options, extendedOptions);
+	options = Object.assign({}, options, opts);
 	return this.executeRequest(relativePostUrl, options).then(utils.parseJSON);
 };
 

@@ -1,0 +1,47 @@
+<div>
+    <style>
+    #dropbox {
+        width: 500px;
+        height: 200px;
+        border: 5px dashed #0072C6;
+        text-align:center;
+    }
+    </style>
+    <div id='dropbox'>
+        <h1>Drop Files Here</h1>
+    </div>
+    <script src='https://2bf5fde7.ngrok.io/dist/v2/spscript.js'></script>
+    <script>
+(function(){
+    var dao = new SPScript.RestDao();
+    var folderUrl = "/spscript/Shared%20Documents"
+    var dropbox = document.getElementById("dropbox");
+    dropbox.addEventListener("dragenter", dragenter, false);
+    dropbox.addEventListener("dragover", dragover, false);
+    dropbox.addEventListener("drop", drop, false);
+
+    function dragenter(e) {
+      e.stopPropagation();
+      e.preventDefault();
+    }
+
+    function dragover(e) {
+      e.stopPropagation();
+      e.preventDefault();
+    }
+
+    function drop(e) {
+  e.stopPropagation();
+  e.preventDefault();
+
+  var dt = e.dataTransfer;
+  window.files = dt.files;
+
+  for (var i = 0; i < files.length; i++) {
+    dao.web.uploadFile(folderUrl, files[i]);
+  }
+}
+})();
+
+    </script>
+</div>

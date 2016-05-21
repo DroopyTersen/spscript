@@ -61,7 +61,7 @@ Web.prototype.getRequestDigest = function() {
  * @example
  *  dao.web.getFolder("/sites/mysite/Shared Documents")
  *			.then(function(folder) { console.log(folder) });
-*/
+ */
 Web.prototype.getFolder = function(serverRelativeUrl) {
 	//remove leading slash
 	if (serverRelativeUrl.charAt(0) === "/") {
@@ -77,20 +77,42 @@ Web.prototype.getFolder = function(serverRelativeUrl) {
 		});
 };
 
-// Web.prototype.uploadFile = function(folderUrl, name, base64Binary, digest) {
-// 	if (digest) return this._uploadFile(folderUrl, name, base64Binary, digest);
-// 	return this.getRequestDigest().then(digest => this._uploadFile(folderUrl, name, base64Binary, digest));
-// }
+Web.prototype.uploadFile = function(folderUrl, fileContent, name, digest) {
+	if (digest) return this._uploadFile(folderUrl, name, base64Binary, digest);
+	return this.getRequestDigest().then(digest => this._uploadFile(folderUrl, fileContent, name, digest));
+}
 
-// //TODO: Fix this. Its from v0.0 and never worked
-// Web.prototype._uploadFile = function(folderUrl, name, base64Binary, digest) {
-// 	var uploadUrl = "/web/GetFolderByServerRelativeUrl('" + folderUrl + "')/Files/Add(url='" + name + "',overwrite=true)";
-// 	var options = {
-// 			binaryStringRequestBody: true,
-// 			state: "Update"
-// 	};
-// 	return this.post(uploadUrl, base64Binary, options);
-// };
+Web.prototype._uploadFile = function(folderUrl, fileContent, name, digest) {
+	var self = this;
+	return new Promise(function(resolve, reject) {
+		// If its a 'File' it came from a File input or Drag and drop
+		if (fileContent instanceof File) {
+			name = name || fileContent.name;
+			var reader = new FileReader();
+			reader.onload = function(e) {
+				var fileData = e.target.result
+				// var fileData = "";
+				// var byteArray = new Uint8Array(e.target.result)
+				// for (var i = 0; i < byteArray.byteLength; i++) {
+				// 	fileData += String.fromCharCode(byteArray[i])
+				// }
+				var uploadUrl = "/web/GetFolderByServerRelativeUrl('" + folderUrl + "')/Files/Add(url='" + name + "',overwrite=true)";
+				var options = {
+					headers: headers.getFilestreamHeaders(digest)
+				};
+				options.headers["Content-Length"] = fileData.length;
+				self._dao.post(uploadUrl, fileData, options).then(resolve);
+			};
+			reader.readAsArrayBuffer(fileContent);
+		}
+	})
+
+	// var options = {
+	// 		binaryStringRequestBody: true,
+	// 		state: "Update"
+	// };
+	// return this.post(uploadUrl, base64Binary, options);
+};
 
 /**
  * Retrieves a file object
@@ -155,7 +177,7 @@ Web.prototype._deleteFile = function(sourceUrl, requestDigest) {
  * Retrieves a users object based on an email address
  * @param {string} email - The email address of the user to retrieve
  * @returns {Promise<SP.User>} - A Promise that resolves to a an SP.User object
-  * @example
+ * @example
  * dao.web.getUser("andrew@andrewpetersen.onmicrosoft.com")
  * 			.then(function(user) { console.log(user)});
  */
