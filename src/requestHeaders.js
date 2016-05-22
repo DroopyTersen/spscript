@@ -1,6 +1,6 @@
 var utils = require("./utils");
 
-var jsonMimeType = "application/json;odata=verbose";
+var jsonMimeType = exports.jsonMimeType = "application/json;odata=verbose";
 var getStandardHeaders = exports.getStandardHeaders = function(digest) {
 	var headers = {
 		"Accept": jsonMimeType,

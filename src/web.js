@@ -77,41 +77,57 @@ Web.prototype.getFolder = function(serverRelativeUrl) {
 		});
 };
 
-Web.prototype.uploadFile = function(folderUrl, fileContent, name, digest) {
-	if (digest) return this._uploadFile(folderUrl, name, base64Binary, digest);
-	return this.getRequestDigest().then(digest => this._uploadFile(folderUrl, fileContent, name, digest));
+Web.prototype.uploadFile = function(folderUrl, fileContent, fields, digest) {
+	if (digest) return this._uploadFile(folderUrl, fileContent, fields, digest);
+	return this.getRequestDigest().then(digest => this._uploadFile(folderUrl, fileContent, fields, digest));
 }
 
-Web.prototype._uploadFile = function(folderUrl, fileContent, name, digest) {
-	var self = this;
-	return new Promise(function(resolve, reject) {
-		// If its a 'File' it came from a File input or Drag and drop
-		if (fileContent instanceof File) {
-			name = name || fileContent.name;
-			var reader = new FileReader();
-			reader.onload = function(e) {
-				var fileData = e.target.result
-				// var fileData = "";
-				// var byteArray = new Uint8Array(e.target.result)
-				// for (var i = 0; i < byteArray.byteLength; i++) {
-				// 	fileData += String.fromCharCode(byteArray[i])
-				// }
-				var uploadUrl = "/web/GetFolderByServerRelativeUrl('" + folderUrl + "')/Files/Add(url='" + name + "',overwrite=true)";
-				var options = {
-					headers: headers.getFilestreamHeaders(digest)
-				};
-				options.headers["Content-Length"] = fileData.length;
-				self._dao.post(uploadUrl, fileData, options).then(resolve);
-			};
-			reader.readAsArrayBuffer(fileContent);
-		}
-	})
+Web.prototype._uploadFile = function(folderUrl, fileContent, fields, digest) {
+	fields = fields || {};
+	// if its a string, just treat that as the raw content
+	if (typeof fileContent === "string") {
+		fields.name = fields.name || "NewFile.txt";
+		return this._uploadBinaryData(folderUrl, fileContent, fields, digest);
+	}
 
-	// var options = {
-	// 		binaryStringRequestBody: true,
-	// 		state: "Update"
-	// };
-	// return this.post(uploadUrl, base64Binary, options);
+	// If its a browser File object, use FileReader to get ArrayBuffer
+	if (fileContent instanceof File) {
+		fields.name = fields.name || fileContent.name
+		return utils.getArrayBuffer(fileContent)
+			.then(arrayBuffer => this._uploadBinaryData(folderUrl, arrayBuffer, fields, digest))
+	}
+};
+
+Web.prototype._setFileFields = function(spFile, fields, digest) {
+	// Get the ListItem with ParentList properties so we can query by list title
+	return this._dao.get(spFile.__metadata.uri + "/ListItemAllFields?$expand=ParentList")
+		.then(utils.validateODataV2)
+		.then(item => {
+			delete fields.name;
+			// if there were no fields passed in just return the file and list item
+			if (Object.keys(fields).length === 0) {
+				return {
+					item,
+					file: spFile
+				}
+			};
+			// If extra fields were passed in, update the list item
+			return this._dao.lists(item.ParentList.Title).updateItem(item.Id, fields, digest)
+				.then(() => {
+					item = Object.assign({}, item, fields);
+					return { item, file: spFile };
+				})
+		})
+};
+
+Web.prototype._uploadBinaryData = function(folderUrl, binaryContent, fields, digest) {
+	var uploadUrl = "/web/GetFolderByServerRelativeUrl('" + folderUrl + "')/Files/Add(url='" + fields.name + "',overwrite=true)";
+	var options = {
+		headers: headers.getFilestreamHeaders(digest)
+	};
+	return this._dao.post(uploadUrl, binaryContent, options)
+		.then(utils.validateODataV2)
+		.then(spFile => this._setFileFields(spFile, fields, digest));
 };
 
 /**

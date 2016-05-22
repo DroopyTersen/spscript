@@ -1275,9 +1275,7 @@
 	 * @returns {Promise} - An ES6 Promise
 	 */
 	BaseDao.prototype.post = function (relativePostUrl, body, opts) {
-	  if (typeof body !== "string" && !(opts && opts.headers && opts.headers["Content-Type"])) {
-	    body = JSON.stringify(body);
-	  }
+	  body = packagePostBody(body, opts);
 	  var options = {
 	    method: "POST",
 	    data: body
@@ -1286,6 +1284,17 @@
 	  return this.executeRequest(relativePostUrl, options).then(utils.parseJSON);
 	};
 	
+	//Skip stringify it its already a string or it has an explicit Content-Type that is not JSON
+	var packagePostBody = function packagePostBody(body, opts) {
+	  // if its already a string just return
+	  if (typeof body === "string") return body;
+	  // if it has an explicit content-type, asssume the body is already that type
+	  if (opts && opts.headers && opts.headers["Content-Type"] && opts.headers["Content-Type"].indexOf("json") === -1) {
+	    return body;
+	  }
+	  //others stringify
+	  return JSON.stringify(body);
+	};
 	module.exports = BaseDao;
 	//# sourceMappingURL=baseDao.js.map
 
@@ -1582,7 +1591,7 @@
 	*/
 	
 	var isBrowser = exports.isBrowser = function () {
-	  return !(typeof window === 'undefined');
+		return !(typeof window === 'undefined');
 	};
 	/**
 	 * If you pass in string, it will try to run JSON.parse(). The SPScript get() and post() methods already run the response through this method, so you'd really only need this if you are doing a manual ajax request. Different browsers handle JSON response differently so it is safest to call this method if you aren't going through SPScript.
@@ -1596,14 +1605,14 @@
 	 *		.then(function(data) { console.log(data.d.results)})
 	 */
 	var parseJSON = exports.parseJSON = function (data) {
-	  if (typeof data === "string") {
-	    try {
-	      data = JSON.parse(data);
-	    } catch (e) {
-	      return null;
-	    }
-	  }
-	  return data;
+		if (typeof data === "string") {
+			try {
+				data = JSON.parse(data);
+			} catch (e) {
+				return null;
+			}
+		}
+		return data;
 	};
 	
 	/**
@@ -1618,36 +1627,36 @@
 	 *		.then(function(contentTypes) { console.log(contentTypes)})
 	 */
 	var validateODataV2 = exports.validateODataV2 = function (data) {
-	  var results = parseJSON(data);
-	  if (data.d && data.d.results && data.d.results.length != null) {
-	    results = data.d.results;
-	  } else if (data.d) {
-	    results = data.d;
-	  }
-	  return results;
+		var results = parseJSON(data);
+		if (data.d && data.d.results && data.d.results.length != null) {
+			results = data.d.results;
+		} else if (data.d) {
+			results = data.d;
+		}
+		return results;
 	};
 	
 	//'Borrowed' from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Bitwise_Operators
 	var arrayFromBitMask = exports.arrayFromBitMask = function (nMask) {
-	  // nMask must be between -2147483648 and 2147483647
-	  if (typeof nMask === "string") {
-	    nMask = parseInt(nMask);
-	  }
-	  // if (nMask > 0x7fffffff || nMask < -0x80000000) {
-	  // 	throw new TypeError("arrayFromMask - out of range");
-	  // }
-	  for (var nShifted = nMask, aFromMask = []; nShifted; aFromMask.push(Boolean(nShifted & 1)), nShifted >>>= 1) {}
-	  return aFromMask;
+		// nMask must be between -2147483648 and 2147483647
+		if (typeof nMask === "string") {
+			nMask = parseInt(nMask);
+		}
+		// if (nMask > 0x7fffffff || nMask < -0x80000000) {
+		// 	throw new TypeError("arrayFromMask - out of range");
+		// }
+		for (var nShifted = nMask, aFromMask = []; nShifted; aFromMask.push(Boolean(nShifted & 1)), nShifted >>>= 1) {}
+		return aFromMask;
 	};
 	
 	var _waitForLibraries = function _waitForLibraries(namespaces, resolve) {
-	  var missing = namespaces.filter(function (namespace) {
-	    return !validateNamespace(namespace);
-	  });
+		var missing = namespaces.filter(function (namespace) {
+			return !validateNamespace(namespace);
+		});
 	
-	  if (missing.length === 0) resolve();else setTimeout(function () {
-	    return _waitForLibraries(namespaces, resolve);
-	  }, 25);
+		if (missing.length === 0) resolve();else setTimeout(function () {
+			return _waitForLibraries(namespaces, resolve);
+		}, 25);
 	};
 	
 	/**
@@ -1661,9 +1670,9 @@
 	 * SPScript.utils.waitForLibraries(["jQuery", "SP.UI.Dialog"]).then(doMyStuff);
 	 */
 	var waitForLibraries = exports.waitForLibraries = function (namespaces) {
-	  return new Promise(function (resolve, reject) {
-	    return _waitForLibraries(namespaces, resolve);
-	  });
+		return new Promise(function (resolve, reject) {
+			return _waitForLibraries(namespaces, resolve);
+		});
 	};
 	
 	/**
@@ -1677,7 +1686,7 @@
 	 * SPScript.utils.waitForLibrary("jQuery").then(doMyStuff);
 	 */
 	var waitForLibrary = exports.waitForLibrary = function (namespace) {
-	  return waitForLibraries([namespace]);
+		return waitForLibraries([namespace]);
 	};
 	
 	/**
@@ -1690,18 +1699,18 @@
 	 * var canUseModals = SPScript.utils.validateNamespace("SP.UI.Dialog");
 	 */
 	var validateNamespace = exports.validateNamespace = function (namespace) {
-	  var scope = window;
-	  var sections = namespace.split(".");
-	  var sectionsLength = sections.length;
-	  for (var i = 0; i < sectionsLength; i++) {
-	    var prop = sections[i];
-	    if (prop in scope) {
-	      scope = scope[prop];
-	    } else {
-	      return false;
-	    }
-	  }
-	  return true;
+		var scope = window;
+		var sections = namespace.split(".");
+		var sectionsLength = sections.length;
+		for (var i = 0; i < sectionsLength; i++) {
+			var prop = sections[i];
+			if (prop in scope) {
+				scope = scope[prop];
+			} else {
+				return false;
+			}
+		}
+		return true;
 	};
 	
 	/**
@@ -1717,7 +1726,7 @@
 	 * SPScript.utils.getScript([momentjsUrl, jQueryUrl]).then(doMyStuff);
 	 */
 	var getScripts = exports.getScripts = function (urls) {
-	  return Promise.all(urls.map(getScript));
+		return Promise.all(urls.map(getScript));
 	};
 	
 	/**
@@ -1732,33 +1741,46 @@
 	 * SPScript.utils.getScript(momentjsUrl).then(doMyStuff);
 	 */
 	var getScript = exports.getScript = function (url) {
-	  return new Promise(function (resolve, reject) {
-	    var scriptTag = window.document.createElement("script");
-	    var firstScriptTag = document.getElementsByTagName('script')[0];
-	    scriptTag.async = 1;
-	    firstScriptTag.parentNode.insertBefore(scriptTag, firstScriptTag);
+		return new Promise(function (resolve, reject) {
+			var scriptTag = window.document.createElement("script");
+			var firstScriptTag = document.getElementsByTagName('script')[0];
+			scriptTag.async = 1;
+			firstScriptTag.parentNode.insertBefore(scriptTag, firstScriptTag);
 	
-	    scriptTag.onload = scriptTag.onreadystatechange = function (arg, isAbort) {
-	      // if its been aborted, readyState is gone, or readyState is in a 'done' status
-	      if (isAbort || !scriptTag.readyState || /loaded|complete/.test(scriptTag.readyState)) {
-	        //clean up
-	        scriptTag.onload = scriptTag.onreadystatechange = null;
-	        scriptTag = undefined;
+			scriptTag.onload = scriptTag.onreadystatechange = function (arg, isAbort) {
+				// if its been aborted, readyState is gone, or readyState is in a 'done' status
+				if (isAbort || !scriptTag.readyState || /loaded|complete/.test(scriptTag.readyState)) {
+					//clean up
+					scriptTag.onload = scriptTag.onreadystatechange = null;
+					scriptTag = undefined;
 	
-	        // resolve/reject the promise
-	        if (!isAbort) resolve();else reject;
-	      }
-	    };
-	    scriptTag.src = url;
-	  });
+					// resolve/reject the promise
+					if (!isAbort) resolve();else reject;
+				}
+			};
+			scriptTag.src = url;
+		});
 	};
 	
+	var getArrayBuffer = exports.getArrayBuffer = function (file) {
+		if (file && file instanceof File) {
+			return new Promise(function (resolve, reject) {
+				var reader = new FileReader();
+				reader.onload = function (e) {
+					resolve(e.target.result);
+				};
+				reader.readAsArrayBuffer(file);
+			});
+		} else {
+			throw "SPScript.utils.getArrayBuffer: Cant get ArrayBuffer if you don't pass in a file";
+		}
+	};
 	var loadCss = exports.loadCss = function (url) {
-	  var link = document.createElement("link");
-	  link.setAttribute("rel", "stylesheet");
-	  link.setAttribute("type", "text/css");
-	  link.setAttribute("href", url);
-	  document.querySelector("head").appendChild(link);
+		var link = document.createElement("link");
+		link.setAttribute("rel", "stylesheet");
+		link.setAttribute("type", "text/css");
+		link.setAttribute("href", url);
+		document.querySelector("head").appendChild(link);
 	};
 	//# sourceMappingURL=utils.js.map
 
@@ -2065,7 +2087,7 @@
 	
 	var utils = __webpack_require__(12);
 	
-	var jsonMimeType = "application/json;odata=verbose";
+	var jsonMimeType = exports.jsonMimeType = "application/json;odata=verbose";
 	var getStandardHeaders = exports.getStandardHeaders = function (digest) {
 		var headers = {
 			"Accept": jsonMimeType,
@@ -2109,6 +2131,8 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
+	
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 	
 	var utils = __webpack_require__(12);
 	var Permissions = __webpack_require__(13);
@@ -2185,45 +2209,65 @@
 		});
 	};
 	
-	Web.prototype.uploadFile = function (folderUrl, fileContent, name, digest) {
+	Web.prototype.uploadFile = function (folderUrl, fileContent, fields, digest) {
 		var _this = this;
 	
-		if (digest) return this._uploadFile(folderUrl, name, base64Binary, digest);
+		if (digest) return this._uploadFile(folderUrl, fileContent, fields, digest);
 		return this.getRequestDigest().then(function (digest) {
-			return _this._uploadFile(folderUrl, fileContent, name, digest);
+			return _this._uploadFile(folderUrl, fileContent, fields, digest);
 		});
 	};
 	
-	Web.prototype._uploadFile = function (folderUrl, fileContent, name, digest) {
-		var self = this;
-		return new Promise(function (resolve, reject) {
-			// If its a 'File' it came from a File input or Drag and drop
-			if (fileContent instanceof File) {
-				name = name || fileContent.name;
-				var reader = new FileReader();
-				reader.onload = function (e) {
-					var fileData = e.target.result;
-					// var fileData = "";
-					// var byteArray = new Uint8Array(e.target.result)
-					// for (var i = 0; i < byteArray.byteLength; i++) {
-					// 	fileData += String.fromCharCode(byteArray[i])
-					// }
-					var uploadUrl = "/web/GetFolderByServerRelativeUrl('" + folderUrl + "')/Files/Add(url='" + name + "',overwrite=true)";
-					var options = {
-						headers: headers.getFilestreamHeaders(digest)
-					};
-					options.headers["Content-Length"] = fileData.length;
-					self._dao.post(uploadUrl, fileData, options).then(resolve);
-				};
-				reader.readAsArrayBuffer(fileContent);
-			}
-		});
+	Web.prototype._uploadFile = function (folderUrl, fileContent, fields, digest) {
+		var _this2 = this;
 	
-		// var options = {
-		// 		binaryStringRequestBody: true,
-		// 		state: "Update"
-		// };
-		// return this.post(uploadUrl, base64Binary, options);
+		fields = fields || {};
+		// if its a string, just treat that as the raw content
+		if (typeof fileContent === "string") {
+			fields.name = fields.name || "NewFile.txt";
+			return this._uploadBinaryData(folderUrl, fileContent, fields, digest);
+		}
+	
+		// If its a browser File object, use FileReader to get ArrayBuffer
+		if (fileContent instanceof File) {
+			fields.name = fields.name || fileContent.name;
+			return utils.getArrayBuffer(fileContent).then(function (arrayBuffer) {
+				return _this2._uploadBinaryData(folderUrl, arrayBuffer, fields, digest);
+			});
+		}
+	};
+	
+	Web.prototype._setFileFields = function (spFile, fields, digest) {
+		var _this3 = this;
+	
+		// Get the ListItem with ParentList properties so we can query by list title
+		return this._dao.get(spFile.__metadata.uri + "/ListItemAllFields?$expand=ParentList").then(utils.validateODataV2).then(function (item) {
+			delete fields.name;
+			// if there were no fields passed in just return the file and list item
+			if (Object.keys(fields).length === 0) {
+				return {
+					item: item,
+					file: spFile
+				};
+			};
+			// If extra fields were passed in, update the list item
+			return _this3._dao.lists(item.ParentList.Title).updateItem(item.Id, fields, digest).then(function () {
+				item = _extends({}, item, fields);
+				return { item: item, file: spFile };
+			});
+		});
+	};
+	
+	Web.prototype._uploadBinaryData = function (folderUrl, binaryContent, fields, digest) {
+		var _this4 = this;
+	
+		var uploadUrl = "/web/GetFolderByServerRelativeUrl('" + folderUrl + "')/Files/Add(url='" + fields.name + "',overwrite=true)";
+		var options = {
+			headers: headers.getFilestreamHeaders(digest)
+		};
+		return this._dao.post(uploadUrl, binaryContent, options).then(utils.validateODataV2).then(function (spFile) {
+			return _this4._setFileFields(spFile, fields, digest);
+		});
 	};
 	
 	/**
@@ -2250,12 +2294,12 @@
 	 * dao.web.copyFile(sourceFile, destination).then(function() { console.log("Success") });
 	 */
 	Web.prototype.copyFile = function (sourceUrl, destinationUrl, digest) {
-		var _this2 = this;
+		var _this5 = this;
 	
 		if (digest) return this._copyFile(sourceUrl, destinationUrl, digest);
 	
 		return this.getRequestDigest().then(function (requestDigest) {
-			return _this2._copyFile(sourceUrl, destinationUrl, requestDigest);
+			return _this5._copyFile(sourceUrl, destinationUrl, requestDigest);
 		});
 	};
 	
@@ -2276,12 +2320,12 @@
 	 *			.then(function() { console.log("Success")});
 	 */
 	Web.prototype.deleteFile = function (fileUrl, digest) {
-		var _this3 = this;
+		var _this6 = this;
 	
 		if (digest) return this._deleteFile(fileUrl, digest);
 	
 		return this.getRequestDigest().then(function (requestDigest) {
-			return _this3._deleteFile(fileUrl, requestDigest);
+			return _this6._deleteFile(fileUrl, requestDigest);
 		});
 	};
 	

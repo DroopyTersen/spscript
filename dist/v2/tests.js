@@ -9242,6 +9242,19 @@
 		});
 	};
 	
+	var getArrayBuffer = exports.getArrayBuffer = function(file) {
+		if (file && file instanceof File) {
+			return new Promise(function(resolve, reject) {
+				var reader = new FileReader();
+				reader.onload = function(e) {
+					resolve(e.target.result);
+				}
+				reader.readAsArrayBuffer(file);
+			});
+		} else {
+			throw "SPScript.utils.getArrayBuffer: Cant get ArrayBuffer if you don't pass in a file"
+		}
+	};
 	var loadCss = exports.loadCss = function(url) {
 		var link = document.createElement("link");
 		link.setAttribute("rel", "stylesheet");
