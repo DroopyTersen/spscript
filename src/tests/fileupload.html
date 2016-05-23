@@ -29,7 +29,7 @@
     </div>
     <ul id='upload-notifications'></ul>
 
-    <script src='https://ece67339.ngrok.io/dist/v2/spscript.js'></script>
+    <script src='https://f0f8895e.ngrok.io/dist/v2/spscript.js'></script>
     <script>
 (function(){
     var dao = new SPScript.RestDao();
@@ -52,7 +52,7 @@
     }
 
     var getFiles = function(e) {
-        if (!e.dataTransfer && !e.dataTransfer.files) return null;
+        if (!e.dataTransfer && !e.dataTransfer.files) return [];
         // convert to actual Array
         var files = [];
         for (var i = 0; i < e.dataTransfer.files.length; i++) {
@@ -70,7 +70,19 @@
         cancelDefault(e);
         var folderUrl = document.getElementById('target-folder-input').value || "/spscript/Shared Documents"
         getFiles(e).forEach(function(file){
-            dao.web.uploadFile(folderUrl, file).then(function(result){
+            dao.web.uploadFile(file, folderUrl).then(function(result){
+                console.log(result);
+                renderNotification("SUCCESS: " + result.file.ServerRelativeUrl);
+            });
+        });
+        onDragOut(e);
+    }
+
+    function drop(e) {
+        cancelDefault(e);
+        var folderUrl = "/spscript/Shared Documents"
+        getFiles(e).forEach(function(file){
+            dao.web.uploadFile(file, folderUrl).then(function(result){
                 console.log(result);
                 renderNotification("SUCCESS: " + result.file.ServerRelativeUrl);
             });

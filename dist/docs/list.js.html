@@ -27,9 +27,9 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>var utils 			= require("./utils");
-var Permissions 	= require("./permissions");
-var headers 		= require("./requestHeaders");
+            <pre class="prettyprint source linenums"><code>var utils = require("./utils");
+var Permissions = require("./permissions");
+var headers = require("./requestHeaders");
 
 /**
  * Represents a SharePoint list. You shouldn't ever be new'ing this class up up yourself, instead you'll get it from your dao as shown in first example.
@@ -110,19 +110,19 @@ List.prototype.addItem = function(item, requestDigest) {
 List.prototype._addItem = function(item, requestDigest) {
 	return this._dao.get(this.baseUrl).then(data => {
 
-		//decorate the item with the 'type' metadata
-		item = Object.assign({}, {
-			"__metadata": {
-				"type": data.d.ListItemEntityTypeFullName
-			}
-		}, item);
+			//decorate the item with the 'type' metadata
+			item = Object.assign({}, {
+				"__metadata": {
+					"type": data.d.ListItemEntityTypeFullName
+				}
+			}, item);
 
-		var customOptions = {
-			headers: headers.getAddHeaders(requestDigest)
-		};
-		return this._dao.post(this.baseUrl + "/items", item, customOptions)
-	})
-	.then(utils.validateODataV2);
+			var customOptions = {
+				headers: headers.getAddHeaders(requestDigest)
+			};
+			return this._dao.post(this.baseUrl + "/items", item, customOptions)
+		})
+		.then(utils.validateODataV2);
 };
 
 /**
@@ -140,7 +140,7 @@ List.prototype._addItem = function(item, requestDigest) {
 List.prototype.updateItem = function(itemId, updates, requestDigest) {
 	if (requestDigest) return this._updateItem(itemId, updates, requestDigest);
 
-	return this._dao.getRequestDigest().then(requestDigest => this._updateItem(item, updates, requestDigest));
+	return this._dao.getRequestDigest().then(requestDigest => this._updateItem(itemId, updates, requestDigest));
 };
 
 List.prototype._updateItem = function(itemId, updates, digest) {
@@ -182,6 +182,57 @@ List.prototype._deleteItem = function(itemId, digest) {
 		return this._dao.post(item.__metadata.uri, "", customOptions);
 	});
 };
+
+/**
+ * Attach file to an item in the list
+ * @param {int} itemId - The SharePoint Id of the item to update
+ * @param {string} filename - Filename to be put in SharePoint
+ * @param {string} content - File content
+ * @returns {Promise} - A Promise
+ * @example &lt;caption>Attach 'hello.txt' with content 'Hello World' to itemId 12&lt;/caption>
+ * list.addAttachment(12, 'hello.txt', 'Hello World').then(function() { console.log"Success") });
+ */
+List.prototype.addAttachment = function(itemId, filename, content, requestDigest) {
+	if (requestDigest) return this._addAttachment(itemId, filename, content, requestDigest);
+	return this._dao.getRequestDigest().then(requestDigest => {
+		return this._addAttachment(itemId, filename, content, requestDigest)
+	});
+};
+
+List.prototype._addAttachment = function(itemId, filename, content, requestDigest) {
+	var customOptions = {
+		headers: headers.getFilestreamHeaders(requestDigest),
+		data: content
+	};
+	return this._dao.post(this.baseUrl + "/items(" + itemId + ")/AttachmentFiles/add(FileName='" + filename + "')", null, customOptions)
+};
+
+/**
+ * Delete attachment of an item in the list
+ * @param {int} itemId - The SharePoint Id of the item to update
+ * @param {string} filename - Filename to be deleted in SharePoint
+ * @returns {Promise} - A Promise
+ * @example &lt;caption>Delete attachment 'hello.txt' in itemId 12&lt;/caption>
+ * list.deleteAttachment(12, 'hello.txt').then(function() { console.log"Success") });
+ */
+List.prototype.deleteAttachment = function(itemId, filename, requestDigest) {
+	if (requestDigest) return this._deleteAttachment(itemId, filename, requestDigest);
+	return this._dao.getRequestDigest().then(requestDigest => {
+		return this._deleteAttachment(itemId, filename, requestDigest)
+	});
+}
+List.prototype._deleteAttachment = function(itemId, filename, requestDigest) {
+	return this._dao.get(this.baseUrl).then(data => {
+		var customOptions = {
+			headers: {
+				'Accept': 'application/json;odata=verbose',
+				'X-RequestDigest': requestDigest,
+				'X-HTTP-Method': "DELETE"
+			}
+		};
+		return this._dao.post(this.baseUrl + "/items(" + itemId + ")/AttachmentFiles('" + filename + "')", null, customOptions)
+	});
+}
 
 /**
  * Retrieves items in the list based on the value of a column
@@ -236,13 +287,13 @@ module.exports = List;</code></pre>
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="List.html">List</a></li><li><a href="Permissions.html">Permissions</a></li><li><a href="Profiles.html">Profiles</a></li><li><a href="RestDao.html">RestDao</a></li><li><a href="Search.html">Search</a></li><li><a href="Web.html">Web</a></li></ul><h3>Namespaces</h3><ul><li><a href="SPScript.ajax.html">ajax</a></li><li><a href="SPScript.queryString.html">queryString</a></li><li><a href="SPScript.utils.html">utils</a></li></ul><h3><a href="global.html">Global</a></h3>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="List.html">List</a></li><li><a href="Permissions.html">Permissions</a></li><li><a href="Profiles.html">Profiles</a></li><li><a href="RestDao.html">RestDao</a></li><li><a href="Search.html">Search</a></li><li><a href="Web.html">Web</a></li></ul><h3>Namespaces</h3><ul><li><a href="SPScript.ajax.html">ajax</a></li><li><a href="SPScript.queryString.html">queryString</a></li><li><a href="SPScript.utils.html">utils</a></li></ul><h3>Global</h3><ul><li><a href="global.html#createEditControl">createEditControl</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Mon May 02 2016 11:29:33 GMT-0500 (Central Daylight Time)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Mon May 23 2016 11:16:18 GMT-0500 (Central Daylight Time)
 </footer>
 
 <script> prettyPrint(); 
