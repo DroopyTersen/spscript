@@ -2103,7 +2103,8 @@
 		return {
 			'Accept': jsonMimeType,
 			'X-RequestDigest': digest,
-			'Content-Type': "application/octet-stream"
+			'Content-Type': "application/octet-stream",
+			'binaryStringRequestBody': "true"
 		};
 	};
 	

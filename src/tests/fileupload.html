@@ -29,7 +29,7 @@
     </div>
     <ul id='upload-notifications'></ul>
 
-    <script src='https://a2c55c66.ngrok.io/dist/v2/spscript.js'></script>
+    <script src='https://ece67339.ngrok.io/dist/v2/spscript.js'></script>
     <script>
 (function(){
     var dao = new SPScript.RestDao();
@@ -65,6 +65,7 @@
         var html = "<li>" + message + "</li>"
         document.getElementById("upload-notifications").innerHTML += html;
     }
+
     function drop(e) {
         cancelDefault(e);
         var folderUrl = document.getElementById('target-folder-input').value || "/spscript/Shared Documents"
@@ -81,7 +82,7 @@
         name: "myFile.txt",
         Title: "My Files Title"
     };
-    dao.web.uploadFile("/spscript/Shared Documents", "Test content", fields);
+
     dropbox.addEventListener("dragenter", onDragEnter, false);
     dropbox.addEventListener("dragover", cancelDefault, false);
     dropbox.addEventListener("dragleave", onDragOut, false);

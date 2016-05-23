@@ -5,7 +5,7 @@
             "name": "Launch",
             "type": "node",
             "request": "launch",
-            "program": "${workspaceRoot}/server/test.js",
+            "program": "${workspaceRoot}/server/workbench.js",
             "stopOnEntry": false,
             "args": [],
             "cwd": "${workspaceRoot}",

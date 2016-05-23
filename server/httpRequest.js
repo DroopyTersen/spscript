@@ -3,6 +3,7 @@ var urlUtils = require("url");
 var querystring = require("querystring");
 
 var request = function(url, method, headers, body) {
+    var buffer = body;
     var urlParts = urlUtils.parse(url);
     var options = {
         host: urlParts.hostname,
@@ -14,7 +15,7 @@ var request = function(url, method, headers, body) {
         secureOptions: require('constants').SSL_OP_NO_TLSv1_2
     };
     if (body && !headers["Content-Length"]) {
-        headers["Content-Length"] = body.length;
+        headers["Content-Length"] = body.length || body.byteLength;
     }
 
     return new Promise(function(resolve, reject) {
