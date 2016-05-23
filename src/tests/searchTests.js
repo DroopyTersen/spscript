@@ -46,7 +46,6 @@ exports.run = function(dao) {
                 var options = {
                     refiners: refinerName
                 };
-                debugger;
                 dao.search.query(queryText, options).then(function(searchResults) {
                     searchResults.should.be.an("object");
                     searchResults.should.have.property("refiners");
