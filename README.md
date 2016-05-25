@@ -45,6 +45,11 @@ Methods
 #### Web
 - `web.info()` - Gets you the [SPWeb properties](https://msdn.microsoft.com/en-us/library/office/jj245288.aspx#properties) of your site
 - `web.subsites()` - Gets you all the sub sites and their [SPWeb properties](https://msdn.microsoft.com/en-us/library/office/jj245288.aspx#properties)
+- `web.getUser(email)` - Gets you a SP.User object based on the specified email
+- `web.getFile(serverRelativeUrl)` - Gets you an SP.File object
+- `web.copyFile(sourceUrl, destinationUrl)` - Copies a file (both source and destination urls are server relative)
+- `web.deleteFile(fileUrl)` - Deletes the file at the specified server relative url
+- `web.uploadFile(fileContent, folderUrl)` - Allows passing in an file content as text or as an HTML5 File (from File input type).  Uploads file to the specified server relative folder url.
 - `web.permissions.getRoleAssignments()` - Gets you an an array of permissions that have been setup for that site. Each permission object has a `member` (the user or group) and a `roles` array (the permissions that user or group has). 
 - `web.permissions.check(email)` - Looks up a user by their email address, then gets you a list of permissions that user has for your site.  Similiar to "Check Permissions". 
 
@@ -244,9 +249,8 @@ dao.lists("Documents").getItems().then(function(docs){
     var html = "";
 
     //foreach document, create the html based on our template
-
     docs.forEach(function(doc){
-        html += SPScript.templating.renderTemplate(template, doc);
+        html += SPScript.templating.render(template, doc);
     });
 
     //Output all the html to the page inside of our container

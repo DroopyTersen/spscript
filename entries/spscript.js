@@ -5,7 +5,7 @@ if (!global.Promise) {
 var SPScript = {};
 SPScript.RestDao = require("../lib/restDao");
 SPScript.queryString = require("../lib/queryString");
-SPScript.templating = require("droopy-templating");
+SPScript.templating = require("mustache");
 SPScript.utils = require("../lib/utils");
 SPScript.ajax = require("../lib/ajax");
 SPScript.jsLink = require("../lib/jsLink");

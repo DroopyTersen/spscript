@@ -1276,8 +1276,44 @@
 	                user.should.have.property("Email");
 	            })
 	        })
+	        var folderUrl = "/spscript/Shared Documents";
+	        var filename = "testfile.txt";
+	        var fileUrl = folderUrl + "/" + filename;
 	
-	        var fileUrl = "/spscript/Shared%20Documents/testfile.txt";
+	        describe("web.uploadFile(fileContent, serverRelativeFolderUrl)", function() {
+	            var fileContent = "file content";
+	            var fileTitle = "test title";
+	            var response = null;
+	            before(function(done){
+	                dao.web.uploadFile(fileContent, folderUrl, { name: filename, Title: fileTitle})
+	                    .then(function(data){
+	                        response = data;
+	                        done();
+	                    })
+	            })
+	            it("Should return a promise that resolves to an object with file and item", function() {
+	                response.should.not.be.null;
+	                response.should.have.property("file");
+	                response.should.have.property("item");
+	                response.file.should.have.property("ServerRelativeUrl");
+	            });
+	            it("Should return an item that has the parent list expanded", function() {
+	                response.item.should.have.property("Id");
+	                response.item.should.have.property("ParentList");
+	                response.item.ParentList.should.have.property("Title");
+	            })
+	            it("Should save the file to the right location", function() {
+	                response.file.ServerRelativeUrl.toLowerCase().should.equal(fileUrl.toLowerCase());
+	            });
+	            it("Should allow setting fields after the upload completes", function(done) {
+	                dao.lists(response.item.ParentList.Title).getItemById(response.item.Id).then(function(retrievedItem){
+	                    retrievedItem.should.have.property("Title");
+	                    retrievedItem.Title.should.equal(fileTitle);
+	                    done();
+	                })
+	            })
+	        })
+	
 	        describe("web.getFile(serverRelativeFileUrl)", function() {
 	            var file = null;
 	            before(function(done){
@@ -1298,8 +1334,6 @@
 	        });
 	
 	        var destinationUrl = "/spscript/Shared%20Documents/testfile2.txt";
-	        var fileUrl = "/spscript/Shared%20Documents/testfile.txt";
-	        
 	        describe("web.copyFile(serverRelativeSourceUrl, serverRelativeDestUrl)", function() {
 	            var startTestTime = new Date();
 	            var file = null;
@@ -9242,6 +9276,19 @@
 		});
 	};
 	
+	var getArrayBuffer = exports.getArrayBuffer = function(file) {
+		if (file && file instanceof File) {
+			return new Promise(function(resolve, reject) {
+				var reader = new FileReader();
+				reader.onload = function(e) {
+					resolve(e.target.result);
+				}
+				reader.readAsArrayBuffer(file);
+			});
+		} else {
+			throw "SPScript.utils.getArrayBuffer: Cant get ArrayBuffer if you don't pass in a file"
+		}
+	};
 	var loadCss = exports.loadCss = function(url) {
 		var link = document.createElement("link");
 		link.setAttribute("rel", "stylesheet");
@@ -9620,7 +9667,6 @@
 	                var options = {
 	                    refiners: refinerName
 	                };
-	                debugger;
 	                dao.search.query(queryText, options).then(function(searchResults) {
 	                    searchResults.should.be.an("object");
 	                    searchResults.should.have.property("refiners");

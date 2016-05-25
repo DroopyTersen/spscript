@@ -1,6 +1,6 @@
 var utils = require("./utils");
 
-var jsonMimeType = "application/json;odata=verbose";
+var jsonMimeType = exports.jsonMimeType = "application/json;odata=verbose";
 var getStandardHeaders = exports.getStandardHeaders = function(digest) {
 	var headers = {
 		"Accept": jsonMimeType,
@@ -16,7 +16,8 @@ var getFilestreamHeaders = exports.getFilestreamHeaders = function(digest) {
 	return {
 		'Accept': jsonMimeType,
 		'X-RequestDigest': digest,
-		'Content-Type': "application/octet-stream;odata=verbose"
+		'Content-Type': "application/octet-stream",
+		'binaryStringRequestBody': "true"
 	}
 };
 

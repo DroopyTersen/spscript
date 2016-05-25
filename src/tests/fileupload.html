@@ -1,0 +1,106 @@
+<div>
+    <style>
+    #dropbox {
+        width: 500px;
+        height: 200px;
+        border: 5px dashed #0072C6;
+        text-align:center;
+    }
+    .target-folder {
+        margin-bottom: 30px;
+    }
+    #dropbox.drag-hover {
+        background: #eee;
+        border: 3px dotted #0072C6;
+        padding:2px;
+    }
+    #target-folder-input {
+        width: 500px;
+        margin-top: 10px;
+        font-size: 1.2em;
+    }
+    </style>
+    <div class='target-folder'>
+        <h2>Save To (server relative folder)</h2>
+        <input id='target-folder-input' type='text' value='/spscript/Shared Documents' />
+    </div>
+    <div id='dropbox'>
+        <h1>Drop Files Here</h1>
+    </div>
+    <ul id='upload-notifications'></ul>
+
+    <script src='https://f0f8895e.ngrok.io/dist/v2/spscript.js'></script>
+    <script>
+(function(){
+    var dao = new SPScript.RestDao();
+    var dropbox = document.getElementById("dropbox");
+
+    function cancelDefault(e) {
+      e.stopPropagation();
+      e.preventDefault();
+    }
+
+    var onDragOut = function(e) {
+        dropbox.className = dropbox.className.replace("drag-hover", "");
+    };
+
+    var onDragEnter = function(e) {
+        cancelDefault(e);
+        if (dropbox.className.indexOf("drag-hover") === -1) {
+            dropbox.className += " drag-hover";
+        }
+    }
+
+    var getFiles = function(e) {
+        if (!e.dataTransfer && !e.dataTransfer.files) return [];
+        // convert to actual Array
+        var files = [];
+        for (var i = 0; i < e.dataTransfer.files.length; i++) {
+            files.push(e.dataTransfer.files[i]);
+        }
+        return files;
+    };
+
+    var renderNotification = function(message) {
+        var html = "<li>" + message + "</li>"
+        document.getElementById("upload-notifications").innerHTML += html;
+    }
+
+    function drop(e) {
+        cancelDefault(e);
+        var folderUrl = document.getElementById('target-folder-input').value || "/spscript/Shared Documents"
+        getFiles(e).forEach(function(file){
+            dao.web.uploadFile(file, folderUrl).then(function(result){
+                console.log(result);
+                renderNotification("SUCCESS: " + result.file.ServerRelativeUrl);
+            });
+        });
+        onDragOut(e);
+    }
+
+    function drop(e) {
+        cancelDefault(e);
+        var folderUrl = "/spscript/Shared Documents"
+        getFiles(e).forEach(function(file){
+            dao.web.uploadFile(file, folderUrl).then(function(result){
+                console.log(result);
+                renderNotification("SUCCESS: " + result.file.ServerRelativeUrl);
+            });
+        });
+        onDragOut(e);
+    }
+
+    var fields = {
+        name: "myFile.txt",
+        Title: "My Files Title"
+    };
+
+    dropbox.addEventListener("dragenter", onDragEnter, false);
+    dropbox.addEventListener("dragover", cancelDefault, false);
+    dropbox.addEventListener("dragleave", onDragOut, false);
+    dropbox.addEventListener("drop", drop, false);
+
+})();
+
+    </script>
+</div>

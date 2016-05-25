@@ -1,4 +1,5 @@
 var BaseDao = require("../src/baseDao");
+require("./overrides");
 var request = require('./httpRequest').request;
 var tokenHelper = require("./tokenHelper");
 /**

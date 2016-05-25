@@ -61,7 +61,7 @@ Web.prototype.getRequestDigest = function() {
  * @example
  *  dao.web.getFolder("/sites/mysite/Shared Documents")
  *			.then(function(folder) { console.log(folder) });
-*/
+ */
 Web.prototype.getFolder = function(serverRelativeUrl) {
 	//remove leading slash
 	if (serverRelativeUrl.charAt(0) === "/") {
@@ -77,20 +77,77 @@ Web.prototype.getFolder = function(serverRelativeUrl) {
 		});
 };
 
-// Web.prototype.uploadFile = function(folderUrl, name, base64Binary, digest) {
-// 	if (digest) return this._uploadFile(folderUrl, name, base64Binary, digest);
-// 	return this.getRequestDigest().then(digest => this._uploadFile(folderUrl, name, base64Binary, digest));
-// }
+/**
+ * Uploads a file
+ * @param {HTML5.File|string} fileContent - Either an HTML5 File object (from a File input element) or the string content of the file
+ * @param {string} folderUrl - The server relative folder where the file should be uploaded
+ * @param {object} [[fields]] - An optional object containig the fields that should be set on the file after the upload completes. You can override the filename by passing 'name' property { name: "NewFileName.docx"}
+ * @param {string} [[requestDigest]] - The request digest token used to authorize the request. One will be automatically retrieved if not passed.
+ * @example <caption>Upload files with file input element, assumes <input type='file' id='file-input' /> </caption>
+	*var inputElement = document.getElementById("file-input");
+	*inputElement.addEventListener("change", handleFiles, false);
+	*function handleFiles() {
+	*    var fileList = this.files;
+	*    var folderUrl = "/spscript/Shared Documents";
+	*    for (var i = 0; i < fileList.length; i++) {
+	*        dao.web.uploadFile(fileList[i], folderUrl).then(function(result){
+	*            console.log(result);
+	*        });
+	*    }
+	*}
+ */
+Web.prototype.uploadFile = function(fileContent, folderUrl, fields, digest) {
+	if (digest) return this._uploadFile(fileContent, folderUrl, fields, digest);
+	return this.getRequestDigest().then(digest => this._uploadFile(fileContent, folderUrl, fields, digest));
+}
 
-// //TODO: Fix this. Its from v0.0 and never worked
-// Web.prototype._uploadFile = function(folderUrl, name, base64Binary, digest) {
-// 	var uploadUrl = "/web/GetFolderByServerRelativeUrl('" + folderUrl + "')/Files/Add(url='" + name + "',overwrite=true)";
-// 	var options = {
-// 			binaryStringRequestBody: true,
-// 			state: "Update"
-// 	};
-// 	return this.post(uploadUrl, base64Binary, options);
-// };
+Web.prototype._uploadFile = function(fileContent, folderUrl, fields, digest) {
+	fields = fields || {};
+	// if its a string, just treat that as the raw content
+	if (typeof fileContent === "string") {
+		fields.name = fields.name || "NewFile.txt";
+		return this._uploadBinaryData(fileContent, folderUrl, fields, digest);
+	}
+
+	// If its a browser File object, use FileReader to get ArrayBuffer
+	if (fileContent instanceof File) {
+		fields.name = fields.name || fileContent.name
+		return utils.getArrayBuffer(fileContent)
+			.then(arrayBuffer => this._uploadBinaryData(arrayBuffer, folderUrl, fields, digest))
+	}
+};
+
+Web.prototype._setFileFields = function(spFile, fields, digest) {
+	// Get the ListItem with ParentList properties so we can query by list title
+	return this._dao.get(spFile.__metadata.uri + "/ListItemAllFields?$expand=ParentList")
+		.then(utils.validateODataV2)
+		.then(item => {
+			delete fields.name;
+			// if there were no fields passed in just return the file and list item
+			if (Object.keys(fields).length === 0) {
+				return {
+					item,
+					file: spFile
+				}
+			};
+			// If extra fields were passed in, update the list item
+			return this._dao.lists(item.ParentList.Title).updateItem(item.Id, fields, digest)
+				.then(() => {
+					item = Object.assign({}, item, fields);
+					return { item, file: spFile };
+				})
+		})
+};
+
+Web.prototype._uploadBinaryData = function(binaryContent, folderUrl, fields, digest) {
+	var uploadUrl = "/web/GetFolderByServerRelativeUrl('" + folderUrl + "')/Files/Add(url='" + fields.name + "',overwrite=true)";
+	var options = {
+		headers: headers.getFilestreamHeaders(digest)
+	};
+	return this._dao.post(uploadUrl, binaryContent, options)
+		.then(utils.validateODataV2)
+		.then(spFile => this._setFileFields(spFile, fields, digest));
+};
 
 /**
  * Retrieves a file object
@@ -155,7 +212,7 @@ Web.prototype._deleteFile = function(sourceUrl, requestDigest) {
  * Retrieves a users object based on an email address
  * @param {string} email - The email address of the user to retrieve
  * @returns {Promise<SP.User>} - A Promise that resolves to a an SP.User object
-  * @example
+ * @example
  * dao.web.getUser("andrew@andrewpetersen.onmicrosoft.com")
  * 			.then(function(user) { console.log(user)});
  */
