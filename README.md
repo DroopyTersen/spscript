@@ -242,9 +242,8 @@ dao.lists("Documents").getItems().then(function(docs){
     var html = "";
 
     //foreach document, create the html based on our template
-
     docs.forEach(function(doc){
-        html += SPScript.templating.renderTemplate(template, doc);
+        html += SPScript.templating.render(template, doc);
     });
 
     //Output all the html to the page inside of our container
