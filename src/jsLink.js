@@ -1,8 +1,8 @@
-var templating = require("droopy-templating").templating;
+var templating = require("mustache");
 
 var createRenderer = exports.createRenderer = function(htmlTemplate) {
     return function(ctx) {
-        return templating.renderTemplate(htmlTemplate, ctx);
+        return templating.render(htmlTemplate, ctx);
     }
 };
 
