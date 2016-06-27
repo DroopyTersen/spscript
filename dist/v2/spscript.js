@@ -2332,11 +2332,15 @@
 	};
 	
 	Web.prototype._copyFile = function (sourceUrl, destinationUrl, digest) {
-		var url = "/web/getfilebyserverrelativeurl('" + sourceUrl + "')/CopyTo(strnewurl='" + destinationUrl + "',boverwrite=true)";
+		var url = "/web/getfilebyserverrelativeurl('" + sourceUrl + "')/CopyTo"; //(strnewurl='${destinationUrl}',boverwrite=true)`
 		var options = {
 			headers: headers.getAddHeaders(digest)
 		};
-		return this._dao.post(url, {}, options);
+		var body = {
+			strNewUrl: destinationUrl,
+			bOverWrite: true
+		};
+		return this._dao.post(url, body, options);
 	};
 	
 	/**

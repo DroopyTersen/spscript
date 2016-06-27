@@ -132,7 +132,7 @@ exports.run = function(dao) {
         });
 
         var destinationUrl = "/spscript/Shared%20Documents/testfile2.txt";
-        describe("web.copyFile(serverRelativeSourceUrl, serverRelativeDestUrl)", function() {
+        describe.only("web.copyFile(serverRelativeSourceUrl, serverRelativeDestUrl)", function() {
             var startTestTime = new Date();
             var file = null;
             before(function(done){
