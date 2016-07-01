@@ -3,6 +3,33 @@ var utils = require("../utils");
 exports.run = function(dao) {
     describe("dao.web.customActions", function() {
         this.timeout(10000);
+
+
+        var customAction = {
+            Name: "spscript-test",
+            Location: "ScriptLink",
+            ScriptBlock: "console.log('deployed from spscript-mocha test')"
+        };
+        describe("dao.web.customActions.add(customAction)", function() {
+            var beforeCount = 0;
+            before(function(done){
+                dao.web.customActions.get().then(all => {
+                    beforeCount = all.length;
+                    done();
+                })
+            });
+
+
+            it("Should add a Custom Action with the given name", function(done) {
+                dao.web.customActions.add(customAction).then(function() {
+                    dao.web.customActions.get().then(all => {
+                        all.length.should.equal(beforeCount + 1);
+                        done();
+                    })
+                })
+            });
+        });
+
         describe("dao.web.customActions.get()", function() {
             var results = null;
             before(function(done) {
@@ -43,32 +70,7 @@ exports.run = function(dao) {
                 result.should.have.property("Id");
             })
         });
-
-        var customAction = {
-            Name: "spscript-test",
-            Location: "ScriptLink",
-            ScriptBlock: "console.log('deployed from spscript-mocha test')"
-        };
-        describe("dao.web.customActions.add(customAction)", function() {
-            var beforeCount = 0;
-            before(function(done){
-                dao.web.customActions.get().then(all => {
-                    beforeCount = all.length;
-                    done();
-                })
-            });
-
-
-            it("Should add a Custom Action with the given name", function(done) {
-                dao.web.customActions.add(customAction).then(function() {
-                    dao.web.customActions.get().then(all => {
-                        all.length.should.equal(beforeCount + 1);
-                        done();
-                    })
-                })
-            });
-        });
-
+        
         describe("dao.web.customActions.update(updates)", function() {
             var result = null;
             before(function(done) {

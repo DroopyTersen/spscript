@@ -1169,7 +1169,7 @@
 	
 	var BaseDao = __webpack_require__(10);
 	var ajax = __webpack_require__(24);
-	
+	var utils = __webpack_require__(12);
 	/**
 	 * Main point of entry. Big Daddy class that all SP requests are routed through. Data Access Object (DAO)
 	 * @class
@@ -1204,7 +1204,7 @@
 		};
 	
 		var ajaxOptions = _extends({}, defaultOptions, options);
-		return ajax(ajaxOptions);
+		return ajax(ajaxOptions).catch(utils.handleErrorResponse);
 	};
 	
 	module.exports = RestDao;
@@ -1790,6 +1790,18 @@
 		link.setAttribute("type", "text/css");
 		link.setAttribute("href", url);
 		document.querySelector("head").appendChild(link);
+	};
+	
+	var handleErrorResponse = exports.handleErrorResponse = function (err, res) {
+		console.log("REQUEST ERROR - " + err.statusCode || err.code);
+		var msg = err.body;
+		try {
+			var data = err.body;
+			if (typeof data === "string") data = JSON.parse(err.body);
+			if (data.error) msg = data.error.message.value;
+		} catch (ex) {}
+		console.log(msg);
+		return err;
 	};
 	//# sourceMappingURL=utils.js.map
 
@@ -2538,22 +2550,27 @@
 		});
 	};
 	
+	// 1. Get request digest to authorize request
+	// 2. Get all the custom actions
+	// 3. Filter to get the custom actions with the specified name
+	// 4. Perform a DELETE request on each of the matching custom actions
+	// 5. Wait for all the DELETE's to succeed before resolving the promise
 	CustomActions.prototype.remove = function (name) {
 		var _this4 = this;
 	
 		var digest = null;
-		return this.web.getRequestDigest().then(function (requestDigest) {
-			digest = requestDigest;
+		return this.web.getRequestDigest().then(function (d) {
+			return digest = d;
+		}).then(function () {
 			return _this4.get();
 		}).then(function (all) {
 			return all.filter(function (a) {
 				return a.Name === name;
 			});
 		}).then(function (matches) {
-			var promises = matches.map(function (a) {
+			return Promise.all(matches.map(function (a) {
 				return _this4._remove(a.Id, digest);
-			});
-			return Promise.all(promises);
+			}));
 		});
 	};
 	
@@ -3135,7 +3152,8 @@
 						resolve(xhr.response);
 					} else {
 						var error = new Error("AJAX Request Error: Response Code = " + xhr.status);
-						error.code = xhr.status;
+						error.statusCode = xhr.status;
+						error.body = xhr.response;
 						errorHandlers.forEach(function (fn) {
 							return fn(error, xhr);
 						});

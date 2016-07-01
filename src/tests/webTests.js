@@ -28,7 +28,7 @@ exports.run = function(dao) {
             });
         });
 
-        describe.only("web.getRequestDigest()", function() {
+        describe("web.getRequestDigest()", function() {
             it("Should return a promise that resolves to a request digest string", function(done) {
                 dao.web.getRequestDigest().then(function(digest) {
                     digest.should.not.be.null;

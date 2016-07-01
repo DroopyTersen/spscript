@@ -19,21 +19,22 @@ describe("var dao = new SPScript.RestDao(_spPageContextInfo.webAbsoluteUrl)", fu
     })
 });
 
-// var webTests = require("./webTests");
-// webTests.run(dao);
+var webTests = require("./webTests");
+webTests.run(dao);
 
-// var customActionTests = require("./customActionTests");
+var customActionTests = require("./customActionTests");
+customActionTests.run(dao);
 
-// var listTests = require("./listTests");
-// listTests.run(dao);
+var listTests = require("./listTests");
+listTests.run(dao);
 
-// var searchTests = require("./searchTests");
-// searchTests.run(dao);
+var searchTests = require("./searchTests");
+searchTests.run(dao);
 
-// var profileTests = require("./profileTests");
-// profileTests.run(dao);
+var profileTests = require("./profileTests");
+profileTests.run(dao);
 
-// var utilsTests = require("./utilsTests");
-// utilsTests.run();
+var utilsTests = require("./utilsTests");
+utilsTests.run();
 
 mocha.run();

@@ -1,6 +1,6 @@
 var BaseDao = require("./baseDao");
 var ajax = require('./ajax') 
-
+var utils = require("./utils");
 /**
  * Main point of entry. Big Daddy class that all SP requests are routed through. Data Access Object (DAO)
  * @class
@@ -35,7 +35,7 @@ RestDao.prototype.executeRequest = function(url, options) {
 	};
 
 	var ajaxOptions = Object.assign({}, defaultOptions, options);
-	return ajax(ajaxOptions);
+	return ajax(ajaxOptions).catch(utils.handleErrorResponse);
 };
 
 

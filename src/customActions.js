@@ -58,18 +58,18 @@ CustomActions.prototype.update = function(updates) {
 		})
 };
 
+// 1. Get request digest to authorize request
+// 2. Get all the custom actions
+// 3. Filter to get the custom actions with the specified name
+// 4. Perform a DELETE request on each of the matching custom actions
+// 5. Wait for all the DELETE's to succeed before resolving the promise
 CustomActions.prototype.remove = function(name) {
 	var digest = null;
 	return this.web.getRequestDigest()
-		.then(requestDigest => {
-			digest = requestDigest;
-			return this.get();
-		})
+		.then(d => digest = d)
+		.then(() => this.get())
 		.then(all => all.filter(a => a.Name === name))
-		.then(matches => {
-			var promises = matches.map(a => this._remove(a.Id, digest))
-			return Promise.all(promises);
-		});
+		.then(matches => Promise.all(matches.map(a => this._remove(a.Id, digest))))
 };
 
 CustomActions.prototype._remove = function(id, digest) {
