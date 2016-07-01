@@ -23,7 +23,7 @@ var ServerDao = function (url, clientKey, clientSecret) {
 	BaseDao.call(this);
     this.clientKey = clientKey;
     this.clientSecret = clientSecret;
-	this.webUrl = url || _spPageContextInfo.webAbsoluteUrl;
+	this.webUrl = url;
     this.ensureToken = tokenHelper.getAppOnlyToken(this.webUrl, this.clientKey, this.clientSecret).then(token => this.accessToken = token);
 };
 
