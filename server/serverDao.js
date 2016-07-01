@@ -2,6 +2,8 @@ var BaseDao = require("../src/baseDao");
 require("./overrides");
 var request = require('./httpRequest').request;
 var tokenHelper = require("./tokenHelper");
+var utils = require("../src/utils");
+
 /**
  * Main point of entry. Big Daddy class that all SP requests are routed through. Data Access Object (DAO)
  * @class
@@ -31,6 +33,7 @@ ServerDao.prototype.executeRequest = function (url, options) {
     return this.ensureToken.then(() => this._executeRequest(url, options));
 };
 
+
 ServerDao.prototype._executeRequest = function (url, options) {
 	var fullUrl = (/^http/i).test(url) ? url : this.webUrl + "/_api" + url;
 	var defaultOptions = {
@@ -46,7 +49,12 @@ ServerDao.prototype._executeRequest = function (url, options) {
 	if (options.headers){
 		requestOptions.headers = Object.assign({}, defaultOptions.headers, options.headers);
 	}
-	return request(requestOptions).then(res => res.body);
+
+	return request(requestOptions)
+		.then(res => {
+			return res.body
+		})
+		.catch(utils.handleErrorResponse);
 };
 
 

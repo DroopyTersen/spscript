@@ -74,7 +74,8 @@ var ajax = function(options) {
 					resolve(xhr.response);
 				} else {
 					var error = new Error("AJAX Request Error: Response Code = " + xhr.status);
-					error.code = xhr.status;
+					error.statusCode = xhr.status;
+					error.body = xhr.response;
 					errorHandlers.forEach(fn => fn(error, xhr));
 					reject(error);
 				}

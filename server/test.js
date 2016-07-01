@@ -1,5 +1,6 @@
 var ServerDao = require("./serverDao");
 var config = require("../app.config");
+var should = require("chai").should();
 
 describe('ServerDao', function () {
     var dao = new ServerDao(config.spSiteUrl, config.clientKey, config.clientSecret);
@@ -21,13 +22,16 @@ describe('ServerDao', function () {
     var webTests = require("../src/tests/webTests");
     webTests.run(dao);
 
-    // var listTests = require("../src/tests/listTests");
-    // listTests.run(dao);
+    var customActionTests = require("../src/tests/customActionTests");
+    customActionTests.run(dao);
     
-    // // var profileTests = require("../src/tests/profileTests");
-    // // profileTests.run(dao);
+    var listTests = require("../src/tests/listTests");
+    listTests.run(dao);
     
-    // var searchTests = require("../src/tests/searchTests");
-    // searchTests.run(dao);
+    var profileTests = require("../src/tests/profileTests");
+    profileTests.run(dao);
+    
+    var searchTests = require("../src/tests/searchTests");
+    searchTests.run(dao);
     
 });

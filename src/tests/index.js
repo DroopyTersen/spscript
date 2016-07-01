@@ -22,6 +22,9 @@ describe("var dao = new SPScript.RestDao(_spPageContextInfo.webAbsoluteUrl)", fu
 var webTests = require("./webTests");
 webTests.run(dao);
 
+var customActionTests = require("./customActionTests");
+customActionTests.run(dao);
+
 var listTests = require("./listTests");
 listTests.run(dao);
 
