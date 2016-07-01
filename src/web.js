@@ -2,7 +2,7 @@ var utils = require("./utils");
 var Permissions = require("./permissions");
 var headers = require("./requestHeaders");
 var Folder = require("./filesystem").Folder;
-
+var CustomActions = require("./customActions");
 /**
  * Represents a SharePoint site. You shouldn't ever be new'ing this class up up yourself, instead you'll get it from your dao as shown in first example.
  * @class
@@ -17,6 +17,7 @@ var Web = function(dao) {
 	this._dao = dao;
 	this.baseUrl = "/web";
 	this.permissions = new Permissions(this.baseUrl, this._dao);
+	this.customActions = new CustomActions(this);
 };
 
 /**
@@ -51,7 +52,9 @@ Web.prototype.subsites = function() {
  */
 Web.prototype.getRequestDigest = function() {
 	return this._dao.post('/contextinfo', {})
-		.then(data => data.d.GetContextWebInformation.FormDigestValue);
+		.then(data => {
+			return data.d.GetContextWebInformation.FormDigestValue
+		});
 };
 
 /**

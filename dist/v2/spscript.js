@@ -50,11 +50,12 @@
 	}
 	var SPScript = {};
 	SPScript.RestDao = __webpack_require__(9);
-	SPScript.queryString = __webpack_require__(19);
-	SPScript.templating = __webpack_require__(24);
+	SPScript.queryString = __webpack_require__(20);
+	SPScript.templating = __webpack_require__(25);
+	SPScript.templating.renderTemplate = SPScript.templating.render;
 	SPScript.utils = __webpack_require__(12);
-	SPScript.ajax = __webpack_require__(23);
-	SPScript.jsLink = __webpack_require__(25);
+	SPScript.ajax = __webpack_require__(24);
+	SPScript.jsLink = __webpack_require__(26);
 	module.exports = global.SPScript = SPScript;
 	
 	
@@ -1167,7 +1168,7 @@
 	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 	
 	var BaseDao = __webpack_require__(10);
-	var ajax = __webpack_require__(23);
+	var ajax = __webpack_require__(24);
 	
 	/**
 	 * Main point of entry. Big Daddy class that all SP requests are routed through. Data Access Object (DAO)
@@ -1219,8 +1220,8 @@
 	
 	var List = __webpack_require__(11);
 	var Web = __webpack_require__(15);
-	var Profiles = __webpack_require__(17);
-	var Search = __webpack_require__(18);
+	var Profiles = __webpack_require__(18);
+	var Search = __webpack_require__(19);
 	var utils = __webpack_require__(12);
 	
 	/**
@@ -2147,7 +2148,7 @@
 	var Permissions = __webpack_require__(13);
 	var headers = __webpack_require__(14);
 	var Folder = __webpack_require__(16).Folder;
-	
+	var CustomActions = __webpack_require__(17);
 	/**
 	 * Represents a SharePoint site. You shouldn't ever be new'ing this class up up yourself, instead you'll get it from your dao as shown in first example.
 	 * @class
@@ -2162,6 +2163,7 @@
 		this._dao = dao;
 		this.baseUrl = "/web";
 		this.permissions = new Permissions(this.baseUrl, this._dao);
+		this.customActions = new CustomActions(this);
 	};
 	
 	/**
@@ -2474,6 +2476,117 @@
 
 	"use strict";
 	
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+	
+	var utils = __webpack_require__(12);
+	var headers = __webpack_require__(14);
+	
+	// MSDN Info
+	// https://msdn.microsoft.com/en-us/library/office/dn531432.aspx#bk_UserCustomActionCollection
+	
+	var metadata = {
+		__metadata: {
+			"type": "SP.UserCustomAction"
+		}
+	};
+	
+	var CustomActions = function CustomActions(web) {
+		this.web = web;
+		this.baseUrl = "/web/userCustomActions";
+	};
+	
+	CustomActions.prototype.get = function (name) {
+		return this.web._dao.get(this.baseUrl).then(utils.validateODataV2).then(function (customActions) {
+			if (name) return customActions.find(function (a) {
+				return a.Name === name;
+			});else return customActions;
+		});
+	};
+	
+	CustomActions.prototype._getUrl = function (name) {
+		var _this = this;
+	
+		return this.get(name).then(function (a) {
+			var url = _this.baseUrl + "('" + a.Id + "')";
+			return url;
+		});
+	};
+	
+	CustomActions.prototype._getUrlAndDigest = function (name) {
+		var _this2 = this;
+	
+		var prep = {};
+		return this._getUrl(name).then(function (url) {
+			prep.url = url;
+			return _this2.web.getRequestDigest();
+		}).then(function (digest) {
+			prep.digest = digest;
+			return prep;
+		});
+	};
+	
+	CustomActions.prototype.update = function (updates) {
+		var _this3 = this;
+	
+		if (!updates || !updates.Name) throw new Error("You must at least pass a Custom Action 'Name'");
+		return this._getUrlAndDigest(updates.Name).then(function (prep) {
+			updates = _extends({}, metadata, updates);
+			var opts = {
+				headers: headers.getUpdateHeaders(prep.digest)
+			};
+			return _this3.web._dao.post(prep.url, updates, opts);
+		});
+	};
+	
+	CustomActions.prototype.remove = function (name) {
+		var _this4 = this;
+	
+		var digest = null;
+		return this.web.getRequestDigest().then(function (requestDigest) {
+			digest = requestDigest;
+			return _this4.get();
+		}).then(function (all) {
+			return all.filter(function (a) {
+				return a.Name === name;
+			});
+		}).then(function (matches) {
+			var promises = matches.map(function (a) {
+				return _this4._remove(a.Id, digest);
+			});
+			return Promise.all(promises);
+		});
+	};
+	
+	CustomActions.prototype._remove = function (id, digest) {
+		var url = this.baseUrl + "('" + id + "')";
+		var opts = {
+			headers: headers.getDeleteHeaders(digest)
+		};
+		return this.web._dao.post(url, {}, opts);
+	};
+	
+	CustomActions.prototype.add = function (customAction) {
+		var _this5 = this;
+	
+		if (!customAction || !customAction.Name || !customAction.Location) throw new Error("You must at least pass a Custom Action 'Name' and 'Location'");
+		return this.web.getRequestDigest().then(function (digest) {
+			customAction = _extends({}, metadata, customAction);
+			var opts = {
+				headers: headers.getAddHeaders(digest)
+			};
+			return _this5.web._dao.post(_this5.baseUrl, customAction, opts);
+		});
+	};
+	CustomActions.metadata = metadata;
+	module.exports = CustomActions;
+	//# sourceMappingURL=customActions.js.map
+
+/***/ },
+/* 18 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	
 	var utils = __webpack_require__(12);
 	var headers = __webpack_require__(14);
 	
@@ -2578,12 +2691,12 @@
 	//# sourceMappingURL=profiles.js.map
 
 /***/ },
-/* 18 */
+/* 19 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
-	var queryString = __webpack_require__(19);
+	var queryString = __webpack_require__(20);
 	var utils = __webpack_require__(12);
 	
 	/**
@@ -2716,12 +2829,12 @@
 	//# sourceMappingURL=search.js.map
 
 /***/ },
-/* 19 */
+/* 20 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 	
-	var qs = __webpack_require__(20);
+	var qs = __webpack_require__(21);
 	
 	/**
 	* @namespace SPScript.queryString
@@ -2785,17 +2898,17 @@
 	//# sourceMappingURL=queryString.js.map
 
 /***/ },
-/* 20 */
+/* 21 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
-	exports.decode = exports.parse = __webpack_require__(21);
-	exports.encode = exports.stringify = __webpack_require__(22);
+	exports.decode = exports.parse = __webpack_require__(22);
+	exports.encode = exports.stringify = __webpack_require__(23);
 
 
 /***/ },
-/* 21 */
+/* 22 */
 /***/ function(module, exports) {
 
 	// Copyright Joyent, Inc. and other Node contributors.
@@ -2881,7 +2994,7 @@
 
 
 /***/ },
-/* 22 */
+/* 23 */
 /***/ function(module, exports) {
 
 	// Copyright Joyent, Inc. and other Node contributors.
@@ -2951,7 +3064,7 @@
 
 
 /***/ },
-/* 23 */
+/* 24 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -3046,7 +3159,7 @@
 	//# sourceMappingURL=ajax.js.map
 
 /***/ },
-/* 24 */
+/* 25 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
@@ -3681,14 +3794,14 @@
 
 
 /***/ },
-/* 25 */
+/* 26 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 	
 	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 	
-	var templating = __webpack_require__(24);
+	var templating = __webpack_require__(25);
 	
 	var createRenderer = exports.createRenderer = function (htmlTemplate) {
 	    return function (ctx) {

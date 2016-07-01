@@ -15,7 +15,7 @@
     "babel": "babel src -d lib --source-maps --presets es2015 --plugins transform-object-assign --ignore \"src/tests\"",
     "lint": "eslint src/*",
     "minify": "uglifyjs dist/v2/spscript.js -o dist/v2/spscript.min.js --stats",
-    "watch": "nodemon -w src -x \"npm run --silent build\"",
+    "watch": "nodemon -w src -x \"npm run --silent test\"",
     "clean": "rimraf lib"
   },
   "repository": {

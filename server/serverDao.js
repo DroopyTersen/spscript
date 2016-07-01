@@ -46,7 +46,18 @@ ServerDao.prototype._executeRequest = function (url, options) {
 	if (options.headers){
 		requestOptions.headers = Object.assign({}, defaultOptions.headers, options.headers);
 	}
-	return request(requestOptions).then(res => res.body);
+
+	return request(requestOptions)
+		.then(res => {
+			return res.body
+		})
+		.catch(err => {
+			console.log("REQUEST ERROR");
+			console.log(err.statusCode);
+			console.log(err.body);
+			// console.log(fullUrl);
+			// console.log(err);
+		});
 };
 
 

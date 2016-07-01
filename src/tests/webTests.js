@@ -28,7 +28,7 @@ exports.run = function(dao) {
             });
         });
 
-        describe("web.getRequestDigest()", function() {
+        describe.only("web.getRequestDigest()", function() {
             it("Should return a promise that resolves to a request digest string", function(done) {
                 dao.web.getRequestDigest().then(function(digest) {
                     digest.should.not.be.null;
@@ -132,7 +132,7 @@ exports.run = function(dao) {
         });
 
         var destinationUrl = "/spscript/Shared%20Documents/testfile2.txt";
-        describe.only("web.copyFile(serverRelativeSourceUrl, serverRelativeDestUrl)", function() {
+        describe("web.copyFile(serverRelativeSourceUrl, serverRelativeDestUrl)", function() {
             var startTestTime = new Date();
             var file = null;
             before(function(done){
