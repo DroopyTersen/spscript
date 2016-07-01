@@ -94,7 +94,7 @@ Methods
 - `queryString.fromObj(str)` - turns a javascript object into a string in format of "key1=value1&key2=value2"
 
 #### Templating
-- `templating.renderTemplate(template, item)` - returns an html string. `template` is an html string with `{{property}}` placeholders. `item` is a javascript object whose properties will be used to fill in your html placeholders.
+- `templating.render(template, item)` - returns an html string. `template` is an html string with `{{property}}` placeholders. `item` is a javascript object whose properties will be used to fill in your html placeholders.
 
 
 ***
