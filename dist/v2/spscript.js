@@ -3819,46 +3819,36 @@
 	
 	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 	
-	var templating = __webpack_require__(25);
+	var renderers = exports.renderers = __webpack_require__(27);
 	
-	var createRenderer = exports.createRenderer = function (htmlTemplate) {
-	    return function (ctx) {
-	        return templating.render(htmlTemplate, ctx);
-	    };
+	//fieldComponent = { name, onReady, render, getValue, locations:["View", "NewForm","DisplayForm", "EditForm"] }
+	var registerFormField = exports.registerFormField = function (fieldComponent, opts) {
+	    var renderer = renderers.formField.create(fieldComponent);
+	    formField.locations = formField.locations || ["NewForm", "EditForm"];
+	    registerField(fieldComponent, renderer, opts);
 	};
 	
-	var registerField = exports.registerField = function (fieldName, renderers, options) {
+	//{name, onReady, render, locations: ["View", "DisplayForm"]}
+	var registerDisplayField = exports.registerDisplayField = function (fieldComponent, opts) {
+	    var renderer = renders.displayField.create(fieldComponent);
+	    formField.locations = formField.locations || ["View", "DisplayForm"];
+	    registerField(fieldComponent, renderer, opts);
+	};
+	
+	var registerField = exports.registerField = function (field, renderer, opts) {
+	    var renderers = {};
 	    //View, DisplayForm, EditForm, NewForm
+	    field.locations.forEach(function (l) {
+	        return renderers[l] = renderer;
+	    });
 	    var defaults = {
 	        Templates: {
 	            Fields: {}
 	        }
 	    };
-	    var templateOverride = _extends({}, defaults, options);
-	    templateOverride.Templates.Fields[fieldName] = renderers;
+	    var templateOverride = _extends({}, defaults, opts);
+	    templateOverride.Fields[field.name] = renderers;
 	    SPClientTemplates.TemplateManager.RegisterTemplateOverrides(templateOverride);
-	};
-	
-	/**
-	* Returns a function that can be passed in as Edit/New form template function.
-	* It does the work of registering the getValue callback
-	* @param {function} renderer - Function that takes in ctx and returns html
-	* @param {function} getter - function to get the value of the field you are overriding
-	*/
-	var createEditControl = exports.createEditControl = function (renderer, getter) {
-	    return function (ctx) {
-	        var formCtx = SPClientTemplates.Utility.GetFormContextForCurrentField(ctx);
-	        formCtx.registerGetValueCallback(formCtx.fieldName, getter.bind(null, formCtx));
-	        return renderer(ctx);
-	    };
-	};
-	
-	var registerEditField = exports.registerEditField = function (fieldName, renderer, getter) {
-	    var formRenderer = createEditControl(renderer, getter);
-	    registerField(fieldName, {
-	        "NewForm": formRenderer,
-	        "EditForm": formRenderer
-	    });
 	};
 	
 	var registerView = exports.registerView = function (templates, options) {
@@ -3883,6 +3873,65 @@
 	    SPClientTemplates.TemplateManager.RegisterTemplateOverrides(templateOverride);
 	};
 	//# sourceMappingURL=jsLink.js.map
+
+/***/ },
+/* 27 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	
+	var templating = __webpack_require__(25);
+	
+	function createTemplateRenderer(htmlTemplate, events) {
+	    return function (ctx) {
+	        return templating.render(htmlTemplate, ctx);
+	    };
+	}
+	
+	function createFormFieldRenderer(formField) {
+	    return function (ctx) {
+	        var formCtx = ctx.FormContext;
+	        if (formField.onReady) {
+	            formCtx.registerInitCallback(formField.name, formField.onReady);
+	        }
+	        if (formField.getValue) {
+	            formCtx.registerGetValueCallback(formCtx.fieldName, formField.getValue.bind(null, formCtx));
+	        }
+	        // tack on 'setValue' function
+	        if (formCtx.updateControlValue) {
+	            formField.setValue = function (value) {
+	                formCtx.updateControlValue(formField.name, value);
+	            };
+	        }
+	
+	        return formField.render(ctx);
+	    };
+	}
+	
+	function createDisplayFieldRenderer(field) {
+	    return function (ctx) {
+	        var formCtx = ctx.FormContext;
+	        if (formCtx && formCtx.registerInitCallback && field.onReady) {
+	            formCtx.registerInitCallback(formField.name, formField.onReady);
+	        }
+	        return formField.render(ctx);
+	    };
+	}
+	
+	var renderers = {
+	    template: {
+	        create: createTemplateRender
+	    },
+	    formField: {
+	        create: createFormFieldRenderer
+	    },
+	    displayField: {
+	        create: createDisplayFieldRenderer
+	    }
+	};
+	
+	module.exports = renderers;
+	//# sourceMappingURL=csr-renderers.js.map
 
 /***/ }
 /******/ ]);

@@ -1,43 +1,31 @@
-var templating = require("mustache");
+var renderers = exports.renderers = require("./csr-renderers");
 
-var createRenderer = exports.createRenderer = function(htmlTemplate) {
-    return function(ctx) {
-        return templating.render(htmlTemplate, ctx);
-    }
+//fieldComponent = { name, onReady, render, getValue, locations:["View", "NewForm","DisplayForm", "EditForm"] }
+var registerFormField = exports.registerFormField = function(fieldComponent, opts) {
+    var renderer = renderers.formField.create(fieldComponent);
+    formField.locations = formField.locations || ["NewForm", "EditForm"];
+    registerField(fieldComponent, renderer, opts);
 };
 
-var registerField = exports.registerField = function(fieldName, renderers, options) {
+//{name, onReady, render, locations: ["View", "DisplayForm"]}
+var registerDisplayField = exports.registerDisplayField = function(fieldComponent, opts) {
+    var renderer = renders.displayField.create(fieldComponent);
+    formField.locations = formField.locations || ["View", "DisplayForm"];
+    registerField(fieldComponent, renderer, opts);
+};
+
+var registerField = exports.registerField = function(field, renderer, opts) {
+    var renderers = {}
     //View, DisplayForm, EditForm, NewForm
+    field.locations.forEach(l => renderers[l] = renderer);
     var defaults = {
         Templates: {
             Fields: {}
         }
     };
-    var templateOverride = Object.assign({}, defaults, options);
-    templateOverride.Templates.Fields[fieldName] = renderers;
+    var templateOverride = Object.assign({}, defaults, opts);
+    templateOverride.Fields[field.name] = renderers;
     SPClientTemplates.TemplateManager.RegisterTemplateOverrides(templateOverride);
-};
-
-/**
-* Returns a function that can be passed in as Edit/New form template function.
-* It does the work of registering the getValue callback
-* @param {function} renderer - Function that takes in ctx and returns html
-* @param {function} getter - function to get the value of the field you are overriding
-*/
-var createEditControl = exports.createEditControl = function(renderer, getter) {
-    return function(ctx) {
-        var formCtx = SPClientTemplates.Utility.GetFormContextForCurrentField(ctx); 
-        formCtx.registerGetValueCallback(formCtx.fieldName, getter.bind(null, formCtx));
-        return renderer(ctx);
-    };
-};
-
-var registerEditField = exports.registerEditField = function(fieldName, renderer, getter) {
-    var formRenderer = createEditControl(renderer, getter);
-    registerField(fieldName, {
-        "NewForm": formRenderer,
-        "EditForm": formRenderer
-    });
 };
 
 var registerView = exports.registerView = function(templates, options) {
