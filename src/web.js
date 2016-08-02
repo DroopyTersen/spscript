@@ -193,6 +193,17 @@ Web.prototype._copyFile = function(sourceUrl, destinationUrl, digest) {
 	return this._dao.post(url, body, options);
 };
 
+Web.prototype.checkInFile = function(fileUrl, checkInType = 1, digest) {
+	if (digest) return this._checkInFile(fileUrl, checkInType, digest);
+	return this.getRequestDigest().then(requestDigest => this._checkInFile(fileUrl, checkInType, requestDigest))
+};
+
+Web.prototype._checkInFile = function(fileUrl, checkInType, digest) {
+	var url = `/web/getfilebyserverrelativeurl('${fileUrl}')/Checkin(comment='',checkintype=${checkInType})`
+	var options = { headers: headers.getAddHeaders(digest) };
+	return this._dao.post(url, {}, options);
+};
+
 /**
  * Deletes a file
  * @param {string} fileUrl - The server relative url of the file you want to delete

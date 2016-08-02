@@ -2357,6 +2357,24 @@
 		return this._dao.post(url, body, options);
 	};
 	
+	Web.prototype.checkInFile = function (fileUrl) {
+		var _this6 = this;
+	
+		var checkInType = arguments.length <= 1 || arguments[1] === undefined ? 1 : arguments[1];
+		var digest = arguments[2];
+	
+		if (digest) return this._checkInFile(fileUrl, checkInType, digest);
+		return this.getRequestDigest().then(function (requestDigest) {
+			return _this6._checkInFile(fileUrl, checkInType, requestDigest);
+		});
+	};
+	
+	Web.prototype._checkInFile = function (fileUrl, checkInType, digest) {
+		var url = "/web/getfilebyserverrelativeurl('" + fileUrl + "')/Checkin(comment='',checkintype=" + checkInType + ")";
+		var options = { headers: headers.getAddHeaders(digest) };
+		return this._dao.post(url, {}, options);
+	};
+	
 	/**
 	 * Deletes a file
 	 * @param {string} fileUrl - The server relative url of the file you want to delete
@@ -2366,12 +2384,12 @@
 	 *			.then(function() { console.log("Success")});
 	 */
 	Web.prototype.deleteFile = function (fileUrl, digest) {
-		var _this6 = this;
+		var _this7 = this;
 	
 		if (digest) return this._deleteFile(fileUrl, digest);
 	
 		return this.getRequestDigest().then(function (requestDigest) {
-			return _this6._deleteFile(fileUrl, requestDigest);
+			return _this7._deleteFile(fileUrl, requestDigest);
 		});
 	};
 	
