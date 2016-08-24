@@ -2357,22 +2357,24 @@
 		return this._dao.post(url, body, options);
 	};
 	
-	Web.prototype.checkInFile = function (fileUrl) {
+	Web.prototype.fileAction = function (file, action) {
 		var _this6 = this;
 	
-		var checkInType = arguments.length <= 1 || arguments[1] === undefined ? 1 : arguments[1];
-		var digest = arguments[2];
+		var params = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
+		var digest = arguments[3];
 	
-		if (digest) return this._checkInFile(fileUrl, checkInType, digest);
+		if (digest) this._fileAction(file, action, params, digest);
 		return this.getRequestDigest().then(function (requestDigest) {
-			return _this6._checkInFile(fileUrl, checkInType, requestDigest);
+			return _this6._fileAction(file, action, params, requestDigest);
 		});
 	};
 	
-	Web.prototype._checkInFile = function (fileUrl, checkInType, digest) {
-		var url = "/web/getfilebyserverrelativeurl('" + fileUrl + "')/Checkin(comment='',checkintype=" + checkInType + ")";
-		var options = { headers: headers.getAddHeaders(digest) };
-		return this._dao.post(url, {}, options);
+	Web.prototype._fileAction = function (file, action, params, digest) {
+		var url = "/web/getfilebyserverrelativeurl('" + file + "')/" + action;
+		var options = {
+			headers: headers.getAddHeaders(digest)
+		};
+		return this._dao.post(url, params, options);
 	};
 	
 	/**

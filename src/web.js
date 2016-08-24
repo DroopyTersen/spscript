@@ -193,15 +193,17 @@ Web.prototype._copyFile = function(sourceUrl, destinationUrl, digest) {
 	return this._dao.post(url, body, options);
 };
 
-Web.prototype.checkInFile = function(fileUrl, checkInType = 1, digest) {
-	if (digest) return this._checkInFile(fileUrl, checkInType, digest);
-	return this.getRequestDigest().then(requestDigest => this._checkInFile(fileUrl, checkInType, requestDigest))
+Web.prototype.fileAction = function(file, action, params = {}, digest) {
+	if (digest) this._fileAction(file, action, params, digest)
+	return this.getRequestDigest().then(requestDigest => this._fileAction(file, action, params, requestDigest))
 };
 
-Web.prototype._checkInFile = function(fileUrl, checkInType, digest) {
-	var url = `/web/getfilebyserverrelativeurl('${fileUrl}')/Checkin(comment='',checkintype=${checkInType})`
-	var options = { headers: headers.getAddHeaders(digest) };
-	return this._dao.post(url, {}, options);
+Web.prototype._fileAction = function(file, action, params, digest) {
+	var url = `/web/getfilebyserverrelativeurl('${file}')/${action}`
+	var options = {
+		headers: headers.getAddHeaders(digest)
+	};
+	return this._dao.post(url, params, options);
 };
 
 /**
