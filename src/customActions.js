@@ -128,7 +128,7 @@ CustomActions.prototype.addCSSLink = function (name, url, scope = "Web") {
 			styleTag.appendChild(document.createTextNode("body { opacity: 0 }"));
 			
 			var linkTag = document.createElement("link");
-			linkTag.rel = "stylesheet";	linkTag.href = "{{CSSUrl}}"; linkTag.type = "text/css";
+			linkTag.rel = "stylesheet";	linkTag.href = "${url}"; linkTag.type = "text/css";
 			linkTag.addEventListener("load", function() {
 				head.removeChild(styleTag);
 			});
@@ -137,7 +137,6 @@ CustomActions.prototype.addCSSLink = function (name, url, scope = "Web") {
 			head.appendChild(linkTag);
 		})();`
 
-    scriptBlockStr = scriptBlockStr.replace("{{CSSUrl}}", url);
 	var customAction = {
 		Name: name,
 		Title: name,
