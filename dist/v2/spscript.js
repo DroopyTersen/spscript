@@ -55,7 +55,7 @@
 	SPScript.templating.renderTemplate = SPScript.templating.render;
 	SPScript.utils = __webpack_require__(12);
 	SPScript.ajax = __webpack_require__(24);
-	SPScript.jsLink = __webpack_require__(26);
+	SPScript.CSR = __webpack_require__(26);
 	module.exports = global.SPScript = SPScript;
 	
 	
@@ -2357,6 +2357,26 @@
 		return this._dao.post(url, body, options);
 	};
 	
+	Web.prototype.fileAction = function (file, action) {
+		var _this6 = this;
+	
+		var params = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
+		var digest = arguments[3];
+	
+		if (digest) this._fileAction(file, action, params, digest);
+		return this.getRequestDigest().then(function (requestDigest) {
+			return _this6._fileAction(file, action, params, requestDigest);
+		});
+	};
+	
+	Web.prototype._fileAction = function (file, action, params, digest) {
+		var url = "/web/getfilebyserverrelativeurl('" + file + "')/" + action;
+		var options = {
+			headers: headers.getAddHeaders(digest)
+		};
+		return this._dao.post(url, params, options);
+	};
+	
 	/**
 	 * Deletes a file
 	 * @param {string} fileUrl - The server relative url of the file you want to delete
@@ -2366,12 +2386,12 @@
 	 *			.then(function() { console.log("Success")});
 	 */
 	Web.prototype.deleteFile = function (fileUrl, digest) {
-		var _this6 = this;
+		var _this7 = this;
 	
 		if (digest) return this._deleteFile(fileUrl, digest);
 	
 		return this.getRequestDigest().then(function (requestDigest) {
-			return _this6._deleteFile(fileUrl, requestDigest);
+			return _this7._deleteFile(fileUrl, requestDigest);
 		});
 	};
 	
@@ -3819,46 +3839,37 @@
 	
 	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 	
-	var templating = __webpack_require__(25);
+	var renderers = exports.renderers = __webpack_require__(27);
 	
-	var createRenderer = exports.createRenderer = function (htmlTemplate) {
-	    return function (ctx) {
-	        return templating.render(htmlTemplate, ctx);
-	    };
+	//fieldComponent = { name, onReady, render, getValue, locations:["View", "NewForm","DisplayForm", "EditForm"] }
+	var registerFormField = exports.registerFormField = function (fieldComponent, opts) {
+	    var renderer = renderers.formField.create(fieldComponent);
+	    fieldComponent.locations = fieldComponent.locations || ["NewForm", "EditForm"];
+	    return registerField(fieldComponent, renderer, opts);
 	};
 	
-	var registerField = exports.registerField = function (fieldName, renderers, options) {
+	//{name, onReady, render, locations: ["View", "DisplayForm"]}
+	var registerDisplayField = exports.registerDisplayField = function (fieldComponent, opts) {
+	    var renderer = renderers.displayField.create(fieldComponent);
+	    fieldComponent.locations = fieldComponent.locations || ["View", "DisplayForm"];
+	    return registerField(fieldComponent, renderer, opts);
+	};
+	
+	var registerField = exports.registerField = function (field, renderer, opts) {
+	    var renderers = {};
 	    //View, DisplayForm, EditForm, NewForm
+	    field.locations.forEach(function (l) {
+	        return renderers[l] = renderer;
+	    });
 	    var defaults = {
 	        Templates: {
 	            Fields: {}
 	        }
 	    };
-	    var templateOverride = _extends({}, defaults, options);
-	    templateOverride.Templates.Fields[fieldName] = renderers;
+	    var templateOverride = _extends({}, defaults, opts);
+	    templateOverride.Templates.Fields[field.name] = renderers;
 	    SPClientTemplates.TemplateManager.RegisterTemplateOverrides(templateOverride);
-	};
-	
-	/**
-	* Returns a function that can be passed in as Edit/New form template function.
-	* It does the work of registering the getValue callback
-	* @param {function} renderer - Function that takes in ctx and returns html
-	* @param {function} getter - function to get the value of the field you are overriding
-	*/
-	var createEditControl = exports.createEditControl = function (renderer, getter) {
-	    return function (ctx) {
-	        var formCtx = SPClientTemplates.Utility.GetFormContextForCurrentField(ctx);
-	        formCtx.registerGetValueCallback(formCtx.fieldName, getter.bind(null, formCtx));
-	        return renderer(ctx);
-	    };
-	};
-	
-	var registerEditField = exports.registerEditField = function (fieldName, renderer, getter) {
-	    var formRenderer = createEditControl(renderer, getter);
-	    registerField(fieldName, {
-	        "NewForm": formRenderer,
-	        "EditForm": formRenderer
-	    });
+	    return field;
 	};
 	
 	var registerView = exports.registerView = function (templates, options) {
@@ -3882,7 +3893,66 @@
 	
 	    SPClientTemplates.TemplateManager.RegisterTemplateOverrides(templateOverride);
 	};
-	//# sourceMappingURL=jsLink.js.map
+	//# sourceMappingURL=csr.js.map
+
+/***/ },
+/* 27 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	
+	var templating = __webpack_require__(25);
+	
+	function createTemplateRenderer(htmlTemplate, events) {
+	    return function (ctx) {
+	        return templating.render(htmlTemplate, ctx);
+	    };
+	}
+	
+	function createFormFieldRenderer(field) {
+	    return function (ctx) {
+	        var formCtx = ctx.FormContext;
+	        if (field.onReady) {
+	            formCtx.registerInitCallback(field.name, field.onReady);
+	        }
+	        if (field.getValue) {
+	            formCtx.registerGetValueCallback(field.name, field.getValue.bind(null, ctx));
+	        }
+	        // tack on 'setValue' function
+	        if (formCtx.updateControlValue) {
+	            field.setValue = function (value) {
+	                formCtx.updateControlValue(field.name, value);
+	            };
+	        }
+	
+	        return field.render(ctx);
+	    };
+	}
+	
+	function createDisplayFieldRenderer(field) {
+	    return function (ctx) {
+	        var formCtx = ctx.FormContext;
+	        if (formCtx && formCtx.registerInitCallback && field.onReady) {
+	            formCtx.registerInitCallback(field.name, field.onReady);
+	        }
+	        return field.render(ctx);
+	    };
+	}
+	
+	var renderers = {
+	    template: {
+	        create: createTemplateRenderer
+	    },
+	    formField: {
+	        create: createFormFieldRenderer
+	    },
+	    displayField: {
+	        create: createDisplayFieldRenderer
+	    }
+	};
+	
+	module.exports = renderers;
+	//# sourceMappingURL=csr-renderers.js.map
 
 /***/ }
 /******/ ]);

@@ -193,6 +193,19 @@ Web.prototype._copyFile = function(sourceUrl, destinationUrl, digest) {
 	return this._dao.post(url, body, options);
 };
 
+Web.prototype.fileAction = function(file, action, params = {}, digest) {
+	if (digest) this._fileAction(file, action, params, digest)
+	return this.getRequestDigest().then(requestDigest => this._fileAction(file, action, params, requestDigest))
+};
+
+Web.prototype._fileAction = function(file, action, params, digest) {
+	var url = `/web/getfilebyserverrelativeurl('${file}')/${action}`
+	var options = {
+		headers: headers.getAddHeaders(digest)
+	};
+	return this._dao.post(url, params, options);
+};
+
 /**
  * Deletes a file
  * @param {string} fileUrl - The server relative url of the file you want to delete
