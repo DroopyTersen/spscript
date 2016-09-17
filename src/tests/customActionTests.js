@@ -1,7 +1,7 @@
 var utils = require("../utils");
 
 exports.run = function(dao) {
-    describe("dao.web.customActions", function() {
+    describe("dao.customActions", function() {
         this.timeout(10000);
 
 
@@ -10,10 +10,10 @@ exports.run = function(dao) {
             Location: "ScriptLink",
             ScriptBlock: "console.log('deployed from spscript-mocha test')"
         };
-        describe("dao.web.customActions.add(customAction)", function() {
+        describe("dao.customActions.add(customAction)", function() {
             var beforeCount = 0;
             before(function(done){
-                dao.web.customActions.get().then(all => {
+                dao.customActions.get().then(all => {
                     beforeCount = all.length;
                     done();
                 })
@@ -21,8 +21,8 @@ exports.run = function(dao) {
 
 
             it("Should add a Custom Action with the given name", function(done) {
-                dao.web.customActions.add(customAction).then(function() {
-                    dao.web.customActions.get().then(all => {
+                dao.customActions.add(customAction).then(function() {
+                    dao.customActions.get().then(all => {
                         all.length.should.equal(beforeCount + 1);
                         done();
                     })
@@ -30,10 +30,10 @@ exports.run = function(dao) {
             });
         });
 
-        describe("dao.web.customActions.get()", function() {
+        describe("dao.customActions.get()", function() {
             var results = null;
             before(function(done) {
-                dao.web.customActions.get().then(function(data) {
+                dao.customActions.get().then(function(data) {
                     results = data;
                     done();
                 });
@@ -51,12 +51,12 @@ exports.run = function(dao) {
             });
         });    
         
-        describe("dao.web.customActions.get(name)", function() {
+        describe("dao.customActions.get(name)", function() {
             var result = null;
             before(function(done) {
-                dao.web.customActions.get()
+                dao.customActions.get()
                 .then(function(allCustomActions) {
-                    dao.web.customActions.get(allCustomActions[0].Name).then(res => {
+                    dao.customActions.get(allCustomActions[0].Name).then(res => {
                         result = res;
                         done();
                     });
@@ -71,19 +71,19 @@ exports.run = function(dao) {
             })
         });
         
-        describe("dao.web.customActions.update(updates)", function() {
+        describe("dao.customActions.update(updates)", function() {
             var result = null;
             before(function(done) {
-                dao.web.customActions.get().then(function(allCustomActions) {
-                    result = allCustomActions[0];
+                dao.customActions.get(customAction.Name).then(function(ca) {
+                    result = ca;
                     done();
                 });
             });
             var newTitle = "updated title - " + Date.now();
             it("Should update the property", function(done) {
-                dao.web.customActions.update({ Name: result.Name, Title: newTitle})
+                dao.customActions.update({ Name: result.Name, Title: newTitle})
                 .then(function() {
-                    dao.web.customActions.get(result.Name).then(i => {
+                    dao.customActions.get(result.Name).then(i => {
                         i.Title.should.equal(newTitle);
                         done();
                     })
@@ -91,20 +91,20 @@ exports.run = function(dao) {
             })
         });
 
-        describe("dao.web.customActions.remove(name)", function() {
+        describe("dao.customActions.remove(name)", function() {
             var beforeCount = 0;
             before(function(done){
-                dao.web.customActions.get().then(all => {
-                    beforeCount = all.filter(a => a.Name = customAction.Name).length;
+                dao.customActions.get().then(all => {
+                    beforeCount = all.filter(a => a.Name === customAction.Name).length;
                     done();
                 })
             });
 
             it("Should remove all custom actions with that name", function(done){
-                dao.web.customActions.remove(customAction.Name).then(function() {
-                    dao.web.customActions.get().then(all => {
+                dao.customActions.remove(customAction.Name).then(function() {
+                    dao.customActions.get().then(all => {
                         var matches = all.filter(a => a.Name === customAction.Name);
-                        matches.should.be.empty;
+                        matches.should.be.empty();
                         done();
                     })
                 })
