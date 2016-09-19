@@ -40,7 +40,13 @@ CustomActions.prototype.get = function (name) {
 		})
 		.then(customActions => {
 			// if a name was passed filter it otherwise return everything
-			if (name) return customActions.find(a => a.Name === name);
+			if (name) {
+				var matches = customActions.filter(a => a.Name === name);
+				if (matches.length) {
+					return matches[0]
+				}
+				throw new Error("Unable to find Custom Action with name: " + name );
+			}
 			else return customActions;
 		});
 };
