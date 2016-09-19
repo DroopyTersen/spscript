@@ -51,7 +51,7 @@ exports.run = function(dao) {
             });
         });    
         
-        describe("dao.customActions.get(name)", function() {
+        describe.only("dao.customActions.get(name)", function() {
             var result = null;
             before(function(done) {
                 dao.customActions.get()
@@ -68,6 +68,17 @@ exports.run = function(dao) {
                 result.should.have.property("Name");
                 result.should.have.property("Location");
                 result.should.have.property("Id");
+            })
+
+            it("Should reject the promise with a decent error if the Custom Action name is not found", function(done) {
+                dao.customActions.get("INVALID-NAME")
+                    .then(function(){
+                        "one".should.equal("two");
+                        done();
+                    }).catch(function(err) {
+                        console.log(err)
+                        done();
+                    })
             })
         });
         
@@ -194,7 +205,7 @@ exports.run = function(dao) {
             });
         });
 
-        describe.only("dao.customActions.addCSSLink(name, url, scope)", function(){
+        describe("dao.customActions.addCSSLink(name, url, scope)", function(){
             var cssUrl = "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css";
             var caName = "SPScriptCSSTest-Site";
 
