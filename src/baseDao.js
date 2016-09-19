@@ -1,10 +1,10 @@
 
-var List 		= require("./list");
-var Web 		= require("./web");
-var Profiles 	= require("./profiles")
-var Search 		= require("./search");
-var utils 		= require("./utils");
-
+var List 			= require("./list");
+var Web 			= require("./web");
+var Profiles 		= require("./profiles")
+var Search 			= require("./search");
+var utils 			= require("./utils");
+var CustomActions 	= require("./customActions");
 /**
  * Abstract class. You'll never work with this directly. 
  * @abstract
@@ -17,6 +17,8 @@ var BaseDao = function() {
 	this.web = new Web(this);
 	this.search = new Search(this);
 	this.profiles = new Profiles(this);
+	this.customActions = new CustomActions(this);
+
 };
 
 BaseDao.prototype.executeRequest = function() {
