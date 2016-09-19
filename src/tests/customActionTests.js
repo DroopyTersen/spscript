@@ -108,7 +108,7 @@ exports.run = function(dao) {
                         done();
                     })
                 })
-            })
+            });
         })                          
     })
 };
