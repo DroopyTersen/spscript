@@ -50,7 +50,7 @@
 	}
 	var SPScript = {};
 	SPScript.RestDao = __webpack_require__(9);
-	SPScript.queryString = __webpack_require__(20);
+	SPScript.queryString = __webpack_require__(19);
 	SPScript.templating = __webpack_require__(25);
 	SPScript.templating.renderTemplate = SPScript.templating.render;
 	SPScript.utils = __webpack_require__(12);
@@ -1221,10 +1221,10 @@
 	
 	var List = __webpack_require__(11);
 	var Web = __webpack_require__(15);
-	var Profiles = __webpack_require__(18);
-	var Search = __webpack_require__(19);
+	var Profiles = __webpack_require__(17);
+	var Search = __webpack_require__(18);
 	var utils = __webpack_require__(12);
-	
+	var CustomActions = __webpack_require__(23);
 	/**
 	 * Abstract class. You'll never work with this directly. 
 	 * @abstract
@@ -1234,13 +1234,14 @@
 	 * @property {Profiles} profiles - Allows interacting with the SP Profile Service
 	 */
 	var BaseDao = function BaseDao() {
-	  this.web = new Web(this);
-	  this.search = new Search(this);
-	  this.profiles = new Profiles(this);
+		this.web = new Web(this);
+		this.search = new Search(this);
+		this.profiles = new Profiles(this);
+		this.customActions = new CustomActions(this);
 	};
 	
 	BaseDao.prototype.executeRequest = function () {
-	  throw "Not implemented exception";
+		throw "Not implemented exception";
 	};
 	
 	/**
@@ -1252,14 +1253,14 @@
 	 * @returns {Promise} - An ES6 Promise that resolves to the an object probably in the form of data.d
 	 */
 	BaseDao.prototype.get = function (relativeQueryUrl, extendedOptions) {
-	  var options = _extends({}, {
-	    method: "GET"
-	  }, extendedOptions);
-	  return this.executeRequest(relativeQueryUrl, options).then(utils.parseJSON);
+		var options = _extends({}, {
+			method: "GET"
+		}, extendedOptions);
+		return this.executeRequest(relativeQueryUrl, options).then(utils.parseJSON);
 	};
 	
 	BaseDao.prototype.getRequestDigest = function () {
-	  return this.web.getRequestDigest();
+		return this.web.getRequestDigest();
 	};
 	/**
 	 * If a list name is passed, an SPScript.List object, otherwise performs a request to get all the site's lists
@@ -1272,10 +1273,10 @@
 	 * list.getItemById(12).then(function(item) { console.log(item)});
 	 */
 	BaseDao.prototype.lists = function (listname) {
-	  if (!listname) {
-	    return this.get("/web/lists").then(utils.validateODataV2);
-	  }
-	  return new List(listname, this);
+		if (!listname) {
+			return this.get("/web/lists").then(utils.validateODataV2);
+		}
+		return new List(listname, this);
 	};
 	
 	/**
@@ -1285,25 +1286,25 @@
 	 * @returns {Promise} - An ES6 Promise
 	 */
 	BaseDao.prototype.post = function (relativePostUrl, body, opts) {
-	  body = packagePostBody(body, opts);
-	  var options = {
-	    method: "POST",
-	    data: body
-	  };
-	  options = _extends({}, options, opts);
-	  return this.executeRequest(relativePostUrl, options).then(utils.parseJSON);
+		body = packagePostBody(body, opts);
+		var options = {
+			method: "POST",
+			data: body
+		};
+		options = _extends({}, options, opts);
+		return this.executeRequest(relativePostUrl, options).then(utils.parseJSON);
 	};
 	
 	//Skip stringify it its already a string or it has an explicit Content-Type that is not JSON
 	var packagePostBody = function packagePostBody(body, opts) {
-	  // if its already a string just return
-	  if (typeof body === "string") return body;
-	  // if it has an explicit content-type, asssume the body is already that type
-	  if (opts && opts.headers && opts.headers["Content-Type"] && opts.headers["Content-Type"].indexOf("json") === -1) {
-	    return body;
-	  }
-	  //others stringify
-	  return JSON.stringify(body);
+		// if its already a string just return
+		if (typeof body === "string") return body;
+		// if it has an explicit content-type, asssume the body is already that type
+		if (opts && opts.headers && opts.headers["Content-Type"] && opts.headers["Content-Type"].indexOf("json") === -1) {
+			return body;
+		}
+		//others stringify
+		return JSON.stringify(body);
 	};
 	module.exports = BaseDao;
 	//# sourceMappingURL=baseDao.js.map
@@ -2161,7 +2162,6 @@
 	var Permissions = __webpack_require__(13);
 	var headers = __webpack_require__(14);
 	var Folder = __webpack_require__(16).Folder;
-	var CustomActions = __webpack_require__(17);
 	/**
 	 * Represents a SharePoint site. You shouldn't ever be new'ing this class up up yourself, instead you'll get it from your dao as shown in first example.
 	 * @class
@@ -2176,7 +2176,6 @@
 		this._dao = dao;
 		this.baseUrl = "/web";
 		this.permissions = new Permissions(this.baseUrl, this._dao);
-		this.customActions = new CustomActions(this);
 	};
 	
 	/**
@@ -2509,122 +2508,6 @@
 
 	"use strict";
 	
-	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-	
-	var utils = __webpack_require__(12);
-	var headers = __webpack_require__(14);
-	
-	// MSDN Info
-	// https://msdn.microsoft.com/en-us/library/office/dn531432.aspx#bk_UserCustomActionCollection
-	
-	var metadata = {
-		__metadata: {
-			"type": "SP.UserCustomAction"
-		}
-	};
-	
-	var CustomActions = function CustomActions(web) {
-		this.web = web;
-		this.baseUrl = "/web/userCustomActions";
-	};
-	
-	CustomActions.prototype.get = function (name) {
-		return this.web._dao.get(this.baseUrl).then(utils.validateODataV2).then(function (customActions) {
-			if (name) return customActions.find(function (a) {
-				return a.Name === name;
-			});else return customActions;
-		});
-	};
-	
-	CustomActions.prototype._getUrl = function (name) {
-		var _this = this;
-	
-		return this.get(name).then(function (a) {
-			var url = _this.baseUrl + "('" + a.Id + "')";
-			return url;
-		});
-	};
-	
-	CustomActions.prototype._getUrlAndDigest = function (name) {
-		var _this2 = this;
-	
-		var prep = {};
-		return this._getUrl(name).then(function (url) {
-			prep.url = url;
-			return _this2.web.getRequestDigest();
-		}).then(function (digest) {
-			prep.digest = digest;
-			return prep;
-		});
-	};
-	
-	CustomActions.prototype.update = function (updates) {
-		var _this3 = this;
-	
-		if (!updates || !updates.Name) throw new Error("You must at least pass a Custom Action 'Name'");
-		return this._getUrlAndDigest(updates.Name).then(function (prep) {
-			updates = _extends({}, metadata, updates);
-			var opts = {
-				headers: headers.getUpdateHeaders(prep.digest)
-			};
-			return _this3.web._dao.post(prep.url, updates, opts);
-		});
-	};
-	
-	// 1. Get request digest to authorize request
-	// 2. Get all the custom actions
-	// 3. Filter to get the custom actions with the specified name
-	// 4. Perform a DELETE request on each of the matching custom actions
-	// 5. Wait for all the DELETE's to succeed before resolving the promise
-	CustomActions.prototype.remove = function (name) {
-		var _this4 = this;
-	
-		var digest = null;
-		return this.web.getRequestDigest().then(function (d) {
-			return digest = d;
-		}).then(function () {
-			return _this4.get();
-		}).then(function (all) {
-			return all.filter(function (a) {
-				return a.Name === name;
-			});
-		}).then(function (matches) {
-			return Promise.all(matches.map(function (a) {
-				return _this4._remove(a.Id, digest);
-			}));
-		});
-	};
-	
-	CustomActions.prototype._remove = function (id, digest) {
-		var url = this.baseUrl + "('" + id + "')";
-		var opts = {
-			headers: headers.getDeleteHeaders(digest)
-		};
-		return this.web._dao.post(url, {}, opts);
-	};
-	
-	CustomActions.prototype.add = function (customAction) {
-		var _this5 = this;
-	
-		if (!customAction || !customAction.Name || !customAction.Location) throw new Error("You must at least pass a Custom Action 'Name' and 'Location'");
-		return this.web.getRequestDigest().then(function (digest) {
-			customAction = _extends({}, metadata, customAction);
-			var opts = {
-				headers: headers.getAddHeaders(digest)
-			};
-			return _this5.web._dao.post(_this5.baseUrl, customAction, opts);
-		});
-	};
-	CustomActions.metadata = metadata;
-	module.exports = CustomActions;
-	//# sourceMappingURL=customActions.js.map
-
-/***/ },
-/* 18 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-	
 	var utils = __webpack_require__(12);
 	var headers = __webpack_require__(14);
 	
@@ -2729,12 +2612,12 @@
 	//# sourceMappingURL=profiles.js.map
 
 /***/ },
-/* 19 */
+/* 18 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
-	var queryString = __webpack_require__(20);
+	var queryString = __webpack_require__(19);
 	var utils = __webpack_require__(12);
 	
 	/**
@@ -2867,12 +2750,12 @@
 	//# sourceMappingURL=search.js.map
 
 /***/ },
-/* 20 */
+/* 19 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 	
-	var qs = __webpack_require__(21);
+	var qs = __webpack_require__(20);
 	
 	/**
 	* @namespace SPScript.queryString
@@ -2936,17 +2819,17 @@
 	//# sourceMappingURL=queryString.js.map
 
 /***/ },
-/* 21 */
+/* 20 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
-	exports.decode = exports.parse = __webpack_require__(22);
-	exports.encode = exports.stringify = __webpack_require__(23);
+	exports.decode = exports.parse = __webpack_require__(21);
+	exports.encode = exports.stringify = __webpack_require__(22);
 
 
 /***/ },
-/* 22 */
+/* 21 */
 /***/ function(module, exports) {
 
 	// Copyright Joyent, Inc. and other Node contributors.
@@ -3032,7 +2915,7 @@
 
 
 /***/ },
-/* 23 */
+/* 22 */
 /***/ function(module, exports) {
 
 	// Copyright Joyent, Inc. and other Node contributors.
@@ -3100,6 +2983,173 @@
 	         encodeURIComponent(stringifyPrimitive(obj));
 	};
 
+
+/***/ },
+/* 23 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+	
+	var utils = __webpack_require__(12);
+	var headers = __webpack_require__(14);
+	
+	var metadata = {
+		__metadata: {
+			"type": "SP.UserCustomAction"
+		}
+	};
+	
+	var CustomActions = function CustomActions(dao) {
+		var _this = this;
+	
+		this._dao = dao;
+	
+		this.scopes = {
+			"Web": {
+				id: 3,
+				name: "Web",
+				url: "/web/usercustomactions"
+			},
+			"Site": {
+				id: 2,
+				name: "Site",
+				url: "/site/usercustomactions"
+			}
+		};
+		this.scopes.getById = function (id) {
+			return id === 2 ? _this.scopes.Site : _this.scopes.Web;
+		};
+	};
+	
+	// Get all Site and Web scoped custom actions.
+	// If a name is passed, filter the result set
+	CustomActions.prototype.get = function (name) {
+		var _this2 = this;
+	
+		// first get the site scoped ones, then the web scoped ones
+		return this._dao.get(this.scopes.Site.url).then(utils.validateODataV2).then(function (siteCustomActions) {
+			return _this2._dao.get(_this2.scopes.Web.url).then(utils.validateODataV2)
+			//combine site scoped and web scoped into single array
+			.then(function (webCustomActions) {
+				return siteCustomActions.concat(webCustomActions);
+			});
+		}).then(function (customActions) {
+			// if a name was passed filter it otherwise return everything
+			if (name) {
+				var matches = customActions.filter(function (a) {
+					return a.Name === name;
+				});
+				if (matches.length) {
+					return matches[0];
+				}
+				throw new Error("Unable to find Custom Action with name: " + name);
+			} else return customActions;
+		});
+	};
+	
+	CustomActions.prototype._getUrl = function (name) {
+		var _this3 = this;
+	
+		return this.get(name).then(function (a) {
+			return _this3.scopes.getById(a.Scope).url + "('" + a.Id + "')";
+		});
+	};
+	
+	CustomActions.prototype._getUrlAndDigest = function (name) {
+		var _this4 = this;
+	
+		var prep = {};
+		return this._getUrl(name).then(function (url) {
+			prep.url = url;
+			return _this4._dao.getRequestDigest();
+		}).then(function (digest) {
+			prep.digest = digest;
+			return prep;
+		});
+	};
+	
+	CustomActions.prototype.update = function (updates) {
+		var _this5 = this;
+	
+		if (!updates || !updates.Name) throw new Error("You must at least pass a Custom Action 'Name'");
+	
+		return this._getUrlAndDigest(updates.Name).then(function (prep) {
+			updates = _extends({}, metadata, updates);
+			var opts = {
+				headers: headers.getUpdateHeaders(prep.digest)
+			};
+			return _this5._dao.post(prep.url, updates, opts);
+		});
+	};
+	
+	CustomActions.prototype.remove = function (name) {
+		var _this6 = this;
+	
+		if (!name) throw new Error("You must at least pass a Custom Action 'Name'");
+		return this._getUrlAndDigest(name).then(function (prep) {
+			var opts = {
+				headers: headers.getDeleteHeaders(prep.digest)
+			};
+			return _this6._dao.post(prep.url, {}, opts);
+		});
+	};
+	
+	CustomActions.prototype.add = function (customAction) {
+		var _this7 = this;
+	
+		if (!customAction || !customAction.Name || !customAction.Location) throw new Error("You must at least pass a Custom Action 'Name' and 'Location'");
+		customAction.Scope = customAction.Scope || "Web";
+		return this._dao.getRequestDigest().then(function (digest) {
+			customAction = _extends({}, metadata, customAction);
+			var scope = _this7.scopes[customAction.Scope];
+			customAction.Scope = scope.id;
+			var opts = {
+				headers: headers.getAddHeaders(digest)
+			};
+			return _this7._dao.post(scope.url, customAction, opts);
+		});
+	};
+	
+	CustomActions.prototype.addScriptLink = function (name, url) {
+		var scope = arguments.length <= 2 || arguments[2] === undefined ? "Web" : arguments[2];
+	
+		var customAction = {
+			Name: name,
+			Title: name,
+			Description: name,
+			Group: name,
+			Sequence: 100,
+			Location: "ScriptLink",
+			Scope: scope,
+			ScriptSrc: url
+		};
+		return this.add(customAction);
+	};
+	
+	CustomActions.prototype.addCSSLink = function (name, url) {
+		var scope = arguments.length <= 2 || arguments[2] === undefined ? "Web" : arguments[2];
+	
+		var scriptBlockStr = "\n\t\t(function() {\n\t\t\tvar head = document.querySelector(\"head\");\n\t\t\tvar styleTag = document.createElement(\"style\");\n\t\t\tstyleTag.appendChild(document.createTextNode(\"body { opacity: 0 }\"));\n\t\t\t\n\t\t\tvar linkTag = document.createElement(\"link\");\n\t\t\tlinkTag.rel = \"stylesheet\";\tlinkTag.href = \"" + url + "\"; linkTag.type = \"text/css\";\n\t\t\tlinkTag.addEventListener(\"load\", function() {\n\t\t\t\thead.removeChild(styleTag);\n\t\t\t});\n\n\t\t\thead.appendChild(styleTag);\n\t\t\thead.appendChild(linkTag);\n\t\t})();";
+	
+		var customAction = {
+			Name: name,
+			Title: name,
+			Description: name,
+			Group: name,
+			Sequence: 100,
+			Scope: scope,
+			Location: "ScriptLink",
+			ScriptBlock: scriptBlockStr
+		};
+	
+		return this.add(customAction);
+	};
+	CustomActions.metadata = metadata;
+	
+	module.exports = CustomActions;
+	//# sourceMappingURL=customActions.js.map
 
 /***/ },
 /* 24 */

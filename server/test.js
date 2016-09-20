@@ -19,19 +19,19 @@ describe('ServerDao', function () {
         });
     });
     
-    var webTests = require("../src/tests/webTests");
-    webTests.run(dao);
+    // var webTests = require("../src/tests/webTests");
+    // webTests.run(dao);
 
     var customActionTests = require("../src/tests/customActionTests");
     customActionTests.run(dao);
     
-    var listTests = require("../src/tests/listTests");
-    listTests.run(dao);
+    // var listTests = require("../src/tests/listTests");
+    // listTests.run(dao);
     
-    var profileTests = require("../src/tests/profileTests");
-    profileTests.run(dao);
+    // var profileTests = require("../src/tests/profileTests");
+    // profileTests.run(dao);
     
-    var searchTests = require("../src/tests/searchTests");
-    searchTests.run(dao);
+    // var searchTests = require("../src/tests/searchTests");
+    // searchTests.run(dao);
     
 });
