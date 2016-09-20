@@ -112,21 +112,23 @@ CustomActions.prototype.add = function (customAction) {
 };
 
 
-CustomActions.prototype.addScriptLink = function (name, url, scope = "Web", sequence = 100) {
+CustomActions.prototype.addScriptLink = function (name, url, opts) {
 	var customAction = {
 		Name: name,
 		Title: name,
 		Description: name,
 		Group: name,
-		Sequence: sequence,
+		Sequence: 100,
+		Scope: "Web",
 		Location: "ScriptLink",
-		Scope: scope,
 		ScriptSrc: url
 	};
+	customAction = Object.assign({}, customAction, opts || {});
+
 	return this.add(customAction);
 };
 
-CustomActions.prototype.addCSSLink = function (name, url, scope = "Web", sequence = 100) {
+CustomActions.prototype.addCSSLink = function (name, url, opts) {
     var scriptBlockStr = `
 		(function() {
 			var head = document.querySelector("head");
@@ -148,12 +150,13 @@ CustomActions.prototype.addCSSLink = function (name, url, scope = "Web", sequenc
 		Title: name,
 		Description: name,
 		Group: name,
-		Sequence: sequence,
-		Scope: scope,
+		Sequence: 100,
+		Scope: "Web",
 		Location: "ScriptLink",
 		ScriptBlock: scriptBlockStr
 	};
-
+	customAction = Object.assign({}, customAction, opts || {});
+	
 	return this.add(customAction);
 };
 CustomActions.metadata = metadata;
