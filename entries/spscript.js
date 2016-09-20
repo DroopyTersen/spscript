@@ -10,5 +10,6 @@ SPScript.templating.renderTemplate = SPScript.templating.render;
 SPScript.utils = require("../lib/utils");
 SPScript.ajax = require("../lib/ajax");
 SPScript.CSR = require("../lib/csr");
+SPScript.headers = require("../lib/requestHeaders");
 module.exports = global.SPScript = SPScript;
 
