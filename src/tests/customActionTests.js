@@ -51,7 +51,7 @@ exports.run = function(dao) {
             });
         });    
         
-        describe.only("dao.customActions.get(name)", function() {
+        describe("dao.customActions.get(name)", function() {
             var result = null;
             before(function(done) {
                 dao.customActions.get()
@@ -176,7 +176,38 @@ exports.run = function(dao) {
                     done();
                 });
             }); 
-        }) 
+        });
+
+        describe("dao.customActions.addScriptLink(name, url, scope, sequence)", function(){
+            var jsUrl = "https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.0/jquery.min.js";
+            var caName = "SPScriptJSTest-Site";
+
+            before(function(done){
+                dao.customActions.addScriptLink(caName, jsUrl, "Site", 25).then(function() {
+                    done();
+                })
+            });
+
+            it("Should add a custom action with that name and ScriptSrc with specified URL", function(done){
+                dao.customActions.get(caName).then(function(ca) {
+                    ca.should.have.property("Name");
+                    ca.Name.should.equal(caName);
+                    ca.should.have.property("ScriptSrc");                    
+                    ca.ScriptSrc.should.equal(jsUrl);
+                    ca.should.have.property("Scope");                    
+                    ca.Scope.should.equal(dao.customActions.scopes.Site.id);
+                    ca.should.have.property("Sequence");                    
+                    ca.Sequence.should.equal(25);
+                    done();
+                });
+            });
+
+            after(function(done) {
+                dao.customActions.remove(caName).then(function() {
+                    done();
+                });
+            }); 
+        });
 
         describe("dao.customActions.addCSSLink(name, url)", function(){
             var cssUrl = "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css";
@@ -232,6 +263,37 @@ exports.run = function(dao) {
                     done();
                 });
             }); 
-        })                        
+        });
+
+        describe("dao.customActions.addCSSLink(name, url, scope, sequence)", function(){
+            var cssUrl = "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css";
+            var caName = "SPScriptCSSTest-Site";
+
+            before(function(done){
+                dao.customActions.addCSSLink(caName, cssUrl, "Site", 50).then(function() {
+                    done();
+                })
+            });
+
+            it("Should add a custom action with that name and ScriptBlock containing specified URL with Site scope", function(done){
+                dao.customActions.get(caName).then(function(ca) {
+                    ca.should.have.property("Name");
+                    ca.Name.should.equal(caName);
+                    ca.should.have.property("ScriptBlock");                    
+                    ca.ScriptBlock.should.contain(cssUrl);
+                    ca.should.have.property("Scope");                    
+                    ca.Scope.should.equal(dao.customActions.scopes.Site.id);
+                    ca.should.have.property("Sequence");                    
+                    ca.Sequence.should.equal(50);
+                    done();
+                });
+            });
+
+            after(function(done) {
+                dao.customActions.remove(caName).then(function() {
+                    done();
+                });
+            }); 
+        });                        
     })
 };

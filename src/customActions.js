@@ -112,13 +112,13 @@ CustomActions.prototype.add = function (customAction) {
 };
 
 
-CustomActions.prototype.addScriptLink = function (name, url, scope = "Web") {
+CustomActions.prototype.addScriptLink = function (name, url, scope = "Web", sequence = 100) {
 	var customAction = {
 		Name: name,
 		Title: name,
 		Description: name,
 		Group: name,
-		Sequence: 100,
+		Sequence: sequence,
 		Location: "ScriptLink",
 		Scope: scope,
 		ScriptSrc: url
@@ -126,7 +126,7 @@ CustomActions.prototype.addScriptLink = function (name, url, scope = "Web") {
 	return this.add(customAction);
 };
 
-CustomActions.prototype.addCSSLink = function (name, url, scope = "Web") {
+CustomActions.prototype.addCSSLink = function (name, url, scope = "Web", sequence = 100) {
     var scriptBlockStr = `
 		(function() {
 			var head = document.querySelector("head");
@@ -148,7 +148,7 @@ CustomActions.prototype.addCSSLink = function (name, url, scope = "Web") {
 		Title: name,
 		Description: name,
 		Group: name,
-		Sequence: 100,
+		Sequence: sequence,
 		Scope: scope,
 		Location: "ScriptLink",
 		ScriptBlock: scriptBlockStr
