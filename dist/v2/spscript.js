@@ -56,6 +56,7 @@
 	SPScript.utils = __webpack_require__(10);
 	SPScript.ajax = __webpack_require__(22);
 	SPScript.CSR = __webpack_require__(24);
+	SPScript.headers = __webpack_require__(12);
 	module.exports = global.SPScript = SPScript;
 	
 	
