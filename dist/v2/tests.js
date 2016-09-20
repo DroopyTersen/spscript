@@ -1252,7 +1252,7 @@
 	            });
 	        });    
 	        
-	        describe.only("dao.customActions.get(name)", function() {
+	        describe("dao.customActions.get(name)", function() {
 	            var result = null;
 	            before(function(done) {
 	                dao.customActions.get()
