@@ -36,26 +36,32 @@ Initialization
 All you need is the url of the SharePoint site you are targeting.
 ```javascript
 var siteUrl = "http://urltomysharepointsite.com";
+// If you don't pass a site url, it will use your current web
 var dao = new SPScript.RestDao(siteUrl);
 ```
 
 Methods
 --------------
 
+#### Data Access Object (RestDao)
+- `dao.get(url, opts)` - Generic helper to make AJAX GET request. Sets proper headers, promisifies, and parses JSON response. `url` is the API url relative to "/_api". 
+- `dao.post(url, body, opts)` - Generic helper to make AJAX POST request. `url` is the API url relative to "/_api".
+- `dao.getRequestDigest()` - Retrieves a token needed to authorize any updates
+
 #### Web
-- `web.info()` - Gets you the [SPWeb properties](https://msdn.microsoft.com/en-us/library/office/jj245288.aspx#properties) of your site
-- `web.subsites()` - Gets you all the sub sites and their [SPWeb properties](https://msdn.microsoft.com/en-us/library/office/jj245288.aspx#properties)
-- `web.getUser(email)` - Gets you a SP.User object based on the specified email
-- `web.getFile(serverRelativeUrl)` - Gets you an SP.File object
-- `web.copyFile(sourceUrl, destinationUrl)` - Copies a file (both source and destination urls are server relative)
-- `web.deleteFile(fileUrl)` - Deletes the file at the specified server relative url
-- `web.uploadFile(fileContent, folderUrl)` - Allows passing in an file content as text or as an HTML5 File (from File input type).  Uploads file to the specified server relative folder url.
-- `web.permissions.getRoleAssignments()` - Gets you an an array of permissions that have been setup for that site. Each permission object has a `member` (the user or group) and a `roles` array (the permissions that user or group has). 
-- `web.permissions.check(email)` - Looks up a user by their email address, then gets you a list of permissions that user has for your site.  Similiar to "Check Permissions". 
+- `dao.web.info()` - Gets you the [SPWeb properties](https://msdn.microsoft.com/en-us/library/office/jj245288.aspx#properties) of your site
+- `dao.web.subsites()` - Gets you all the sub sites and their [SPWeb properties](https://msdn.microsoft.com/en-us/library/office/jj245288.aspx#properties)
+- `dao.web.getUser(email)` - Gets you a SP.User object based on the specified email
+- `dao.web.getFile(serverRelativeUrl)` - Gets you an SP.File object
+- `dao.web.copyFile(sourceUrl, destinationUrl)` - Copies a file (both source and destination urls are server relative)
+- `dao.web.deleteFile(fileUrl)` - Deletes the file at the specified server relative url
+- `dao.web.uploadFile(fileContent, folderUrl)` - Allows passing in an file content as text or as an HTML5 File (from File input type).  Uploads file to the specified server relative folder url.
+- `dao.web.permissions.getRoleAssignments()` - Gets you an an array of permissions that have been setup for that site. Each permission object has a `member` (the user or group) and a `roles` array (the permissions that user or group has). 
+- `dao.web.permissions.check(email)` - Looks up a user by their email address, then gets you a list of permissions that user has for your site.  Similiar to "Check Permissions". 
 
 #### Lists
-- `lists()` - gets you all the lists and libraries on your site and their [SPList properties](https://msdn.microsoft.com/en-us/library/office/jj245826.aspx#properties)
-- `lists(listname)` - gets you a list object for a specific list.  See the '__List__' methods for what you can do with this object
+- `dao.lists()` - gets you all the lists and libraries on your site and their [SPList properties](https://msdn.microsoft.com/en-us/library/office/jj245826.aspx#properties)
+- `dao.lists(listname)` - gets you a list object for a specific list.  See the '__List__' methods for what you can do with this object
 
 #### List
 - `list.info()` - gets you that list's [SPList properties](https://msdn.microsoft.com/en-us/library/office/jj245826.aspx#properties)
@@ -73,15 +79,15 @@ Methods
 
 
 #### Search
-- `search.query(queryText)` - performs a SharePoint search and returns a `SearchResults`  object which contains elapsedTime, suggestion, resultsCount, totalResults, totalResultsIncludingDuplicates, items. The `items` property is what contains the actual "results" array.
-- `search.query(queryText, queryOptions)` - same as `query(queryText)` but with the ability to override default search options.
-- `search.people(queryText)` limits the search to just people
+- `dao.search.query(queryText)` - performs a SharePoint search and returns a `SearchResults`  object which contains elapsedTime, suggestion, resultsCount, totalResults, totalResultsIncludingDuplicates, items. The `items` property is what contains the actual "results" array.
+- `dao.search.query(queryText, queryOptions)` - same as `query(queryText)` but with the ability to override default search options.
+- `dao.search.people(queryText)` limits the search to just people
 
 #### Profiles
-- `profiles.current()` - gets you all the profile properties for the current user
-- `profiles.getByEmail(email)` - looks up a user based on their email and returns their profile properties
-- `profiles.setProperty(user, key, value)` - sets a profile property (key) for the specified user.  User object should have `AccountName` or `LoginName` property
-- `profiles.setProperty(email, key, value)` - sets a profile property (key) for the user tied to that email address
+- `dao.profiles.current()` - gets you all the profile properties for the current user
+- `dao.profiles.getByEmail(email)` - looks up a user based on their email and returns their profile properties
+- `dao.profiles.setProperty(user, key, value)` - sets a profile property (key) for the specified user.  User object should have `AccountName` or `LoginName` property
+- `dao.profiles.setProperty(email, key, value)` - sets a profile property (key) for the user tied to that email address
 
 #### Utils
 - `utils.waitForLibrary(namespace)` - waits for the library to be on the page
@@ -190,6 +196,27 @@ dao.get("/web/lists/getByTitle('Tasks')/items").then(function(data){
         console.log(task.Title);
     });
 });
+```
+
+Here is a more advanced usage that uses `getRequestDigest()` and `SPScript.headers` to create a manual POST request that updates a site's logo.  It is also a good demonstration of managing multiple async function calls w/ ES6 Promises (bundled into SPScript)
+```javascript
+var setSiteLogo = function(siteLogoUrl, siteUrl) {
+    var dao = new SPScript.RestDao(siteUrl);
+    
+    dao.getRequestDigest() // get the auth token
+        .then(SPScript.headers.getUpdateHeaders) // add the token to request headers 
+        .then(function(headers){
+            // create a manual post request
+            var body = { __metadata: {"type": "SP.Web"}, SiteLogoUrl: siteLogoUrl };
+            return dao.post("/web", body, {headers: headers})
+        })
+        .then(function(result){
+            console.log("Set Site Logo Success!");
+        })
+        .catch(function(error){
+            console.log("Set Site Logo Error. Message: " + error);
+        })
+}
 ```
 #### Profiles
 Get the current user's profile properties
