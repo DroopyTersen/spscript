@@ -44,7 +44,8 @@ interface AjaxOptions {
 
 declare abstract class BaseDao {
     customActions:CustomActions
-
+    profiles:Profiles
+    search: Search
     /**
      * If a list name is passed, an SPScript.List object, otherwise performs a request to get all the site's lists
      * Ex: dao.lists('MyList').getItemById(12).then(i => console.log(i));
@@ -197,8 +198,130 @@ declare class List {
     findItem(key:string, value:string, odata?:string): Promise<any[]>;
 }
 
+declare class Profiles {
+    _dao:BaseDao;
+    baseUrl:string;
 
+    /**
+     * Gets the profile of the current user
+     */
+    current(): Promise<any>
 
+    /**
+     * Sets a profile property
+     */
+    setProperty(emailOrUser, key:string, value:any): Promise<any>
+
+    /**
+     * Gets a profile based on a User object w/ have 'LoginName'
+     */
+    getProfile(user:any) : Promise<any>
+
+    /** 
+     * Gets a profile based on an email address.
+     */
+    getByEmail(email:string): Promise<any>
+}
+
+interface SearchQueryOptions {
+    sourceid:string,
+    startrow:number,
+    rowlimit:number,
+    selectedproperties:string[],
+    refiners:string[]
+}
+
+interface Refiner {
+    RefinerName:string,
+    RefinerOptions: any[],
+};
+
+interface SearchResults {
+    elapsedTime:string,
+    suggestion:any,
+    resultsCount:number,
+    totalResults:number,
+    totalResultsIncludingDuplicates:number,
+    items: any[],
+    refiners: Refiner[]
+}
+
+declare class Search {
+    _dao:BaseDao
+
+    /**
+     * Performs a query using the search service
+     */
+    query(queryText:string, opts:SearchQueryOptions) : Promise<SearchResults>
+    
+    /**
+     * Performs Search Service query for just People results
+     */
+    people(queryText:string, opts:SearchQueryOptions) : Promise<SearchResults>
+}
+
+interface SPScriptFile {
+    name:string,
+    serverRelativeUrl:string,
+    title:string,
+    checkoutType:string,
+    byteLength:number,
+    majorVersion:number,
+    minorVersion:number,
+    uri:string
+}
+
+interface SPScriptFolder {
+    name:string,
+    serverRelativeUrl:string,
+    itemCount:number,
+    guid:string,
+    uri:string,
+    files: SPScriptFile[]
+}
+
+declare class Web {
+    _dao:BaseDao
+    baseUrl:string
+    permissions:Permissions
+
+    /**
+     * Retrieves basic info about the site
+     */
+    info(): Promise<any>
+
+    /** Retrieves all of the subsites */
+    subsites(): Promise<any[]>
+
+    /** Retrieves a folder */
+    getFolder(servverRelativeUrl:string): Promise<SPScriptFolder>
+
+    /**
+     * Uploads a file to the server relative folder url. Make sure to set 'fields.name'
+     */
+    uploadFile(fileContent:File, folderUrl, fields, digest?): Promise<any>
+
+    /**
+     * Uploads a text content as a file to the server relative folder url. Make sure to set 'fields.name'
+     */
+    uploadFile(fileContent:string, folderUrl, fields, digest?): Promise<any>
+
+    /** Retrieves a file */
+    getFile(serverRelativeUrl:string): Promise<SPScriptFile>
+
+    /** Copies a file. Both urls are server relative */
+    copyFile(sourceUrl:string, destinationUrl:string, digest?:string): Promise<any>
+
+    /** Deletes a file at the server relative url */
+    deleteFile(serverRelativeUrl:string, digest?:string): Promise<any>
+
+    /** Retrieves a users object based on an email address */
+    getUser(email:string): Promise<any>
+
+    /** Performs an action on the file at the server relative url. Actions = SP.File method names */
+    fileAction(serverRelativeUrl:string, action:string, params:any, digest?:string) 
+
+}
 declare namespace SPScript {
     export class RestDao extends BaseDao {
         constructor(url?:string);
@@ -283,6 +406,14 @@ declare namespace SPScript {
             * Turns a string in form of "key1=value1&key2=value2..." into a javascript object
             */
             function toObj(str?: string) : Object;
+        }
+
+        export module headers {
+            function getStandardHeaders(digest?:string)
+            function getAddHeaders(digest:string)
+            function getUpdateHeaders(digest:string)
+            function getDeleteHeaders(digest:string)
+            function getFilestreamHeaders(digest:string)
         }
     }
 }

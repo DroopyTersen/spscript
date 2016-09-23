@@ -43,33 +43,31 @@ Profiles.prototype.current = function() {
  * var aboutMe = "I am a web developer";
  * dao.profiles.setProperty(email, "AboutMe", aboutMe).then(function() { console.log("Success") });
  */
-Profiles.prototype.setProperty = function(userOrEmail, key, value, digest) {
-	if (digest) return this._setProperty(userOrEmail, key, value, digest);
-	return this._dao.getRequestDigest().then(digest => this._setProperty(userOrEmail, key, value, digest));
-};
-
 // Supports email string or a user object
-Profiles.prototype._setProperty = function(userOrEmail, key, value, digest) {
-	var url = this.baseUrl + "/SetSingleValueProfileProperty";
-	var args = {
-		propertyName: key,
-		propertyValue: value,
-	};
+Profiles.prototype.setProperty = function(userOrEmail, key, value, digest) {
+	return this._dao.ensureRequestDigest(digest).then(digest => { 
+		var url = this.baseUrl + "/SetSingleValueProfileProperty";
+		var args = {
+			propertyName: key,
+			propertyValue: value,
+		};
 
-	var customOptions = {
-		headers: headers.getStandardHeaders(digest)
-	};
+		var customOptions = {
+			headers: headers.getStandardHeaders(digest)
+		};
 
-	// if a string is passed, assume its an email address, otherwise a user was passed
-	if (typeof userOrEmail === "string") {
-		return this.getByEmail(userOrEmail).then(user => {
-			args.accountName = user.AccountName;
+		// if a string is passed, assume its an email address, otherwise a user was passed
+		if (typeof userOrEmail === "string") {
+			return this.getByEmail(userOrEmail).then(user => {
+				args.accountName = user.AccountName;
+				return this._dao.post(url, args, customOptions);
+			})
+		} else {
+			args.accountName = userOrEmail.LoginName || userOrEmail.AccountName;
 			return this._dao.post(url, args, customOptions);
-		})
-	} else {
-		args.accountName = userOrEmail.LoginName || userOrEmail.AccountName;
-		return this._dao.post(url, args, customOptions);
-	}
+		}
+	})
+
 };
 
 Profiles.prototype.getProfile = function(user) {

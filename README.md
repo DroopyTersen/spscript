@@ -255,6 +255,21 @@ dao.search.people('petersen').then(function(searchResults){
 });
 ```
 
+#### Upload Files
+If you have a input element of type 'file' it is very easy to upload files
+```javascript
+var inputElement = document.getElementById("file-input");
+inputElement.addEventListener("change", handleFiles, false);
+function handleFiles() {
+	var fileList = this.files;
+	var folderUrl = "/spscript/Shared Documents";
+	for (var i = 0; i < fileList.length; i++) {
+		dao.web.uploadFile(fileList[i], folderUrl).then(function(result){
+			console.log(result);
+		});
+	}
+}
+```
 ####Templating
 SPScript contains a lightweigt templating engine.  This allows you start with html with ``{{property}}` placeholders and then fill in the values and display on the page after you have finished getting all your REST data.
 

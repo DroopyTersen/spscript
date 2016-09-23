@@ -1515,32 +1515,24 @@
 	 * };
 	 * list.updateItem(12, updates).then(function() { console.log"Success") });
 	 */
-	List.prototype.updateItem = function (itemId, updates, requestDigest) {
+	List.prototype.updateItem = function (itemId, updates, digest) {
 	  var _this2 = this;
 	
-	  if (requestDigest) return this._updateItem(itemId, updates, requestDigest);
+	  return this._dao.ensureRequestDigest(digest).then(function (digest) {
+	    return _this2.getItemById(itemId).then(function (item) {
+	      //decorate the item with the 'type' metadata
+	      updates = _extends({}, {
+	        "__metadata": {
+	          "type": item.__metadata.type
+	        }
+	      }, updates);
 	
-	  return this._dao.getRequestDigest().then(function (requestDigest) {
-	    return _this2._updateItem(itemId, updates, requestDigest);
-	  });
-	};
+	      var customOptions = {
+	        headers: headers.getUpdateHeaders(digest, item.__metadata.etag)
+	      };
 	
-	List.prototype._updateItem = function (itemId, updates, digest) {
-	  var _this3 = this;
-	
-	  return this.getItemById(itemId).then(function (item) {
-	    //decorate the item with the 'type' metadata
-	    updates = _extends({}, {
-	      "__metadata": {
-	        "type": item.__metadata.type
-	      }
-	    }, updates);
-	
-	    var customOptions = {
-	      headers: headers.getUpdateHeaders(digest, item.__metadata.etag)
-	    };
-	
-	    return _this3._dao.post(item.__metadata.uri, updates, customOptions);
+	      return _this2._dao.post(item.__metadata.uri, updates, customOptions);
+	    });
 	  });
 	};
 	
@@ -1552,24 +1544,16 @@
 	 * @example <caption>Delete the item with an ID of 12</caption>
 	 * list.deleteItem(12).then(function() { console.log"Success") });
 	 */
-	List.prototype.deleteItem = function (itemId, requestDigest) {
-	  var _this4 = this;
+	List.prototype.deleteItem = function (itemId, digest) {
+	  var _this3 = this;
 	
-	  if (requestDigest) return this._deleteItem(itemId, requestDigest);
-	
-	  return this._dao.getRequestDigest().then(function (requestDigest) {
-	    return _this4._deleteItem(itemId, requestDigest);
-	  });
-	};
-	
-	List.prototype._deleteItem = function (itemId, digest) {
-	  var _this5 = this;
-	
-	  return this.getItemById(itemId).then(function (item) {
-	    var customOptions = {
-	      headers: headers.getDeleteHeaders(digest, item.__metadata.etag)
-	    };
-	    return _this5._dao.post(item.__metadata.uri, "", customOptions);
+	  return this._dao.ensureRequestDigest(digest).then(function (digest) {
+	    return _this3.getItemById(itemId).then(function (item) {
+	      var customOptions = {
+	        headers: headers.getDeleteHeaders(digest, item.__metadata.etag)
+	      };
+	      return _this3._dao.post(item.__metadata.uri, "", customOptions);
+	    });
 	  });
 	};
 	
@@ -1583,11 +1567,11 @@
 	 * list.addAttachment(12, 'hello.txt', 'Hello World').then(function() { console.log"Success") });
 	 */
 	List.prototype.addAttachment = function (itemId, filename, content, requestDigest) {
-	  var _this6 = this;
+	  var _this4 = this;
 	
 	  if (requestDigest) return this._addAttachment(itemId, filename, content, requestDigest);
 	  return this._dao.getRequestDigest().then(function (requestDigest) {
-	    return _this6._addAttachment(itemId, filename, content, requestDigest);
+	    return _this4._addAttachment(itemId, filename, content, requestDigest);
 	  });
 	};
 	
@@ -1608,15 +1592,15 @@
 	 * list.deleteAttachment(12, 'hello.txt').then(function() { console.log"Success") });
 	 */
 	List.prototype.deleteAttachment = function (itemId, filename, requestDigest) {
-	  var _this7 = this;
+	  var _this5 = this;
 	
 	  if (requestDigest) return this._deleteAttachment(itemId, filename, requestDigest);
 	  return this._dao.getRequestDigest().then(function (requestDigest) {
-	    return _this7._deleteAttachment(itemId, filename, requestDigest);
+	    return _this5._deleteAttachment(itemId, filename, requestDigest);
 	  });
 	};
 	List.prototype._deleteAttachment = function (itemId, filename, requestDigest) {
-	  var _this8 = this;
+	  var _this6 = this;
 	
 	  return this._dao.get(this.baseUrl).then(function (data) {
 	    var customOptions = {
@@ -1626,7 +1610,7 @@
 	        'X-HTTP-Method': "DELETE"
 	      }
 	    };
-	    return _this8._dao.post(_this8.baseUrl + "/items(" + itemId + ")/AttachmentFiles('" + filename + "')", null, customOptions);
+	    return _this6._dao.post(_this6.baseUrl + "/items(" + itemId + ")/AttachmentFiles('" + filename + "')", null, customOptions);
 	  });
 	};
 	
@@ -2634,39 +2618,32 @@
 	 * var aboutMe = "I am a web developer";
 	 * dao.profiles.setProperty(email, "AboutMe", aboutMe).then(function() { console.log("Success") });
 	 */
+	// Supports email string or a user object
 	Profiles.prototype.setProperty = function (userOrEmail, key, value, digest) {
 		var _this = this;
 	
-		if (digest) return this._setProperty(userOrEmail, key, value, digest);
-		return this._dao.getRequestDigest().then(function (digest) {
-			return _this._setProperty(userOrEmail, key, value, digest);
+		return this._dao.ensureRequestDigest(digest).then(function (digest) {
+			var url = _this.baseUrl + "/SetSingleValueProfileProperty";
+			var args = {
+				propertyName: key,
+				propertyValue: value
+			};
+	
+			var customOptions = {
+				headers: headers.getStandardHeaders(digest)
+			};
+	
+			// if a string is passed, assume its an email address, otherwise a user was passed
+			if (typeof userOrEmail === "string") {
+				return _this.getByEmail(userOrEmail).then(function (user) {
+					args.accountName = user.AccountName;
+					return _this._dao.post(url, args, customOptions);
+				});
+			} else {
+				args.accountName = userOrEmail.LoginName || userOrEmail.AccountName;
+				return _this._dao.post(url, args, customOptions);
+			}
 		});
-	};
-	
-	// Supports email string or a user object
-	Profiles.prototype._setProperty = function (userOrEmail, key, value, digest) {
-		var _this2 = this;
-	
-		var url = this.baseUrl + "/SetSingleValueProfileProperty";
-		var args = {
-			propertyName: key,
-			propertyValue: value
-		};
-	
-		var customOptions = {
-			headers: headers.getStandardHeaders(digest)
-		};
-	
-		// if a string is passed, assume its an email address, otherwise a user was passed
-		if (typeof userOrEmail === "string") {
-			return this.getByEmail(userOrEmail).then(function (user) {
-				args.accountName = user.AccountName;
-				return _this2._dao.post(url, args, customOptions);
-			});
-		} else {
-			args.accountName = userOrEmail.LoginName || userOrEmail.AccountName;
-			return this._dao.post(url, args, customOptions);
-		}
 	};
 	
 	Profiles.prototype.getProfile = function (user) {
@@ -2684,10 +2661,10 @@
 	 *    .then(function(profile) { console.log(profile.PreferredName) });
 	 */
 	Profiles.prototype.getByEmail = function (email) {
-		var _this3 = this;
+		var _this2 = this;
 	
 		return this._dao.web.getUser(email).then(function (user) {
-			return _this3.getProfile(user);
+			return _this2.getProfile(user);
 		});
 	};
 	
