@@ -157,7 +157,7 @@ exports.run = function(dao) {
             });
         });
 
-        describe("list.addItem()", function() {
+        describe.only("list.addItem()", function() {
             var newItem = {
                 Title: "Test Created Item",
                 MyStatus: "Red"

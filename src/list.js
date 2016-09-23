@@ -72,28 +72,25 @@ List.prototype.info = function() {
  * };
  * list.addItem(newItem).then(function(item) { console.log(item) });
  */
-List.prototype.addItem = function(item, requestDigest) {
-	if (requestDigest) return this._addItem(item, requestDigest);
 
-	return this._dao.getRequestDigest().then(requestDigest => this._addItem(item, requestDigest));
-};
+List.prototype.addItem = function(item, digest) {
+	return this._dao.ensureRequestDigest(digest).then(digest => {
+		return this._dao.get(this.baseUrl).then(data => {
 
-List.prototype._addItem = function(item, requestDigest) {
-	return this._dao.get(this.baseUrl).then(data => {
+				//decorate the item with the 'type' metadata
+				item = Object.assign({}, {
+					"__metadata": {
+						"type": data.d.ListItemEntityTypeFullName
+					}
+				}, item);
 
-			//decorate the item with the 'type' metadata
-			item = Object.assign({}, {
-				"__metadata": {
-					"type": data.d.ListItemEntityTypeFullName
-				}
-			}, item);
-
-			var customOptions = {
-				headers: headers.getAddHeaders(requestDigest)
-			};
-			return this._dao.post(this.baseUrl + "/items", item, customOptions)
-		})
-		.then(utils.validateODataV2);
+				var customOptions = {
+					headers: headers.getAddHeaders(digest)
+				};
+				return this._dao.post(this.baseUrl + "/items", item, customOptions)
+			})
+			.then(utils.validateODataV2);
+	})
 };
 
 /**

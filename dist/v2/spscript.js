@@ -1346,7 +1346,9 @@
 	};
 	
 	BaseDao.prototype.getRequestDigest = function () {
-		return this.web.getRequestDigest();
+		return this.post('/contextinfo', {}).then(function (data) {
+			return data.d.GetContextWebInformation.FormDigestValue;
+		});
 	};
 	/**
 	 * If a list name is passed, an SPScript.List object, otherwise performs a request to get all the site's lists
@@ -1379,6 +1381,10 @@
 		};
 		options = _extends({}, options, opts);
 		return this.executeRequest(relativePostUrl, options).then(utils.parseJSON);
+	};
+	
+	BaseDao.prototype.ensureRequestDigest = function (digest) {
+		return digest ? Promise.resolve(digest) : this.getRequestDigest();
 	};
 	
 	//Skip stringify it its already a string or it has an explicit Content-Type that is not JSON
@@ -1475,33 +1481,26 @@
 	 * };
 	 * list.addItem(newItem).then(function(item) { console.log(item) });
 	 */
-	List.prototype.addItem = function (item, requestDigest) {
+	
+	List.prototype.addItem = function (item, digest) {
 	  var _this = this;
 	
-	  if (requestDigest) return this._addItem(item, requestDigest);
+	  return this._dao.ensureRequestDigest(digest).then(function (digest) {
+	    return _this._dao.get(_this.baseUrl).then(function (data) {
 	
-	  return this._dao.getRequestDigest().then(function (requestDigest) {
-	    return _this._addItem(item, requestDigest);
+	      //decorate the item with the 'type' metadata
+	      item = _extends({}, {
+	        "__metadata": {
+	          "type": data.d.ListItemEntityTypeFullName
+	        }
+	      }, item);
+	
+	      var customOptions = {
+	        headers: headers.getAddHeaders(digest)
+	      };
+	      return _this._dao.post(_this.baseUrl + "/items", item, customOptions);
+	    }).then(utils.validateODataV2);
 	  });
-	};
-	
-	List.prototype._addItem = function (item, requestDigest) {
-	  var _this2 = this;
-	
-	  return this._dao.get(this.baseUrl).then(function (data) {
-	
-	    //decorate the item with the 'type' metadata
-	    item = _extends({}, {
-	      "__metadata": {
-	        "type": data.d.ListItemEntityTypeFullName
-	      }
-	    }, item);
-	
-	    var customOptions = {
-	      headers: headers.getAddHeaders(requestDigest)
-	    };
-	    return _this2._dao.post(_this2.baseUrl + "/items", item, customOptions);
-	  }).then(utils.validateODataV2);
 	};
 	
 	/**
@@ -1517,17 +1516,17 @@
 	 * list.updateItem(12, updates).then(function() { console.log"Success") });
 	 */
 	List.prototype.updateItem = function (itemId, updates, requestDigest) {
-	  var _this3 = this;
+	  var _this2 = this;
 	
 	  if (requestDigest) return this._updateItem(itemId, updates, requestDigest);
 	
 	  return this._dao.getRequestDigest().then(function (requestDigest) {
-	    return _this3._updateItem(itemId, updates, requestDigest);
+	    return _this2._updateItem(itemId, updates, requestDigest);
 	  });
 	};
 	
 	List.prototype._updateItem = function (itemId, updates, digest) {
-	  var _this4 = this;
+	  var _this3 = this;
 	
 	  return this.getItemById(itemId).then(function (item) {
 	    //decorate the item with the 'type' metadata
@@ -1541,7 +1540,7 @@
 	      headers: headers.getUpdateHeaders(digest, item.__metadata.etag)
 	    };
 	
-	    return _this4._dao.post(item.__metadata.uri, updates, customOptions);
+	    return _this3._dao.post(item.__metadata.uri, updates, customOptions);
 	  });
 	};
 	
@@ -1554,23 +1553,23 @@
 	 * list.deleteItem(12).then(function() { console.log"Success") });
 	 */
 	List.prototype.deleteItem = function (itemId, requestDigest) {
-	  var _this5 = this;
+	  var _this4 = this;
 	
 	  if (requestDigest) return this._deleteItem(itemId, requestDigest);
 	
 	  return this._dao.getRequestDigest().then(function (requestDigest) {
-	    return _this5._deleteItem(itemId, requestDigest);
+	    return _this4._deleteItem(itemId, requestDigest);
 	  });
 	};
 	
 	List.prototype._deleteItem = function (itemId, digest) {
-	  var _this6 = this;
+	  var _this5 = this;
 	
 	  return this.getItemById(itemId).then(function (item) {
 	    var customOptions = {
 	      headers: headers.getDeleteHeaders(digest, item.__metadata.etag)
 	    };
-	    return _this6._dao.post(item.__metadata.uri, "", customOptions);
+	    return _this5._dao.post(item.__metadata.uri, "", customOptions);
 	  });
 	};
 	
@@ -1584,11 +1583,11 @@
 	 * list.addAttachment(12, 'hello.txt', 'Hello World').then(function() { console.log"Success") });
 	 */
 	List.prototype.addAttachment = function (itemId, filename, content, requestDigest) {
-	  var _this7 = this;
+	  var _this6 = this;
 	
 	  if (requestDigest) return this._addAttachment(itemId, filename, content, requestDigest);
 	  return this._dao.getRequestDigest().then(function (requestDigest) {
-	    return _this7._addAttachment(itemId, filename, content, requestDigest);
+	    return _this6._addAttachment(itemId, filename, content, requestDigest);
 	  });
 	};
 	
@@ -1609,15 +1608,15 @@
 	 * list.deleteAttachment(12, 'hello.txt').then(function() { console.log"Success") });
 	 */
 	List.prototype.deleteAttachment = function (itemId, filename, requestDigest) {
-	  var _this8 = this;
+	  var _this7 = this;
 	
 	  if (requestDigest) return this._deleteAttachment(itemId, filename, requestDigest);
 	  return this._dao.getRequestDigest().then(function (requestDigest) {
-	    return _this8._deleteAttachment(itemId, filename, requestDigest);
+	    return _this7._deleteAttachment(itemId, filename, requestDigest);
 	  });
 	};
 	List.prototype._deleteAttachment = function (itemId, filename, requestDigest) {
-	  var _this9 = this;
+	  var _this8 = this;
 	
 	  return this._dao.get(this.baseUrl).then(function (data) {
 	    var customOptions = {
@@ -1627,7 +1626,7 @@
 	        'X-HTTP-Method': "DELETE"
 	      }
 	    };
-	    return _this9._dao.post(_this9.baseUrl + "/items(" + itemId + ")/AttachmentFiles('" + filename + "')", null, customOptions);
+	    return _this8._dao.post(_this8.baseUrl + "/items(" + itemId + ")/AttachmentFiles('" + filename + "')", null, customOptions);
 	  });
 	};
 	
@@ -2291,9 +2290,7 @@
 	 *  dao.web.getRequestDigest().then(function(digest) { console.log(digest) });
 	 */
 	Web.prototype.getRequestDigest = function () {
-		return this._dao.post('/contextinfo', {}).then(function (data) {
-			return data.d.GetContextWebInformation.FormDigestValue;
-		});
+		return this._dao.getRequestDigest();
 	};
 	
 	/**
@@ -3109,7 +3106,7 @@
 		};
 	};
 	
-	// Get all Site and Web scoped custom actions.
+	//
 	// If a name is passed, filter the result set
 	CustomActions.prototype.get = function (name) {
 		var _this2 = this;
