@@ -77,11 +77,19 @@ Methods
 - `list.permissions.getRoleAssignments()` - Gets you an an array of permissions that have been setup for that list. Each permission object has a `member` (the user or group) and a `roles` array (the permissions that user or group has). 
 - `list.permissions.check(email)` - Looks up a user by their email address, then gets the permissions that user has for that list.  Similiar to "Check Permissions". 
 
-
 #### Search
 - `dao.search.query(queryText)` - performs a SharePoint search and returns a `SearchResults`  object which contains elapsedTime, suggestion, resultsCount, totalResults, totalResultsIncludingDuplicates, items. The `items` property is what contains the actual "results" array.
 - `dao.search.query(queryText, queryOptions)` - same as `query(queryText)` but with the ability to override default search options.
 - `dao.search.people(queryText)` limits the search to just people
+
+#### CustomActions
+- `dao.customActions.get()` - Gets all of the 'Site' and 'Web' scoped UserCustomActions.
+- `dao.customActions.get(name)` - Get a UserCustomAction by name. Searches both 'Site' and 'Web' scoped custom actions.
+- `dao.customActions.update(updates)` - Updates properties on an exisiting custom action. You must set the `Name` property on you `updates` object to identify the targeted custom action.
+- `dao.customActions.remove(name)` - Removes a UserCustomAction with that name
+- `dao.customActions.add(customAction)` - Takes in an object with `SP.UserCustomAction` properties.
+- `dao.customActions.addScriptLink(name, url, opts)` - injects a Javascript file onto your site
+- `dao.customActions.addCssLink(name, url, opts)` - injects a CSS file onto your site
 
 #### Profiles
 - `dao.profiles.current()` - gets you all the profile properties for the current user
@@ -90,18 +98,23 @@ Methods
 - `dao.profiles.setProperty(email, key, value)` - sets a profile property (key) for the user tied to that email address
 
 #### Utils
-- `utils.waitForLibrary(namespace)` - waits for the library to be on the page
-- `utils.waitForLibraries(namespaces)` - waits for all libraries to be on the page
-- `utils.getScript(url)` - loads a javascript file onto the page
-- `utils.getScripts(urls)` - loads multiple javascript files onto the page
+- `SPScript.utils.waitForLibrary(namespace)` - waits for the library to be on the page
+- `SPScript.utils.waitForLibraries(namespaces)` - waits for all libraries to be on the page
+- `SPScript.utils.getScript(url)` - loads a javascript file onto the page
+- `SPScript.utils.getScripts(urls)` - loads multiple javascript files onto the page
 
 #### Query String Helpers
-- `queryString.toObj(str)` - returns a javascript object. Each query string key is a property on the object.
-- `queryString.fromObj(str)` - turns a javascript object into a string in format of "key1=value1&key2=value2"
+- `SPScript.queryString.toObj(str)` - returns a javascript object. Each query string key is a property on the object.
+- `SPScript.queryString.fromObj(str)` - turns a javascript object into a string in format of "key1=value1&key2=value2"
 
 #### Templating
-- `templating.render(template, item)` - returns an html string. `template` is an html string with `{{property}}` placeholders. `item` is a javascript object whose properties will be used to fill in your html placeholders.
+- `SPScript.templating.render(template, item)` - returns an html string. `template` is an html string with `{{property}}` placeholders. `item` is a javascript object whose properties will be used to fill in your html placeholders.
 
+#### Request Headers
+- `SPScript.headers.getStandardHeaders([digest])` - sets the `Accept` and `Content-Type` headers to the JSON Mime type. If the optional `digest` token is passed, it sets the proper authoorization headers. Returns the headers as an object.  
+- `SPScript.headers.getAddHeaders(digest)` - returns the headers object needed in order to create an item.
+- `SPScript.headers.getUpdateHaders(digest)` - returns the headers object needed in order to update an item. 
+- `SPScript.headers.getDeleteHeaders(digest)` - returns the headers object needed in order to delete an item. 
 
 ***
 
