@@ -36,26 +36,32 @@ Initialization
 All you need is the url of the SharePoint site you are targeting.
 ```javascript
 var siteUrl = "http://urltomysharepointsite.com";
+// If you don't pass a site url, it will use your current web
 var dao = new SPScript.RestDao(siteUrl);
 ```
 
 Methods
 --------------
 
+#### Data Access Object (RestDao)
+- `dao.get(url, opts)` - Generic helper to make AJAX GET request. Sets proper headers, promisifies, and parses JSON response. `url` is the API url relative to "/_api". 
+- `dao.post(url, body, opts)` - Generic helper to make AJAX POST request. `url` is the API url relative to "/_api".
+- `dao.getRequestDigest()` - Retrieves a token needed to authorize any updates
+
 #### Web
-- `web.info()` - Gets you the [SPWeb properties](https://msdn.microsoft.com/en-us/library/office/jj245288.aspx#properties) of your site
-- `web.subsites()` - Gets you all the sub sites and their [SPWeb properties](https://msdn.microsoft.com/en-us/library/office/jj245288.aspx#properties)
-- `web.getUser(email)` - Gets you a SP.User object based on the specified email
-- `web.getFile(serverRelativeUrl)` - Gets you an SP.File object
-- `web.copyFile(sourceUrl, destinationUrl)` - Copies a file (both source and destination urls are server relative)
-- `web.deleteFile(fileUrl)` - Deletes the file at the specified server relative url
-- `web.uploadFile(fileContent, folderUrl)` - Allows passing in an file content as text or as an HTML5 File (from File input type).  Uploads file to the specified server relative folder url.
-- `web.permissions.getRoleAssignments()` - Gets you an an array of permissions that have been setup for that site. Each permission object has a `member` (the user or group) and a `roles` array (the permissions that user or group has). 
-- `web.permissions.check(email)` - Looks up a user by their email address, then gets you a list of permissions that user has for your site.  Similiar to "Check Permissions". 
+- `dao.web.info()` - Gets you the [SPWeb properties](https://msdn.microsoft.com/en-us/library/office/jj245288.aspx#properties) of your site
+- `dao.web.subsites()` - Gets you all the sub sites and their [SPWeb properties](https://msdn.microsoft.com/en-us/library/office/jj245288.aspx#properties)
+- `dao.web.getUser(email)` - Gets you a SP.User object based on the specified email
+- `dao.web.getFile(serverRelativeUrl)` - Gets you an SP.File object
+- `dao.web.copyFile(sourceUrl, destinationUrl)` - Copies a file (both source and destination urls are server relative)
+- `dao.web.deleteFile(fileUrl)` - Deletes the file at the specified server relative url
+- `dao.web.uploadFile(fileContent, folderUrl)` - Allows passing in an file content as text or as an HTML5 File (from File input type).  Uploads file to the specified server relative folder url.
+- `dao.web.permissions.getRoleAssignments()` - Gets you an an array of permissions that have been setup for that site. Each permission object has a `member` (the user or group) and a `roles` array (the permissions that user or group has). 
+- `dao.web.permissions.check(email)` - Looks up a user by their email address, then gets you a list of permissions that user has for your site.  Similiar to "Check Permissions". 
 
 #### Lists
-- `lists()` - gets you all the lists and libraries on your site and their [SPList properties](https://msdn.microsoft.com/en-us/library/office/jj245826.aspx#properties)
-- `lists(listname)` - gets you a list object for a specific list.  See the '__List__' methods for what you can do with this object
+- `dao.lists()` - gets you all the lists and libraries on your site and their [SPList properties](https://msdn.microsoft.com/en-us/library/office/jj245826.aspx#properties)
+- `dao.lists(listname)` - gets you a list object for a specific list.  See the '__List__' methods for what you can do with this object
 
 #### List
 - `list.info()` - gets you that list's [SPList properties](https://msdn.microsoft.com/en-us/library/office/jj245826.aspx#properties)
@@ -71,31 +77,44 @@ Methods
 - `list.permissions.getRoleAssignments()` - Gets you an an array of permissions that have been setup for that list. Each permission object has a `member` (the user or group) and a `roles` array (the permissions that user or group has). 
 - `list.permissions.check(email)` - Looks up a user by their email address, then gets the permissions that user has for that list.  Similiar to "Check Permissions". 
 
-
 #### Search
-- `search.query(queryText)` - performs a SharePoint search and returns a `SearchResults`  object which contains elapsedTime, suggestion, resultsCount, totalResults, totalResultsIncludingDuplicates, items. The `items` property is what contains the actual "results" array.
-- `search.query(queryText, queryOptions)` - same as `query(queryText)` but with the ability to override default search options.
-- `search.people(queryText)` limits the search to just people
+- `dao.search.query(queryText)` - performs a SharePoint search and returns a `SearchResults`  object which contains elapsedTime, suggestion, resultsCount, totalResults, totalResultsIncludingDuplicates, items. The `items` property is what contains the actual "results" array.
+- `dao.search.query(queryText, queryOptions)` - same as `query(queryText)` but with the ability to override default search options.
+- `dao.search.people(queryText)` limits the search to just people
+
+#### CustomActions
+- `dao.customActions.get()` - Gets all of the 'Site' and 'Web' scoped UserCustomActions.
+- `dao.customActions.get(name)` - Get a UserCustomAction by name. Searches both 'Site' and 'Web' scoped custom actions.
+- `dao.customActions.update(updates)` - Updates properties on an exisiting custom action. You must set the `Name` property on you `updates` object to identify the targeted custom action.
+- `dao.customActions.remove(name)` - Removes a UserCustomAction with that name
+- `dao.customActions.add(customAction)` - Takes in an object with `SP.UserCustomAction` properties.
+- `dao.customActions.addScriptLink(name, url, opts)` - injects a Javascript file onto your site
+- `dao.customActions.addCssLink(name, url, opts)` - injects a CSS file onto your site
 
 #### Profiles
-- `profiles.current()` - gets you all the profile properties for the current user
-- `profiles.getByEmail(email)` - looks up a user based on their email and returns their profile properties
-- `profiles.setProperty(user, key, value)` - sets a profile property (key) for the specified user.  User object should have `AccountName` or `LoginName` property
-- `profiles.setProperty(email, key, value)` - sets a profile property (key) for the user tied to that email address
+- `dao.profiles.current()` - gets you all the profile properties for the current user
+- `dao.profiles.getByEmail(email)` - looks up a user based on their email and returns their profile properties
+- `dao.profiles.setProperty(user, key, value)` - sets a profile property (key) for the specified user.  User object should have `AccountName` or `LoginName` property
+- `dao.profiles.setProperty(email, key, value)` - sets a profile property (key) for the user tied to that email address
 
 #### Utils
-- `utils.waitForLibrary(namespace)` - waits for the library to be on the page
-- `utils.waitForLibraries(namespaces)` - waits for all libraries to be on the page
-- `utils.getScript(url)` - loads a javascript file onto the page
-- `utils.getScripts(urls)` - loads multiple javascript files onto the page
+- `SPScript.utils.waitForLibrary(namespace)` - waits for the library to be on the page
+- `SPScript.utils.waitForLibraries(namespaces)` - waits for all libraries to be on the page
+- `SPScript.utils.getScript(url)` - loads a javascript file onto the page
+- `SPScript.utils.getScripts(urls)` - loads multiple javascript files onto the page
 
 #### Query String Helpers
-- `queryString.toObj(str)` - returns a javascript object. Each query string key is a property on the object.
-- `queryString.fromObj(str)` - turns a javascript object into a string in format of "key1=value1&key2=value2"
+- `SPScript.queryString.toObj(str)` - returns a javascript object. Each query string key is a property on the object.
+- `SPScript.queryString.fromObj(str)` - turns a javascript object into a string in format of "key1=value1&key2=value2"
 
 #### Templating
-- `templating.render(template, item)` - returns an html string. `template` is an html string with `{{property}}` placeholders. `item` is a javascript object whose properties will be used to fill in your html placeholders.
+- `SPScript.templating.render(template, item)` - returns an html string. `template` is an html string with `{{property}}` placeholders. `item` is a javascript object whose properties will be used to fill in your html placeholders.
 
+#### Request Headers
+- `SPScript.headers.getStandardHeaders([digest])` - sets the `Accept` and `Content-Type` headers to the JSON Mime type. If the optional `digest` token is passed, it sets the proper authoorization headers. Returns the headers as an object.  
+- `SPScript.headers.getAddHeaders(digest)` - returns the headers object needed in order to create an item.
+- `SPScript.headers.getUpdateHaders(digest)` - returns the headers object needed in order to update an item. 
+- `SPScript.headers.getDeleteHeaders(digest)` - returns the headers object needed in order to delete an item. 
 
 ***
 
@@ -190,6 +209,27 @@ dao.get("/web/lists/getByTitle('Tasks')/items").then(function(data){
         console.log(task.Title);
     });
 });
+```
+
+Here is a more advanced usage that uses `getRequestDigest()` and `SPScript.headers` to create a manual POST request that updates a site's logo.  It is also a good demonstration of managing multiple async function calls w/ ES6 Promises (bundled into SPScript)
+```javascript
+var setSiteLogo = function(siteLogoUrl, siteUrl) {
+    var dao = new SPScript.RestDao(siteUrl);
+    
+    dao.getRequestDigest() // get the auth token
+        .then(SPScript.headers.getUpdateHeaders) // add the token to request headers 
+        .then(function(headers){
+            // create a manual post request
+            var body = { __metadata: {"type": "SP.Web"}, SiteLogoUrl: siteLogoUrl };
+            return dao.post("/web", body, {headers: headers})
+        })
+        .then(function(result){
+            console.log("Set Site Logo Success!");
+        })
+        .catch(function(error){
+            console.log("Set Site Logo Error. Message: " + error);
+        })
+}
 ```
 #### Profiles
 Get the current user's profile properties
