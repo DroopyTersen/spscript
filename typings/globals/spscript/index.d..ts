@@ -46,6 +46,7 @@ declare abstract class BaseDao {
     customActions:CustomActions
     profiles:Profiles
     search: Search
+    web: Web
     /**
      * If a list name is passed, an SPScript.List object, otherwise performs a request to get all the site's lists
      * Ex: dao.lists('MyList').getItemById(12).then(i => console.log(i));
