@@ -129,5 +129,21 @@ Search.prototype.people = function(queryText, queryOptions) {
 	return this.query(queryText, options);
 };
 
+/**
+ * Performs a query for just sites using the search service
+ * @param {string} queryText - The query text to send to the Search Service
+ * @param {string} [[scope]] - A url to scope the results to
+ * @param {QueryOptions} [[queryOptions]] - Override the default query options
+ * @returns {Promise<SearchResults>} - A Promise that resolves to a SearchResults object
+ * @example
+ * dao.search.sites('andrew').then(function(result) { console.log(result.items) });
+ */
+Search.prototype.sites = function(queryText, scope, queryOptions = {}) {
+	queryText = queryText || "";
+	scope = scope ? `Path:${scope}*` : ""
+	var query = (`${queryText} contentclass:STS_Web ${scope}`).trim()
+	queryOptions.rowlimit = queryOptions.rowlimit || 499;
+	return this.query(query, queryOptions);
+};
 
 module.exports = Search;
