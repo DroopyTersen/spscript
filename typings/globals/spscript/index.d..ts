@@ -136,7 +136,7 @@ declare class CustomActions {
     /**
      * Injects a CSS file onto the site
      */
-    addScriptLink(name:string, url:string, opts:CustomAction): Promise<any>
+    addCssLink(name:string, url:string, opts:CustomAction): Promise<any>
 }
 declare class Permissions {
     baseUrl:string;
@@ -146,8 +146,6 @@ declare class Permissions {
      * Gets all the role assignments on that securable
      * Ex: dao.web.permissions.getRoleAssignments().then(r => console.log(r));
      */
-    setup(options: MochaSetupOptions): Mocha;
-
     getRoleAssignments(): Promise<RoleAssignment>;
     
     /**
