@@ -1,6 +1,6 @@
 var permissionsTests = require("./permissionsTests.js");
 var should = require("chai").should();
-var utils = require("../utils");
+var utils = require("../../lib/utils");
 
 exports.run = function(dao) {
     describe("var web = dao.web", function() {

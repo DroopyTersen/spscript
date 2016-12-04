@@ -1,4 +1,6 @@
-var promisePolyfill = require("es6-promise");
+// var promisePolyfill = require("es6-promise");
+var promisePolyfill = require("promise-polyfill");
+
 if (!global.Promise) {
 	global.Promise = promisePolyfill;
 }

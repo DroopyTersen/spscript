@@ -1,5 +1,5 @@
 var permissionsTests = require("./permissionsTests.js");
-var utils = require("../utils");
+var utils = require("../../lib/utils");
 
 exports.run = function(dao) {
     describe("dao.lists()", function() {
@@ -226,21 +226,21 @@ exports.run = function(dao) {
             var getAttachment = function(id, filename) {
                 return list.getItemById(itemIdWithAttachment, "$expand=AttachmentFiles").then(function(item){
                     var attachments = item.AttachmentFiles.results;
-                    return attachments.find(a => a.FileName === attachmentFilename);
+                    return attachments.find(function(a) { return a.FileName === attachmentFilename});
                 });
             };
             before(function(done) {
-                getAttachment(itemIdWithAttachment, attachmentFilename).then(attachment => {
+                getAttachment(itemIdWithAttachment, attachmentFilename).then(function(attachment) {
                     if (attachment) {
                         return list.deleteAttachment(itemIdWithAttachment, attachmentFilename);
                     }
                     return false;
                 }).then(function(){
                     done();
-                }).catch(res => console.log("REQUEST ERROR"));
+                }).catch(function(res) { console.log("REQUEST ERROR")});
             });
             it("Should delete the attachment", function(done) {
-                getAttachment(itemIdWithAttachment, attachmentFilename).then(attachment => {
+                getAttachment(itemIdWithAttachment, attachmentFilename).then(function(attachment) {
                     if (attachment) ("attachment").should.equal("null");
                     done();
                 });
