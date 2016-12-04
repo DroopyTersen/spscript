@@ -5,6 +5,7 @@ var Profiles 		= require("./profiles")
 var Search 			= require("./search");
 var utils 			= require("./utils");
 var CustomActions 	= require("./customActions");
+var headerUtils		  	= require("./requestHeaders");
 /**
  * Abstract class. You'll never work with this directly. 
  * @abstract
@@ -77,6 +78,14 @@ BaseDao.prototype.post = function(relativePostUrl, body, opts) {
 	};
 	options = Object.assign({}, options, opts);
 	return this.executeRequest(relativePostUrl, options).then(utils.parseJSON);
+};
+
+BaseDao.prototype.authorizedPost = function(relativePostUrl, body, verb) {
+	return this.getRequestDigest()
+		.then(digest => headerUtils.getActionHeaders(verb, digest))
+		.then(headers => {
+			return this.post(relativePostUrl, body, { headers })
+		});
 };
 
 BaseDao.prototype.ensureRequestDigest = function(digest) {
