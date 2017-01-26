@@ -49,10 +49,7 @@ Web.prototype.subsites = function() {
  *  dao.web.getRequestDigest().then(function(digest) { console.log(digest) });
  */
 Web.prototype.getRequestDigest = function() {
-	return this._dao.post('/contextinfo', {})
-		.then(data => {
-			return data.d.GetContextWebInformation.FormDigestValue
-		});
+	return this._dao.getRequestDigest();
 };
 
 /**

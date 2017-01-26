@@ -78,6 +78,50 @@ exports.run = function(dao) {
                 })
             });
         });
+
+        describe("search.sites(queryText, scope)", function() {
+            it("Should only return search results that are sites", function(done) {
+                var queryText = "";
+                dao.search.sites(queryText).then(function(searchResults) {
+                    searchResults.should.be.an("object");
+                    searchResults.should.have.property("items");
+                    searchResults.items.should.be.an("array");
+                    searchResults.items.should.not.be.empty();
+                    console.log(searchResults.items.length);
+                    
+                    var site;
+                    for(var i = 0; i < searchResults.items.length; i++) {
+                        site = searchResults.items[i];
+                        site.should.have.property("Path");
+                        site.should.have.property("contentclass");
+                        site.contentclass.should.equal("STS_Web");
+                    }
+
+                    done();
+                })
+            });
+
+            it("Should only return sites underneath the specified scope", function(done){
+                var scope = "https://andrewpetersen.sharepoint.com/sites/ep";
+                dao.search.sites("", scope).then(function(searchResults) {
+                    searchResults.should.be.an("object");
+                    searchResults.should.have.property("items");
+                    searchResults.items.should.be.an("array");
+                    searchResults.items.should.not.be.empty();
+                    
+                    var site;
+                    for(var i = 0; i < searchResults.items.length; i++) {
+                        site = searchResults.items[i];
+                        site.should.have.property("Path");
+                        site.Path.indexOf(scope).should.equal(0);
+                        site.should.have.property("contentclass");
+                        site.contentclass.should.equal("STS_Web");
+                    }
+
+                    done();
+                })
+            })
+        });
     })
 
 };

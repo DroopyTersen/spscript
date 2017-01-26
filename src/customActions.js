@@ -25,7 +25,7 @@ var CustomActions = function (dao) {
 	this.scopes.getById = (id) => id === 2 ? this.scopes.Site : this.scopes.Web
 };
 
-// Get all Site and Web scoped custom actions.
+// 
 // If a name is passed, filter the result set
 CustomActions.prototype.get = function (name) {
 

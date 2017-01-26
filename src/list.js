@@ -72,28 +72,25 @@ List.prototype.info = function() {
  * };
  * list.addItem(newItem).then(function(item) { console.log(item) });
  */
-List.prototype.addItem = function(item, requestDigest) {
-	if (requestDigest) return this._addItem(item, requestDigest);
 
-	return this._dao.getRequestDigest().then(requestDigest => this._addItem(item, requestDigest));
-};
+List.prototype.addItem = function(item, digest) {
+	return this._dao.ensureRequestDigest(digest).then(digest => {
+		return this._dao.get(this.baseUrl).then(data => {
 
-List.prototype._addItem = function(item, requestDigest) {
-	return this._dao.get(this.baseUrl).then(data => {
+				//decorate the item with the 'type' metadata
+				item = Object.assign({}, {
+					"__metadata": {
+						"type": data.d.ListItemEntityTypeFullName
+					}
+				}, item);
 
-			//decorate the item with the 'type' metadata
-			item = Object.assign({}, {
-				"__metadata": {
-					"type": data.d.ListItemEntityTypeFullName
-				}
-			}, item);
-
-			var customOptions = {
-				headers: headers.getAddHeaders(requestDigest)
-			};
-			return this._dao.post(this.baseUrl + "/items", item, customOptions)
-		})
-		.then(utils.validateODataV2);
+				var customOptions = {
+					headers: headers.getAddHeaders(digest)
+				};
+				return this._dao.post(this.baseUrl + "/items", item, customOptions)
+			})
+			.then(utils.validateODataV2);
+	})
 };
 
 /**
@@ -108,27 +105,23 @@ List.prototype._addItem = function(item, requestDigest) {
  * };
  * list.updateItem(12, updates).then(function() { console.log"Success") });
  */
-List.prototype.updateItem = function(itemId, updates, requestDigest) {
-	if (requestDigest) return this._updateItem(itemId, updates, requestDigest);
+List.prototype.updateItem = function(itemId, updates, digest) {
+	return this._dao.ensureRequestDigest(digest).then(digest => {
+		return this.getItemById(itemId).then(item => {
+			//decorate the item with the 'type' metadata
+			updates = Object.assign({}, {
+				"__metadata": {
+					"type": item.__metadata.type
+				}
+			}, updates);
 
-	return this._dao.getRequestDigest().then(requestDigest => this._updateItem(itemId, updates, requestDigest));
-};
+			var customOptions = {
+				headers: headers.getUpdateHeaders(digest, item.__metadata.etag)
+			};
 
-List.prototype._updateItem = function(itemId, updates, digest) {
-	return this.getItemById(itemId).then(item => {
-		//decorate the item with the 'type' metadata
-		updates = Object.assign({}, {
-			"__metadata": {
-				"type": item.__metadata.type
-			}
-		}, updates);
-
-		var customOptions = {
-			headers: headers.getUpdateHeaders(digest, item.__metadata.etag)
-		};
-
-		return this._dao.post(item.__metadata.uri, updates, customOptions);
-	});
+			return this._dao.post(item.__metadata.uri, updates, customOptions);
+		});
+	})
 };
 
 /**
@@ -139,18 +132,14 @@ List.prototype._updateItem = function(itemId, updates, digest) {
  * @example <caption>Delete the item with an ID of 12</caption>
  * list.deleteItem(12).then(function() { console.log"Success") });
  */
-List.prototype.deleteItem = function(itemId, requestDigest) {
-	if (requestDigest) return this._deleteItem(itemId, requestDigest);
-
-	return this._dao.getRequestDigest().then(requestDigest => this._deleteItem(itemId, requestDigest));
-};
-
-List.prototype._deleteItem = function(itemId, digest) {
-	return this.getItemById(itemId).then(item => {
-		var customOptions = {
-			headers: headers.getDeleteHeaders(digest, item.__metadata.etag)
-		};
-		return this._dao.post(item.__metadata.uri, "", customOptions);
+List.prototype.deleteItem = function(itemId, digest) {
+	return this._dao.ensureRequestDigest(digest).then(digest => {
+		return this.getItemById(itemId).then(item => {
+			var customOptions = {
+				headers: headers.getDeleteHeaders(digest, item.__metadata.etag)
+			};
+			return this._dao.post(item.__metadata.uri, "", customOptions);
+		});
 	});
 };
 

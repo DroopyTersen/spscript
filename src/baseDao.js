@@ -41,7 +41,10 @@ BaseDao.prototype.get = function(relativeQueryUrl, extendedOptions) {
 };
 
 BaseDao.prototype.getRequestDigest = function() {
-	return this.web.getRequestDigest();
+	return this.post('/contextinfo', {})
+		.then(data => {
+			return data.d.GetContextWebInformation.FormDigestValue
+		});
 };
 /**
  * If a list name is passed, an SPScript.List object, otherwise performs a request to get all the site's lists
@@ -75,6 +78,10 @@ BaseDao.prototype.post = function(relativePostUrl, body, opts) {
 	options = Object.assign({}, options, opts);
 	return this.executeRequest(relativePostUrl, options).then(utils.parseJSON);
 };
+
+BaseDao.prototype.ensureRequestDigest = function(digest) {
+	return digest ? Promise.resolve(digest) : this.getRequestDigest();
+}
 
 //Skip stringify it its already a string or it has an explicit Content-Type that is not JSON
 var packagePostBody = function(body, opts) {
