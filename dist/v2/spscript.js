@@ -44,9 +44,7 @@
 /* 0 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* WEBPACK VAR INJECTION */(function(global) {// var promisePolyfill = require("es6-promise");
-	var promisePolyfill = __webpack_require__(1);
-
+	/* WEBPACK VAR INJECTION */(function(global) {var promisePolyfill = __webpack_require__(1);
 	if (!global.Promise) {
 		global.Promise = promisePolyfill;
 	}
