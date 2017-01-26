@@ -107,9 +107,6 @@ Methods
 - `SPScript.queryString.toObj(str)` - returns a javascript object. Each query string key is a property on the object.
 - `SPScript.queryString.fromObj(str)` - turns a javascript object into a string in format of "key1=value1&key2=value2"
 
-#### Templating
-- `SPScript.templating.render(template, item)` - returns an html string. `template` is an html string with `{{property}}` placeholders. `item` is a javascript object whose properties will be used to fill in your html placeholders.
-
 #### Request Headers
 - `SPScript.headers.getStandardHeaders([digest])` - sets the `Accept` and `Content-Type` headers to the JSON Mime type. If the optional `digest` token is passed, it sets the proper authoorization headers. Returns the headers as an object.  
 - `SPScript.headers.getAddHeaders(digest)` - returns the headers object needed in order to create an item.
@@ -270,47 +267,3 @@ function handleFiles() {
 	}
 }
 ```
-####Templating
-SPScript contains a lightweigt templating engine.  This allows you start with html with ``{{property}}` placeholders and then fill in the values and display on the page after you have finished getting all your REST data.
-
-Display document name and category on the page
-
-Step 1: Create the html container
-
-```html
-<div id='docs-webpart'><!-- Template html will be injected here --></div>
-```
-Step 2: Create a template using a script tag with a custom type
-
-```html
-<script type='custom/template' id='doc-template'>
-    <div class='document'>
-        <a href='{{FileRef}}'>
-            <h3>{{FileRef}}</h3>
-            <h4>{{Category}}</h4>
-        </a>
-    </div>
-</script>
-```
-
-Step 3: Use the RestDao to get the documents, and the templating to render them on the page.
-
-```javascript
-//select our template
-var template = $("#doc-template").html();
-
-//Get our documents
-dao.lists("Documents").getItems().then(function(docs){
-    var html = "";
-
-    //foreach document, create the html based on our template
-    docs.forEach(function(doc){
-        html += SPScript.templating.render(template, doc);
-    });
-
-    //Output all the html to the page inside of our container
-    $("#docs-webpart").html(html);
-});
-```
-
-
