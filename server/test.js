@@ -3,6 +3,7 @@ var config = require("../app.config");
 var should = require("chai").should();
 
 describe('ServerDao', function () {
+    console.log(config);
     var dao = new ServerDao(config.spSiteUrl, config.clientKey, config.clientSecret);
     describe('var dao = new ServerDao(url, clientId, clientSecret)', function () {
         it('should return an object with web, search, lists etc...', function () {

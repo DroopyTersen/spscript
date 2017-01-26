@@ -1,6 +1,6 @@
 {
   "name": "spscript",
-  "version": "1.7.0",
+  "version": "2.0.0",
   "description": "SharePoint 2013 Rest Api Wrappers",
   "main": "./entries/spscript.js",
   "scripts": {
@@ -49,7 +49,6 @@
     "webpack": "^1.13.0"
   },
   "dependencies": {
-    "mustache": "^2.3.0",
     "promise-polyfill": "^6.0.2"
   }
 }

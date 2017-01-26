@@ -1,11 +1,3 @@
-var templating = require("mustache");
-
-function createTemplateRenderer(htmlTemplate, events) {
-    return function(ctx) {
-        return templating.render(htmlTemplate, ctx);
-    }
-}
-
 function createFormFieldRenderer(field) {
     return function(ctx) {
         var formCtx = ctx.FormContext;
@@ -41,9 +33,6 @@ function createDisplayFieldRenderer(field) {
 }
 
 var renderers = {
-    template: {
-        create: createTemplateRenderer
-    },
     formField : {
         create: createFormFieldRenderer
     },
