@@ -1,4 +1,4 @@
-var utils = require("../utils");
+var utils = require("../../lib/utils");
 
 exports.run = function(dao) {
     describe("dao.customActions", function() {
@@ -8,12 +8,12 @@ exports.run = function(dao) {
         var customAction = {
             Name: "spscript-test",
             Location: "ScriptLink",
-            ScriptBlock: "console.log('deployed from spscript-mocha test')"
+            ScriptBlock: "console.log('deployed from spscript-mocha test');"
         };
         describe("dao.customActions.add(customAction)", function() {
             var beforeCount = 0;
             before(function(done){
-                dao.customActions.get().then(all => {
+                dao.customActions.get().then(function(all) {
                     beforeCount = all.length;
                     done();
                 })
@@ -22,7 +22,7 @@ exports.run = function(dao) {
 
             it("Should add a Custom Action with the given name", function(done) {
                 dao.customActions.add(customAction).then(function() {
-                    dao.customActions.get().then(all => {
+                    dao.customActions.get().then(function(all) {
                         all.length.should.equal(beforeCount + 1);
                         done();
                     })
@@ -56,7 +56,7 @@ exports.run = function(dao) {
             before(function(done) {
                 dao.customActions.get()
                 .then(function(allCustomActions) {
-                    dao.customActions.get(allCustomActions[0].Name).then(res => {
+                    dao.customActions.get(allCustomActions[0].Name).then(function(res) {
                         result = res;
                         done();
                     });
@@ -94,7 +94,7 @@ exports.run = function(dao) {
             it("Should update the property", function(done) {
                 dao.customActions.update({ Name: result.Name, Title: newTitle})
                 .then(function() {
-                    dao.customActions.get(result.Name).then(i => {
+                    dao.customActions.get(result.Name).then(function(i) {
                         i.Title.should.equal(newTitle);
                         done();
                     })
@@ -105,16 +105,16 @@ exports.run = function(dao) {
         describe("dao.customActions.remove(name)", function() {
             var beforeCount = 0;
             before(function(done){
-                dao.customActions.get().then(all => {
-                    beforeCount = all.filter(a => a.Name === customAction.Name).length;
+                dao.customActions.get().then(function(all) {
+                    beforeCount = all.filter(function(a){ return a.Name === customAction.Name}).length;
                     done();
                 })
             });
 
             it("Should remove all custom actions with that name", function(done){
                 dao.customActions.remove(customAction.Name).then(function() {
-                    dao.customActions.get().then(all => {
-                        var matches = all.filter(a => a.Name === customAction.Name);
+                    dao.customActions.get().then(function(all) {
+                        var matches = all.filter(function(a) { return a.Name === customAction.Name});
                         matches.should.be.empty();
                         done();
                     })

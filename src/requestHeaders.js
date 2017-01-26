@@ -21,7 +21,8 @@ var getFilestreamHeaders = exports.getFilestreamHeaders = function(digest) {
 	}
 };
 
-var getActionHeaders = function(verb, digest) {
+var getActionHeaders = exports.getActionHeaders = function(verb, digest) {
+	if (!verb) return getStandardHeaders(digest);
 	return Object.assign({}, getStandardHeaders(digest), {
 		"X-HTTP-Method": verb
 	});

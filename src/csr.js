@@ -1,6 +1,29 @@
 var renderers = exports.renderers = require("./csr-renderers");
 
 //fieldComponent = { name, onReady, render, getValue, locations:["View", "NewForm","DisplayForm", "EditForm"] }
+// var renderColoredStatus = function(ctx) {
+//     // map statuses  to colors
+//     var colors = {
+//         "Not Started": "orange",
+//         "In Progress": "yellow",
+//         "Done": "green"
+//     };
+
+//     // Look at the item's status to get the mapped color
+//     // If the item has a status value that is not mapped, then use 'red'
+//     var color = colors[ctx.CurrentItem.Status] || "red";
+
+//     // return the html used to render the status field;
+//     return "<h4 style='color:" + color + "'>" + ctx.CurrentItem.Status + "</h4>";
+// };
+
+// var fieldOverride = {
+//     name:  "Status",
+//     render: renderColoredStatus
+// };
+
+// SPScript.CSR.registerDisplayField(fieldOverride);
+
 var registerFormField = exports.registerFormField = function(fieldComponent, opts) {
     var renderer = renderers.formField.create(fieldComponent);
     fieldComponent.locations = fieldComponent.locations || ["NewForm", "EditForm"];

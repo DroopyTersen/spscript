@@ -236,4 +236,8 @@ Web.prototype.getUser = function(email) {
 	return this._dao.get(url).then(utils.validateODataV2);
 };
 
+Web.prototype.ensureUser = function(login) {
+	return this._dao.post(`/web/ensureUser('${login}')`).then(utils.validateODataV2);
+}
+
 module.exports = Web;

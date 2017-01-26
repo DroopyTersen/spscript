@@ -10,13 +10,17 @@ function createFormFieldRenderer(field) {
     return function(ctx) {
         var formCtx = ctx.FormContext;
         if (field.onReady) {
-            formCtx.registerInitCallback(field.name, field.onReady)
+            if (formCtx) {
+                formCtx.registerInitCallback(field.name, field.onReady.bind(null, ctx))
+            } else {
+                setTimeout(field.onReady.bind(null, ctx), 100);
+            }
         }
-        if (field.getValue) {
+        if (field.getValue && formCtx) {
             formCtx.registerGetValueCallback(field.name, field.getValue.bind(null, ctx));
         }
         // tack on 'setValue' function
-        if (formCtx.updateControlValue) {
+        if (formCtx && formCtx.updateControlValue) {
             field.setValue = function(value) {
                 formCtx.updateControlValue(field.name, value);
             }            

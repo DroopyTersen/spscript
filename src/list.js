@@ -20,6 +20,27 @@ var List = function(listname, dao) {
 	this.permissions = new Permissions(this.baseUrl, this._dao);
 };
 
+List.prototype.getFields = function(odataQuery) {
+	var url = (this.baseUrl + "/fields" + appendOData(odataQuery));
+	return this._dao
+		.get(url)
+		.then(utils.validateODataV2);
+};
+
+List.prototype.getField = function(fieldName) {
+	return this.getFields(`$filter=InternalName eq '${fieldName}'`).then(fields => {
+		if (fields.length) return fields[0];
+		else throw new Error("Unable to find field: " + fieldName);
+	})
+};
+
+List.prototype.updateField = function(fieldName, updates) {
+	this.getField(fieldName).then(f => {
+		var url = `${this.baseUrl}/Fields(guid'${f.Id}')`
+		updates.__metadata = { type: "SP.Field" };
+		return this._dao.authorizedPost(url, updates, "MERGE");
+	})
+}
 /**
  * Retrieves items in the lists
  * @param {string} [odata] - OData string
