@@ -11,6 +11,9 @@ exports.run = function(dao) {
                     webInfo.should.have.property("Url");
                     webInfo.should.have.property("Title");
                     done();
+                })
+                .catch(function(err) {
+                    console.log(err)
                 });
             });
         });

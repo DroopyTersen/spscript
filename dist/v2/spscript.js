@@ -971,13 +971,14 @@
 	 *		.then(function(contentTypes) { console.log(contentTypes)})
 	 */
 	var validateODataV2 = exports.validateODataV2 = function (data) {
-		var results = parseJSON(data);
+		var data = parseJSON(data);
+		var results = null;
 		if (data.d && data.d.results && data.d.results.length != null) {
 			results = data.d.results;
 		} else if (data.d) {
 			results = data.d;
 		}
-		return results;
+		return results || data;
 	};
 
 	//'Borrowed' from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Bitwise_Operators
@@ -2551,6 +2552,7 @@
 	 *		.catch(function(error) { console.log(error)})
 	 */
 	var ajax = function ajax(options) {
+		debugger;
 		var opts = _extends({}, defaults, options);
 		if (!validateOptions(options)) return Promise.reject(new Error("Invalid options passed into ajax call."));
 
@@ -2566,8 +2568,9 @@
 				//completed
 				if (xhr.readyState === 4) {
 					// SUCCESS
+					console.log(xhr);
 					if (xhr.status < 400 && xhr.status >= 100) {
-						resolve(xhr.response);
+						resolve(xhr.response || xhr.responseText);
 					} else {
 						var error = new Error("AJAX Request Error: Response Code = " + xhr.status);
 						error.statusCode = xhr.status;
