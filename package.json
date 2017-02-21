@@ -1,11 +1,11 @@
 {
   "name": "spscript",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "SharePoint 2013 Rest Api Wrappers",
   "main": "./entries/spscript.js",
   "scripts": {
     "prebuild": "npm run lint && npm run babel",
-    "build": "webpack",
+    "build": "webpack -p",
     "postbuild": "npm run minify && rimraf dist/v2/plugins.js && rimraf dist/v2/plugins.js.map",
     "pretest": "npm run build",
     "test": "mocha server/test.js",
