@@ -52,7 +52,6 @@ var setHeaders = function(xhr, headersObj) {
  *		.catch(function(error) { console.log(error)})
  */
 var ajax = function(options) {
-	debugger;
 	var opts = Object.assign({}, defaults, options);
 	if (!validateOptions(options))
 		return Promise.reject(new Error("Invalid options passed into ajax call."));
@@ -71,7 +70,6 @@ var ajax = function(options) {
 			//completed
 			if (xhr.readyState === 4) {
 				// SUCCESS
-				console.log(xhr);
 				if (xhr.status < 400 && xhr.status >= 100) {
 					resolve(xhr.response || xhr.responseText);
 				} else {
