@@ -71,7 +71,9 @@ var ajax = function(options) {
 			if (xhr.readyState === 4) {
 				// SUCCESS
 				if (xhr.status < 400 && xhr.status >= 100) {
-					resolve(xhr.response || xhr.responseText);
+					if (xhr.status >= 200 && xhr.status < 300 && xhr.status !== 204) {
+						resolve(xhr.response || xhr.responseText);
+					} else resolve(xhr.response);
 				} else {
 					var error = new Error("AJAX Request Error: Response Code = " + xhr.status);
 					error.statusCode = xhr.status;

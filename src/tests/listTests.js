@@ -237,7 +237,10 @@ exports.run = function(dao) {
                     return false;
                 }).then(function(){
                     done();
-                }).catch(function(res) { console.log("REQUEST ERROR")});
+                }).catch(function(res) { 
+                    done();
+                    console.log("REQUEST ERROR")
+                });
             });
             it("Should delete the attachment", function(done) {
                 getAttachment(itemIdWithAttachment, attachmentFilename).then(function(attachment) {

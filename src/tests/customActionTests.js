@@ -43,6 +43,7 @@ exports.run = function(dao) {
                 results.should.be.an("array");
                 results.should.not.be.empty;
             });
+            
             it("Should bring back properties like Name, Url, and Location", function() {
                 var firstItem = results[0];
                 firstItem.should.have.property("Name");
@@ -105,10 +106,15 @@ exports.run = function(dao) {
         describe("dao.customActions.remove(name)", function() {
             var beforeCount = 0;
             before(function(done){
-                dao.customActions.get().then(function(all) {
-                    beforeCount = all.filter(function(a){ return a.Name === customAction.Name}).length;
-                    done();
-                })
+                dao.customActions.get()
+                    .then(function(all) {
+                        beforeCount = all.filter(function(a){ return a.Name === customAction.Name}).length;
+                        done();
+                    })
+                    .catch(err => {
+                        console.log(err);
+                        done();
+                    })
             });
 
             it("Should remove all custom actions with that name", function(done){

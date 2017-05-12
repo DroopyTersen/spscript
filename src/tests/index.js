@@ -1,4 +1,4 @@
-var promisePolyfill = require("es6-promise");
+var promisePolyfill = require("promise-polyfill");
 if (!global.Promise) {
     global.Promise = promisePolyfill;
 }
@@ -25,16 +25,16 @@ webTests.run(dao);
 // var customActionTests = require("./customActionTests");
 // customActionTests.run(dao);
 
-// var listTests = require("./listTests");
-// listTests.run(dao);
+var listTests = require("./listTests");
+listTests.run(dao);
 
-// var searchTests = require("./searchTests");
-// searchTests.run(dao);
+var searchTests = require("./searchTests");
+searchTests.run(dao);
 
-// var profileTests = require("./profileTests");
-// profileTests.run(dao);
+var profileTests = require("./profileTests");
+profileTests.run(dao);
 
-// var utilsTests = require("./utilsTests");
-// utilsTests.run();
+var utilsTests = require("./utilsTests");
+utilsTests.run();
 
 mocha.run();
