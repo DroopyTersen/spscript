@@ -1,11 +1,12 @@
 {
   "name": "spscript",
-  "version": "2.0.5",
-  "description": "SharePoint 2013 Rest Api Wrappers",
-  "main": "./entries/spscript.js",
+  "version": "3.0.0",
+  "description": "ShareP0oint 2013 Rest Api Wrappers",
+  "main": "./lib/entry.browser.js",
   "scripts": {
-    "build": "npm run lint && npm run babel && webpack -p",
-    "test": "mocha server/test.js",
+    "build": "tsc -d && webpack -p",
+    "pretest": "tsc",
+    "test": "mocha src/test/test.server.js",
     "test:browser": "concurrently \"npm run watch\" \"npm run serve\"",
     "docs": "jsdoc -c ./jsdoc/jsdoc.config.json -r readme.md",
     "postdocs": "copy -recurse -force ./dist/docs ../spscript-site",
@@ -13,6 +14,7 @@
     "lint": "eslint src/*",
     "serve": "concurrently \"live-server --no-browser\" \"ngrok http 8080 -subdomain=droopytersen\"",
     "watch": "nodemon -w src -x \"npm run --silent build\"",
+    "watch:test": "nodemon -w src -x \"npm run --silent test\"",
     "clean": "rimraf lib"
   },
   "repository": {
@@ -43,6 +45,8 @@
     "rimraf": "^2.5.2",
     "spbrander": "^1.0.6",
     "style-loader": "^0.13.1",
+    "typedoc": "^0.7.1",
+    "typescript": "^2.3.4",
     "uglify-js": "^2.6.2",
     "watch": "^0.18.0",
     "webpack": "^1.13.0"
@@ -50,5 +54,5 @@
   "dependencies": {
     "promise-polyfill": "^6.0.2"
   },
-  "types": "./typings/index.d.ts"
+  "types": "./lib/entry.browser.d.ts"
 }

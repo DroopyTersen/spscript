@@ -1,27 +1,29 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-function parseJSON(data) {
+export interface Utils {
+    parseJSON(any): () => any;
+    validateODataV2(any): () => any;
+}
+
+function parseJSON(data:any) : any {
     if (typeof data === "string") {
         try {
             data = JSON.parse(data);
-        }
-        catch (e) {
+        } catch (e) {
             return null;
         }
     }
     return data;
 }
-function validateODataV2(data) {
+
+function validateODataV2(data:any) : any {
     data = parseJSON(data);
     var results = null;
     if (data.d && data.d.results && data.d.results.length != null) {
         results = data.d.results;
-    }
-    else if (data.d) {
+    } else if (data.d) {
         results = data.d;
     }
-    return results || data;
+    return results || data;	
 }
-var utils = { parseJSON, validateODataV2 };
-exports.default = utils;
-//# sourceMappingURL=utils.js.map
+
+var utils: Utils = { parseJSON, validateODataV2 };
+export default utils;
