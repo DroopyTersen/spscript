@@ -22,5 +22,45 @@ exports.run = function(utils) {
                 res2.one.should.equal(obj.one);
             })
         })
+
+        describe("utils.qs.toObj(str)", function() {
+            it("Should take in a string in the form of key=value&key2=value and return an Object", function() {
+                var str1 = "key1=value1";
+                var str2 = "key1=value1&key2=value2";
+                var obj1 = utils.qs.toObj(str1)
+                obj1.should.have.property("key1");
+                obj1.key1.should.equal("value1");
+
+                var obj2 = utils.qs.toObj(str2);
+                obj2.should.have.property("key1");
+                obj2.should.have.property("key2");
+                obj2.key2.should.equal("value2");
+            })
+            it("Should support an optional leading '?' ", function() {
+                var str1 = "?key1=value1";
+                var obj1 = utils.qs.toObj(str1)
+                obj1.should.have.property("key1");
+                obj1.key1.should.equal("value1");
+            });
+            it("Should default to 'window.location.search' if no value is passed")
+        })
+
+        describe("utils.qs.fromObj(obj, quoteValues?)", function() {
+            it("Should turn { key1: 'value1', key2: 'value2' } into 'key1=value1&key2=value2'", function() {
+                var obj = { key1: "value1", key2: "value2" }
+                var str = utils.qs.fromObj(obj);
+                str.should.equal("key1=value1&key2=value2");
+            })
+            it("Should put single quotes around words with spaces", function() {
+                var obj = { key1: "my value" }
+                var str = utils.qs.fromObj(obj);
+                str.should.equal("key1='my value'");
+            })
+            it("Should put single quotes around every value is an optional 'quoteValues' param is set to true", function() {
+                var obj = { key1: "value1", key2: "value2" }
+                var str = utils.qs.fromObj(obj, true);
+                str.should.equal("key1='value1'&key2='value2'");
+            })
+        })
 	})
 }

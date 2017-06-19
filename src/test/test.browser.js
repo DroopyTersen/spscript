@@ -5,6 +5,7 @@ if (!global.Promise) {
 
 mocha.setup('bdd');
 chai.should();
-require("./tests").run(SPScript);
+var SPScript = require("../../lib/SPScript");
+require("./tests").run(SPScript.default);
 
 mocha.run();

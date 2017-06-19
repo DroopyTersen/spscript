@@ -1,6 +1,12 @@
+import { toObj, fromObj } from "./queryString";
+
 export interface Utils {
-    parseJSON(any): () => any;
-    validateODataV2(any): () => any;
+    parseJSON(jsonStr:any): any;
+    validateODataV2(data:any): any;
+    qs: {
+        toObj(string?): any;
+        fromObj(obj:any, quoteValues?:boolean): string
+    }
 }
 
 function parseJSON(data:any) : any {
@@ -25,5 +31,5 @@ function validateODataV2(data:any) : any {
     return results || data;	
 }
 
-var utils: Utils = { parseJSON, validateODataV2 };
+var utils: Utils = { parseJSON, validateODataV2, qs: { toObj, fromObj } };
 export default utils;

@@ -6,18 +6,19 @@ export default class List {
     listName: string;
     private baseUrl: string;
     private _dao: Context;
+
     // TODO permissions. Inherit securable?
     constructor(name: string, ctx: Context) {
         this.listName = name;
         this.baseUrl = `/web/lists/getbytitle('${this.listName}')`;
         this._dao = ctx;
-    };
+    }
 
     getItems(odata?: string): Promise<any> {
         return this._dao
             .get(this.baseUrl + "/items" + appendOData(odata))
             .then(utils.validateODataV2);
-    };
+    }
 
     getItemById(id: number, odata?: string) {
         var url = this.baseUrl + "/items(" + id + ")" + appendOData(odata);
@@ -28,7 +29,7 @@ export default class List {
         var filterValue = typeof value === "string" ? "'" + value + "'" : value;
         odata = "$filter=" + key + " eq " + filterValue + appendOData(odata, "&");
         return this.getItems(odata);
-    };
+    }
 
     findItem(key: string, value: any, odata) {
         return this.findItems(key, value, odata)
@@ -36,11 +37,11 @@ export default class List {
                 if (items && items.length && items.length > 0) return items[0]
                 return null;
             })
-    };
+    }
 
     getInfo(): Promise<any> {
         return this._dao.get(this.baseUrl).then(utils.validateODataV2);
-    };
+    }
 
     addItem(item: any, digest?: string): Promise<any> {
         return this._dao.ensureRequestDigest(digest).then(digest => {
@@ -59,7 +60,7 @@ export default class List {
             })
                 .then(utils.validateODataV2);
         })
-    };
+    }
 
     updateItem(itemId: number, updates: any, digest?: string) {
         return this._dao.ensureRequestDigest(digest).then(digest => {
@@ -78,7 +79,7 @@ export default class List {
                 return this._dao.post(item["__metadata"].uri, updates, customOptions);
             });
         })
-    };
+    }
 
     deleteItem(itemId: number, digest?: string) {
         return this._dao.ensureRequestDigest(digest).then(digest => {
@@ -89,7 +90,7 @@ export default class List {
                 return this._dao.post(item["__metadata"].uri, "", customOptions);
             });
         });
-    };
+    }
 
     //TODO: getFields
     //TODO: getField

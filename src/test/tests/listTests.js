@@ -234,6 +234,9 @@ exports.run = function(dao) {
                     return list.deleteItem(itemToDelete.Id);
                 }).then(function() {
                     done();
+                })
+                .catch(function(err) {
+                    done(err)
                 });
             });
             it("Should delete that item", function(done) {

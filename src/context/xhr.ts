@@ -51,7 +51,7 @@ var xhr:any = function(options:RequestOptions) {
 				// SUCCESS
 				if (xhr.status < 400 && xhr.status >= 100) {
 					if (xhr.status >= 200 && xhr.status < 300 && xhr.status !== 204) {
-						resolve(xhr.response || xhr.responseText);
+						resolve(xhr.response || xhr.status + "" );
 					} else resolve(xhr.response);
 				} else {
 					var error:any= { message: "AJAX Request Error: Response Code = " + xhr.status };

@@ -2,9 +2,11 @@ import request, { RequestOptions } from "./request";
 import utils from "../utils";
 import headersUtils from "./headers";
 import List from "../List";
+import Search from "../search/Search";
 
 export default class Context {
     webUrl: string;
+    search: Search;
     private clientId: string;
     private clientSecret:string;
     private ensureToken: Promise<any>;
@@ -16,6 +18,7 @@ export default class Context {
         this.clientSecret = clientSecret;
         // TODO serverside: replace with tokenHelper.getAppOnlyToken(this.webUrl, this.clientKey, this.clientSecret).then(token => this.accessToken = token);
         this.ensureToken = !clientId ? Promise.resolve() : Promise.resolve();
+        this.search = new Search(this);
     }
 
     private executeRequest(url:string, opts:RequestOptions): Promise<any> {
