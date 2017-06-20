@@ -1,6 +1,8 @@
 import utils from "./utils";
 import { Utils } from "./utils/IUtils";
 import Context from "./context/Context";
+import CSR, { CSRUtils } from "./csr";
+
 declare var global: any;
 
 export interface SPScript {
@@ -9,10 +11,12 @@ export interface SPScript {
     /** Creates an SPScript data context. If no url is passed, it uses current web. */
     createContext(url?: string): Context,
     /** Helper functions for creating REST Api HTTP headers. */
+    CSR: CSRUtils
 }
 
 var spscript: SPScript = {
     utils,
+    CSR,
     createContext(url?: string, clientId?: string, clientSecret?: string) {
         try {
             if (!url && global._spPageContextInfo) {

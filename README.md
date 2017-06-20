@@ -110,6 +110,10 @@ var ctx = SPScript.createContext(siteUrl);
 - `dao.profiles.setProperty(key, value, { AccountName|LoginName})` - sets a profile property (key) for the specified user.  User object should have `AccountName` or `LoginName` property
 - `dao.profiles.setProperty(key, value, email)` - sets a profile property (key) for the user tied to that email address
 
+### Clientside Rendering (CSR)
+- `SPScript.CSR.registerDisplayField(field)` - Registers a field override once you pass an object with at lease `name` (internal field name), `render`
+- `SPScript.CSR.registerFormField(field)` - Registers a field override once you pass an object with `name` (internal field name), `render`
+
 ### Utility Functions
 - `SPScript.utils.openModal(url, modalOpts)` - Launch a SharePoint modal
 - `SPScript.utils.validateODataV2(data)` - Helps parse raw ODATA response to remove data.d/data.d.results namespace. 
