@@ -3,3 +3,4 @@ docs
 src
 .vscode
 *.config
+app.config.js
