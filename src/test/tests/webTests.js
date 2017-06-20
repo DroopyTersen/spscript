@@ -2,9 +2,9 @@ var permissionsTests = require("./permissionTests.js");
 var should = require("chai").should();
 
 exports.run = function(dao) {
-    describe("var web = dao.web", function() {
+    describe("var web = ctx.web", function() {
         this.timeout(5000);
-        describe("web.getInfo()", function() {
+        describe("ctx.web.getInfo()", function() {
             it("Should return a promise that resolves to web info", function(done) {
                 dao.web.getInfo().then(function(webInfo) {
                     webInfo.should.have.property("Url");
@@ -17,7 +17,7 @@ exports.run = function(dao) {
             });
         });
 
-        describe("web.getSubsites()", function() {
+        describe("ctx.web.getSubsites()", function() {
             it("Should return a promise that resolves to an array of subsite web infos.", function(done) {
                 dao.web.getSubsites().then(function(subsites) {
                     subsites.should.be.an("array");
@@ -50,7 +50,7 @@ exports.run = function(dao) {
         //     });
         // });
 
-        describe("web.getUser()", function() {
+        describe("ctx.web.getUser()", function() {
             var user = null;
             before(function(done){
                 dao.web.getUser().then(function(result){
@@ -70,7 +70,7 @@ exports.run = function(dao) {
             })
         })
 
-        describe("web.getUser(email)", function() {
+        describe("ctx.web.getUser(email)", function() {
             var email = "andrew@andrewpetersen.onmicrosoft.com";
             var user = null;
             before(function(done){
@@ -129,7 +129,7 @@ exports.run = function(dao) {
         //     })
         // })
 
-        describe("web.getFile(serverRelativeFileUrl)", function() {
+        describe("ctx.web.getFile(serverRelativeFileUrl)", function() {
             var file = null;
             before(function(done){
                 dao.web.getFile(fileUrl).then(function(result) {
@@ -149,7 +149,7 @@ exports.run = function(dao) {
         });
 
         var destinationUrl = "/spscript/Shared%20Documents/testfile2.txt";
-        describe("web.copyFile(serverRelativeSourceUrl, serverRelativeDestUrl)", function() {
+        describe("ctx.web.copyFile(serverRelativeSourceUrl, serverRelativeDestUrl)", function() {
             var startTestTime = new Date();
             var file = null;
             before(function(done){
@@ -204,13 +204,13 @@ exports.run = function(dao) {
         //     })
         // }); 
 
-        describe("web.permissions.getRoleAssignments()", permissionsTests.create(dao.web));
+        describe("ctx.web.permissions.getRoleAssignments()", permissionsTests.create(dao.web));
         
         if (isBrowser()) {
-            describe("web.permissions.check()", permissionsTests.create(dao.web, "check"));
+            describe("ctx.web.permissions.check()", permissionsTests.create(dao.web, "check"));
         }
 
-        describe("web.permissions.check(email)", permissionsTests.create(dao.web, "check", "andrew@andrewpetersen.onmicrosoft.com"))
+        describe("ctx.web.permissions.check(email)", permissionsTests.create(dao.web, "check", "andrew@andrewpetersen.onmicrosoft.com"))
     });
 };
 

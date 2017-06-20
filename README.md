@@ -49,8 +49,7 @@ var ctx = SPScript.createContext(siteUrl);
 
 ## Methods
 
-
-### HTTP Helpers (Context)
+### Core HTTP Request Helpers
 - `ctx.get(url, opts)` - Generic helper to make AJAX GET request. Sets proper headers, promisifies, and parses JSON response. `url` is the API url relative to "/_api". 
 - `ctx.post(url, body, opts)` - Generic helper to make AJAX POST request. `url` is the API url relative to "/_api".
 - `ctx.authorizedPost(url, body, opts)` - Same as `ctx.post` except that it also takes care of including the proper authorization headers.
@@ -110,10 +109,21 @@ var ctx = SPScript.createContext(siteUrl);
 - `dao.profiles.setProperty(key, value, email)` - sets a profile property (key) for the user tied to that email address
 
 ### Utility Functions
-<!--- `SPScript.utils.waitForLibrary(namespace)` - waits for the library to be on the page-->
-<!--- `SPScript.utils.waitForLibraries(namespaces)` - waits for all libraries to be on the page-->
-<!--- `SPScript.utils.getScript(url)` - loads a javascript file onto the page-->
-<!--- `SPScript.utils.getScripts(urls)` - loads multiple javascript files onto the page-->
+- `SPScript.utils.openModal(url, modalOpts)` - Launch a SharePoint modal
+- `SPScript.utils.validateODataV2(data)` - Helps parse raw ODATA response to remove data.d/data.d.results namespace. 
+- `SPScript.utils.parseJSON(data)` - Wraps JSON.parse in a try/catch
+
+### Loaders
+- `SPScript.utils.loadScript(url)` - loads a javascript file onto the page
+- `SPScript.utils.loadScripts(urls)` - loads multiple javascript files onto the page
+- `SPScript.utils.loadCSS(url)` - Load a CSS stylesheet onto your page
+
+### Dependency Management
+
+- `SPScript.utils.validateNamespace(namespace)` - Safely check a nested namespaces exists on the global 
+- `SPScript.utils.waitForLibrary(namespace)` - waits for the library to be on the page
+- `SPScript.utils.waitForLibraries(namespaces)` - waits for all libraries to be on the page
+- `SPScript.utils.waitForElement(selector)` - Wait/Ensure for an element to exist on a page page
 
 
 ### Query String Helpers

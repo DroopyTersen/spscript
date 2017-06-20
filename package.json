@@ -1,6 +1,6 @@
 {
   "name": "spscript",
-  "version": "3.0.0",
+  "version": "3.0.0-beta",
   "description": "ShareP0oint 2013 Rest Api Wrappers",
   "main": "./lib/entry.browser.js",
   "scripts": {

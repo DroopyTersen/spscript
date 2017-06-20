@@ -1,4 +1,5 @@
-import utils, { Utils } from "./utils";
+import utils from "./utils";
+import { Utils } from "./utils/IUtils";
 import Context from "./context/Context";
 declare var global: any;
 

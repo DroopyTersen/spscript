@@ -2,7 +2,7 @@ exports.run = function(SPScript, mode) {
     console.log("SPScript Env: " + SPScript._env);
     var should = require("chai").should();
 
-    describe("Global Namespaces", function() {
+    describe("SPScript Global Namespace", function() {
         it("Should have a 'SPScript.createContext()' method", function() {
             SPScript.should.have.property("createContext");
             SPScript.createContext.should.be.a("function");
