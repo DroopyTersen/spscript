@@ -1,11 +1,12 @@
 var should = require("chai").should();
 
 exports.run = function(SPScript) {
-	describe("var ctx = SPScript.createContext([url])", function() {
+	describe("var ctx = SPScript.createContext(url)", function() {
         var ctx = SPScript.createContext();
         it("Should allow a url to be passed in");
-        it("Should default to the current web if no url is passed");
         
+        it("Should default to the current web if no url is passed");
+
         describe("Members", function() {
             it("Should create the primary object you use to interact with the site", function() {
                 if (!ctx) throw new Error("Context is null");

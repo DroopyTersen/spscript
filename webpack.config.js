@@ -4,7 +4,7 @@ module.exports = {
         "tests": "./src/test/test.browser.js",
     },
     output: {
-        path: __dirname + "/dist/v2",
+        path: __dirname + "/dist/v3",
         filename: "[name].js",
         sourceMapFilename: "[name].js.map"
     },

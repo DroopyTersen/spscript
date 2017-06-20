@@ -4,8 +4,11 @@ import headerUtils, { HeaderUtils } from "./context/headers";
 declare var global: any;
 
 export interface SPScript {
+    /** Utility functions*/
     utils: Utils;
+    /** Creates an SPScript data context. If no url is passed, it uses current web. */
     createContext(url?: string): Context,
+    /** Helper functions for creating REST Api HTTP headers. */
     headers: HeaderUtils,
 }
 

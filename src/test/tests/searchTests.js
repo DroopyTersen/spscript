@@ -1,9 +1,9 @@
 var should = require("chai").should();
 
 exports.run = function(dao) {
-    describe("var search = dao.search;", function() {
+    describe("var search = ctx.search;", function() {
         this.timeout(5000);
-        describe("search.query(queryText)", function() {
+        describe("ctx.search.query(queryText)", function() {
             it("Should return promise that resolves to a SearchResults object", function(done) {
                 var queryText = "andrew";
                 dao.search.query(queryText).then(function(searchResults) {
@@ -19,7 +19,7 @@ exports.run = function(dao) {
             });
         });
 
-        describe("search.query(queryText, queryOptions)", function() {
+        describe("ctx.search.query(queryText, queryOptions)", function() {
             it("Should obey the extra query options that were passed", function(done) {
                 var queryText = "andrew";
                 var options = {
@@ -39,7 +39,7 @@ exports.run = function(dao) {
             });
         });
 
-        describe("search.query(queryText, queryOptions) - w/ Refiners", function() {
+        describe("ctx.search.query(queryText, queryOptions) - w/ Refiners", function() {
             it("Should return SearchResults that include a refiners array", function(done) {
                 var refinerName = "FileType";
                 var queryText = "andrew";
@@ -59,7 +59,7 @@ exports.run = function(dao) {
                 });
             });
         });
-        describe("search.people(queryText)", function() {
+        describe("ctx.search.people(queryText)", function() {
             it("Should only return search results that are people", function(done) {
                 var queryText = "andrew";
                 dao.search.people(queryText).then(function(searchResults) {
@@ -79,7 +79,7 @@ exports.run = function(dao) {
             });
         });
 
-        describe("search.sites(queryText, scope)", function() {
+        describe("ctx.search.sites(queryText, scope)", function() {
             it("Should only return search results that are sites", function(done) {
                 var queryText = "";
                 dao.search.sites(queryText).then(function(searchResults) {
@@ -87,7 +87,6 @@ exports.run = function(dao) {
                     searchResults.should.have.property("items");
                     searchResults.items.should.be.an("array");
                     searchResults.items.should.not.be.empty();
-                    console.log(searchResults.items.length);
                     
                     var site;
                     for(var i = 0; i < searchResults.items.length; i++) {

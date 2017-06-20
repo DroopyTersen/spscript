@@ -20,6 +20,7 @@ export interface SearchResultResponse {
     resultsCount:number,
     totalResults:number,
     totalResultsIncludingDuplicates:number,
+    /** The actual search results that you care about */
     items:any[],
     refiners?:Refiner[]
 };

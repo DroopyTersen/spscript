@@ -10,6 +10,7 @@ export default class Search {
         this._dao = ctx;
     };
 
+    /** get default/empty QueryOptions */
     get defaultQueryOptions() : QueryOptions {
         return {
             sourceid:null,
@@ -23,10 +24,10 @@ export default class Search {
         };
     };
 
-    query(queryText:string, queryOptions?:QueryOptions) : Promise<SearchResultResponse> {
-        console.log(utils);
-        var optionsQueryString = queryOptions ? "&" + utils.qs.fromObj(queryOptions, true) : "";
-        var url = `/search/query?querytext='${queryText}'${optionsQueryString}`;
+    /** Query the SP Search Service */
+    query(queryText:string, queryOptions:QueryOptions = {}) : Promise<SearchResultResponse> {
+        var optionsQueryString = utils.qs.fromObj(queryOptions, true);
+        var url = `/search/query?querytext='${queryText}'&${optionsQueryString}`;
         return this._dao.get(url)
             .then(utils.validateODataV2)
             .then(resp => {
@@ -35,11 +36,13 @@ export default class Search {
             });
     };
 
+    /** Query for only People results */
     people(queryText:string, queryOptions:QueryOptions = {}) : Promise<SearchResultResponse> {
 	    queryOptions.sourceid = 'b09a7990-05ea-4af9-81ef-edfab16c4e31';
 	    return this.query(queryText, queryOptions);
     };
     
+    /** Query for only sites (STS_Web). Optionally pass in a url scope. */
     sites(queryText:string = "", urlScope:string = "", queryOptions:QueryOptions = {}) : Promise<SearchResultResponse> {
         urlScope = urlScope ? `Path:${urlScope}*` : "";
         var query = (`${queryText} contentclass:STS_Web ${urlScope}`).trim();

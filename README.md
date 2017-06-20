@@ -6,47 +6,55 @@ SPScript
 
 Public Website w/ full documentation: [http://droopytersen.github.io/spscript/](http://droopytersen.github.io/spscript/)
 
-SPScript is a collection of javascript helpers for the SharePoint 2013 Rest API.  Some features include...
+SPScript is a collection of javascript helpers for the SharePoint Rest API.  Some features include...
 
   - Easy querying of list data.
   - Add and Update list items in 1 line of code.
   - Easily utilize SharePoint search
-  - Integrated templating engine
+  - Work with the Profile Service
   - Check permissions on sites and lists
+  - Work with CustomActions
 
 
-Including SPScript in your project
---------------
+# Including SPScript in your project
 
-Option 1: NPM Module
+**Option 1**: NPM Module
 ```
 >> npm install spscript
 ```
 
-Option 2: Traditional Include
+**Option 2**: Traditional Script Reference
 
- - __Dev__ - Add the following script tag to your page
-     - `<script type="text/javascript" src='https://raw.githubusercontent.com/DroopyTersen/spscript/master/dist/v2/spscript.js'></script>`
- - __Prod__ - Save the following file into your project
--      https://raw.githubusercontent.com/DroopyTersen/spscript/master/dist/v2/spscript.js
+Add the following script tag to your page
 
+ ``` html
+<script type="text/javascript" src='PATH_TO_SPSCRIPT/spscript.js'></script>
+ ```
+You will then have `window.SPScript` available.
 
-Initialization
+## Initialization
 --------------
-All you need is the url of the SharePoint site you are targeting.
+Most SPScript methods require an SPScript Context
+``` javascript
+var ctx = SPScript.createContext();
+```
+
+You can also pass an explicit url.  If you don't pass a url, it will use your current web.
 ```javascript
 var siteUrl = "http://urltomysharepointsite.com";
 // If you don't pass a site url, it will use your current web
-var dao = new SPScript.RestDao(siteUrl);
+var ctx = SPScript.createContext(siteUrl);
+
 ```
 
 Methods
 --------------
 
-#### Data Access Object (RestDao)
-- `dao.get(url, opts)` - Generic helper to make AJAX GET request. Sets proper headers, promisifies, and parses JSON response. `url` is the API url relative to "/_api". 
-- `dao.post(url, body, opts)` - Generic helper to make AJAX POST request. `url` is the API url relative to "/_api".
-- `dao.getRequestDigest()` - Retrieves a token needed to authorize any updates
+#### HTTP Helpers (Context)
+- `ctx.get(url, opts)` - Generic helper to make AJAX GET request. Sets proper headers, promisifies, and parses JSON response. `url` is the API url relative to "/_api". 
+- `ctx.post(url, body, opts)` - Generic helper to make AJAX POST request. `url` is the API url relative to "/_api".
+- `ctx.authorizedPost(url, body, opts)` - Same as `ctx.post` except that it also takes care of including the proper authorization headers.
+- `ctx.getRequestDigest()` - Retrieves a token needed to authorize any updates
 
 #### Web
 - `dao.web.info()` - Gets you the [SPWeb properties](https://msdn.microsoft.com/en-us/library/office/jj245288.aspx#properties) of your site

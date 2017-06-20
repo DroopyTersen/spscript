@@ -1,12 +1,18 @@
 import request, { RequestOptions } from "./request";
 import utils from "../utils";
 import headersUtils from "./headers";
-import List from "../List";
+import List from "../List/List";
 import Search from "../search/Search";
+import CustomActions from "../customActions/CustomActions";
 
 export default class Context {
+    /** The url of the SPScript data context */
     webUrl: string;
+    /** Methods to hit the SP Search Service */
     search: Search;
+    /** Work with Site/Web scoped Custom Actions */
+    customActions: CustomActions;
+
     private clientId: string;
     private clientSecret:string;
     private ensureToken: Promise<any>;
@@ -19,6 +25,7 @@ export default class Context {
         // TODO serverside: replace with tokenHelper.getAppOnlyToken(this.webUrl, this.clientKey, this.clientSecret).then(token => this.accessToken = token);
         this.ensureToken = !clientId ? Promise.resolve() : Promise.resolve();
         this.search = new Search(this);
+        this.customActions = new CustomActions(this);
     }
 
     private executeRequest(url:string, opts:RequestOptions): Promise<any> {
@@ -37,12 +44,14 @@ export default class Context {
         var requestOptions = Object.assign({}, defaultOptions, opts);
         return request(requestOptions);
     };
-
+    
+    /** Make a 'GET' request to the '<site>/_api' relative url. */
     get(url:string, opts?:RequestOptions) {
         let options:RequestOptions = Object.assign({}, { method: "GET" }, opts);
         return this.executeRequest(url, options).then(utils.parseJSON);
     };
 
+    /** Make a 'POST' request to the '<site>/_api' relative url. */
     post(url:string, body?:any, opts?:RequestOptions) {
         body = this._packagePostBody(body, opts);
         var options:RequestOptions = {
@@ -53,20 +62,23 @@ export default class Context {
         return this.executeRequest(url, options).then(utils.parseJSON);
     };
 
+    /** Make a 'POST' request to the '<site>/_api' relative url. SPScript will handle authorizing the request for you.*/
     authorizedPost(url:string, body?:any, verb?:string) {
         return this.getRequestDigest()
             .then(digest => headersUtils.getActionHeaders(verb, digest))
             .then(headers => this.post(url, body, { headers }))
     };
 
-    ensureRequestDigest(digest?:string): Promise<string> {
+    _ensureRequestDigest(digest?:string): Promise<string> {
         return digest ? Promise.resolve(digest) : this.getRequestDigest();
     };
 
+    /** Get a Request Digest token to authorize a request */
     getRequestDigest(): Promise<string> {
         return this.post("/contextInfo", {}).then(data => data["d"].GetContextWebInformation.FormDigestValue);
     };
-
+    
+    /** Get an SPScript List instance */
     lists(name:string) : List {
         return new List(name, this);
     }

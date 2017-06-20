@@ -1,5 +1,5 @@
 exports.run = function(dao) {
-    describe("var list = SPScript.createContext().lists(listname)", function() {
+    describe("var list = ctx.lists(listname)", function() {
         this.timeout(10000);
         var list = dao.lists("TestList");
         describe("list.info()", function() {
