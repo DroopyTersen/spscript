@@ -1,5 +1,4 @@
 import utils from "../utils";
-import headerUtils from "../context/headers";
 import Context from "../context/Context";
 
 export default class List {
@@ -61,7 +60,7 @@ export default class List {
                     }, item);
 
                     var customOptions = {
-                        headers: headerUtils.getAddHeaders(digest)
+                        headers: utils.headers.getAddHeaders(digest)
                     };
                     return this._dao.post(this.baseUrl + "/items", item, customOptions)
                 })
@@ -81,7 +80,7 @@ export default class List {
                 }, updates);
 
                 var customOptions = {
-                    headers: headerUtils.getUpdateHeaders(digest, item["__metadata"].etag)
+                    headers: utils.headers.getUpdateHeaders(digest, item["__metadata"].etag)
                 };
 
                 return this._dao.post(item["__metadata"].uri, updates, customOptions);
@@ -94,7 +93,7 @@ export default class List {
         return this._dao._ensureRequestDigest(digest).then(digest => {
             return this.getItemById(itemId).then(item => {
                 var customOptions = {
-                    headers: headerUtils.getDeleteHeaders(digest, item["__metadata"].etag)
+                    headers: utils.headers.getDeleteHeaders(digest, item["__metadata"].etag)
                 };
                 return this._dao.post(item["__metadata"].uri, "", customOptions);
             });

@@ -1,6 +1,5 @@
 import Context from "../context/Context";
 import utils from "../utils";
-import headerUtils from "../context/headers";
 import { CustomAction, CustomActionScope, metadata, scopes } from "./ICustomActions";
 
 
@@ -75,7 +74,7 @@ export default class CustomActions {
             .then(prep => {
                 updates = Object.assign({}, metadata, updates);
                 var opts = {
-                    headers: headerUtils.getUpdateHeaders(prep.digest)
+                    headers: utils.headers.getUpdateHeaders(prep.digest)
                 };
                 return this._dao.post(prep.url, updates, opts);
             })
@@ -87,7 +86,7 @@ export default class CustomActions {
         return this._getUrlAndDigest(name)
             .then(prep => {
                 var opts = {
-                    headers: headerUtils.getDeleteHeaders(prep.digest)
+                    headers: utils.headers.getDeleteHeaders(prep.digest)
                 };
                 return this._dao.post(prep.url, {}, opts);
             })
@@ -123,7 +122,7 @@ export default class CustomActions {
                 var scope = scopes[customAction.Scope]
                 customAction.Scope = scope.id;
                 var opts = {
-                    headers: headerUtils.getAddHeaders(digest)
+                    headers: utils.headers.getAddHeaders(digest)
                 };
                 return this._dao.post(scope.url, customAction, opts);
             })

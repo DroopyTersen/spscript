@@ -11,9 +11,6 @@ exports.run = function(SPScript, mode) {
             SPScript.should.not.be.null;
             SPScript.should.have.property("utils");
         })
-        it("Should have a 'SPScript.headers' namespace", function() {
-            SPScript.should.have.property("headers");
-        })
     })
     require("./contextTests").run(SPScript);
     var ctx = SPScript.createContext();

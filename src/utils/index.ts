@@ -1,4 +1,5 @@
 import { toObj, fromObj } from "./queryString";
+import headerUtils, { HeaderUtils } from "./headers";
 
 export interface Utils {
     /** Wraps JSON.parse in a try/catch */
@@ -12,6 +13,7 @@ export interface Utils {
         /** Turns a an Object into a string in form of "key1=value1&key2=value2..." */
         fromObj(obj:any, quoteValues?:boolean): string
     }
+    headers: HeaderUtils
 }
 
 function parseJSON(data:any) : any {
@@ -36,5 +38,5 @@ function validateODataV2(data:any) : any {
     return results || data;	
 }
 
-var utils: Utils = { parseJSON, validateODataV2, qs: { toObj, fromObj } };
+var utils: Utils = { headers: headerUtils, parseJSON, validateODataV2, qs: { toObj, fromObj } };
 export default utils;

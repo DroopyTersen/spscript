@@ -1,6 +1,5 @@
 import request, { RequestOptions } from "./request";
 import utils from "../utils";
-import headersUtils from "./headers";
 import List from "../List/List";
 import Search from "../search/Search";
 import CustomActions from "../customActions/CustomActions";
@@ -65,7 +64,7 @@ export default class Context {
     /** Make a 'POST' request to the '<site>/_api' relative url. SPScript will handle authorizing the request for you.*/
     authorizedPost(url:string, body?:any, verb?:string) {
         return this.getRequestDigest()
-            .then(digest => headersUtils.getActionHeaders(verb, digest))
+            .then(digest => utils.headers.getActionHeaders(verb, digest))
             .then(headers => this.post(url, body, { headers }))
     };
 

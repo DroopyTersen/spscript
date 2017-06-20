@@ -61,6 +61,63 @@ exports.run = function(utils) {
                 var str = utils.qs.fromObj(obj, true);
                 str.should.equal("key1='value1'&key2='value2'");
             })
+        });
+
+        describe("utils.headers.getStandardHeaders(digest?)", function() {
+            var jsonMimeType = "application/json;odata=verbose";
+            it("Should set the Accept header", function() {
+                var headers = utils.headers.getStandardHeaders();
+                headers.should.have.property("Accept");
+                headers.Accept.should.equal(jsonMimeType);
+            })
+            it("Should set the Request Digest if a digest is passed", function() {
+                var digest = "123Fake"
+                var headers = utils.headers.getStandardHeaders(digest);
+                headers.should.have.property("Accept");
+                headers.Accept.should.equal(jsonMimeType);
+                headers.should.have.property("X-RequestDigest");
+                headers["X-RequestDigest"].should.equal(digest);
+            })
+        })
+
+        describe("utils.headers.getAddHeaders(digest)", function() {
+            var jsonMimeType = "application/json;odata=verbose";
+            it("Should set the Request Digest if a digest is passed", function() {
+                var digest = "123Fake"
+                var headers = utils.headers.getStandardHeaders(digest);
+                headers.should.have.property("Accept");
+                headers.Accept.should.equal(jsonMimeType);
+                headers.should.have.property("X-RequestDigest");
+                headers["X-RequestDigest"].should.equal(digest);
+            })
+        })
+
+        describe("utils.headers.getUpdateHeaders(digest)", function() {
+            var jsonMimeType = "application/json;odata=verbose";
+            it("Should set X-HTTP-Method to MERGE and include X-RequestDigest", function() {
+                var digest = "123Fake"
+                var headers = utils.headers.getStandardHeaders(digest);
+                headers.should.have.property("Accept");
+                headers.Accept.should.equal(jsonMimeType);
+                headers.should.have.property("X-RequestDigest");
+                headers["X-RequestDigest"].should.equal(digest);
+                headers.should.have.property("X-HTTP-Method");
+                headers["X-HTTP-Method"].should.equal("MERGE");
+            })
+        })
+
+        describe("utils.headers.getDeleteHeaders(digest)", function() {
+            var jsonMimeType = "application/json;odata=verbose";
+            it("Should set X-HTTP-Method to DELETE and include X-RequestDigest", function() {
+                var digest = "123Fake"
+                var headers = utils.headers.getStandardHeaders(digest);
+                headers.should.have.property("Accept");
+                headers.Accept.should.equal(jsonMimeType);
+                headers.should.have.property("X-RequestDigest");
+                headers["X-RequestDigest"].should.equal(digest);
+                headers.should.have.property("X-HTTP-Method");
+                headers["X-HTTP-Method"].should.equal("DELETE");
+            })
         })
 	})
 }

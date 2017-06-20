@@ -1,5 +1,3 @@
-import utils from "../utils";
-
 export interface HeaderUtils {
 	/** returns a Headers object with 'Accept', 'Content-Type' and optional 'X-RequestDigest' */
 	getStandardHeaders(digest?:string) : any;
