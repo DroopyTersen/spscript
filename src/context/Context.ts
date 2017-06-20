@@ -4,6 +4,7 @@ import List from "../List/List";
 import Web from "../web/Web";
 import Search from "../search/Search";
 import CustomActions from "../customActions/CustomActions";
+import Profiles from "../profiles/Profiles";
 
 export default class Context {
     /** The url of the SPScript data context */
@@ -12,6 +13,8 @@ export default class Context {
     search: Search;
     /** Methods against the SP Web object */
     web: Web;
+    /** Methods to get the SP Profile Service */
+    profiles: Profiles;
     /** Work with Site/Web scoped Custom Actions */
     customActions: CustomActions;
 
@@ -29,6 +32,7 @@ export default class Context {
         this.search = new Search(this);
         this.customActions = new CustomActions(this);
         this.web = new Web(this);
+        this.profiles = new Profiles(this);
     }
 
     private executeRequest(url:string, opts:RequestOptions): Promise<any> {

@@ -27,9 +27,12 @@ export default class Web {
             .then(utils.validateODataV2);
     }
 
+    /** Retrieves the current user */
+    getUser() : Promise<any>
     /** Retrieves a users object based on an email address */
-    getUser(email:string) : Promise<any> {
-        var url = this.baseUrl + "/SiteUsers/GetByEmail('" + email + "')";
+    getUser(email:string) : Promise<any>
+    getUser(email?:string) : Promise<any> {
+        var url = email ? this.baseUrl + "/SiteUsers/GetByEmail('" + email + "')" : this.baseUrl + "/CurrentUser";
 	    return this._dao.get(url).then(utils.validateODataV2);
     }
 

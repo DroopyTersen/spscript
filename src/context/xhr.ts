@@ -54,11 +54,11 @@ var xhr:any = function(options:RequestOptions) {
 						resolve(xhr.response || xhr.status + "" );
 					} else resolve(xhr.response);
 				} else {
-					var error:any= { message: "AJAX Request Error: Response Code = " + xhr.status };
-					error.statusCode = xhr.status;
-					error.body = xhr.response;
-					errorHandlers.forEach(fn => fn(error, xhr));
-					reject(error);
+					var err = new Error("SPScript HTTP Error: " + xhr.status);
+					if (xhr.response && typeof xhr.response === "object") {
+						err.message += "\n" + JSON.stringify(xhr.response, null, "  ");
+					}
+					reject(err);
 				}
 			}
 		};
@@ -66,8 +66,5 @@ var xhr:any = function(options:RequestOptions) {
 		xhr.send(opts.data);
 	})
 };
-
-xhr.addErrorHandler = (fn) => errorHandlers.push(fn);
-xhr.setDefaults = (options) => Object.assign(defaults, options);
 
 export default xhr;

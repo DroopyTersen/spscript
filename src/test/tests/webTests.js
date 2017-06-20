@@ -50,8 +50,28 @@ exports.run = function(dao) {
         //     });
         // });
 
-        var email = "andrew@andrewpetersen.onmicrosoft.com";
+        describe("web.getUser()", function() {
+            var user = null;
+            before(function(done){
+                dao.web.getUser().then(function(result){
+                    user = result;
+                    done();
+                })
+            })
+            it("Should return a promise that resolves to a user object", function(){
+                user.should.not.be.null;
+                user.should.have.property("Id");
+                user.should.have.property("LoginName");
+                user.should.have.property("Email");
+            })
+            it("Should return the current user", function() {
+                user.should.have.property("Id");
+                user.Id.should.equal(_spPageContextInfo.userId);
+            })
+        })
+
         describe("web.getUser(email)", function() {
+            var email = "andrew@andrewpetersen.onmicrosoft.com";
             var user = null;
             before(function(done){
                 dao.web.getUser(email).then(function(result){
@@ -65,6 +85,10 @@ exports.run = function(dao) {
                 user.should.have.property("Id");
                 user.should.have.property("LoginName");
                 user.should.have.property("Email");
+            })
+            it("Should return a user whose email matches the specified email", function() {
+                user.should.have.property("Email");
+                user.Email.should.equal(email);
             })
         })
         var folderUrl = "/spscript/Shared Documents";

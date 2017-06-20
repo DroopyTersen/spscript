@@ -1,5 +1,5 @@
 exports.run = function(dao) {
-    describe("dao.customActions", function() {
+    describe("ctx.customActions", function() {
         this.timeout(10000);
 
 
@@ -8,7 +8,7 @@ exports.run = function(dao) {
             Location: "ScriptLink",
             ScriptBlock: "console.log('deployed from spscript-mocha test');"
         };
-        describe("dao.customActions.add(customAction)", function() {
+        describe("ctx.customActions.add(customAction)", function() {
             var beforeCount = 0;
             before(function(done){
                 dao.customActions.get().then(function(all) {
@@ -38,7 +38,7 @@ exports.run = function(dao) {
             })
         });
 
-        describe("dao.customActions.get()", function() {
+        describe("ctx.customActions.get()", function() {
             var results = null;
             before(function(done) {
                 dao.customActions.get().then(function(data) {
@@ -60,7 +60,7 @@ exports.run = function(dao) {
             });
         });    
         
-        describe("dao.customActions.get(name)", function() {
+        describe("ctx.customActions.get(name)", function() {
             var result = null;
             before(function(done) {
                 dao.customActions.get()
@@ -91,7 +91,7 @@ exports.run = function(dao) {
             })
         });
         
-        describe("dao.customActions.update(updates)", function() {
+        describe("ctx.customActions.update(updates)", function() {
             var result = null;
             before(function(done) {
                 dao.customActions.get(customAction.Name).then(function(ca) {
@@ -136,7 +136,7 @@ exports.run = function(dao) {
             })
         }) 
 
-        describe("dao.customActions.addScriptLink(name, url)", function(){
+        describe("ctx.customActions.addScriptLink(name, url)", function(){
             var jsUrl = "https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.0/jquery.min.js";
             var caName = "SPScriptJSTest-Web";
 
@@ -163,7 +163,7 @@ exports.run = function(dao) {
             });
         });
 
-        describe("dao.customActions.addScriptLink(name, url, opts)", function(){
+        describe("ctx.customActions.addScriptLink(name, url, opts)", function(){
             var jsUrl = "https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.0/jquery.min.js";
             var caName = "SPScriptJSTest-Site";
             var opts = {Sequence: 25, Group: "Custom Group"};
@@ -195,7 +195,7 @@ exports.run = function(dao) {
             }); 
         });
 
-        describe("dao.customActions.addCSSLink(name, url)", function(){
+        describe("ctx.customActions.addCSSLink(name, url)", function(){
             var cssUrl = "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css";
             var caName = "SPScriptCSSTest-Web";
 
@@ -222,7 +222,7 @@ exports.run = function(dao) {
             });
         });
 
-        describe("dao.customActions.addCSSLink(name, url, opts)", function(){
+        describe("ctx.customActions.addCSSLink(name, url, opts)", function(){
             var cssUrl = "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css";
             var caName = "SPScriptCSSTest-Site";
             var opts = {Sequence: 50, Group: "Custom Group"};

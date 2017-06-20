@@ -56,16 +56,19 @@ var ctx = SPScript.createContext(siteUrl);
 - `ctx.authorizedPost(url, body, opts)` - Same as `ctx.post` except that it also takes care of including the proper authorization headers.
 - `ctx.getRequestDigest()` - Retrieves a token needed to authorize any updates
 
-<!--### Web-->
-<!--- `dao.web.info()` - Gets you the [SPWeb properties](https://msdn.microsoft.com/en-us/library/office/jj245288.aspx#properties) of your site-->
-<!--- `dao.web.subsites()` - Gets you all the sub sites and their [SPWeb properties](https://msdn.microsoft.com/en-us/library/office/jj245288.aspx#properties)-->
-<!--- `dao.web.getUser(email)` - Gets you a SP.User object based on the specified email-->
-<!--- `dao.web.getFile(serverRelativeUrl)` - Gets you an SP.File object-->
-<!--- `dao.web.copyFile(sourceUrl, destinationUrl)` - Copies a file (both source and destination urls are server relative)-->
-<!--- `dao.web.deleteFile(fileUrl)` - Deletes the file at the specified server relative url-->
-<!--- `dao.web.uploadFile(fileContent, folderUrl)` - Allows passing in an file content as text or as an HTML5 File (from File input type).  Uploads file to the specified server relative folder url.-->
-<!--- `dao.web.permissions.getRoleAssignments()` - Gets you an an array of permissions that have been setup for that site. Each permission object has a `member` (the user or group) and a `roles` array (the permissions that user or group has). -->
-<!--- `dao.web.permissions.check(email)` - Looks up a user by their email address, then gets you a list of permissions that user has for your site.  Similiar to "Check Permissions". -->
+### Web
+- `ctx.web.getInfo()` - Gets you the [SPWeb properties](https://msdn.microsoft.com/en-us/library/office/jj245288.aspx#properties) of your site
+- `ctx.web.getSubsites()` - Gets you all the sub sites and their [SPWeb properties](https://msdn.microsoft.com/en-us/library/office/jj245288.aspx#properties)
+- `ctx.web.getUser(email)` - Gets you a SP.User object based on the specified email
+- `ctx.web.getFile(serverRelativeUrl)` - Gets you an SP.File object
+- `ctx.web.copyFile(sourceUrl, destinationUrl)` - Copies a file (both source and destination urls are server relative)
+<!--TODO document getFolder-->
+<!--TODO document fileAction-->
+<!--- `ctx.web.deleteFile(fileUrl)` - Deletes the file at the specified server relative url-->
+<!--- `ctx.web.uploadFile(fileContent, folderUrl)` - Allows passing in an file content as text or as an HTML5 File (from File input type).  Uploads file to the specified server relative folder url.-->
+- `ctx.web.permissions.getRoleAssignments()` - Gets you an an array of permissions that have been setup for that site. Each permission object has a `member` (the user or group) and a `roles` array (the permissions that user or group has). 
+- `ctx.web.permissions.check()` - Looks up the permissions of the current user. 
+- `ctx.web.permissions.check(email)` - Looks up a user by their email address, then gets you a list of permissions that user has for your site.  Similiar to "Check Permissions". 
 
 
 ### List & List Items
@@ -79,8 +82,9 @@ var ctx = SPScript.createContext(siteUrl);
 - `ctx.lists(listname).addItem(item)` - takes a javascript object and creates a list item.
 - `ctx.lists(listname).updateItem(id, updates)` - takes a SharePoint Id, and updates that item ONLY with properties that are found in the passed in `updates` object.
 - `ctx.lists(listname).deleteItem(id)` - deletes the item with the specified SharePoint Id
-<!--- `ctx.lists(listname).permissions.getRoleAssignments()` - Gets you an an array of permissions that have been setup for that list. Each permission object has a `member` (the user or group) and a `roles` array (the permissions that user or group has). -->
-<!--- `ctx.lists(listname).permissions.check(email)` - Looks up a user by their email address, then gets the permissions that user has for that list.  Similiar to "Check Permissions". -->
+- `ctx.lists(listname).permissions.getRoleAssignments()` - Gets you an an array of permissions that have been setup for that list. Each permission object has a `member` (the user or group) and a `roles` array (the permissions that user or group has). 
+- `ctx.lists(listname).permissions.check()` - Looks up the permissions of the current user. 
+- `ctx.lists(listname).permissions.check(email)` - Looks up a user by their email address, then gets the permissions that user has for that list.  Similiar to "Check Permissions". 
 
 ### Search
 - `ctx.search.query(queryText)` - performs a SharePoint search and returns a `SearchResults`  object which contains elapsedTime, suggestion, resultsCount, totalResults, totalResultsIncludingDuplicates, items. The `items` property is what contains the actual "results" array.
@@ -96,17 +100,21 @@ var ctx = SPScript.createContext(siteUrl);
 - `ctx.customActions.addScriptLink(name, url, opts)` - injects a Javascript file onto your site
 - `ctx.customActions.addCssLink(name, url, opts)` - injects a CSS file onto your site
 
-<!--### Profiles-->
-<!--- `dao.profiles.current()` - gets you all the profile properties for the current user-->
-<!--- `dao.profiles.getByEmail(email)` - looks up a user based on their email and returns their profile properties-->
-<!--- `dao.profiles.setProperty(user, key, value)` - sets a profile property (key) for the specified user.  User object should have `AccountName` or `LoginName` property-->
-<!--- `dao.profiles.setProperty(email, key, value)` - sets a profile property (key) for the user tied to that email address-->
+### Profiles
+- `dao.profiles.current()` - gets you all the profile properties for the current user
+- `dao.profiles.get()` - gets you all the profile properties for the current user
+- `dao.profiles.get(email)` - looks up a user based on their email and returns their profile properties
+- `dao.profiles.get({ AccountName|LoginName})` - gets you all the profile properties of the passed in user object. It must have a valid `AccountName` (or `LoginName`) property
+- `dao.profiles.setProperty(key, value)` - sets a profile property (key) for the current user
+- `dao.profiles.setProperty(key, value, { AccountName|LoginName})` - sets a profile property (key) for the specified user.  User object should have `AccountName` or `LoginName` property
+- `dao.profiles.setProperty(key, value, email)` - sets a profile property (key) for the user tied to that email address
 
 ### Utility Functions
-- `SPScript.utils.waitForLibrary(namespace)` - waits for the library to be on the page
-- `SPScript.utils.waitForLibraries(namespaces)` - waits for all libraries to be on the page
-- `SPScript.utils.getScript(url)` - loads a javascript file onto the page
-- `SPScript.utils.getScripts(urls)` - loads multiple javascript files onto the page
+<!--- `SPScript.utils.waitForLibrary(namespace)` - waits for the library to be on the page-->
+<!--- `SPScript.utils.waitForLibraries(namespaces)` - waits for all libraries to be on the page-->
+<!--- `SPScript.utils.getScript(url)` - loads a javascript file onto the page-->
+<!--- `SPScript.utils.getScripts(urls)` - loads multiple javascript files onto the page-->
+
 
 ### Query String Helpers
 - `SPScript.utils.qs.toObj(str)` - returns a javascript object. Each query string key is a property on the object.
