@@ -1,3 +1,6 @@
+var permissionsTests = require("./permissionTests.js");
+var should = require("chai").should();
+
 exports.run = function(dao) {
     describe("var list = ctx.lists(listname)", function() {
         this.timeout(10000);
@@ -283,13 +286,17 @@ exports.run = function(dao) {
             });
         });
 
-        // describe("list.permissions.getRoleAssignments()", permissionsTests.create(list));
+        describe("list.permissions.getRoleAssignments()", permissionsTests.create(list));
 
-        // if (utils.isBrowser()) {
-        //     describe("list.permissions.check()", permissionsTests.create(list, "check"));
-        // }
+        if (isBrowser()) {
+            describe("list.permissions.check()", permissionsTests.create(list, "check"));
+        }
 
-        // describe("list.permissions.check(email)", permissionsTests.create(list, "check", "andrew@andrewpetersen.onmicrosoft.com"))
+        describe("list.permissions.check(email)", permissionsTests.create(list, "check", "andrew@andrewpetersen.onmicrosoft.com"))
 
     });
 };
+
+function isBrowser() {
+    return (!(typeof window === 'undefined'));
+}

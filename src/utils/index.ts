@@ -13,7 +13,12 @@ export interface Utils {
         /** Turns a an Object into a string in form of "key1=value1&key2=value2..." */
         fromObj(obj:any, quoteValues?:boolean): string
     }
+    isBrowser(): boolean
     headers: HeaderUtils
+}
+
+function isBrowser() : boolean {
+    return (!(typeof window === 'undefined'));
 }
 
 function parseJSON(data:any) : any {
@@ -38,5 +43,5 @@ function validateODataV2(data:any) : any {
     return results || data;	
 }
 
-var utils: Utils = { headers: headerUtils, parseJSON, validateODataV2, qs: { toObj, fromObj } };
+var utils: Utils = { isBrowser, headers: headerUtils, parseJSON, validateODataV2, qs: { toObj, fromObj } };
 export default utils;

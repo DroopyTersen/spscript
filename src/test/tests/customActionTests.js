@@ -26,6 +26,16 @@ exports.run = function(dao) {
                     })
                 })
             });
+
+            it("Should not add duplicate Custom Action names. It should remove old one first.", function(done) {
+                dao.customActions.add(customAction)
+                    .then(function() {
+                        dao.customActions.get().then(function(all) {
+                            all.length.should.equal(beforeCount + 1);
+                            done();
+                        })
+                })
+            })
         });
 
         describe("dao.customActions.get()", function() {

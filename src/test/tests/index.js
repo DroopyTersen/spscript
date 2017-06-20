@@ -14,6 +14,7 @@ exports.run = function(SPScript, mode) {
     })
     require("./contextTests").run(SPScript);
     var ctx = SPScript.createContext();
+    require("./webTests").run(ctx);
     require("./listTests").run(ctx);
     require("./searchTests").run(ctx);
     require("./customActionTests").run(ctx);

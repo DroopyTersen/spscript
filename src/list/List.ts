@@ -1,17 +1,18 @@
 import utils from "../utils";
 import Context from "../context/Context";
+import Securable from "../permissions/Securable";
 
 export default class List {
     /** The title of the list */
     listName: string;
     private baseUrl: string;
     private _dao: Context;
-
-    // TODO permissions. Inherit securable?
+    permissions: Securable;
     constructor(name: string, ctx: Context) {
         this.listName = name;
         this.baseUrl = `/web/lists/getbytitle('${this.listName}')`;
         this._dao = ctx;
+        this.permissions = new Securable(this.baseUrl, ctx);
     }
     /** Get items from the list. Will return all items if no OData is passed. */
     getItems(odata?: string): Promise<any> {

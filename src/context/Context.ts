@@ -1,6 +1,7 @@
 import request, { RequestOptions } from "./request";
 import utils from "../utils";
 import List from "../List/List";
+import Web from "../web/Web";
 import Search from "../search/Search";
 import CustomActions from "../customActions/CustomActions";
 
@@ -9,6 +10,8 @@ export default class Context {
     webUrl: string;
     /** Methods to hit the SP Search Service */
     search: Search;
+    /** Methods against the SP Web object */
+    web: Web;
     /** Work with Site/Web scoped Custom Actions */
     customActions: CustomActions;
 
@@ -25,6 +28,7 @@ export default class Context {
         this.ensureToken = !clientId ? Promise.resolve() : Promise.resolve();
         this.search = new Search(this);
         this.customActions = new CustomActions(this);
+        this.web = new Web(this);
     }
 
     private executeRequest(url:string, opts:RequestOptions): Promise<any> {

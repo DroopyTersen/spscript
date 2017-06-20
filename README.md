@@ -255,6 +255,7 @@ If you have a input element of type 'file' it is very easy to upload files
 ``` javascript
 var inputElement = document.getElementById("file-input");
 inputElement.addEventListener("change", handleFiles, false);
+
 function handleFiles() {
 	var fileList = this.files;
 	var folderUrl = "/spscript/Shared Documents";
