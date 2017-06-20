@@ -89,6 +89,8 @@ var ctx = SPScript.createContext(siteUrl);
 - `ctx.search.query(queryText)` - performs a SharePoint search and returns a `SearchResults`  object which contains elapsedTime, suggestion, resultsCount, totalResults, totalResultsIncludingDuplicates, items. The `items` property is what contains the actual "results" array.
 - `ctx.search.query(queryText, queryOptions)` - same as `query(queryText)` but with the ability to override default search options.
 - `ctx.search.people(queryText)` limits the search to just people
+- `ctx.search.sites(queryText)` limits the search to just sites (STS_Web)
+- `ctx.search.sites(queryText, scopeUrl)` limits the search to just sites (STS_Web) that are underneath the specified `scopeUrl`
 
 ### CustomActions
 - `ctx.customActions.get()` - Gets all of the 'Site' and 'Web' scoped UserCustomActions.
