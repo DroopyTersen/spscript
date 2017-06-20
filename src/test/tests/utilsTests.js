@@ -84,7 +84,7 @@ exports.run = function(utils) {
             var jsonMimeType = "application/json;odata=verbose";
             it("Should set the Request Digest if a digest is passed", function() {
                 var digest = "123Fake"
-                var headers = utils.headers.getStandardHeaders(digest);
+                var headers = utils.headers.getAddHeaders(digest);
                 headers.should.have.property("Accept");
                 headers.Accept.should.equal(jsonMimeType);
                 headers.should.have.property("X-RequestDigest");
@@ -96,7 +96,7 @@ exports.run = function(utils) {
             var jsonMimeType = "application/json;odata=verbose";
             it("Should set X-HTTP-Method to MERGE and include X-RequestDigest", function() {
                 var digest = "123Fake"
-                var headers = utils.headers.getStandardHeaders(digest);
+                var headers = utils.headers.getUpdateHeaders(digest);
                 headers.should.have.property("Accept");
                 headers.Accept.should.equal(jsonMimeType);
                 headers.should.have.property("X-RequestDigest");
@@ -110,7 +110,7 @@ exports.run = function(utils) {
             var jsonMimeType = "application/json;odata=verbose";
             it("Should set X-HTTP-Method to DELETE and include X-RequestDigest", function() {
                 var digest = "123Fake"
-                var headers = utils.headers.getStandardHeaders(digest);
+                var headers = utils.headers.getDeleteHeaders(digest);
                 headers.should.have.property("Accept");
                 headers.Accept.should.equal(jsonMimeType);
                 headers.should.have.property("X-RequestDigest");
