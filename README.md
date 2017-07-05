@@ -71,7 +71,7 @@ var ctx = SPScript.createContext(siteUrl);
 
 
 ### List & List Items
-- `ctx.lists(listname).info()` - gets you that list's [SPList properties](https://msdn.microsoft.com/en-us/library/office/jj245826.aspx#properties)
+- `ctx.lists(listname).getInfo()` - gets you that list's [SPList properties](https://msdn.microsoft.com/en-us/library/office/jj245826.aspx#properties)
 - `ctx.lists(listname).getItems()` - gets you all the items in that list
 - `ctx.lists(listname).getItems(odata)` - gets all the items in that list based on the [OData](http://www.odata.org/documentation/odata-version-2-0/uri-conventions/) you pass in.  This allows you to trim selection, filter, sort etc..
 - `ctx.lists(listname).getItemById(id)` - gets you a specific item based on the SharePoint Id
@@ -105,9 +105,9 @@ var ctx = SPScript.createContext(siteUrl);
 - `dao.profiles.current()` - gets you all the profile properties for the current user
 - `dao.profiles.get()` - gets you all the profile properties for the current user
 - `dao.profiles.get(email)` - looks up a user based on their email and returns their profile properties
-- `dao.profiles.get({ AccountName|LoginName})` - gets you all the profile properties of the passed in user object. It must have a valid `AccountName` (or `LoginName`) property
+- `dao.profiles.get({ AccountName|LoginName })` - gets you all the profile properties of the passed in user object. It must have a valid `AccountName` (or `LoginName`) property
 - `dao.profiles.setProperty(key, value)` - sets a profile property (key) for the current user
-- `dao.profiles.setProperty(key, value, { AccountName|LoginName})` - sets a profile property (key) for the specified user.  User object should have `AccountName` or `LoginName` property
+- `dao.profiles.setProperty(key, value, { AccountName|LoginName })` - sets a profile property (key) for the specified user.  User object should have `AccountName` or `LoginName` property
 - `dao.profiles.setProperty(key, value, email)` - sets a profile property (key) for the user tied to that email address
 
 ### Clientside Rendering (CSR)
@@ -137,9 +137,9 @@ var ctx = SPScript.createContext(siteUrl);
 - `SPScript.utils.qs.fromObj(str)` - turns a javascript object into a string in format of "key1=value1&key2=value2"
 
 ### Request Header Helpers
-- `SPScript.utils.headers.getStandardHeaders([digest])` - sets the `Accept` and `Content-Type` headers to the JSON Mime type. If the optional `digest` token is passed, it sets the proper authoorization headers. Returns the headers as an object.  
+- `SPScript.utils.headers.getStandardHeaders(digest?)` - sets the `Accept` and `Content-Type` headers to the JSON Mime type. If the optional `digest` token is passed, it sets the proper authoorization headers. Returns the headers as an object.  
 - `SPScript.utils.headers.getAddHeaders(digest)` - returns the headers object needed in order to create an item.
-- `SPScript.utils.headers.getUpdateHaders(digest)` - returns the headers object needed in order to update an item. 
+- `SPScript.utils.headers.getUpdateHeaders(digest)` - returns the headers object needed in order to update an item. 
 - `SPScript.utils.headers.getDeleteHeaders(digest)` - returns the headers object needed in order to delete an item. 
 
 

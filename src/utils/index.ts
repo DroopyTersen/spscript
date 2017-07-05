@@ -51,8 +51,9 @@ function openModal(url:string, modalOptions?:any) {
     var defaults = {
         width: 800,
         title: " "
-    }
-    var options = Object.assign({}, defaults, modalOptions, { url });
+    };
+
+    var options = {...defaults, ...modalOptions, ...{ url }};
     return SP.UI.ModalDialog.showModalDialog(options);
 }
 var utils: Utils = { 
