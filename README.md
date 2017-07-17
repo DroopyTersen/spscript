@@ -74,6 +74,7 @@ var ctx = SPScript.createContext(siteUrl);
 - `ctx.lists(listname).getInfo()` - gets you that list's [SPList properties](https://msdn.microsoft.com/en-us/library/office/jj245826.aspx#properties)
 - `ctx.lists(listname).getItems()` - gets you all the items in that list
 - `ctx.lists(listname).getItems(odata)` - gets all the items in that list based on the [OData](http://www.odata.org/documentation/odata-version-2-0/uri-conventions/) you pass in.  This allows you to trim selection, filter, sort etc..
+- `ctx.lists(listname).getItemsByView(viewName)` - gets all the items based on the specified View name.
 - `ctx.lists(listname).getItemById(id)` - gets you a specific item based on the SharePoint Id
 - `ctx.lists(listname).findItems(key, value)` - gets you all items whose field(key) matches the value. Currently only text and number columns are supported.
 - `ctx.lists(listname).findItems(key, value, extraOdata)` - gets you all items whose field(key) matches the value. Currently only text and number columns are supported.

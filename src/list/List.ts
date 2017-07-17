@@ -25,8 +25,30 @@ export default class List {
     getItemById(id: number, odata?: string) {
         var url = this.baseUrl + "/items(" + id + ")" + appendOData(odata);
         return this._dao.get(url).then(utils.validateODataV2);
-    };
+    }
 
+    /** Gets the items returned by the specified View name */
+    getItemsByView(viewName: string) {
+        var viewUrl = this.baseUrl + "/Views/getByTitle('" + viewName + "')/ViewQuery"
+        // 1. Get the targeted view on the targeted list so we can pull out the ViewXml
+        return this._dao.get(viewUrl)
+            .then(utils.validateODataV2)
+            .then(view => {
+                // Now that we found the view, craft a POST request the the /GetItems endpoint
+                var queryUrl = this.baseUrl + "/GetItems";
+                var postBody = {
+                    query: {
+                        "__metadata": {
+                            type: "SP.CamlQuery"
+                        },
+                        ViewXml: view.ViewQuery
+                    }
+                };
+                return this._dao.authorizedPost(queryUrl, postBody)
+            })
+            .then(utils.validateODataV2)
+    }
+    
     /** Gets you all items whose field(key) matches the value. Currently only text and number columns are supported. */
     findItems(key: string, value: any, odata?: string) {
         var filterValue = typeof value === "string" ? "'" + value + "'" : value;
