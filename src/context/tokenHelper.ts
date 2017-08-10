@@ -1,4 +1,5 @@
 import { parse as parseUrl } from "url";
+import * as querystring from "querystring";
 import request from "./request";
 
 export var getAppOnlyToken = function(
@@ -9,29 +10,36 @@ export var getAppOnlyToken = function(
 	var urlParts = parseUrl(url);
 	return getRealm(url).then(authParams => {
 		var tokenUrl = `https://accounts.accesscontrol.windows.net/${authParams.realm}/tokens/OAuth/2`;
-		var clientId = `${clientId}@${authParams.realm}`;
+		var client_id = `${clientId}@${authParams.realm}`;
 		var resource = `${authParams.client_id}/${urlParts.host}@${authParams.realm}`;
+
 		var postBody = {
 			grant_type: "client_credentials",
-			client_id: clientId,
+			client_id,
 			client_secret: clientSecret,
 			resource: resource,
 			scope: resource
 		};
+		var bodyStr = querystring.stringify(postBody);
+
 		var opts: RequestInit = {
 			method: "POST",
-			body: JSON.stringify(postBody),
+			body: bodyStr,
 			headers: {
-				"Content-Type": "application/json"
+				"Content-Type": "application/x-www-form-urlencoded",
+				"Content-Length": bodyStr.length
 			}
 		};
-		return request(tokenUrl, opts).then(data => data.access_token);
+		return request(tokenUrl, opts).then(data => {
+			console.log(data);
+			return data.access_token;
+		});
 	});
 };
 
 var getRealm = function(url: string): Promise<any> {
-	var reqOpts = {
-		url: `${url}/_vti_bin/client.svc`,
+	var endpointUrl = `${url}/_api/web`;
+	var opts = {
 		method: "GET",
 		headers: {
 			Authorization: "Bearer ",
@@ -40,22 +48,17 @@ var getRealm = function(url: string): Promise<any> {
 		}
 	};
 	return new Promise((resolve, reject) => {
-		request(reqOpts)
-			.then(res => {
-				//this should fail
-				reject("Get Realm succeeded somehow?!");
-			})
-			.catch(res => {
-				var realm = parseRealm(res.headers["www-authenticate"]);
-				if (realm) {
-					resolve(realm);
-				} else {
-					reject(
-						"Unable to find Realm:\n" +
-							JSON.stringify(res, null, "  ")
-					);
-				}
-			});
+		fetch(endpointUrl, opts).then((res: any) => {
+			if (!res.ok) {
+				var realm = parseRealm(
+					res.headers["www-authenticate"] ||
+						res.headers._headers["www-authenticate"][0]
+				);
+				resolve(realm);
+			}
+			//this should fail
+			reject("Get Realm succeeded somehow?!");
+		});
 	});
 };
 

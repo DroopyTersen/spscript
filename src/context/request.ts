@@ -2,7 +2,8 @@ require("isomorphic-fetch");
 
 var defaults: RequestInit = {
 	method: "GET",
-	credentials: "include"
+	credentials: "include",
+	redirect: "follow"
 };
 
 var request: any = function(url, options: RequestInit) {
@@ -14,7 +15,7 @@ var request: any = function(url, options: RequestInit) {
 				throw new Error(err);
 			});
 		}
-		return resp.text();
+		return resp.json();
 	});
 };
 

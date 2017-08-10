@@ -1,11 +1,11 @@
 var promisePolyfill = require("promise-polyfill");
 if (!global.Promise) {
-    global.Promise = promisePolyfill;
+	global.Promise = promisePolyfill;
 }
 
-mocha.setup('bdd');
+mocha.setup("bdd");
 chai.should();
-var SPScript = require("../../lib/SPScript");
-require("./tests").run(SPScript.default);
+var SPScript = require("../../lib/SPScript").default;
+require("./tests").run(SPScript);
 
 mocha.run();

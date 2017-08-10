@@ -43,7 +43,8 @@ export default class Context {
 		this.profiles = new Profiles(this);
 	}
 
-	private executeRequest(url: string, opts: RequestInit): Promise<any> {
+	private async executeRequest(url: string, opts: RequestInit): Promise<any> {
+		await this.ensureToken;
 		var fullUrl = /^http/i.test(url) ? url : this.webUrl + "/_api" + url;
 		var defaultOptions: RequestInit = {
 			method: "GET",

@@ -1,4 +1,10 @@
-import { RequestOptions } from "./interfaces";
+export interface RequestOptions {
+	url?: string;
+	method?: string;
+	headers?: any;
+	data?: string;
+	async?: boolean;
+}
 
 var defaults: RequestOptions = {
 	method: "GET",
