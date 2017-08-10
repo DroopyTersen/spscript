@@ -1,58 +1,55 @@
 {
-  "name": "spscript",
-  "version": "3.0.2-beta",
-  "description": "ShareP0oint 2013 Rest Api Wrappers",
-  "main": "./lib/entry.browser.js",
-  "scripts": {
-    "build": "tsc -d && webpack -p",
-    "pretest": "tsc",
-    "test": "mocha src/test/test.server.js",
-    "test:browser": "concurrently \"npm run watch\" \"npm run serve\"",
-    "docs": "jsdoc -c ./jsdoc/jsdoc.config.json -r readme.md",
-    "postdocs": "copy -recurse -force ./dist/docs ../spscript-site",
-    "babel": "babel src -d lib --source-maps --presets es2015 --plugins transform-object-assign --ignore \"src/tests\"",
-    "lint": "eslint src/*",
-    "serve": "concurrently \"live-server --no-browser\" \"ngrok http 8080 -subdomain=droopytersen\"",
-    "watch": "nodemon -w src -x \"npm run --silent build\"",
-    "watch:test": "nodemon -w src -x \"npm run --silent test\"",
-    "clean": "rimraf lib"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/DroopyTersen/spscript"
-  },
-  "keywords": [
-    "sharepoint"
-  ],
-  "author": "Andrew Petersen",
-  "bugs": {
-    "url": "https://github.com/DroopyTersen/spscript/issues"
-  },
-  "homepage": "https://github.com/DroopyTersen/spscript",
-  "devDependencies": {
-    "babel-cli": "^6.24.1",
-    "babel-core": "^6.24.1",
-    "babel-loader": "^6.2.4",
-    "babel-plugin-transform-object-assign": "^6.5.0",
-    "babel-preset-es2015": "^6.6.0",
-    "chai": "^1.10.0",
-    "concurrently": "^3.4.0",
-    "css-loader": "^0.23.1",
-    "file-loader": "^0.8.5",
-    "html-loader": "^0.4.3",
-    "mocha": "^2.4.5",
-    "ngrok": "^2.1.7",
-    "rimraf": "^2.5.2",
-    "spbrander": "^1.0.6",
-    "style-loader": "^0.13.1",
-    "typedoc": "^0.7.1",
-    "typescript": "^2.3.4",
-    "uglify-js": "^2.6.2",
-    "watch": "^0.18.0",
-    "webpack": "^1.13.0"
-  },
-  "dependencies": {
-    "promise-polyfill": "^6.0.2"
-  },
-  "types": "./lib/entry.browser.d.ts"
+	"name": "spscript",
+	"version": "3.0.2-beta",
+	"description": "ShareP0oint 2013 Rest Api Wrappers",
+	"main": "./lib/entry.browser.js",
+	"scripts": {
+		"build": "tsc -d && webpack -p",
+		"pretest": "tsc",
+		"test": "mocha src/test/test.server.js",
+		"test:browser": "concurrently \"npm run watch\" \"npm run serve\"",
+		"docs": "jsdoc -c ./jsdoc/jsdoc.config.json -r readme.md",
+		"postdocs": "copy -recurse -force ./dist/docs ../spscript-site",
+		"babel": "babel src -d lib --source-maps --presets es2015 --plugins transform-object-assign --ignore \"src/tests\"",
+		"serve": "concurrently \"live-server --no-browser\" \"ngrok http 8080 -subdomain=droopytersen\"",
+		"watch": "nodemon -w src -x \"npm run --silent build\"",
+		"watch:test": "nodemon -w src -x \"npm run --silent test\"",
+		"clean": "rimraf lib"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/DroopyTersen/spscript"
+	},
+	"keywords": [
+		"sharepoint"
+	],
+	"author": "Andrew Petersen",
+	"bugs": {
+		"url": "https://github.com/DroopyTersen/spscript/issues"
+	},
+	"homepage": "https://github.com/DroopyTersen/spscript",
+	"devDependencies": {
+		"babel-cli": "^6.24.1",
+		"babel-core": "^6.24.1",
+		"babel-loader": "^6.2.4",
+		"babel-plugin-transform-object-assign": "^6.5.0",
+		"babel-preset-es2015": "^6.6.0",
+		"chai": "^1.10.0",
+		"concurrently": "^3.4.0",
+		"css-loader": "^0.23.1",
+		"file-loader": "^0.8.5",
+		"html-loader": "^0.4.3",
+		"mocha": "^2.4.5",
+		"ngrok": "^2.2.17",
+		"rimraf": "^2.5.2",
+		"style-loader": "^0.13.1",
+		"typedoc": "^0.7.1",
+		"typescript": "^2.3.4",
+		"webpack": "^1.13.0"
+	},
+	"dependencies": {
+		"isomorphic-fetch": "^2.2.1",
+		"promise-polyfill": "^6.0.2"
+	},
+	"types": "./lib/entry.browser.d.ts"
 }

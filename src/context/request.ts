@@ -1,21 +1,21 @@
-declare var global:any;
-import xhr from "./xhr";
-export interface RequestOptions {
-    url?: string;
-    method?: string;
-    headers?: any;
-    data?: string;
-    async?: boolean;
-}
+require("isomorphic-fetch");
 
-var request = function(options:RequestOptions): Promise<any> {
-    // if node, use request-promise-native
-    // if fetch is available, use that
-    // else use xhr
-    if (typeof window === "undefined") {
-        throw new Error("No Node.js HTTP request module available yet.")
-    }
-    return xhr(options);
-}
+var defaults: RequestInit = {
+	method: "GET",
+	credentials: "include"
+};
+
+var request: any = function(url, options: RequestInit) {
+	var opts = Object.assign({}, defaults, options);
+	return fetch(url, opts).then(resp => {
+		var succeeded = resp.ok;
+		if (!resp.ok) {
+			return resp.text().then(err => {
+				throw new Error(err);
+			});
+		}
+		return resp.text();
+	});
+};
 
 export default request;
