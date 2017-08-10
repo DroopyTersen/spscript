@@ -53,11 +53,11 @@ export default class Context {
 				"Content-Type": "application/json; odata=verbose"
 			}
 		};
+		var requestOptions = Object.assign({}, defaultOptions, opts);
 		if (this.accessToken) {
-			defaultOptions.headers["Authorization"] =
+			requestOptions.headers["Authorization"] =
 				"Bearer " + this.accessToken;
 		}
-		var requestOptions = Object.assign({}, defaultOptions, opts);
 		return request(fullUrl, requestOptions);
 	}
 
