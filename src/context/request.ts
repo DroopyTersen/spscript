@@ -1,4 +1,4 @@
-require("isomorphic-fetch");
+// require("isomorphic-fetch");
 
 var defaults: RequestInit = {
 	method: "GET",

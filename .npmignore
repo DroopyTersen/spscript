@@ -1,6 +1,6 @@
 node_modules
 docs
-src
 .vscode
 *.config
+src
 app.config.js
