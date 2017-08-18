@@ -1,36 +1,38 @@
 var should = require("chai").should();
-var create = exports.create = function(securable, action, email) {
+var create = (exports.create = function(securable, action, email) {
 	if (action === "check") {
 		return function() {
-		 	var permissions = null;
-            before(function (done) {
-                debugger;
-                securable.permissions.check(email).then(function (privs) {
-                    permissions = privs;
-                    done();
-                }).catch(function (err) {
-					done(err);
-				});
-            });
-            
-            it("Should return a promise that resolves to an array of base permission strings", function () {
-                permissions.should.be.an("array");
-                permissions.should.not.be.empty;
-            });
+			var permissions = null;
+			before(function(done) {
+				securable.permissions
+					.check(email)
+					.then(function(privs) {
+						permissions = privs;
+						done();
+					})
+					.catch(function(err) {
+						done(err);
+					});
+			});
 
-            it("Should reject the promise for an invalid email", function (done) {
+			it("Should return a promise that resolves to an array of base permission strings", function() {
+				permissions.should.be.an("array");
+				permissions.should.not.be.empty;
+			});
 
-                securable.permissions.check("invalid@invalid123.com")
-	                .then(function (privs) {
-	                    ("one").should.equal("two");
-	                    done();
-	                }).catch(function(error){
-	                    done();
-	                });
-            });
-		}
-	}
-	else {
+			it("Should reject the promise for an invalid email", function(done) {
+				securable.permissions
+					.check("invalid@invalid123.com")
+					.then(function(privs) {
+						"one".should.equal("two");
+						done();
+					})
+					.catch(function(error) {
+						done();
+					});
+			});
+		};
+	} else {
 		return function() {
 			var permissions = null;
 			before(function(done) {
@@ -65,6 +67,6 @@ var create = exports.create = function(securable, action, email) {
 					});
 				});
 			});
-		}
+		};
 	}
-}
+});

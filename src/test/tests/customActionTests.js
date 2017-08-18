@@ -7,7 +7,7 @@ exports.run = function(dao) {
 			Location: "ScriptLink",
 			ScriptBlock: "console.log('deployed from spscript-mocha test');"
 		};
-		describe.only("ctx.customActions.add(customAction)", function() {
+		describe("ctx.customActions.add(customAction)", function() {
 			var beforeCount = 0;
 			before(function(done) {
 				dao.customActions.get().then(function(all) {
@@ -25,13 +25,14 @@ exports.run = function(dao) {
 				});
 			});
 
-			it("Should not add duplicate Custom Action names. It should remove old one first.", function(done) {
+			it("Should not add duplicate Custom Action names. It should remove old one first.", function(
+				done
+			) {
 				dao.customActions.add(customAction).then(function() {
-                    dao.customActions.get()
-                        .then(function(all) {
-                            all.length.should.equal(beforeCount + 1);
-                            done();
-                        });
+					dao.customActions.get().then(function(all) {
+						all.length.should.equal(beforeCount + 1);
+						done();
+					});
 				});
 			});
 		});
@@ -76,7 +77,9 @@ exports.run = function(dao) {
 				result.should.have.property("Id");
 			});
 
-			it("Should reject the promise with a decent error if the Custom Action name is not found", function(done) {
+			it("Should reject the promise with a decent error if the Custom Action name is not found", function(
+				done
+			) {
 				dao.customActions
 					.get("INVALID-NAME")
 					.then(function() {
@@ -149,7 +152,9 @@ exports.run = function(dao) {
 				});
 			});
 
-			it("Should add a custom action with that name and ScriptBlock with specified URL", function(done) {
+			it("Should add a custom action with that name and ScriptBlock with specified URL", function(
+				done
+			) {
 				dao.customActions.get(caName).then(function(ca) {
 					ca.should.have.property("Name");
 					ca.Name.should.equal(caName);
@@ -177,7 +182,9 @@ exports.run = function(dao) {
 				});
 			});
 
-			it("Should add a custom action with that name and ScriptBlock with specified URL", function(done) {
+			it("Should add a custom action with that name and ScriptBlock with specified URL", function(
+				done
+			) {
 				dao.customActions.get(caName).then(function(ca) {
 					ca.should.have.property("Name");
 					ca.Name.should.equal(caName);
@@ -208,7 +215,9 @@ exports.run = function(dao) {
 				});
 			});
 
-			it("Should add a custom action with that name and ScriptBlock containing specified URL", function(done) {
+			it("Should add a custom action with that name and ScriptBlock containing specified URL", function(
+				done
+			) {
 				dao.customActions.get(caName).then(function(ca) {
 					ca.should.have.property("Name");
 					ca.Name.should.equal(caName);
@@ -236,7 +245,9 @@ exports.run = function(dao) {
 				});
 			});
 
-			it("Should add a custom action with that name and ScriptBlock containing specified URL with Site scope", function(done) {
+			it("Should add a custom action with that name and ScriptBlock containing specified URL with Site scope", function(
+				done
+			) {
 				dao.customActions.get(caName).then(function(ca) {
 					ca.should.have.property("Name");
 					ca.Name.should.equal(caName);

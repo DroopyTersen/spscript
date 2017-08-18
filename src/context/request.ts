@@ -1,4 +1,5 @@
 // require("isomorphic-fetch");
+import utils from "../utils";
 
 var defaults: RequestInit = {
 	method: "GET",
@@ -15,7 +16,9 @@ var request: any = function(url, options: RequestInit) {
 				throw new Error(err);
 			});
 		}
-		return resp.json();
+		return resp.text().then(text => {
+			return utils.parseJSON(text) || text;
+		});
 	});
 };
 

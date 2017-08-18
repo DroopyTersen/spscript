@@ -1,7 +1,7 @@
 module.exports = {
 	entry: {
-		spscript: `./src/entry.browser.ts`
-		// tests: "./src/test/test.browser.js"
+		spscript: `./src/entry.browser.ts`,
+		tests: "./src/test/test.browser.js"
 	},
 	output: {
 		path: __dirname + "/dist/v3",
@@ -20,8 +20,8 @@ module.exports = {
 			{
 				test: /\.tsx?$/,
 				loader: "ts-loader"
-			}
-			// addBabelLoader() //Enable writing ES6 javascript
+			},
+			addBabelLoader() //Enable writing ES6 javascript
 		]
 	}
 };
@@ -30,7 +30,7 @@ function addBabelLoader() {
 	return {
 		test: /\.js?$/,
 		exclude: /(node_modules)/,
-		loader: "babel",
+		loader: "babel-loader",
 		query: {
 			presets: ["es2015"],
 			plugins: ["transform-object-assign"]

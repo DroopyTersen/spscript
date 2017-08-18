@@ -17,8 +17,8 @@ exports.run = function(SPScript, ctx) {
 
 	require("./webTests").run(ctx);
 	require("./listTests").run(ctx);
-	// require("./searchTests").run(ctx);
-	// require("./customActionTests").run(ctx);
-	// require("./profileTests").run(ctx);
+	require("./searchTests").run(ctx);
+	require("./customActionTests").run(ctx);
+	require("./profileTests").run(ctx);
 	require("./utilsTests").run(SPScript.utils);
 };
