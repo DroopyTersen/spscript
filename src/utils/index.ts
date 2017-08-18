@@ -50,19 +50,24 @@ function validateODataV2(data: any): any {
 }
 declare var SP: any;
 function openModal(url: string, modalOptions?: any) {
+	ensureModalLibrary().then(() => {
+		var defaults = {
+			title: " "
+		};
+		var options = Object.assign({}, defaults, modalOptions, { url });
+		return SP.UI.ModalDialog.showModalDialog(options);
+	});
+}
+
+var ensureModalLibrary = function() {
 	if (!validateNamespace("SP.UI.ModalDialog")) {
-		throw new Error(
-			"Sorry. Unable to open modal because native SharePoint Modal JavaScript is on loaded on page."
+		return loadScript("/_layouts/15/1033/sp.res.js").then(() =>
+			loadScript("/_layouts/15/sp.ui.dialog.js")
 		);
 	}
-	var defaults = {
-		width: 800,
-		title: " "
-	};
+	return Promise.resolve(true);
+};
 
-	var options = { ...defaults, ...modalOptions, ...{ url } };
-	return SP.UI.ModalDialog.showModalDialog(options);
-}
 var utils: Utils = {
 	isBrowser,
 	headers: headerUtils,
