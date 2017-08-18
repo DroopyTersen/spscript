@@ -1,5 +1,4 @@
 exports.run = function(SPScript, ctx) {
-	console.log("SPScript Env: " + SPScript._env);
 	var should = require("chai").should();
 
 	describe("SPScript Global Namespace", function() {

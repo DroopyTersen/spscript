@@ -45,8 +45,8 @@
 		"webpack": "^3.5.5"
 	},
 	"dependencies": {
-		"isomorphic-fetch": "^2.2.1",
-		"promise-polyfill": "^6.0.2"
+		"es6-promise": "^4.1.1",
+		"isomorphic-fetch": "^2.2.1"
 	},
 	"types": "./dist/v3/lib/entry.browser.d.ts"
 }

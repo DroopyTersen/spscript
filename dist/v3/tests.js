@@ -70,12 +70,19 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 41);
+/******/ 	return __webpack_require__(__webpack_require__.s = 43);
 /******/ })
 /************************************************************************/
 /******/ ([
 /* 0 */,
 /* 1 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = __webpack_require__(46);
+
+
+/***/ }),
+/* 2 */
 /***/ (function(module, exports) {
 
 var g;
@@ -99,13 +106,6 @@ try {
 // easier to handle this case. if(!global) { ...}
 
 module.exports = g;
-
-
-/***/ }),
-/* 2 */
-/***/ (function(module, exports, __webpack_require__) {
-
-module.exports = __webpack_require__(44);
 
 
 /***/ }),
@@ -203,450 +203,8 @@ module.exports = {
 
 
 /***/ }),
-/* 5 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var apply = Function.prototype.apply;
-
-// DOM APIs, for completeness
-
-exports.setTimeout = function() {
-  return new Timeout(apply.call(setTimeout, window, arguments), clearTimeout);
-};
-exports.setInterval = function() {
-  return new Timeout(apply.call(setInterval, window, arguments), clearInterval);
-};
-exports.clearTimeout =
-exports.clearInterval = function(timeout) {
-  if (timeout) {
-    timeout.close();
-  }
-};
-
-function Timeout(id, clearFn) {
-  this._id = id;
-  this._clearFn = clearFn;
-}
-Timeout.prototype.unref = Timeout.prototype.ref = function() {};
-Timeout.prototype.close = function() {
-  this._clearFn.call(window, this._id);
-};
-
-// Does not start the time, just sets up the members needed.
-exports.enroll = function(item, msecs) {
-  clearTimeout(item._idleTimeoutId);
-  item._idleTimeout = msecs;
-};
-
-exports.unenroll = function(item) {
-  clearTimeout(item._idleTimeoutId);
-  item._idleTimeout = -1;
-};
-
-exports._unrefActive = exports.active = function(item) {
-  clearTimeout(item._idleTimeoutId);
-
-  var msecs = item._idleTimeout;
-  if (msecs >= 0) {
-    item._idleTimeoutId = setTimeout(function onTimeout() {
-      if (item._onTimeout)
-        item._onTimeout();
-    }, msecs);
-  }
-};
-
-// setimmediate attaches itself to the global object
-__webpack_require__(6);
-exports.setImmediate = setImmediate;
-exports.clearImmediate = clearImmediate;
-
-
-/***/ }),
+/* 5 */,
 /* 6 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/* WEBPACK VAR INJECTION */(function(global, process) {(function (global, undefined) {
-    "use strict";
-
-    if (global.setImmediate) {
-        return;
-    }
-
-    var nextHandle = 1; // Spec says greater than zero
-    var tasksByHandle = {};
-    var currentlyRunningATask = false;
-    var doc = global.document;
-    var registerImmediate;
-
-    function setImmediate(callback) {
-      // Callback can either be a function or a string
-      if (typeof callback !== "function") {
-        callback = new Function("" + callback);
-      }
-      // Copy function arguments
-      var args = new Array(arguments.length - 1);
-      for (var i = 0; i < args.length; i++) {
-          args[i] = arguments[i + 1];
-      }
-      // Store and register the task
-      var task = { callback: callback, args: args };
-      tasksByHandle[nextHandle] = task;
-      registerImmediate(nextHandle);
-      return nextHandle++;
-    }
-
-    function clearImmediate(handle) {
-        delete tasksByHandle[handle];
-    }
-
-    function run(task) {
-        var callback = task.callback;
-        var args = task.args;
-        switch (args.length) {
-        case 0:
-            callback();
-            break;
-        case 1:
-            callback(args[0]);
-            break;
-        case 2:
-            callback(args[0], args[1]);
-            break;
-        case 3:
-            callback(args[0], args[1], args[2]);
-            break;
-        default:
-            callback.apply(undefined, args);
-            break;
-        }
-    }
-
-    function runIfPresent(handle) {
-        // From the spec: "Wait until any invocations of this algorithm started before this one have completed."
-        // So if we're currently running a task, we'll need to delay this invocation.
-        if (currentlyRunningATask) {
-            // Delay by doing a setTimeout. setImmediate was tried instead, but in Firefox 7 it generated a
-            // "too much recursion" error.
-            setTimeout(runIfPresent, 0, handle);
-        } else {
-            var task = tasksByHandle[handle];
-            if (task) {
-                currentlyRunningATask = true;
-                try {
-                    run(task);
-                } finally {
-                    clearImmediate(handle);
-                    currentlyRunningATask = false;
-                }
-            }
-        }
-    }
-
-    function installNextTickImplementation() {
-        registerImmediate = function(handle) {
-            process.nextTick(function () { runIfPresent(handle); });
-        };
-    }
-
-    function canUsePostMessage() {
-        // The test against `importScripts` prevents this implementation from being installed inside a web worker,
-        // where `global.postMessage` means something completely different and can't be used for this purpose.
-        if (global.postMessage && !global.importScripts) {
-            var postMessageIsAsynchronous = true;
-            var oldOnMessage = global.onmessage;
-            global.onmessage = function() {
-                postMessageIsAsynchronous = false;
-            };
-            global.postMessage("", "*");
-            global.onmessage = oldOnMessage;
-            return postMessageIsAsynchronous;
-        }
-    }
-
-    function installPostMessageImplementation() {
-        // Installs an event handler on `global` for the `message` event: see
-        // * https://developer.mozilla.org/en/DOM/window.postMessage
-        // * http://www.whatwg.org/specs/web-apps/current-work/multipage/comms.html#crossDocumentMessages
-
-        var messagePrefix = "setImmediate$" + Math.random() + "$";
-        var onGlobalMessage = function(event) {
-            if (event.source === global &&
-                typeof event.data === "string" &&
-                event.data.indexOf(messagePrefix) === 0) {
-                runIfPresent(+event.data.slice(messagePrefix.length));
-            }
-        };
-
-        if (global.addEventListener) {
-            global.addEventListener("message", onGlobalMessage, false);
-        } else {
-            global.attachEvent("onmessage", onGlobalMessage);
-        }
-
-        registerImmediate = function(handle) {
-            global.postMessage(messagePrefix + handle, "*");
-        };
-    }
-
-    function installMessageChannelImplementation() {
-        var channel = new MessageChannel();
-        channel.port1.onmessage = function(event) {
-            var handle = event.data;
-            runIfPresent(handle);
-        };
-
-        registerImmediate = function(handle) {
-            channel.port2.postMessage(handle);
-        };
-    }
-
-    function installReadyStateChangeImplementation() {
-        var html = doc.documentElement;
-        registerImmediate = function(handle) {
-            // Create a <script> element; its readystatechange event will be fired asynchronously once it is inserted
-            // into the document. Do so, thus queuing up the task. Remember to clean up once it's been called.
-            var script = doc.createElement("script");
-            script.onreadystatechange = function () {
-                runIfPresent(handle);
-                script.onreadystatechange = null;
-                html.removeChild(script);
-                script = null;
-            };
-            html.appendChild(script);
-        };
-    }
-
-    function installSetTimeoutImplementation() {
-        registerImmediate = function(handle) {
-            setTimeout(runIfPresent, 0, handle);
-        };
-    }
-
-    // If supported, we should attach to the prototype of global, since that is where setTimeout et al. live.
-    var attachTo = Object.getPrototypeOf && Object.getPrototypeOf(global);
-    attachTo = attachTo && attachTo.setTimeout ? attachTo : global;
-
-    // Don't get fooled by e.g. browserify environments.
-    if ({}.toString.call(global.process) === "[object process]") {
-        // For Node.js before 0.9
-        installNextTickImplementation();
-
-    } else if (canUsePostMessage()) {
-        // For non-IE10 modern browsers
-        installPostMessageImplementation();
-
-    } else if (global.MessageChannel) {
-        // For web workers, where supported
-        installMessageChannelImplementation();
-
-    } else if (doc && "onreadystatechange" in doc.createElement("script")) {
-        // For IE 6–8
-        installReadyStateChangeImplementation();
-
-    } else {
-        // For older browsers
-        installSetTimeoutImplementation();
-    }
-
-    attachTo.setImmediate = setImmediate;
-    attachTo.clearImmediate = clearImmediate;
-}(typeof self === "undefined" ? typeof global === "undefined" ? this : global : self));
-
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1), __webpack_require__(7)))
-
-/***/ }),
-/* 7 */
-/***/ (function(module, exports) {
-
-// shim for using process in browser
-var process = module.exports = {};
-
-// cached from whatever global is present so that test runners that stub it
-// don't break things.  But we need to wrap it in a try catch in case it is
-// wrapped in strict mode code which doesn't define any globals.  It's inside a
-// function because try/catches deoptimize in certain engines.
-
-var cachedSetTimeout;
-var cachedClearTimeout;
-
-function defaultSetTimout() {
-    throw new Error('setTimeout has not been defined');
-}
-function defaultClearTimeout () {
-    throw new Error('clearTimeout has not been defined');
-}
-(function () {
-    try {
-        if (typeof setTimeout === 'function') {
-            cachedSetTimeout = setTimeout;
-        } else {
-            cachedSetTimeout = defaultSetTimout;
-        }
-    } catch (e) {
-        cachedSetTimeout = defaultSetTimout;
-    }
-    try {
-        if (typeof clearTimeout === 'function') {
-            cachedClearTimeout = clearTimeout;
-        } else {
-            cachedClearTimeout = defaultClearTimeout;
-        }
-    } catch (e) {
-        cachedClearTimeout = defaultClearTimeout;
-    }
-} ())
-function runTimeout(fun) {
-    if (cachedSetTimeout === setTimeout) {
-        //normal enviroments in sane situations
-        return setTimeout(fun, 0);
-    }
-    // if setTimeout wasn't available but was latter defined
-    if ((cachedSetTimeout === defaultSetTimout || !cachedSetTimeout) && setTimeout) {
-        cachedSetTimeout = setTimeout;
-        return setTimeout(fun, 0);
-    }
-    try {
-        // when when somebody has screwed with setTimeout but no I.E. maddness
-        return cachedSetTimeout(fun, 0);
-    } catch(e){
-        try {
-            // When we are in I.E. but the script has been evaled so I.E. doesn't trust the global object when called normally
-            return cachedSetTimeout.call(null, fun, 0);
-        } catch(e){
-            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error
-            return cachedSetTimeout.call(this, fun, 0);
-        }
-    }
-
-
-}
-function runClearTimeout(marker) {
-    if (cachedClearTimeout === clearTimeout) {
-        //normal enviroments in sane situations
-        return clearTimeout(marker);
-    }
-    // if clearTimeout wasn't available but was latter defined
-    if ((cachedClearTimeout === defaultClearTimeout || !cachedClearTimeout) && clearTimeout) {
-        cachedClearTimeout = clearTimeout;
-        return clearTimeout(marker);
-    }
-    try {
-        // when when somebody has screwed with setTimeout but no I.E. maddness
-        return cachedClearTimeout(marker);
-    } catch (e){
-        try {
-            // When we are in I.E. but the script has been evaled so I.E. doesn't  trust the global object when called normally
-            return cachedClearTimeout.call(null, marker);
-        } catch (e){
-            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error.
-            // Some versions of I.E. have different rules for clearTimeout vs setTimeout
-            return cachedClearTimeout.call(this, marker);
-        }
-    }
-
-
-
-}
-var queue = [];
-var draining = false;
-var currentQueue;
-var queueIndex = -1;
-
-function cleanUpNextTick() {
-    if (!draining || !currentQueue) {
-        return;
-    }
-    draining = false;
-    if (currentQueue.length) {
-        queue = currentQueue.concat(queue);
-    } else {
-        queueIndex = -1;
-    }
-    if (queue.length) {
-        drainQueue();
-    }
-}
-
-function drainQueue() {
-    if (draining) {
-        return;
-    }
-    var timeout = runTimeout(cleanUpNextTick);
-    draining = true;
-
-    var len = queue.length;
-    while(len) {
-        currentQueue = queue;
-        queue = [];
-        while (++queueIndex < len) {
-            if (currentQueue) {
-                currentQueue[queueIndex].run();
-            }
-        }
-        queueIndex = -1;
-        len = queue.length;
-    }
-    currentQueue = null;
-    draining = false;
-    runClearTimeout(timeout);
-}
-
-process.nextTick = function (fun) {
-    var args = new Array(arguments.length - 1);
-    if (arguments.length > 1) {
-        for (var i = 1; i < arguments.length; i++) {
-            args[i - 1] = arguments[i];
-        }
-    }
-    queue.push(new Item(fun, args));
-    if (queue.length === 1 && !draining) {
-        runTimeout(drainQueue);
-    }
-};
-
-// v8 likes predictible objects
-function Item(fun, array) {
-    this.fun = fun;
-    this.array = array;
-}
-Item.prototype.run = function () {
-    this.fun.apply(null, this.array);
-};
-process.title = 'browser';
-process.browser = true;
-process.env = {};
-process.argv = [];
-process.version = ''; // empty string to avoid regexp issues
-process.versions = {};
-
-function noop() {}
-
-process.on = noop;
-process.addListener = noop;
-process.once = noop;
-process.off = noop;
-process.removeListener = noop;
-process.removeAllListeners = noop;
-process.emit = noop;
-process.prependListener = noop;
-process.prependOnceListener = noop;
-
-process.listeners = function (name) { return [] }
-
-process.binding = function (name) {
-    throw new Error('process.binding is not supported');
-};
-
-process.cwd = function () { return '/' };
-process.chdir = function (dir) {
-    throw new Error('process.chdir is not supported');
-};
-process.umask = function() { return 0; };
-
-
-/***/ }),
-/* 8 */,
-/* 9 */
 /***/ (function(module, exports) {
 
 module.exports = function(module) {
@@ -674,15 +232,15 @@ module.exports = function(module) {
 
 
 /***/ }),
-/* 10 */
+/* 7 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // This is (almost) directly from Node.js utils
 // https://github.com/joyent/node/blob/f8c335d0caf47f16d31413f89aa28eda3878e3aa/lib/util.js
 
-var getName = __webpack_require__(14);
-var getProperties = __webpack_require__(50);
-var getEnumerableProperties = __webpack_require__(51);
+var getName = __webpack_require__(11);
+var getProperties = __webpack_require__(52);
+var getEnumerableProperties = __webpack_require__(53);
 
 module.exports = inspect;
 
@@ -1013,9 +571,9 @@ function objectToString(o) {
 
 
 /***/ }),
-/* 11 */,
-/* 12 */,
-/* 13 */
+/* 8 */,
+/* 9 */,
+/* 10 */
 /***/ (function(module, exports) {
 
 /*!
@@ -1039,7 +597,7 @@ module.exports = function (obj, args) {
 
 
 /***/ }),
-/* 14 */
+/* 11 */
 /***/ (function(module, exports) {
 
 /*!
@@ -1065,7 +623,7 @@ module.exports = function (func) {
 
 
 /***/ }),
-/* 15 */
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*!
@@ -1078,7 +636,7 @@ module.exports = function (func) {
  * Module dependancies
  */
 
-var inspect = __webpack_require__(10);
+var inspect = __webpack_require__(7);
 var config = __webpack_require__(4);
 
 /**
@@ -1120,7 +678,7 @@ module.exports = function (obj) {
 
 
 /***/ }),
-/* 16 */
+/* 13 */
 /***/ (function(module, exports) {
 
 /*!
@@ -1170,13 +728,13 @@ module.exports = function (assertion, object, includeAll) {
 
 
 /***/ }),
-/* 17 */
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var should = __webpack_require__(2).should();
+var should = __webpack_require__(1).should();
 var create = exports.create = function (securable, action, email) {
 	if (action === "check") {
 		return function () {
@@ -1244,6 +802,9 @@ var create = exports.create = function (securable, action, email) {
 };
 
 /***/ }),
+/* 15 */,
+/* 16 */,
+/* 17 */,
 /* 18 */,
 /* 19 */,
 /* 20 */,
@@ -1267,7 +828,9 @@ var create = exports.create = function (securable, action, email) {
 /* 38 */,
 /* 39 */,
 /* 40 */,
-/* 41 */
+/* 41 */,
+/* 42 */,
+/* 43 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1280,3789 +843,4947 @@ var create = exports.create = function (securable, action, email) {
 
 mocha.setup("bdd");
 chai.should();
-var SPScript = __webpack_require__(42);
-__webpack_require__(43).run(SPScript);
+var SPScript = __webpack_require__(44);
+__webpack_require__(45).run(SPScript);
 
 mocha.run();
 
 /***/ }),
-/* 42 */
+/* 44 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-/* WEBPACK VAR INJECTION */(function(setImmediate, clearImmediate, module) {var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;
+/* WEBPACK VAR INJECTION */(function(module) {var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 (function webpackUniversalModuleDefinition(root, factory) {
-    if (( false ? 'undefined' : _typeof(exports)) === 'object' && ( false ? 'undefined' : _typeof(module)) === 'object') module.exports = factory();else if (true) !(__WEBPACK_AMD_DEFINE_ARRAY__ = [], __WEBPACK_AMD_DEFINE_FACTORY__ = (factory),
+  if (( false ? 'undefined' : _typeof(exports)) === 'object' && ( false ? 'undefined' : _typeof(module)) === 'object') module.exports = factory();else if (true) !(__WEBPACK_AMD_DEFINE_ARRAY__ = [], __WEBPACK_AMD_DEFINE_FACTORY__ = (factory),
 				__WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ?
 				(__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__),
 				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));else if ((typeof exports === 'undefined' ? 'undefined' : _typeof(exports)) === 'object') exports["SPScript"] = factory();else root["SPScript"] = factory();
 })(undefined, function () {
-    return (/******/function (modules) {
-            // webpackBootstrap
-            /******/ // The module cache
-            /******/var installedModules = {};
-            /******/
-            /******/ // The require function
-            /******/function __webpack_require__(moduleId) {
-                /******/
-                /******/ // Check if module is in cache
-                /******/if (installedModules[moduleId]) {
-                    /******/return installedModules[moduleId].exports;
-                    /******/
-                }
-                /******/ // Create a new module (and put it into the cache)
-                /******/var module = installedModules[moduleId] = {
-                    /******/i: moduleId,
-                    /******/l: false,
-                    /******/exports: {}
-                    /******/ };
-                /******/
-                /******/ // Execute the module function
-                /******/modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
-                /******/
-                /******/ // Flag the module as loaded
-                /******/module.l = true;
-                /******/
-                /******/ // Return the exports of the module
-                /******/return module.exports;
-                /******/
+  return (/******/function (modules) {
+      // webpackBootstrap
+      /******/ // The module cache
+      /******/var installedModules = {};
+      /******/
+      /******/ // The require function
+      /******/function __webpack_require__(moduleId) {
+        /******/
+        /******/ // Check if module is in cache
+        /******/if (installedModules[moduleId]) {
+          /******/return installedModules[moduleId].exports;
+          /******/
+        }
+        /******/ // Create a new module (and put it into the cache)
+        /******/var module = installedModules[moduleId] = {
+          /******/i: moduleId,
+          /******/l: false,
+          /******/exports: {}
+          /******/ };
+        /******/
+        /******/ // Execute the module function
+        /******/modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+        /******/
+        /******/ // Flag the module as loaded
+        /******/module.l = true;
+        /******/
+        /******/ // Return the exports of the module
+        /******/return module.exports;
+        /******/
+      }
+      /******/
+      /******/
+      /******/ // expose the modules object (__webpack_modules__)
+      /******/__webpack_require__.m = modules;
+      /******/
+      /******/ // expose the module cache
+      /******/__webpack_require__.c = installedModules;
+      /******/
+      /******/ // define getter function for harmony exports
+      /******/__webpack_require__.d = function (exports, name, getter) {
+        /******/if (!__webpack_require__.o(exports, name)) {
+          /******/Object.defineProperty(exports, name, {
+            /******/configurable: false,
+            /******/enumerable: true,
+            /******/get: getter
+            /******/ });
+          /******/
+        }
+        /******/
+      };
+      /******/
+      /******/ // getDefaultExport function for compatibility with non-harmony modules
+      /******/__webpack_require__.n = function (module) {
+        /******/var getter = module && module.__esModule ?
+        /******/function getDefault() {
+          return module['default'];
+        } :
+        /******/function getModuleExports() {
+          return module;
+        };
+        /******/__webpack_require__.d(getter, 'a', getter);
+        /******/return getter;
+        /******/
+      };
+      /******/
+      /******/ // Object.prototype.hasOwnProperty.call
+      /******/__webpack_require__.o = function (object, property) {
+        return Object.prototype.hasOwnProperty.call(object, property);
+      };
+      /******/
+      /******/ // __webpack_public_path__
+      /******/__webpack_require__.p = "";
+      /******/
+      /******/ // Load entry module and return exports
+      /******/return __webpack_require__(__webpack_require__.s = 15);
+      /******/
+    }(
+    /************************************************************************/
+    /******/[
+    /* 0 */
+    /***/function (module, exports, __webpack_require__) {
+
+      "use strict";
+
+      var __assign = this && this.__assign || Object.assign || function (t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+          s = arguments[i];
+          for (var p in s) {
+            if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
+          }
+        }
+        return t;
+      };
+      Object.defineProperty(exports, "__esModule", { value: true });
+      var queryString_1 = __webpack_require__(23);
+      var headers_1 = __webpack_require__(26);
+      var loaders_1 = __webpack_require__(27);
+      var dependencyManagement_1 = __webpack_require__(28);
+      function isBrowser() {
+        return !(typeof window === "undefined");
+      }
+      function parseJSON(data) {
+        if (typeof data === "string") {
+          try {
+            data = JSON.parse(data);
+          } catch (e) {
+            return null;
+          }
+        }
+        return data;
+      }
+      var getArrayBuffer = function getArrayBuffer(file) {
+        if (file && file instanceof File) {
+          return new Promise(function (resolve, reject) {
+            var reader = new FileReader();
+            reader.onload = function (e) {
+              resolve(e.target.result);
+            };
+            reader.readAsArrayBuffer(file);
+          });
+        } else {
+          throw "SPScript.utils.getArrayBuffer: Cant get ArrayBuffer if you don't pass in a file";
+        }
+      };
+      function validateODataV2(data) {
+        data = parseJSON(data);
+        var results = null;
+        if (data.d && data.d.results && data.d.results.length != null) {
+          results = data.d.results;
+        } else if (data.d) {
+          results = data.d;
+        }
+        return results || data;
+      }
+      function openModal(url, modalOptions) {
+        if (!dependencyManagement_1.validateNamespace("SP.UI.ModalDialog")) {
+          throw new Error("Sorry. Unable to open modal because native SharePoint Modal JavaScript is on loaded on page.");
+        }
+        var defaults = {
+          width: 800,
+          title: " "
+        };
+        var options = __assign({}, defaults, modalOptions, { url: url });
+        return SP.UI.ModalDialog.showModalDialog(options);
+      }
+      var utils = {
+        isBrowser: isBrowser,
+        headers: headers_1.default,
+        parseJSON: parseJSON,
+        validateODataV2: validateODataV2,
+        qs: { toObj: queryString_1.toObj, fromObj: queryString_1.fromObj },
+        loadScript: loaders_1.loadScript,
+        loadScripts: loaders_1.loadScripts,
+        loadCSS: loaders_1.loadCSS,
+        getArrayBuffer: getArrayBuffer,
+        waitForLibraries: dependencyManagement_1.waitForLibraries,
+        waitForLibrary: dependencyManagement_1.waitForLibrary,
+        validateNamespace: dependencyManagement_1.validateNamespace,
+        waitForElement: dependencyManagement_1.waitForElement,
+        openModal: openModal
+      };
+      exports.default = utils;
+
+      /***/
+    },,
+    /* 1 */
+    /* 2 */
+    /***/function (module, exports) {
+
+      var g;
+
+      // This works in non-strict mode
+      g = function () {
+        return this;
+      }();
+
+      try {
+        // This works if eval is allowed (see CSP)
+        g = g || Function("return this")() || (1, eval)("this");
+      } catch (e) {
+        // This works if the window reference is available
+        if ((typeof window === 'undefined' ? 'undefined' : _typeof(window)) === "object") g = window;
+      }
+
+      // g can still be undefined, but nothing to do about it...
+      // We return undefined, instead of nothing here, so it's
+      // easier to handle this case. if(!global) { ...}
+
+      module.exports = g;
+
+      /***/
+    },,,
+    /* 3 */
+    /* 4 */
+    /* 5 */
+    /***/function (module, exports, __webpack_require__) {
+
+      "use strict";
+
+      exports.decode = exports.parse = __webpack_require__(24);
+      exports.encode = exports.stringify = __webpack_require__(25);
+
+      /***/
+    },
+    /* 6 */
+    /***/function (module, exports) {
+
+      module.exports = function (module) {
+        if (!module.webpackPolyfill) {
+          module.deprecate = function () {};
+          module.paths = [];
+          // module.parent = undefined by default
+          if (!module.children) module.children = [];
+          Object.defineProperty(module, "loaded", {
+            enumerable: true,
+            get: function get() {
+              return module.l;
             }
-            /******/
-            /******/
-            /******/ // expose the modules object (__webpack_modules__)
-            /******/__webpack_require__.m = modules;
-            /******/
-            /******/ // expose the module cache
-            /******/__webpack_require__.c = installedModules;
-            /******/
-            /******/ // define getter function for harmony exports
-            /******/__webpack_require__.d = function (exports, name, getter) {
-                /******/if (!__webpack_require__.o(exports, name)) {
-                    /******/Object.defineProperty(exports, name, {
-                        /******/configurable: false,
-                        /******/enumerable: true,
-                        /******/get: getter
-                        /******/ });
-                    /******/
-                }
-                /******/
-            };
-            /******/
-            /******/ // getDefaultExport function for compatibility with non-harmony modules
-            /******/__webpack_require__.n = function (module) {
-                /******/var getter = module && module.__esModule ?
-                /******/function getDefault() {
-                    return module['default'];
-                } :
-                /******/function getModuleExports() {
-                    return module;
-                };
-                /******/__webpack_require__.d(getter, 'a', getter);
-                /******/return getter;
-                /******/
-            };
-            /******/
-            /******/ // Object.prototype.hasOwnProperty.call
-            /******/__webpack_require__.o = function (object, property) {
-                return Object.prototype.hasOwnProperty.call(object, property);
-            };
-            /******/
-            /******/ // __webpack_public_path__
-            /******/__webpack_require__.p = "";
-            /******/
-            /******/ // Load entry module and return exports
-            /******/return __webpack_require__(__webpack_require__.s = 18);
-            /******/
-        }(
-        /************************************************************************/
-        /******/[
-        /* 0 */
-        /***/function (module, exports, __webpack_require__) {
-
-            "use strict";
-
-            var __assign = this && this.__assign || Object.assign || function (t) {
-                for (var s, i = 1, n = arguments.length; i < n; i++) {
-                    s = arguments[i];
-                    for (var p in s) {
-                        if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
-                    }
-                }
-                return t;
-            };
-            Object.defineProperty(exports, "__esModule", { value: true });
-            var queryString_1 = __webpack_require__(21);
-            var headers_1 = __webpack_require__(24);
-            var loaders_1 = __webpack_require__(25);
-            var dependencyManagement_1 = __webpack_require__(26);
-            function isBrowser() {
-                return !(typeof window === "undefined");
+          });
+          Object.defineProperty(module, "id", {
+            enumerable: true,
+            get: function get() {
+              return module.i;
             }
-            function parseJSON(data) {
-                if (typeof data === "string") {
-                    try {
-                        data = JSON.parse(data);
-                    } catch (e) {
-                        return null;
-                    }
-                }
-                return data;
-            }
-            var getArrayBuffer = function getArrayBuffer(file) {
-                if (file && file instanceof File) {
-                    return new Promise(function (resolve, reject) {
-                        var reader = new FileReader();
-                        reader.onload = function (e) {
-                            resolve(e.target.result);
-                        };
-                        reader.readAsArrayBuffer(file);
-                    });
-                } else {
-                    throw "SPScript.utils.getArrayBuffer: Cant get ArrayBuffer if you don't pass in a file";
-                }
-            };
-            function validateODataV2(data) {
-                data = parseJSON(data);
-                var results = null;
-                if (data.d && data.d.results && data.d.results.length != null) {
-                    results = data.d.results;
-                } else if (data.d) {
-                    results = data.d;
-                }
-                return results || data;
-            }
-            function openModal(url, modalOptions) {
-                if (!dependencyManagement_1.validateNamespace("SP.UI.ModalDialog")) {
-                    throw new Error("Sorry. Unable to open modal because native SharePoint Modal JavaScript is on loaded on page.");
-                }
-                var defaults = {
-                    width: 800,
-                    title: " "
-                };
-                var options = __assign({}, defaults, modalOptions, { url: url });
-                return SP.UI.ModalDialog.showModalDialog(options);
-            }
-            var utils = {
-                isBrowser: isBrowser,
-                headers: headers_1.default,
-                parseJSON: parseJSON,
-                validateODataV2: validateODataV2,
-                qs: { toObj: queryString_1.toObj, fromObj: queryString_1.fromObj },
-                loadScript: loaders_1.loadScript,
-                loadScripts: loaders_1.loadScripts,
-                loadCSS: loaders_1.loadCSS,
-                getArrayBuffer: getArrayBuffer,
-                waitForLibraries: dependencyManagement_1.waitForLibraries,
-                waitForLibrary: dependencyManagement_1.waitForLibrary,
-                validateNamespace: dependencyManagement_1.validateNamespace,
-                waitForElement: dependencyManagement_1.waitForElement,
-                openModal: openModal
-            };
-            exports.default = utils;
+          });
+          module.webpackPolyfill = 1;
+        }
+        return module;
+      };
 
-            /***/
-        },
-        /* 1 */
-        /***/function (module, exports) {
+      /***/
+    },,
+    /* 7 */
+    /* 8 */
+    /***/function (module, exports, __webpack_require__) {
 
-            var g;
+      "use strict";
 
-            // This works in non-strict mode
-            g = function () {
-                return this;
-            }();
+      Object.defineProperty(exports, "__esModule", { value: true });
+      // require("isomorphic-fetch");
+      var utils_1 = __webpack_require__(0);
+      var defaults = {
+        method: "GET",
+        credentials: "include",
+        redirect: "follow"
+      };
+      var request = function request(url, options) {
+        var opts = _extends({}, defaults, options);
+        return fetch(url, opts).then(function (resp) {
+          var succeeded = resp.ok;
+          if (!resp.ok) {
+            return resp.text().then(function (err) {
+              throw new Error(err);
+            });
+          }
+          return resp.text().then(function (text) {
+            return utils_1.default.parseJSON(text) || text;
+          });
+        });
+      };
+      exports.default = request;
 
+      /***/
+    },
+    /* 9 */
+    /***/function (module, exports, __webpack_require__) {
+
+      "use strict";
+
+      Object.defineProperty(exports, "__esModule", { value: true });
+      var utils_1 = __webpack_require__(0);
+      var IPermissions_1 = __webpack_require__(31);
+      /** Allows you to check the permissions of a securable (list or site) */
+      var Securable = function () {
+        function Securable(baseUrl, ctx) {
+          this.baseUrl = baseUrl;
+          this._dao = ctx;
+        }
+        /** Gets all the role assignments on that securable  */
+        Securable.prototype.getRoleAssignments = function () {
+          var url = this.baseUrl + "/RoleAssignments?$expand=Member,RoleDefinitionBindings";
+          return this._dao.get(url).then(utils_1.default.validateODataV2).then(function (results) {
+            return results.map(transformRoleAssignment);
+          });
+        };
+        Securable.prototype.checkPrivs = function (user) {
+          var login = encodeURIComponent(user.LoginName);
+          var url = this.baseUrl + "/getusereffectivepermissions(@v)?@v='" + login + "'";
+          return this._dao.get(url).then(utils_1.default.validateODataV2);
+        };
+        /** Gets all the role assignments on that securable. If you don't pass an email, it will use the current user. */
+        Securable.prototype.check = function (email) {
+          var _this = this;
+          if (!email && !utils_1.default.isBrowser()) {
+            return Promise.reject("Can't check permissions. No email passed and no current user");
+          }
+          // If no email is passed, then get current user, else get user by email
+          var req = !email ? this._dao.get('/web/getuserbyid(' + _spPageContextInfo.userId + ')').then(function (data) {
+            return data.d;
+          }) : this._dao.web.getUser(email);
+          return req.then(function (user) {
+            return _this.checkPrivs(user);
+          }).then(function (privs) {
+            return permissionMaskToStrings(privs.GetUserEffectivePermissions.Low, privs.GetUserEffectivePermissions.High);
+          });
+        };
+        return Securable;
+      }();
+      exports.default = Securable;
+      var transformRoleAssignment = function transformRoleAssignment(raw) {
+        var member = {
+          login: raw.Member.LoginName,
+          name: raw.Member.Title,
+          id: raw.Member.Id
+        };
+        var roles = raw.RoleDefinitionBindings.results.map(function (roleDef) {
+          return {
+            name: roleDef.Name,
+            description: roleDef.Description,
+            basePermissions: permissionMaskToStrings(roleDef.BasePermissions.Low, roleDef.BasePermissions.High)
+          };
+        });
+        return { member: member, roles: roles };
+      };
+      var permissionMaskToStrings = function permissionMaskToStrings(lowMask, highMask) {
+        var permissions = [];
+        IPermissions_1.basePermissions.forEach(function (basePermission) {
+          if ((basePermission.low & lowMask) > 0 || (basePermission.high & highMask) > 0) {
+            permissions.push(basePermission.name);
+          }
+        });
+        return permissions;
+      };
+
+      /***/
+    },,,,,,
+    /* 10 */
+    /* 11 */
+    /* 12 */
+    /* 13 */
+    /* 14 */
+    /* 15 */
+    /***/function (module, exports, __webpack_require__) {
+
+      "use strict";
+
+      __webpack_require__(16);
+      __webpack_require__(18);
+      var SPScript_1 = __webpack_require__(22);
+      module.exports = SPScript_1.default;
+
+      /***/
+    },
+    /* 16 */
+    /***/function (module, exports, __webpack_require__) {
+
+      // the whatwg-fetch polyfill installs the fetch() function
+      // on the global object (window or self)
+      //
+      // Return that as the export for use in Webpack, Browserify etc.
+      __webpack_require__(17);
+      module.exports = self.fetch.bind(self);
+
+      /***/
+    },
+    /* 17 */
+    /***/function (module, exports) {
+
+      (function (self) {
+        'use strict';
+
+        if (self.fetch) {
+          return;
+        }
+
+        var support = {
+          searchParams: 'URLSearchParams' in self,
+          iterable: 'Symbol' in self && 'iterator' in Symbol,
+          blob: 'FileReader' in self && 'Blob' in self && function () {
             try {
-                // This works if eval is allowed (see CSP)
-                g = g || Function("return this")() || (1, eval)("this");
+              new Blob();
+              return true;
             } catch (e) {
-                // This works if the window reference is available
-                if ((typeof window === 'undefined' ? 'undefined' : _typeof(window)) === "object") g = window;
+              return false;
+            }
+          }(),
+          formData: 'FormData' in self,
+          arrayBuffer: 'ArrayBuffer' in self
+        };
+
+        if (support.arrayBuffer) {
+          var viewClasses = ['[object Int8Array]', '[object Uint8Array]', '[object Uint8ClampedArray]', '[object Int16Array]', '[object Uint16Array]', '[object Int32Array]', '[object Uint32Array]', '[object Float32Array]', '[object Float64Array]'];
+
+          var isDataView = function isDataView(obj) {
+            return obj && DataView.prototype.isPrototypeOf(obj);
+          };
+
+          var isArrayBufferView = ArrayBuffer.isView || function (obj) {
+            return obj && viewClasses.indexOf(Object.prototype.toString.call(obj)) > -1;
+          };
+        }
+
+        function normalizeName(name) {
+          if (typeof name !== 'string') {
+            name = String(name);
+          }
+          if (/[^a-z0-9\-#$%&'*+.\^_`|~]/i.test(name)) {
+            throw new TypeError('Invalid character in header field name');
+          }
+          return name.toLowerCase();
+        }
+
+        function normalizeValue(value) {
+          if (typeof value !== 'string') {
+            value = String(value);
+          }
+          return value;
+        }
+
+        // Build a destructive iterator for the value list
+        function iteratorFor(items) {
+          var iterator = {
+            next: function next() {
+              var value = items.shift();
+              return { done: value === undefined, value: value };
+            }
+          };
+
+          if (support.iterable) {
+            iterator[Symbol.iterator] = function () {
+              return iterator;
+            };
+          }
+
+          return iterator;
+        }
+
+        function Headers(headers) {
+          this.map = {};
+
+          if (headers instanceof Headers) {
+            headers.forEach(function (value, name) {
+              this.append(name, value);
+            }, this);
+          } else if (Array.isArray(headers)) {
+            headers.forEach(function (header) {
+              this.append(header[0], header[1]);
+            }, this);
+          } else if (headers) {
+            Object.getOwnPropertyNames(headers).forEach(function (name) {
+              this.append(name, headers[name]);
+            }, this);
+          }
+        }
+
+        Headers.prototype.append = function (name, value) {
+          name = normalizeName(name);
+          value = normalizeValue(value);
+          var oldValue = this.map[name];
+          this.map[name] = oldValue ? oldValue + ',' + value : value;
+        };
+
+        Headers.prototype['delete'] = function (name) {
+          delete this.map[normalizeName(name)];
+        };
+
+        Headers.prototype.get = function (name) {
+          name = normalizeName(name);
+          return this.has(name) ? this.map[name] : null;
+        };
+
+        Headers.prototype.has = function (name) {
+          return this.map.hasOwnProperty(normalizeName(name));
+        };
+
+        Headers.prototype.set = function (name, value) {
+          this.map[normalizeName(name)] = normalizeValue(value);
+        };
+
+        Headers.prototype.forEach = function (callback, thisArg) {
+          for (var name in this.map) {
+            if (this.map.hasOwnProperty(name)) {
+              callback.call(thisArg, this.map[name], name, this);
+            }
+          }
+        };
+
+        Headers.prototype.keys = function () {
+          var items = [];
+          this.forEach(function (value, name) {
+            items.push(name);
+          });
+          return iteratorFor(items);
+        };
+
+        Headers.prototype.values = function () {
+          var items = [];
+          this.forEach(function (value) {
+            items.push(value);
+          });
+          return iteratorFor(items);
+        };
+
+        Headers.prototype.entries = function () {
+          var items = [];
+          this.forEach(function (value, name) {
+            items.push([name, value]);
+          });
+          return iteratorFor(items);
+        };
+
+        if (support.iterable) {
+          Headers.prototype[Symbol.iterator] = Headers.prototype.entries;
+        }
+
+        function consumed(body) {
+          if (body.bodyUsed) {
+            return Promise.reject(new TypeError('Already read'));
+          }
+          body.bodyUsed = true;
+        }
+
+        function fileReaderReady(reader) {
+          return new Promise(function (resolve, reject) {
+            reader.onload = function () {
+              resolve(reader.result);
+            };
+            reader.onerror = function () {
+              reject(reader.error);
+            };
+          });
+        }
+
+        function readBlobAsArrayBuffer(blob) {
+          var reader = new FileReader();
+          var promise = fileReaderReady(reader);
+          reader.readAsArrayBuffer(blob);
+          return promise;
+        }
+
+        function readBlobAsText(blob) {
+          var reader = new FileReader();
+          var promise = fileReaderReady(reader);
+          reader.readAsText(blob);
+          return promise;
+        }
+
+        function readArrayBufferAsText(buf) {
+          var view = new Uint8Array(buf);
+          var chars = new Array(view.length);
+
+          for (var i = 0; i < view.length; i++) {
+            chars[i] = String.fromCharCode(view[i]);
+          }
+          return chars.join('');
+        }
+
+        function bufferClone(buf) {
+          if (buf.slice) {
+            return buf.slice(0);
+          } else {
+            var view = new Uint8Array(buf.byteLength);
+            view.set(new Uint8Array(buf));
+            return view.buffer;
+          }
+        }
+
+        function Body() {
+          this.bodyUsed = false;
+
+          this._initBody = function (body) {
+            this._bodyInit = body;
+            if (!body) {
+              this._bodyText = '';
+            } else if (typeof body === 'string') {
+              this._bodyText = body;
+            } else if (support.blob && Blob.prototype.isPrototypeOf(body)) {
+              this._bodyBlob = body;
+            } else if (support.formData && FormData.prototype.isPrototypeOf(body)) {
+              this._bodyFormData = body;
+            } else if (support.searchParams && URLSearchParams.prototype.isPrototypeOf(body)) {
+              this._bodyText = body.toString();
+            } else if (support.arrayBuffer && support.blob && isDataView(body)) {
+              this._bodyArrayBuffer = bufferClone(body.buffer);
+              // IE 10-11 can't handle a DataView body.
+              this._bodyInit = new Blob([this._bodyArrayBuffer]);
+            } else if (support.arrayBuffer && (ArrayBuffer.prototype.isPrototypeOf(body) || isArrayBufferView(body))) {
+              this._bodyArrayBuffer = bufferClone(body);
+            } else {
+              throw new Error('unsupported BodyInit type');
             }
 
-            // g can still be undefined, but nothing to do about it...
-            // We return undefined, instead of nothing here, so it's
-            // easier to handle this case. if(!global) { ...}
-
-            module.exports = g;
-
-            /***/
-        },,,,
-        /* 2 */
-        /* 3 */
-        /* 4 */
-        /* 5 */
-        /***/function (module, exports, __webpack_require__) {
-
-            var apply = Function.prototype.apply;
-
-            // DOM APIs, for completeness
-
-            exports.setTimeout = function () {
-                return new Timeout(apply.call(setTimeout, window, arguments), clearTimeout);
-            };
-            exports.setInterval = function () {
-                return new Timeout(apply.call(setInterval, window, arguments), clearInterval);
-            };
-            exports.clearTimeout = exports.clearInterval = function (timeout) {
-                if (timeout) {
-                    timeout.close();
-                }
-            };
-
-            function Timeout(id, clearFn) {
-                this._id = id;
-                this._clearFn = clearFn;
+            if (!this.headers.get('content-type')) {
+              if (typeof body === 'string') {
+                this.headers.set('content-type', 'text/plain;charset=UTF-8');
+              } else if (this._bodyBlob && this._bodyBlob.type) {
+                this.headers.set('content-type', this._bodyBlob.type);
+              } else if (support.searchParams && URLSearchParams.prototype.isPrototypeOf(body)) {
+                this.headers.set('content-type', 'application/x-www-form-urlencoded;charset=UTF-8');
+              }
             }
-            Timeout.prototype.unref = Timeout.prototype.ref = function () {};
-            Timeout.prototype.close = function () {
-                this._clearFn.call(window, this._id);
+          };
+
+          if (support.blob) {
+            this.blob = function () {
+              var rejected = consumed(this);
+              if (rejected) {
+                return rejected;
+              }
+
+              if (this._bodyBlob) {
+                return Promise.resolve(this._bodyBlob);
+              } else if (this._bodyArrayBuffer) {
+                return Promise.resolve(new Blob([this._bodyArrayBuffer]));
+              } else if (this._bodyFormData) {
+                throw new Error('could not read FormData body as blob');
+              } else {
+                return Promise.resolve(new Blob([this._bodyText]));
+              }
             };
 
-            // Does not start the time, just sets up the members needed.
-            exports.enroll = function (item, msecs) {
-                clearTimeout(item._idleTimeoutId);
-                item._idleTimeout = msecs;
+            this.arrayBuffer = function () {
+              if (this._bodyArrayBuffer) {
+                return consumed(this) || Promise.resolve(this._bodyArrayBuffer);
+              } else {
+                return this.blob().then(readBlobAsArrayBuffer);
+              }
+            };
+          }
+
+          this.text = function () {
+            var rejected = consumed(this);
+            if (rejected) {
+              return rejected;
+            }
+
+            if (this._bodyBlob) {
+              return readBlobAsText(this._bodyBlob);
+            } else if (this._bodyArrayBuffer) {
+              return Promise.resolve(readArrayBufferAsText(this._bodyArrayBuffer));
+            } else if (this._bodyFormData) {
+              throw new Error('could not read FormData body as text');
+            } else {
+              return Promise.resolve(this._bodyText);
+            }
+          };
+
+          if (support.formData) {
+            this.formData = function () {
+              return this.text().then(decode);
+            };
+          }
+
+          this.json = function () {
+            return this.text().then(JSON.parse);
+          };
+
+          return this;
+        }
+
+        // HTTP methods whose capitalization should be normalized
+        var methods = ['DELETE', 'GET', 'HEAD', 'OPTIONS', 'POST', 'PUT'];
+
+        function normalizeMethod(method) {
+          var upcased = method.toUpperCase();
+          return methods.indexOf(upcased) > -1 ? upcased : method;
+        }
+
+        function Request(input, options) {
+          options = options || {};
+          var body = options.body;
+
+          if (input instanceof Request) {
+            if (input.bodyUsed) {
+              throw new TypeError('Already read');
+            }
+            this.url = input.url;
+            this.credentials = input.credentials;
+            if (!options.headers) {
+              this.headers = new Headers(input.headers);
+            }
+            this.method = input.method;
+            this.mode = input.mode;
+            if (!body && input._bodyInit != null) {
+              body = input._bodyInit;
+              input.bodyUsed = true;
+            }
+          } else {
+            this.url = String(input);
+          }
+
+          this.credentials = options.credentials || this.credentials || 'omit';
+          if (options.headers || !this.headers) {
+            this.headers = new Headers(options.headers);
+          }
+          this.method = normalizeMethod(options.method || this.method || 'GET');
+          this.mode = options.mode || this.mode || null;
+          this.referrer = null;
+
+          if ((this.method === 'GET' || this.method === 'HEAD') && body) {
+            throw new TypeError('Body not allowed for GET or HEAD requests');
+          }
+          this._initBody(body);
+        }
+
+        Request.prototype.clone = function () {
+          return new Request(this, { body: this._bodyInit });
+        };
+
+        function decode(body) {
+          var form = new FormData();
+          body.trim().split('&').forEach(function (bytes) {
+            if (bytes) {
+              var split = bytes.split('=');
+              var name = split.shift().replace(/\+/g, ' ');
+              var value = split.join('=').replace(/\+/g, ' ');
+              form.append(decodeURIComponent(name), decodeURIComponent(value));
+            }
+          });
+          return form;
+        }
+
+        function parseHeaders(rawHeaders) {
+          var headers = new Headers();
+          rawHeaders.split(/\r?\n/).forEach(function (line) {
+            var parts = line.split(':');
+            var key = parts.shift().trim();
+            if (key) {
+              var value = parts.join(':').trim();
+              headers.append(key, value);
+            }
+          });
+          return headers;
+        }
+
+        Body.call(Request.prototype);
+
+        function Response(bodyInit, options) {
+          if (!options) {
+            options = {};
+          }
+
+          this.type = 'default';
+          this.status = 'status' in options ? options.status : 200;
+          this.ok = this.status >= 200 && this.status < 300;
+          this.statusText = 'statusText' in options ? options.statusText : 'OK';
+          this.headers = new Headers(options.headers);
+          this.url = options.url || '';
+          this._initBody(bodyInit);
+        }
+
+        Body.call(Response.prototype);
+
+        Response.prototype.clone = function () {
+          return new Response(this._bodyInit, {
+            status: this.status,
+            statusText: this.statusText,
+            headers: new Headers(this.headers),
+            url: this.url
+          });
+        };
+
+        Response.error = function () {
+          var response = new Response(null, { status: 0, statusText: '' });
+          response.type = 'error';
+          return response;
+        };
+
+        var redirectStatuses = [301, 302, 303, 307, 308];
+
+        Response.redirect = function (url, status) {
+          if (redirectStatuses.indexOf(status) === -1) {
+            throw new RangeError('Invalid status code');
+          }
+
+          return new Response(null, { status: status, headers: { location: url } });
+        };
+
+        self.Headers = Headers;
+        self.Request = Request;
+        self.Response = Response;
+
+        self.fetch = function (input, init) {
+          return new Promise(function (resolve, reject) {
+            var request = new Request(input, init);
+            var xhr = new XMLHttpRequest();
+
+            xhr.onload = function () {
+              var options = {
+                status: xhr.status,
+                statusText: xhr.statusText,
+                headers: parseHeaders(xhr.getAllResponseHeaders() || '')
+              };
+              options.url = 'responseURL' in xhr ? xhr.responseURL : options.headers.get('X-Request-URL');
+              var body = 'response' in xhr ? xhr.response : xhr.responseText;
+              resolve(new Response(body, options));
             };
 
-            exports.unenroll = function (item) {
-                clearTimeout(item._idleTimeoutId);
-                item._idleTimeout = -1;
+            xhr.onerror = function () {
+              reject(new TypeError('Network request failed'));
             };
 
-            exports._unrefActive = exports.active = function (item) {
-                clearTimeout(item._idleTimeoutId);
-
-                var msecs = item._idleTimeout;
-                if (msecs >= 0) {
-                    item._idleTimeoutId = setTimeout(function onTimeout() {
-                        if (item._onTimeout) item._onTimeout();
-                    }, msecs);
-                }
+            xhr.ontimeout = function () {
+              reject(new TypeError('Network request failed'));
             };
 
-            // setimmediate attaches itself to the global object
-            __webpack_require__(6);
-            exports.setImmediate = setImmediate;
-            exports.clearImmediate = clearImmediate;
+            xhr.open(request.method, request.url, true);
 
-            /***/
-        },
-        /* 6 */
-        /***/function (module, exports, __webpack_require__) {
-
-            /* WEBPACK VAR INJECTION */(function (global, process) {
-                (function (global, undefined) {
-                    "use strict";
-
-                    if (global.setImmediate) {
-                        return;
-                    }
-
-                    var nextHandle = 1; // Spec says greater than zero
-                    var tasksByHandle = {};
-                    var currentlyRunningATask = false;
-                    var doc = global.document;
-                    var registerImmediate;
-
-                    function setImmediate(callback) {
-                        // Callback can either be a function or a string
-                        if (typeof callback !== "function") {
-                            callback = new Function("" + callback);
-                        }
-                        // Copy function arguments
-                        var args = new Array(arguments.length - 1);
-                        for (var i = 0; i < args.length; i++) {
-                            args[i] = arguments[i + 1];
-                        }
-                        // Store and register the task
-                        var task = { callback: callback, args: args };
-                        tasksByHandle[nextHandle] = task;
-                        registerImmediate(nextHandle);
-                        return nextHandle++;
-                    }
-
-                    function clearImmediate(handle) {
-                        delete tasksByHandle[handle];
-                    }
-
-                    function run(task) {
-                        var callback = task.callback;
-                        var args = task.args;
-                        switch (args.length) {
-                            case 0:
-                                callback();
-                                break;
-                            case 1:
-                                callback(args[0]);
-                                break;
-                            case 2:
-                                callback(args[0], args[1]);
-                                break;
-                            case 3:
-                                callback(args[0], args[1], args[2]);
-                                break;
-                            default:
-                                callback.apply(undefined, args);
-                                break;
-                        }
-                    }
-
-                    function runIfPresent(handle) {
-                        // From the spec: "Wait until any invocations of this algorithm started before this one have completed."
-                        // So if we're currently running a task, we'll need to delay this invocation.
-                        if (currentlyRunningATask) {
-                            // Delay by doing a setTimeout. setImmediate was tried instead, but in Firefox 7 it generated a
-                            // "too much recursion" error.
-                            setTimeout(runIfPresent, 0, handle);
-                        } else {
-                            var task = tasksByHandle[handle];
-                            if (task) {
-                                currentlyRunningATask = true;
-                                try {
-                                    run(task);
-                                } finally {
-                                    clearImmediate(handle);
-                                    currentlyRunningATask = false;
-                                }
-                            }
-                        }
-                    }
-
-                    function installNextTickImplementation() {
-                        registerImmediate = function registerImmediate(handle) {
-                            process.nextTick(function () {
-                                runIfPresent(handle);
-                            });
-                        };
-                    }
-
-                    function canUsePostMessage() {
-                        // The test against `importScripts` prevents this implementation from being installed inside a web worker,
-                        // where `global.postMessage` means something completely different and can't be used for this purpose.
-                        if (global.postMessage && !global.importScripts) {
-                            var postMessageIsAsynchronous = true;
-                            var oldOnMessage = global.onmessage;
-                            global.onmessage = function () {
-                                postMessageIsAsynchronous = false;
-                            };
-                            global.postMessage("", "*");
-                            global.onmessage = oldOnMessage;
-                            return postMessageIsAsynchronous;
-                        }
-                    }
-
-                    function installPostMessageImplementation() {
-                        // Installs an event handler on `global` for the `message` event: see
-                        // * https://developer.mozilla.org/en/DOM/window.postMessage
-                        // * http://www.whatwg.org/specs/web-apps/current-work/multipage/comms.html#crossDocumentMessages
-
-                        var messagePrefix = "setImmediate$" + Math.random() + "$";
-                        var onGlobalMessage = function onGlobalMessage(event) {
-                            if (event.source === global && typeof event.data === "string" && event.data.indexOf(messagePrefix) === 0) {
-                                runIfPresent(+event.data.slice(messagePrefix.length));
-                            }
-                        };
-
-                        if (global.addEventListener) {
-                            global.addEventListener("message", onGlobalMessage, false);
-                        } else {
-                            global.attachEvent("onmessage", onGlobalMessage);
-                        }
-
-                        registerImmediate = function registerImmediate(handle) {
-                            global.postMessage(messagePrefix + handle, "*");
-                        };
-                    }
-
-                    function installMessageChannelImplementation() {
-                        var channel = new MessageChannel();
-                        channel.port1.onmessage = function (event) {
-                            var handle = event.data;
-                            runIfPresent(handle);
-                        };
-
-                        registerImmediate = function registerImmediate(handle) {
-                            channel.port2.postMessage(handle);
-                        };
-                    }
-
-                    function installReadyStateChangeImplementation() {
-                        var html = doc.documentElement;
-                        registerImmediate = function registerImmediate(handle) {
-                            // Create a <script> element; its readystatechange event will be fired asynchronously once it is inserted
-                            // into the document. Do so, thus queuing up the task. Remember to clean up once it's been called.
-                            var script = doc.createElement("script");
-                            script.onreadystatechange = function () {
-                                runIfPresent(handle);
-                                script.onreadystatechange = null;
-                                html.removeChild(script);
-                                script = null;
-                            };
-                            html.appendChild(script);
-                        };
-                    }
-
-                    function installSetTimeoutImplementation() {
-                        registerImmediate = function registerImmediate(handle) {
-                            setTimeout(runIfPresent, 0, handle);
-                        };
-                    }
-
-                    // If supported, we should attach to the prototype of global, since that is where setTimeout et al. live.
-                    var attachTo = Object.getPrototypeOf && Object.getPrototypeOf(global);
-                    attachTo = attachTo && attachTo.setTimeout ? attachTo : global;
-
-                    // Don't get fooled by e.g. browserify environments.
-                    if ({}.toString.call(global.process) === "[object process]") {
-                        // For Node.js before 0.9
-                        installNextTickImplementation();
-                    } else if (canUsePostMessage()) {
-                        // For non-IE10 modern browsers
-                        installPostMessageImplementation();
-                    } else if (global.MessageChannel) {
-                        // For web workers, where supported
-                        installMessageChannelImplementation();
-                    } else if (doc && "onreadystatechange" in doc.createElement("script")) {
-                        // For IE 6–8
-                        installReadyStateChangeImplementation();
-                    } else {
-                        // For older browsers
-                        installSetTimeoutImplementation();
-                    }
-
-                    attachTo.setImmediate = setImmediate;
-                    attachTo.clearImmediate = clearImmediate;
-                })(typeof self === "undefined" ? typeof global === "undefined" ? this : global : self);
-
-                /* WEBPACK VAR INJECTION */
-            }).call(exports, __webpack_require__(1), __webpack_require__(7));
-
-            /***/
-        },
-        /* 7 */
-        /***/function (module, exports) {
-
-            // shim for using process in browser
-            var process = module.exports = {};
-
-            // cached from whatever global is present so that test runners that stub it
-            // don't break things.  But we need to wrap it in a try catch in case it is
-            // wrapped in strict mode code which doesn't define any globals.  It's inside a
-            // function because try/catches deoptimize in certain engines.
-
-            var cachedSetTimeout;
-            var cachedClearTimeout;
-
-            function defaultSetTimout() {
-                throw new Error('setTimeout has not been defined');
+            if (request.credentials === 'include') {
+              xhr.withCredentials = true;
             }
-            function defaultClearTimeout() {
-                throw new Error('clearTimeout has not been defined');
-            }
-            (function () {
-                try {
-                    if (typeof setTimeout === 'function') {
-                        cachedSetTimeout = setTimeout;
-                    } else {
-                        cachedSetTimeout = defaultSetTimout;
-                    }
-                } catch (e) {
-                    cachedSetTimeout = defaultSetTimout;
-                }
-                try {
-                    if (typeof clearTimeout === 'function') {
-                        cachedClearTimeout = clearTimeout;
-                    } else {
-                        cachedClearTimeout = defaultClearTimeout;
-                    }
-                } catch (e) {
-                    cachedClearTimeout = defaultClearTimeout;
-                }
-            })();
-            function runTimeout(fun) {
-                if (cachedSetTimeout === setTimeout) {
-                    //normal enviroments in sane situations
-                    return setTimeout(fun, 0);
-                }
-                // if setTimeout wasn't available but was latter defined
-                if ((cachedSetTimeout === defaultSetTimout || !cachedSetTimeout) && setTimeout) {
-                    cachedSetTimeout = setTimeout;
-                    return setTimeout(fun, 0);
-                }
-                try {
-                    // when when somebody has screwed with setTimeout but no I.E. maddness
-                    return cachedSetTimeout(fun, 0);
-                } catch (e) {
-                    try {
-                        // When we are in I.E. but the script has been evaled so I.E. doesn't trust the global object when called normally
-                        return cachedSetTimeout.call(null, fun, 0);
-                    } catch (e) {
-                        // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error
-                        return cachedSetTimeout.call(this, fun, 0);
-                    }
-                }
-            }
-            function runClearTimeout(marker) {
-                if (cachedClearTimeout === clearTimeout) {
-                    //normal enviroments in sane situations
-                    return clearTimeout(marker);
-                }
-                // if clearTimeout wasn't available but was latter defined
-                if ((cachedClearTimeout === defaultClearTimeout || !cachedClearTimeout) && clearTimeout) {
-                    cachedClearTimeout = clearTimeout;
-                    return clearTimeout(marker);
-                }
-                try {
-                    // when when somebody has screwed with setTimeout but no I.E. maddness
-                    return cachedClearTimeout(marker);
-                } catch (e) {
-                    try {
-                        // When we are in I.E. but the script has been evaled so I.E. doesn't  trust the global object when called normally
-                        return cachedClearTimeout.call(null, marker);
-                    } catch (e) {
-                        // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error.
-                        // Some versions of I.E. have different rules for clearTimeout vs setTimeout
-                        return cachedClearTimeout.call(this, marker);
-                    }
-                }
-            }
-            var queue = [];
-            var draining = false;
-            var currentQueue;
-            var queueIndex = -1;
 
-            function cleanUpNextTick() {
-                if (!draining || !currentQueue) {
-                    return;
+            if ('responseType' in xhr && support.blob) {
+              xhr.responseType = 'blob';
+            }
+
+            request.headers.forEach(function (value, name) {
+              xhr.setRequestHeader(name, value);
+            });
+
+            xhr.send(typeof request._bodyInit === 'undefined' ? null : request._bodyInit);
+          });
+        };
+        self.fetch.polyfill = true;
+      })(typeof self !== 'undefined' ? self : this);
+
+      /***/
+    },
+    /* 18 */
+    /***/function (module, exports, __webpack_require__) {
+
+      "use strict";
+      // This file can be required in Browserify and Node.js for automatic polyfill
+      // To use it:  require('es6-promise/auto');
+
+      module.exports = __webpack_require__(19).polyfill();
+
+      /***/
+    },
+    /* 19 */
+    /***/function (module, exports, __webpack_require__) {
+
+      /* WEBPACK VAR INJECTION */(function (process, global) {
+        var require; /*!
+                     * @overview es6-promise - a tiny implementation of Promises/A+.
+                     * @copyright Copyright (c) 2014 Yehuda Katz, Tom Dale, Stefan Penner and contributors (Conversion to ES6 API by Jake Archibald)
+                     * @license   Licensed under MIT license
+                     *            See https://raw.githubusercontent.com/stefanpenner/es6-promise/master/LICENSE
+                     * @version   4.1.1
+                     */
+
+        (function (global, factory) {
+          true ? module.exports = factory() : typeof define === 'function' && define.amd ? define(factory) : global.ES6Promise = factory();
+        })(this, function () {
+          'use strict';
+
+          function objectOrFunction(x) {
+            var type = typeof x === 'undefined' ? 'undefined' : _typeof(x);
+            return x !== null && (type === 'object' || type === 'function');
+          }
+
+          function isFunction(x) {
+            return typeof x === 'function';
+          }
+
+          var _isArray = undefined;
+          if (Array.isArray) {
+            _isArray = Array.isArray;
+          } else {
+            _isArray = function _isArray(x) {
+              return Object.prototype.toString.call(x) === '[object Array]';
+            };
+          }
+
+          var isArray = _isArray;
+
+          var len = 0;
+          var vertxNext = undefined;
+          var customSchedulerFn = undefined;
+
+          var asap = function asap(callback, arg) {
+            queue[len] = callback;
+            queue[len + 1] = arg;
+            len += 2;
+            if (len === 2) {
+              // If len is 2, that means that we need to schedule an async flush.
+              // If additional callbacks are queued before the queue is flushed, they
+              // will be processed by this flush that we are scheduling.
+              if (customSchedulerFn) {
+                customSchedulerFn(flush);
+              } else {
+                scheduleFlush();
+              }
+            }
+          };
+
+          function setScheduler(scheduleFn) {
+            customSchedulerFn = scheduleFn;
+          }
+
+          function setAsap(asapFn) {
+            asap = asapFn;
+          }
+
+          var browserWindow = typeof window !== 'undefined' ? window : undefined;
+          var browserGlobal = browserWindow || {};
+          var BrowserMutationObserver = browserGlobal.MutationObserver || browserGlobal.WebKitMutationObserver;
+          var isNode = typeof self === 'undefined' && typeof process !== 'undefined' && {}.toString.call(process) === '[object process]';
+
+          // test for web worker but not in IE10
+          var isWorker = typeof Uint8ClampedArray !== 'undefined' && typeof importScripts !== 'undefined' && typeof MessageChannel !== 'undefined';
+
+          // node
+          function useNextTick() {
+            // node version 0.10.x displays a deprecation warning when nextTick is used recursively
+            // see https://github.com/cujojs/when/issues/410 for details
+            return function () {
+              return process.nextTick(flush);
+            };
+          }
+
+          // vertx
+          function useVertxTimer() {
+            if (typeof vertxNext !== 'undefined') {
+              return function () {
+                vertxNext(flush);
+              };
+            }
+
+            return useSetTimeout();
+          }
+
+          function useMutationObserver() {
+            var iterations = 0;
+            var observer = new BrowserMutationObserver(flush);
+            var node = document.createTextNode('');
+            observer.observe(node, { characterData: true });
+
+            return function () {
+              node.data = iterations = ++iterations % 2;
+            };
+          }
+
+          // web worker
+          function useMessageChannel() {
+            var channel = new MessageChannel();
+            channel.port1.onmessage = flush;
+            return function () {
+              return channel.port2.postMessage(0);
+            };
+          }
+
+          function useSetTimeout() {
+            // Store setTimeout reference so es6-promise will be unaffected by
+            // other code modifying setTimeout (like sinon.useFakeTimers())
+            var globalSetTimeout = setTimeout;
+            return function () {
+              return globalSetTimeout(flush, 1);
+            };
+          }
+
+          var queue = new Array(1000);
+          function flush() {
+            for (var i = 0; i < len; i += 2) {
+              var callback = queue[i];
+              var arg = queue[i + 1];
+
+              callback(arg);
+
+              queue[i] = undefined;
+              queue[i + 1] = undefined;
+            }
+
+            len = 0;
+          }
+
+          function attemptVertx() {
+            try {
+              var r = require;
+              var vertx = __webpack_require__(21);
+              vertxNext = vertx.runOnLoop || vertx.runOnContext;
+              return useVertxTimer();
+            } catch (e) {
+              return useSetTimeout();
+            }
+          }
+
+          var scheduleFlush = undefined;
+          // Decide what async method to use to triggering processing of queued callbacks:
+          if (isNode) {
+            scheduleFlush = useNextTick();
+          } else if (BrowserMutationObserver) {
+            scheduleFlush = useMutationObserver();
+          } else if (isWorker) {
+            scheduleFlush = useMessageChannel();
+          } else if (browserWindow === undefined && "function" === 'function') {
+            scheduleFlush = attemptVertx();
+          } else {
+            scheduleFlush = useSetTimeout();
+          }
+
+          function then(onFulfillment, onRejection) {
+            var _arguments = arguments;
+
+            var parent = this;
+
+            var child = new this.constructor(noop);
+
+            if (child[PROMISE_ID] === undefined) {
+              makePromise(child);
+            }
+
+            var _state = parent._state;
+
+            if (_state) {
+              (function () {
+                var callback = _arguments[_state - 1];
+                asap(function () {
+                  return invokeCallback(_state, child, callback, parent._result);
+                });
+              })();
+            } else {
+              subscribe(parent, child, onFulfillment, onRejection);
+            }
+
+            return child;
+          }
+
+          /**
+            `Promise.resolve` returns a promise that will become resolved with the
+            passed `value`. It is shorthand for the following:
+          
+            ```javascript
+            let promise = new Promise(function(resolve, reject){
+              resolve(1);
+            });
+          
+            promise.then(function(value){
+              // value === 1
+            });
+            ```
+          
+            Instead of writing the above, your code now simply becomes the following:
+          
+            ```javascript
+            let promise = Promise.resolve(1);
+          
+            promise.then(function(value){
+              // value === 1
+            });
+            ```
+          
+            @method resolve
+            @static
+            @param {Any} value value that the returned promise will be resolved with
+            Useful for tooling.
+            @return {Promise} a promise that will become fulfilled with the given
+            `value`
+          */
+          function resolve$1(object) {
+            /*jshint validthis:true */
+            var Constructor = this;
+
+            if (object && (typeof object === 'undefined' ? 'undefined' : _typeof(object)) === 'object' && object.constructor === Constructor) {
+              return object;
+            }
+
+            var promise = new Constructor(noop);
+            resolve(promise, object);
+            return promise;
+          }
+
+          var PROMISE_ID = Math.random().toString(36).substring(16);
+
+          function noop() {}
+
+          var PENDING = void 0;
+          var FULFILLED = 1;
+          var REJECTED = 2;
+
+          var GET_THEN_ERROR = new ErrorObject();
+
+          function selfFulfillment() {
+            return new TypeError("You cannot resolve a promise with itself");
+          }
+
+          function cannotReturnOwn() {
+            return new TypeError('A promises callback cannot return that same promise.');
+          }
+
+          function getThen(promise) {
+            try {
+              return promise.then;
+            } catch (error) {
+              GET_THEN_ERROR.error = error;
+              return GET_THEN_ERROR;
+            }
+          }
+
+          function tryThen(then$$1, value, fulfillmentHandler, rejectionHandler) {
+            try {
+              then$$1.call(value, fulfillmentHandler, rejectionHandler);
+            } catch (e) {
+              return e;
+            }
+          }
+
+          function handleForeignThenable(promise, thenable, then$$1) {
+            asap(function (promise) {
+              var sealed = false;
+              var error = tryThen(then$$1, thenable, function (value) {
+                if (sealed) {
+                  return;
                 }
-                draining = false;
-                if (currentQueue.length) {
-                    queue = currentQueue.concat(queue);
+                sealed = true;
+                if (thenable !== value) {
+                  resolve(promise, value);
                 } else {
-                    queueIndex = -1;
+                  fulfill(promise, value);
                 }
-                if (queue.length) {
-                    drainQueue();
+              }, function (reason) {
+                if (sealed) {
+                  return;
                 }
+                sealed = true;
+
+                reject(promise, reason);
+              }, 'Settle: ' + (promise._label || ' unknown promise'));
+
+              if (!sealed && error) {
+                sealed = true;
+                reject(promise, error);
+              }
+            }, promise);
+          }
+
+          function handleOwnThenable(promise, thenable) {
+            if (thenable._state === FULFILLED) {
+              fulfill(promise, thenable._result);
+            } else if (thenable._state === REJECTED) {
+              reject(promise, thenable._result);
+            } else {
+              subscribe(thenable, undefined, function (value) {
+                return resolve(promise, value);
+              }, function (reason) {
+                return reject(promise, reason);
+              });
+            }
+          }
+
+          function handleMaybeThenable(promise, maybeThenable, then$$1) {
+            if (maybeThenable.constructor === promise.constructor && then$$1 === then && maybeThenable.constructor.resolve === resolve$1) {
+              handleOwnThenable(promise, maybeThenable);
+            } else {
+              if (then$$1 === GET_THEN_ERROR) {
+                reject(promise, GET_THEN_ERROR.error);
+                GET_THEN_ERROR.error = null;
+              } else if (then$$1 === undefined) {
+                fulfill(promise, maybeThenable);
+              } else if (isFunction(then$$1)) {
+                handleForeignThenable(promise, maybeThenable, then$$1);
+              } else {
+                fulfill(promise, maybeThenable);
+              }
+            }
+          }
+
+          function resolve(promise, value) {
+            if (promise === value) {
+              reject(promise, selfFulfillment());
+            } else if (objectOrFunction(value)) {
+              handleMaybeThenable(promise, value, getThen(value));
+            } else {
+              fulfill(promise, value);
+            }
+          }
+
+          function publishRejection(promise) {
+            if (promise._onerror) {
+              promise._onerror(promise._result);
             }
 
-            function drainQueue() {
-                if (draining) {
-                    return;
-                }
-                var timeout = runTimeout(cleanUpNextTick);
-                draining = true;
+            publish(promise);
+          }
 
-                var len = queue.length;
-                while (len) {
-                    currentQueue = queue;
-                    queue = [];
-                    while (++queueIndex < len) {
-                        if (currentQueue) {
-                            currentQueue[queueIndex].run();
-                        }
-                    }
-                    queueIndex = -1;
-                    len = queue.length;
-                }
-                currentQueue = null;
-                draining = false;
-                runClearTimeout(timeout);
+          function fulfill(promise, value) {
+            if (promise._state !== PENDING) {
+              return;
             }
 
-            process.nextTick = function (fun) {
-                var args = new Array(arguments.length - 1);
-                if (arguments.length > 1) {
-                    for (var i = 1; i < arguments.length; i++) {
-                        args[i - 1] = arguments[i];
-                    }
-                }
-                queue.push(new Item(fun, args));
-                if (queue.length === 1 && !draining) {
-                    runTimeout(drainQueue);
-                }
-            };
+            promise._result = value;
+            promise._state = FULFILLED;
 
-            // v8 likes predictible objects
-            function Item(fun, array) {
-                this.fun = fun;
-                this.array = array;
+            if (promise._subscribers.length !== 0) {
+              asap(publish, promise);
             }
-            Item.prototype.run = function () {
-                this.fun.apply(null, this.array);
-            };
-            process.title = 'browser';
-            process.browser = true;
-            process.env = {};
-            process.argv = [];
-            process.version = ''; // empty string to avoid regexp issues
-            process.versions = {};
+          }
 
-            function noop() {}
-
-            process.on = noop;
-            process.addListener = noop;
-            process.once = noop;
-            process.off = noop;
-            process.removeListener = noop;
-            process.removeAllListeners = noop;
-            process.emit = noop;
-            process.prependListener = noop;
-            process.prependOnceListener = noop;
-
-            process.listeners = function (name) {
-                return [];
-            };
-
-            process.binding = function (name) {
-                throw new Error('process.binding is not supported');
-            };
-
-            process.cwd = function () {
-                return '/';
-            };
-            process.chdir = function (dir) {
-                throw new Error('process.chdir is not supported');
-            };
-            process.umask = function () {
-                return 0;
-            };
-
-            /***/
-        },
-        /* 8 */
-        /***/function (module, exports, __webpack_require__) {
-
-            "use strict";
-
-            exports.decode = exports.parse = __webpack_require__(22);
-            exports.encode = exports.stringify = __webpack_require__(23);
-
-            /***/
-        },
-        /* 9 */
-        /***/function (module, exports) {
-
-            module.exports = function (module) {
-                if (!module.webpackPolyfill) {
-                    module.deprecate = function () {};
-                    module.paths = [];
-                    // module.parent = undefined by default
-                    if (!module.children) module.children = [];
-                    Object.defineProperty(module, "loaded", {
-                        enumerable: true,
-                        get: function get() {
-                            return module.l;
-                        }
-                    });
-                    Object.defineProperty(module, "id", {
-                        enumerable: true,
-                        get: function get() {
-                            return module.i;
-                        }
-                    });
-                    module.webpackPolyfill = 1;
-                }
-                return module;
-            };
-
-            /***/
-        },,
-        /* 10 */
-        /* 11 */
-        /***/function (module, exports, __webpack_require__) {
-
-            "use strict";
-
-            Object.defineProperty(exports, "__esModule", { value: true });
-            // require("isomorphic-fetch");
-            var utils_1 = __webpack_require__(0);
-            var defaults = {
-                method: "GET",
-                credentials: "include",
-                redirect: "follow"
-            };
-            var request = function request(url, options) {
-                var opts = _extends({}, defaults, options);
-                return fetch(url, opts).then(function (resp) {
-                    var succeeded = resp.ok;
-                    if (!resp.ok) {
-                        return resp.text().then(function (err) {
-                            throw new Error(err);
-                        });
-                    }
-                    return resp.text().then(function (text) {
-                        return utils_1.default.parseJSON(text) || text;
-                    });
-                });
-            };
-            exports.default = request;
-
-            /***/
-        },
-        /* 12 */
-        /***/function (module, exports, __webpack_require__) {
-
-            "use strict";
-
-            Object.defineProperty(exports, "__esModule", { value: true });
-            var utils_1 = __webpack_require__(0);
-            var IPermissions_1 = __webpack_require__(29);
-            /** Allows you to check the permissions of a securable (list or site) */
-            var Securable = function () {
-                function Securable(baseUrl, ctx) {
-                    this.baseUrl = baseUrl;
-                    this._dao = ctx;
-                }
-                /** Gets all the role assignments on that securable  */
-                Securable.prototype.getRoleAssignments = function () {
-                    var url = this.baseUrl + "/RoleAssignments?$expand=Member,RoleDefinitionBindings";
-                    return this._dao.get(url).then(utils_1.default.validateODataV2).then(function (results) {
-                        return results.map(transformRoleAssignment);
-                    });
-                };
-                Securable.prototype.checkPrivs = function (user) {
-                    var login = encodeURIComponent(user.LoginName);
-                    var url = this.baseUrl + "/getusereffectivepermissions(@v)?@v='" + login + "'";
-                    return this._dao.get(url).then(utils_1.default.validateODataV2);
-                };
-                /** Gets all the role assignments on that securable. If you don't pass an email, it will use the current user. */
-                Securable.prototype.check = function (email) {
-                    var _this = this;
-                    if (!email && !utils_1.default.isBrowser()) {
-                        return Promise.reject("Can't check permissions. No email passed and no current user");
-                    }
-                    // If no email is passed, then get current user, else get user by email
-                    var req = !email ? this._dao.get('/web/getuserbyid(' + _spPageContextInfo.userId + ')').then(function (data) {
-                        return data.d;
-                    }) : this._dao.web.getUser(email);
-                    return req.then(function (user) {
-                        return _this.checkPrivs(user);
-                    }).then(function (privs) {
-                        return permissionMaskToStrings(privs.GetUserEffectivePermissions.Low, privs.GetUserEffectivePermissions.High);
-                    });
-                };
-                return Securable;
-            }();
-            exports.default = Securable;
-            var transformRoleAssignment = function transformRoleAssignment(raw) {
-                var member = {
-                    login: raw.Member.LoginName,
-                    name: raw.Member.Title,
-                    id: raw.Member.Id
-                };
-                var roles = raw.RoleDefinitionBindings.results.map(function (roleDef) {
-                    return {
-                        name: roleDef.Name,
-                        description: roleDef.Description,
-                        basePermissions: permissionMaskToStrings(roleDef.BasePermissions.Low, roleDef.BasePermissions.High)
-                    };
-                });
-                return { member: member, roles: roles };
-            };
-            var permissionMaskToStrings = function permissionMaskToStrings(lowMask, highMask) {
-                var permissions = [];
-                IPermissions_1.basePermissions.forEach(function (basePermission) {
-                    if ((basePermission.low & lowMask) > 0 || (basePermission.high & highMask) > 0) {
-                        permissions.push(basePermission.name);
-                    }
-                });
-                return permissions;
-            };
-
-            /***/
-        },,,,,,
-        /* 13 */
-        /* 14 */
-        /* 15 */
-        /* 16 */
-        /* 17 */
-        /* 18 */
-        /***/function (module, exports, __webpack_require__) {
-
-            "use strict";
-            /* WEBPACK VAR INJECTION */
-            (function (global) {
-                var promise_polyfill_1 = __webpack_require__(19);
-                var SPScript_1 = __webpack_require__(20);
-                if (!global.Promise) {
-                    global.Promise = promise_polyfill_1.default;
-                }
-                module.exports = SPScript_1.default;
-
-                /* WEBPACK VAR INJECTION */
-            }).call(exports, __webpack_require__(1));
-
-            /***/
-        },
-        /* 19 */
-        /***/function (module, exports, __webpack_require__) {
-
-            /* WEBPACK VAR INJECTION */(function (setImmediate) {
-                (function (root) {
-
-                    // Store setTimeout reference so promise-polyfill will be unaffected by
-                    // other code modifying setTimeout (like sinon.useFakeTimers())
-                    var setTimeoutFunc = setTimeout;
-
-                    function noop() {}
-
-                    // Polyfill for Function.prototype.bind
-                    function bind(fn, thisArg) {
-                        return function () {
-                            fn.apply(thisArg, arguments);
-                        };
-                    }
-
-                    function Promise(fn) {
-                        if (_typeof(this) !== 'object') throw new TypeError('Promises must be constructed via new');
-                        if (typeof fn !== 'function') throw new TypeError('not a function');
-                        this._state = 0;
-                        this._handled = false;
-                        this._value = undefined;
-                        this._deferreds = [];
-
-                        doResolve(fn, this);
-                    }
-
-                    function handle(self, deferred) {
-                        while (self._state === 3) {
-                            self = self._value;
-                        }
-                        if (self._state === 0) {
-                            self._deferreds.push(deferred);
-                            return;
-                        }
-                        self._handled = true;
-                        Promise._immediateFn(function () {
-                            var cb = self._state === 1 ? deferred.onFulfilled : deferred.onRejected;
-                            if (cb === null) {
-                                (self._state === 1 ? resolve : reject)(deferred.promise, self._value);
-                                return;
-                            }
-                            var ret;
-                            try {
-                                ret = cb(self._value);
-                            } catch (e) {
-                                reject(deferred.promise, e);
-                                return;
-                            }
-                            resolve(deferred.promise, ret);
-                        });
-                    }
-
-                    function resolve(self, newValue) {
-                        try {
-                            // Promise Resolution Procedure: https://github.com/promises-aplus/promises-spec#the-promise-resolution-procedure
-                            if (newValue === self) throw new TypeError('A promise cannot be resolved with itself.');
-                            if (newValue && ((typeof newValue === 'undefined' ? 'undefined' : _typeof(newValue)) === 'object' || typeof newValue === 'function')) {
-                                var then = newValue.then;
-                                if (newValue instanceof Promise) {
-                                    self._state = 3;
-                                    self._value = newValue;
-                                    finale(self);
-                                    return;
-                                } else if (typeof then === 'function') {
-                                    doResolve(bind(then, newValue), self);
-                                    return;
-                                }
-                            }
-                            self._state = 1;
-                            self._value = newValue;
-                            finale(self);
-                        } catch (e) {
-                            reject(self, e);
-                        }
-                    }
-
-                    function reject(self, newValue) {
-                        self._state = 2;
-                        self._value = newValue;
-                        finale(self);
-                    }
-
-                    function finale(self) {
-                        if (self._state === 2 && self._deferreds.length === 0) {
-                            Promise._immediateFn(function () {
-                                if (!self._handled) {
-                                    Promise._unhandledRejectionFn(self._value);
-                                }
-                            });
-                        }
-
-                        for (var i = 0, len = self._deferreds.length; i < len; i++) {
-                            handle(self, self._deferreds[i]);
-                        }
-                        self._deferreds = null;
-                    }
-
-                    function Handler(onFulfilled, onRejected, promise) {
-                        this.onFulfilled = typeof onFulfilled === 'function' ? onFulfilled : null;
-                        this.onRejected = typeof onRejected === 'function' ? onRejected : null;
-                        this.promise = promise;
-                    }
-
-                    /**
-                     * Take a potentially misbehaving resolver function and make sure
-                     * onFulfilled and onRejected are only called once.
-                     *
-                     * Makes no guarantees about asynchrony.
-                     */
-                    function doResolve(fn, self) {
-                        var done = false;
-                        try {
-                            fn(function (value) {
-                                if (done) return;
-                                done = true;
-                                resolve(self, value);
-                            }, function (reason) {
-                                if (done) return;
-                                done = true;
-                                reject(self, reason);
-                            });
-                        } catch (ex) {
-                            if (done) return;
-                            done = true;
-                            reject(self, ex);
-                        }
-                    }
-
-                    Promise.prototype['catch'] = function (onRejected) {
-                        return this.then(null, onRejected);
-                    };
-
-                    Promise.prototype.then = function (onFulfilled, onRejected) {
-                        var prom = new this.constructor(noop);
-
-                        handle(this, new Handler(onFulfilled, onRejected, prom));
-                        return prom;
-                    };
-
-                    Promise.all = function (arr) {
-                        var args = Array.prototype.slice.call(arr);
-
-                        return new Promise(function (resolve, reject) {
-                            if (args.length === 0) return resolve([]);
-                            var remaining = args.length;
-
-                            function res(i, val) {
-                                try {
-                                    if (val && ((typeof val === 'undefined' ? 'undefined' : _typeof(val)) === 'object' || typeof val === 'function')) {
-                                        var then = val.then;
-                                        if (typeof then === 'function') {
-                                            then.call(val, function (val) {
-                                                res(i, val);
-                                            }, reject);
-                                            return;
-                                        }
-                                    }
-                                    args[i] = val;
-                                    if (--remaining === 0) {
-                                        resolve(args);
-                                    }
-                                } catch (ex) {
-                                    reject(ex);
-                                }
-                            }
-
-                            for (var i = 0; i < args.length; i++) {
-                                res(i, args[i]);
-                            }
-                        });
-                    };
-
-                    Promise.resolve = function (value) {
-                        if (value && (typeof value === 'undefined' ? 'undefined' : _typeof(value)) === 'object' && value.constructor === Promise) {
-                            return value;
-                        }
-
-                        return new Promise(function (resolve) {
-                            resolve(value);
-                        });
-                    };
-
-                    Promise.reject = function (value) {
-                        return new Promise(function (resolve, reject) {
-                            reject(value);
-                        });
-                    };
-
-                    Promise.race = function (values) {
-                        return new Promise(function (resolve, reject) {
-                            for (var i = 0, len = values.length; i < len; i++) {
-                                values[i].then(resolve, reject);
-                            }
-                        });
-                    };
-
-                    // Use polyfill for setImmediate for performance gains
-                    Promise._immediateFn = typeof setImmediate === 'function' && function (fn) {
-                        setImmediate(fn);
-                    } || function (fn) {
-                        setTimeoutFunc(fn, 0);
-                    };
-
-                    Promise._unhandledRejectionFn = function _unhandledRejectionFn(err) {
-                        if (typeof console !== 'undefined' && console) {
-                            console.warn('Possible Unhandled Promise Rejection:', err); // eslint-disable-line no-console
-                        }
-                    };
-
-                    /**
-                     * Set the immediate function to execute callbacks
-                     * @param fn {function} Function to execute
-                     * @deprecated
-                     */
-                    Promise._setImmediateFn = function _setImmediateFn(fn) {
-                        Promise._immediateFn = fn;
-                    };
-
-                    /**
-                     * Change the function to execute on unhandled rejection
-                     * @param {function} fn Function to execute on unhandled rejection
-                     * @deprecated
-                     */
-                    Promise._setUnhandledRejectionFn = function _setUnhandledRejectionFn(fn) {
-                        Promise._unhandledRejectionFn = fn;
-                    };
-
-                    if (typeof module !== 'undefined' && module.exports) {
-                        module.exports = Promise;
-                    } else if (!root.Promise) {
-                        root.Promise = Promise;
-                    }
-                })(this);
-
-                /* WEBPACK VAR INJECTION */
-            }).call(exports, __webpack_require__(5).setImmediate);
-
-            /***/
-        },
-        /* 20 */
-        /***/function (module, exports, __webpack_require__) {
-
-            "use strict";
-            /* WEBPACK VAR INJECTION */
-            (function (global) {
-                Object.defineProperty(exports, "__esModule", { value: true });
-                var utils_1 = __webpack_require__(0);
-                var Context_1 = __webpack_require__(27);
-                var csr_1 = __webpack_require__(40);
-                var spscript = {
-                    utils: utils_1.default,
-                    CSR: csr_1.default,
-                    createContext: function createContext(url, options) {
-                        try {
-                            if (!url && global._spPageContextInfo) {
-                                url = global._spPageContextInfo.webAbsoluteUrl;
-                            }
-                            return new Context_1.default(url, options);
-                        } catch (ex) {
-                            throw new Error("Unable to create SPScript Context: " + ex.message);
-                        }
-                    }
-                };
-                exports.default = spscript;
-
-                /* WEBPACK VAR INJECTION */
-            }).call(exports, __webpack_require__(1));
-
-            /***/
-        },
-        /* 21 */
-        /***/function (module, exports, __webpack_require__) {
-
-            "use strict";
-
-            Object.defineProperty(exports, "__esModule", { value: true });
-            var qs = __webpack_require__(8);
-            function fromObj(obj, quoteValues) {
-                var writeParam = function writeParam(key) {
-                    var value = (obj[key] + "").trim();
-                    // if there is a space, wrap in single quotes
-                    if (value.indexOf(" ") > -1 || quoteValues) value = "'" + value + "'";
-                    return key + "=" + value;
-                };
-                var str = Object.keys(obj).map(writeParam).join("&");
-                return str;
+          function reject(promise, reason) {
+            if (promise._state !== PENDING) {
+              return;
             }
-            exports.fromObj = fromObj;
-            function toObj(str) {
-                //if no string is passed use window.location.search
-                if (str === undefined && window && window.location && window.location.search) {
-                    str = window.location.search;
-                }
-                if (!str) return {};
-                //trim off the leading '?' if its there
-                if (str[0] === "?") str = str.substr(1);
-                return qs.parse(str);
+            promise._state = REJECTED;
+            promise._result = reason;
+
+            asap(publishRejection, promise);
+          }
+
+          function subscribe(parent, child, onFulfillment, onRejection) {
+            var _subscribers = parent._subscribers;
+            var length = _subscribers.length;
+
+            parent._onerror = null;
+
+            _subscribers[length] = child;
+            _subscribers[length + FULFILLED] = onFulfillment;
+            _subscribers[length + REJECTED] = onRejection;
+
+            if (length === 0 && parent._state) {
+              asap(publish, parent);
             }
-            exports.toObj = toObj;
+          }
 
-            /***/
-        },
-        /* 22 */
-        /***/function (module, exports, __webpack_require__) {
+          function publish(promise) {
+            var subscribers = promise._subscribers;
+            var settled = promise._state;
 
-            "use strict";
-            // Copyright Joyent, Inc. and other Node contributors.
-            //
-            // Permission is hereby granted, free of charge, to any person obtaining a
-            // copy of this software and associated documentation files (the
-            // "Software"), to deal in the Software without restriction, including
-            // without limitation the rights to use, copy, modify, merge, publish,
-            // distribute, sublicense, and/or sell copies of the Software, and to permit
-            // persons to whom the Software is furnished to do so, subject to the
-            // following conditions:
-            //
-            // The above copyright notice and this permission notice shall be included
-            // in all copies or substantial portions of the Software.
-            //
-            // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-            // OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-            // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
-            // NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-            // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
-            // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
-            // USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-
-            // If obj.hasOwnProperty has been overridden, then calling
-            // obj.hasOwnProperty(prop) will break.
-            // See: https://github.com/joyent/node/issues/1707
-
-            function hasOwnProperty(obj, prop) {
-                return Object.prototype.hasOwnProperty.call(obj, prop);
+            if (subscribers.length === 0) {
+              return;
             }
 
-            module.exports = function (qs, sep, eq, options) {
-                sep = sep || '&';
-                eq = eq || '=';
-                var obj = {};
+            var child = undefined,
+                callback = undefined,
+                detail = promise._result;
 
-                if (typeof qs !== 'string' || qs.length === 0) {
-                    return obj;
+            for (var i = 0; i < subscribers.length; i += 3) {
+              child = subscribers[i];
+              callback = subscribers[i + settled];
+
+              if (child) {
+                invokeCallback(settled, child, callback, detail);
+              } else {
+                callback(detail);
+              }
+            }
+
+            promise._subscribers.length = 0;
+          }
+
+          function ErrorObject() {
+            this.error = null;
+          }
+
+          var TRY_CATCH_ERROR = new ErrorObject();
+
+          function tryCatch(callback, detail) {
+            try {
+              return callback(detail);
+            } catch (e) {
+              TRY_CATCH_ERROR.error = e;
+              return TRY_CATCH_ERROR;
+            }
+          }
+
+          function invokeCallback(settled, promise, callback, detail) {
+            var hasCallback = isFunction(callback),
+                value = undefined,
+                error = undefined,
+                succeeded = undefined,
+                failed = undefined;
+
+            if (hasCallback) {
+              value = tryCatch(callback, detail);
+
+              if (value === TRY_CATCH_ERROR) {
+                failed = true;
+                error = value.error;
+                value.error = null;
+              } else {
+                succeeded = true;
+              }
+
+              if (promise === value) {
+                reject(promise, cannotReturnOwn());
+                return;
+              }
+            } else {
+              value = detail;
+              succeeded = true;
+            }
+
+            if (promise._state !== PENDING) {
+              // noop
+            } else if (hasCallback && succeeded) {
+              resolve(promise, value);
+            } else if (failed) {
+              reject(promise, error);
+            } else if (settled === FULFILLED) {
+              fulfill(promise, value);
+            } else if (settled === REJECTED) {
+              reject(promise, value);
+            }
+          }
+
+          function initializePromise(promise, resolver) {
+            try {
+              resolver(function resolvePromise(value) {
+                resolve(promise, value);
+              }, function rejectPromise(reason) {
+                reject(promise, reason);
+              });
+            } catch (e) {
+              reject(promise, e);
+            }
+          }
+
+          var id = 0;
+          function nextId() {
+            return id++;
+          }
+
+          function makePromise(promise) {
+            promise[PROMISE_ID] = id++;
+            promise._state = undefined;
+            promise._result = undefined;
+            promise._subscribers = [];
+          }
+
+          function Enumerator$1(Constructor, input) {
+            this._instanceConstructor = Constructor;
+            this.promise = new Constructor(noop);
+
+            if (!this.promise[PROMISE_ID]) {
+              makePromise(this.promise);
+            }
+
+            if (isArray(input)) {
+              this.length = input.length;
+              this._remaining = input.length;
+
+              this._result = new Array(this.length);
+
+              if (this.length === 0) {
+                fulfill(this.promise, this._result);
+              } else {
+                this.length = this.length || 0;
+                this._enumerate(input);
+                if (this._remaining === 0) {
+                  fulfill(this.promise, this._result);
                 }
+              }
+            } else {
+              reject(this.promise, validationError());
+            }
+          }
 
-                var regexp = /\+/g;
-                qs = qs.split(sep);
+          function validationError() {
+            return new Error('Array Methods must be provided an Array');
+          }
 
-                var maxKeys = 1000;
-                if (options && typeof options.maxKeys === 'number') {
-                    maxKeys = options.maxKeys;
+          Enumerator$1.prototype._enumerate = function (input) {
+            for (var i = 0; this._state === PENDING && i < input.length; i++) {
+              this._eachEntry(input[i], i);
+            }
+          };
+
+          Enumerator$1.prototype._eachEntry = function (entry, i) {
+            var c = this._instanceConstructor;
+            var resolve$$1 = c.resolve;
+
+            if (resolve$$1 === resolve$1) {
+              var _then = getThen(entry);
+
+              if (_then === then && entry._state !== PENDING) {
+                this._settledAt(entry._state, i, entry._result);
+              } else if (typeof _then !== 'function') {
+                this._remaining--;
+                this._result[i] = entry;
+              } else if (c === Promise$2) {
+                var promise = new c(noop);
+                handleMaybeThenable(promise, entry, _then);
+                this._willSettleAt(promise, i);
+              } else {
+                this._willSettleAt(new c(function (resolve$$1) {
+                  return resolve$$1(entry);
+                }), i);
+              }
+            } else {
+              this._willSettleAt(resolve$$1(entry), i);
+            }
+          };
+
+          Enumerator$1.prototype._settledAt = function (state, i, value) {
+            var promise = this.promise;
+
+            if (promise._state === PENDING) {
+              this._remaining--;
+
+              if (state === REJECTED) {
+                reject(promise, value);
+              } else {
+                this._result[i] = value;
+              }
+            }
+
+            if (this._remaining === 0) {
+              fulfill(promise, this._result);
+            }
+          };
+
+          Enumerator$1.prototype._willSettleAt = function (promise, i) {
+            var enumerator = this;
+
+            subscribe(promise, undefined, function (value) {
+              return enumerator._settledAt(FULFILLED, i, value);
+            }, function (reason) {
+              return enumerator._settledAt(REJECTED, i, reason);
+            });
+          };
+
+          /**
+            `Promise.all` accepts an array of promises, and returns a new promise which
+            is fulfilled with an array of fulfillment values for the passed promises, or
+            rejected with the reason of the first passed promise to be rejected. It casts all
+            elements of the passed iterable to promises as it runs this algorithm.
+          
+            Example:
+          
+            ```javascript
+            let promise1 = resolve(1);
+            let promise2 = resolve(2);
+            let promise3 = resolve(3);
+            let promises = [ promise1, promise2, promise3 ];
+          
+            Promise.all(promises).then(function(array){
+              // The array here would be [ 1, 2, 3 ];
+            });
+            ```
+          
+            If any of the `promises` given to `all` are rejected, the first promise
+            that is rejected will be given as an argument to the returned promises's
+            rejection handler. For example:
+          
+            Example:
+          
+            ```javascript
+            let promise1 = resolve(1);
+            let promise2 = reject(new Error("2"));
+            let promise3 = reject(new Error("3"));
+            let promises = [ promise1, promise2, promise3 ];
+          
+            Promise.all(promises).then(function(array){
+              // Code here never runs because there are rejected promises!
+            }, function(error) {
+              // error.message === "2"
+            });
+            ```
+          
+            @method all
+            @static
+            @param {Array} entries array of promises
+            @param {String} label optional string for labeling the promise.
+            Useful for tooling.
+            @return {Promise} promise that is fulfilled when all `promises` have been
+            fulfilled, or rejected if any of them become rejected.
+            @static
+          */
+          function all$1(entries) {
+            return new Enumerator$1(this, entries).promise;
+          }
+
+          /**
+            `Promise.race` returns a new promise which is settled in the same way as the
+            first passed promise to settle.
+          
+            Example:
+          
+            ```javascript
+            let promise1 = new Promise(function(resolve, reject){
+              setTimeout(function(){
+                resolve('promise 1');
+              }, 200);
+            });
+          
+            let promise2 = new Promise(function(resolve, reject){
+              setTimeout(function(){
+                resolve('promise 2');
+              }, 100);
+            });
+          
+            Promise.race([promise1, promise2]).then(function(result){
+              // result === 'promise 2' because it was resolved before promise1
+              // was resolved.
+            });
+            ```
+          
+            `Promise.race` is deterministic in that only the state of the first
+            settled promise matters. For example, even if other promises given to the
+            `promises` array argument are resolved, but the first settled promise has
+            become rejected before the other promises became fulfilled, the returned
+            promise will become rejected:
+          
+            ```javascript
+            let promise1 = new Promise(function(resolve, reject){
+              setTimeout(function(){
+                resolve('promise 1');
+              }, 200);
+            });
+          
+            let promise2 = new Promise(function(resolve, reject){
+              setTimeout(function(){
+                reject(new Error('promise 2'));
+              }, 100);
+            });
+          
+            Promise.race([promise1, promise2]).then(function(result){
+              // Code here never runs
+            }, function(reason){
+              // reason.message === 'promise 2' because promise 2 became rejected before
+              // promise 1 became fulfilled
+            });
+            ```
+          
+            An example real-world use case is implementing timeouts:
+          
+            ```javascript
+            Promise.race([ajax('foo.json'), timeout(5000)])
+            ```
+          
+            @method race
+            @static
+            @param {Array} promises array of promises to observe
+            Useful for tooling.
+            @return {Promise} a promise which settles in the same way as the first passed
+            promise to settle.
+          */
+          function race$1(entries) {
+            /*jshint validthis:true */
+            var Constructor = this;
+
+            if (!isArray(entries)) {
+              return new Constructor(function (_, reject) {
+                return reject(new TypeError('You must pass an array to race.'));
+              });
+            } else {
+              return new Constructor(function (resolve, reject) {
+                var length = entries.length;
+                for (var i = 0; i < length; i++) {
+                  Constructor.resolve(entries[i]).then(resolve, reject);
                 }
+              });
+            }
+          }
 
-                var len = qs.length;
-                // maxKeys <= 0 means that we should not limit keys count
-                if (maxKeys > 0 && len > maxKeys) {
-                    len = maxKeys;
-                }
+          /**
+            `Promise.reject` returns a promise rejected with the passed `reason`.
+            It is shorthand for the following:
+          
+            ```javascript
+            let promise = new Promise(function(resolve, reject){
+              reject(new Error('WHOOPS'));
+            });
+          
+            promise.then(function(value){
+              // Code here doesn't run because the promise is rejected!
+            }, function(reason){
+              // reason.message === 'WHOOPS'
+            });
+            ```
+          
+            Instead of writing the above, your code now simply becomes the following:
+          
+            ```javascript
+            let promise = Promise.reject(new Error('WHOOPS'));
+          
+            promise.then(function(value){
+              // Code here doesn't run because the promise is rejected!
+            }, function(reason){
+              // reason.message === 'WHOOPS'
+            });
+            ```
+          
+            @method reject
+            @static
+            @param {Any} reason value that the returned promise will be rejected with.
+            Useful for tooling.
+            @return {Promise} a promise rejected with the given `reason`.
+          */
+          function reject$1(reason) {
+            /*jshint validthis:true */
+            var Constructor = this;
+            var promise = new Constructor(noop);
+            reject(promise, reason);
+            return promise;
+          }
 
-                for (var i = 0; i < len; ++i) {
-                    var x = qs[i].replace(regexp, '%20'),
-                        idx = x.indexOf(eq),
-                        kstr,
-                        vstr,
-                        k,
-                        v;
+          function needsResolver() {
+            throw new TypeError('You must pass a resolver function as the first argument to the promise constructor');
+          }
 
-                    if (idx >= 0) {
-                        kstr = x.substr(0, idx);
-                        vstr = x.substr(idx + 1);
+          function needsNew() {
+            throw new TypeError("Failed to construct 'Promise': Please use the 'new' operator, this object constructor cannot be called as a function.");
+          }
+
+          /**
+            Promise objects represent the eventual result of an asynchronous operation. The
+            primary way of interacting with a promise is through its `then` method, which
+            registers callbacks to receive either a promise's eventual value or the reason
+            why the promise cannot be fulfilled.
+          
+            Terminology
+            -----------
+          
+            - `promise` is an object or function with a `then` method whose behavior conforms to this specification.
+            - `thenable` is an object or function that defines a `then` method.
+            - `value` is any legal JavaScript value (including undefined, a thenable, or a promise).
+            - `exception` is a value that is thrown using the throw statement.
+            - `reason` is a value that indicates why a promise was rejected.
+            - `settled` the final resting state of a promise, fulfilled or rejected.
+          
+            A promise can be in one of three states: pending, fulfilled, or rejected.
+          
+            Promises that are fulfilled have a fulfillment value and are in the fulfilled
+            state.  Promises that are rejected have a rejection reason and are in the
+            rejected state.  A fulfillment value is never a thenable.
+          
+            Promises can also be said to *resolve* a value.  If this value is also a
+            promise, then the original promise's settled state will match the value's
+            settled state.  So a promise that *resolves* a promise that rejects will
+            itself reject, and a promise that *resolves* a promise that fulfills will
+            itself fulfill.
+          
+          
+            Basic Usage:
+            ------------
+          
+            ```js
+            let promise = new Promise(function(resolve, reject) {
+              // on success
+              resolve(value);
+          
+              // on failure
+              reject(reason);
+            });
+          
+            promise.then(function(value) {
+              // on fulfillment
+            }, function(reason) {
+              // on rejection
+            });
+            ```
+          
+            Advanced Usage:
+            ---------------
+          
+            Promises shine when abstracting away asynchronous interactions such as
+            `XMLHttpRequest`s.
+          
+            ```js
+            function getJSON(url) {
+              return new Promise(function(resolve, reject){
+                let xhr = new XMLHttpRequest();
+          
+                xhr.open('GET', url);
+                xhr.onreadystatechange = handler;
+                xhr.responseType = 'json';
+                xhr.setRequestHeader('Accept', 'application/json');
+                xhr.send();
+          
+                function handler() {
+                  if (this.readyState === this.DONE) {
+                    if (this.status === 200) {
+                      resolve(this.response);
                     } else {
-                        kstr = x;
-                        vstr = '';
+                      reject(new Error('getJSON: `' + url + '` failed with status: [' + this.status + ']'));
                     }
+                  }
+                };
+              });
+            }
+          
+            getJSON('/posts.json').then(function(json) {
+              // on fulfillment
+            }, function(reason) {
+              // on rejection
+            });
+            ```
+          
+            Unlike callbacks, promises are great composable primitives.
+          
+            ```js
+            Promise.all([
+              getJSON('/posts'),
+              getJSON('/comments')
+            ]).then(function(values){
+              values[0] // => postsJSON
+              values[1] // => commentsJSON
+          
+              return values;
+            });
+            ```
+          
+            @class Promise
+            @param {function} resolver
+            Useful for tooling.
+            @constructor
+          */
+          function Promise$2(resolver) {
+            this[PROMISE_ID] = nextId();
+            this._result = this._state = undefined;
+            this._subscribers = [];
 
-                    k = decodeURIComponent(kstr);
-                    v = decodeURIComponent(vstr);
+            if (noop !== resolver) {
+              typeof resolver !== 'function' && needsResolver();
+              this instanceof Promise$2 ? initializePromise(this, resolver) : needsNew();
+            }
+          }
 
-                    if (!hasOwnProperty(obj, k)) {
-                        obj[k] = v;
-                    } else if (isArray(obj[k])) {
-                        obj[k].push(v);
-                    } else {
-                        obj[k] = [obj[k], v];
-                    }
+          Promise$2.all = all$1;
+          Promise$2.race = race$1;
+          Promise$2.resolve = resolve$1;
+          Promise$2.reject = reject$1;
+          Promise$2._setScheduler = setScheduler;
+          Promise$2._setAsap = setAsap;
+          Promise$2._asap = asap;
+
+          Promise$2.prototype = {
+            constructor: Promise$2,
+
+            /**
+              The primary way of interacting with a promise is through its `then` method,
+              which registers callbacks to receive either a promise's eventual value or the
+              reason why the promise cannot be fulfilled.
+            
+              ```js
+              findUser().then(function(user){
+                // user is available
+              }, function(reason){
+                // user is unavailable, and you are given the reason why
+              });
+              ```
+            
+              Chaining
+              --------
+            
+              The return value of `then` is itself a promise.  This second, 'downstream'
+              promise is resolved with the return value of the first promise's fulfillment
+              or rejection handler, or rejected if the handler throws an exception.
+            
+              ```js
+              findUser().then(function (user) {
+                return user.name;
+              }, function (reason) {
+                return 'default name';
+              }).then(function (userName) {
+                // If `findUser` fulfilled, `userName` will be the user's name, otherwise it
+                // will be `'default name'`
+              });
+            
+              findUser().then(function (user) {
+                throw new Error('Found user, but still unhappy');
+              }, function (reason) {
+                throw new Error('`findUser` rejected and we're unhappy');
+              }).then(function (value) {
+                // never reached
+              }, function (reason) {
+                // if `findUser` fulfilled, `reason` will be 'Found user, but still unhappy'.
+                // If `findUser` rejected, `reason` will be '`findUser` rejected and we're unhappy'.
+              });
+              ```
+              If the downstream promise does not specify a rejection handler, rejection reasons will be propagated further downstream.
+            
+              ```js
+              findUser().then(function (user) {
+                throw new PedagogicalException('Upstream error');
+              }).then(function (value) {
+                // never reached
+              }).then(function (value) {
+                // never reached
+              }, function (reason) {
+                // The `PedgagocialException` is propagated all the way down to here
+              });
+              ```
+            
+              Assimilation
+              ------------
+            
+              Sometimes the value you want to propagate to a downstream promise can only be
+              retrieved asynchronously. This can be achieved by returning a promise in the
+              fulfillment or rejection handler. The downstream promise will then be pending
+              until the returned promise is settled. This is called *assimilation*.
+            
+              ```js
+              findUser().then(function (user) {
+                return findCommentsByAuthor(user);
+              }).then(function (comments) {
+                // The user's comments are now available
+              });
+              ```
+            
+              If the assimliated promise rejects, then the downstream promise will also reject.
+            
+              ```js
+              findUser().then(function (user) {
+                return findCommentsByAuthor(user);
+              }).then(function (comments) {
+                // If `findCommentsByAuthor` fulfills, we'll have the value here
+              }, function (reason) {
+                // If `findCommentsByAuthor` rejects, we'll have the reason here
+              });
+              ```
+            
+              Simple Example
+              --------------
+            
+              Synchronous Example
+            
+              ```javascript
+              let result;
+            
+              try {
+                result = findResult();
+                // success
+              } catch(reason) {
+                // failure
+              }
+              ```
+            
+              Errback Example
+            
+              ```js
+              findResult(function(result, err){
+                if (err) {
+                  // failure
+                } else {
+                  // success
                 }
-
-                return obj;
-            };
-
-            var isArray = Array.isArray || function (xs) {
-                return Object.prototype.toString.call(xs) === '[object Array]';
-            };
-
-            /***/
-        },
-        /* 23 */
-        /***/function (module, exports, __webpack_require__) {
-
-            "use strict";
-            // Copyright Joyent, Inc. and other Node contributors.
-            //
-            // Permission is hereby granted, free of charge, to any person obtaining a
-            // copy of this software and associated documentation files (the
-            // "Software"), to deal in the Software without restriction, including
-            // without limitation the rights to use, copy, modify, merge, publish,
-            // distribute, sublicense, and/or sell copies of the Software, and to permit
-            // persons to whom the Software is furnished to do so, subject to the
-            // following conditions:
-            //
-            // The above copyright notice and this permission notice shall be included
-            // in all copies or substantial portions of the Software.
-            //
-            // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-            // OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-            // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
-            // NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-            // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
-            // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
-            // USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-
-            var stringifyPrimitive = function stringifyPrimitive(v) {
-                switch (typeof v === 'undefined' ? 'undefined' : _typeof(v)) {
-                    case 'string':
-                        return v;
-
-                    case 'boolean':
-                        return v ? 'true' : 'false';
-
-                    case 'number':
-                        return isFinite(v) ? v : '';
-
-                    default:
-                        return '';
-                }
-            };
-
-            module.exports = function (obj, sep, eq, name) {
-                sep = sep || '&';
-                eq = eq || '=';
-                if (obj === null) {
-                    obj = undefined;
-                }
-
-                if ((typeof obj === 'undefined' ? 'undefined' : _typeof(obj)) === 'object') {
-                    return map(objectKeys(obj), function (k) {
-                        var ks = encodeURIComponent(stringifyPrimitive(k)) + eq;
-                        if (isArray(obj[k])) {
-                            return map(obj[k], function (v) {
-                                return ks + encodeURIComponent(stringifyPrimitive(v));
-                            }).join(sep);
-                        } else {
-                            return ks + encodeURIComponent(stringifyPrimitive(obj[k]));
+              });
+              ```
+            
+              Promise Example;
+            
+              ```javascript
+              findResult().then(function(result){
+                // success
+              }, function(reason){
+                // failure
+              });
+              ```
+            
+              Advanced Example
+              --------------
+            
+              Synchronous Example
+            
+              ```javascript
+              let author, books;
+            
+              try {
+                author = findAuthor();
+                books  = findBooksByAuthor(author);
+                // success
+              } catch(reason) {
+                // failure
+              }
+              ```
+            
+              Errback Example
+            
+              ```js
+            
+              function foundBooks(books) {
+            
+              }
+            
+              function failure(reason) {
+            
+              }
+            
+              findAuthor(function(author, err){
+                if (err) {
+                  failure(err);
+                  // failure
+                } else {
+                  try {
+                    findBoooksByAuthor(author, function(books, err) {
+                      if (err) {
+                        failure(err);
+                      } else {
+                        try {
+                          foundBooks(books);
+                        } catch(reason) {
+                          failure(reason);
                         }
-                    }).join(sep);
+                      }
+                    });
+                  } catch(error) {
+                    failure(err);
+                  }
+                  // success
                 }
+              });
+              ```
+            
+              Promise Example;
+            
+              ```javascript
+              findAuthor().
+                then(findBooksByAuthor).
+                then(function(books){
+                  // found books
+              }).catch(function(reason){
+                // something went wrong
+              });
+              ```
+            
+              @method then
+              @param {Function} onFulfilled
+              @param {Function} onRejected
+              Useful for tooling.
+              @return {Promise}
+            */
+            then: then,
 
-                if (!name) return '';
-                return encodeURIComponent(stringifyPrimitive(name)) + eq + encodeURIComponent(stringifyPrimitive(obj));
-            };
+            /**
+              `catch` is simply sugar for `then(undefined, onRejection)` which makes it the same
+              as the catch block of a try/catch statement.
+            
+              ```js
+              function findAuthor(){
+                throw new Error('couldn't find that author');
+              }
+            
+              // synchronous
+              try {
+                findAuthor();
+              } catch(reason) {
+                // something went wrong
+              }
+            
+              // async with promises
+              findAuthor().catch(function(reason){
+                // something went wrong
+              });
+              ```
+            
+              @method catch
+              @param {Function} onRejection
+              Useful for tooling.
+              @return {Promise}
+            */
+            'catch': function _catch(onRejection) {
+              return this.then(null, onRejection);
+            }
+          };
 
-            var isArray = Array.isArray || function (xs) {
-                return Object.prototype.toString.call(xs) === '[object Array]';
-            };
+          /*global self*/
+          function polyfill$1() {
+            var local = undefined;
 
-            function map(xs, f) {
-                if (xs.map) return xs.map(f);
-                var res = [];
-                for (var i = 0; i < xs.length; i++) {
-                    res.push(f(xs[i], i));
-                }
-                return res;
+            if (typeof global !== 'undefined') {
+              local = global;
+            } else if (typeof self !== 'undefined') {
+              local = self;
+            } else {
+              try {
+                local = Function('return this')();
+              } catch (e) {
+                throw new Error('polyfill failed because global object is unavailable in this environment');
+              }
             }
 
-            var objectKeys = Object.keys || function (obj) {
-                var res = [];
-                for (var key in obj) {
-                    if (Object.prototype.hasOwnProperty.call(obj, key)) res.push(key);
-                }
-                return res;
-            };
+            var P = local.Promise;
 
-            /***/
-        },
-        /* 24 */
-        /***/function (module, exports, __webpack_require__) {
+            if (P) {
+              var promiseToString = null;
+              try {
+                promiseToString = Object.prototype.toString.call(P.resolve());
+              } catch (e) {
+                // silently ignored
+              }
 
-            "use strict";
-
-            Object.defineProperty(exports, "__esModule", { value: true });
-            ;
-            var jsonMimeType = "application/json;odata=verbose";
-            function getStandardHeaders(digest) {
-                var headers = {
-                    "Accept": jsonMimeType,
-                    "Content-Type": jsonMimeType
-                };
-                if (digest) headers["X-RequestDigest"] = digest;
-                return headers;
+              if (promiseToString === '[object Promise]' && !P.cast) {
+                return;
+              }
             }
-            var getAddHeaders = getStandardHeaders;
-            var getFilestreamHeaders = function getFilestreamHeaders(digest) {
-                return {
-                    'Accept': jsonMimeType,
-                    'X-RequestDigest': digest,
-                    'Content-Type': "application/octet-stream",
-                    'binaryStringRequestBody': "true"
-                };
-            };
-            var getActionHeaders = function getActionHeaders(verb, digest) {
-                return _extends({}, getStandardHeaders(digest), {
-                    "X-HTTP-Method": verb
-                });
-            };
-            var decorateETag = function decorateETag(headers, etag) {
-                if (etag) headers["If-Match"] = etag;
-                return headers;
-            };
-            var getUpdateHeaders = function getUpdateHeaders(digest, etag) {
-                return decorateETag(getActionHeaders("MERGE", digest), etag);
-            };
-            var getDeleteHeaders = function getDeleteHeaders(digest, etag) {
-                return decorateETag(getActionHeaders("DELETE", digest), etag);
-            };
-            var headerUtils = {
-                getStandardHeaders: getStandardHeaders,
-                getAddHeaders: getAddHeaders,
-                getFilestreamHeaders: getFilestreamHeaders,
-                getUpdateHeaders: getUpdateHeaders,
-                getDeleteHeaders: getDeleteHeaders,
-                getActionHeaders: getActionHeaders
-            };
-            exports.default = headerUtils;
 
-            /***/
-        },
-        /* 25 */
-        /***/function (module, exports, __webpack_require__) {
+            local.Promise = Promise$2;
+          }
 
-            "use strict";
+          // Strange compat..
+          Promise$2.polyfill = polyfill$1;
+          Promise$2.Promise = Promise$2;
 
-            Object.defineProperty(exports, "__esModule", { value: true });
-            exports.loadCSS = function (url) {
-                var link = document.createElement("link");
-                link.setAttribute("rel", "stylesheet");
-                link.setAttribute("type", "text/css");
-                link.setAttribute("href", url);
-                document.querySelector("head").appendChild(link);
-            };
-            exports.loadScript = function (url) {
-                return new Promise(function (resolve, reject) {
-                    var scriptTag = window.document.createElement("script");
-                    var firstScriptTag = document.getElementsByTagName('script')[0];
-                    scriptTag.async = true;
-                    firstScriptTag.parentNode.insertBefore(scriptTag, firstScriptTag);
-                    scriptTag.onload = scriptTag.onreadystatechange = function (arg, isAbort) {
-                        // if its been aborted, readyState is gone, or readyState is in a 'done' status
-                        if (isAbort || !scriptTag.readyState || /loaded|complete/.test(scriptTag.readyState)) {
-                            //clean up
-                            scriptTag.onload = scriptTag.onreadystatechange = null;
-                            scriptTag = undefined;
-                            // resolve/reject the promise
-                            if (!isAbort) resolve();else reject;
-                        }
-                    };
-                    scriptTag.src = url;
-                });
-            };
-            exports.loadScripts = function (urls) {
-                return Promise.all(urls.map(exports.loadScript));
-            };
+          return Promise$2;
+        });
 
-            /***/
-        },
-        /* 26 */
-        /***/function (module, exports, __webpack_require__) {
+        //# sourceMappingURL=es6-promise.map
 
-            "use strict";
+        /* WEBPACK VAR INJECTION */
+      }).call(exports, __webpack_require__(20), __webpack_require__(2));
 
-            Object.defineProperty(exports, "__esModule", { value: true });
-            exports.validateNamespace = function (namespace) {
-                var scope = window;
-                var sections = namespace.split(".");
-                var sectionsLength = sections.length;
-                for (var i = 0; i < sectionsLength; i++) {
-                    var prop = sections[i];
-                    if (prop in scope) {
-                        scope = scope[prop];
-                    } else {
-                        return false;
-                    }
-                }
-                return true;
-            };
-            var _waitForLibraries = function _waitForLibraries(namespaces, resolve) {
-                var missing = namespaces.filter(function (namespace) {
-                    return !exports.validateNamespace(namespace);
-                });
-                if (missing.length === 0) resolve();else setTimeout(function () {
-                    return _waitForLibraries(namespaces, resolve);
-                }, 25);
-            };
-            exports.waitForLibraries = function (namespaces) {
-                return new Promise(function (resolve, reject) {
-                    return _waitForLibraries(namespaces, resolve);
-                });
-            };
-            exports.waitForLibrary = function (namespace) {
-                return exports.waitForLibraries([namespace]);
-            };
-            exports.waitForElement = function (selector, timeout) {
-                if (timeout === void 0) {
-                    timeout = 5000;
-                }
-                var counter = 0;
-                var INTERVAL = 25; //milliseconds
-                var MAX_ATTEMPTS = timeout / INTERVAL; // eventually give up
-                return new Promise(function (resolve, reject) {
-                    var _waitForElement = function _waitForElement() {
-                        if (counter > MAX_ATTEMPTS) reject("Unable to find element: " + selector);
-                        var elem = document.querySelector(selector);
-                        if (!elem) {
-                            counter++;
-                            setTimeout(_waitForElement, INTERVAL);
-                        } else resolve(elem);
-                    };
-                    _waitForElement();
-                });
-            };
+      /***/
+    },
+    /* 20 */
+    /***/function (module, exports) {
 
-            /***/
-        },
-        /* 27 */
-        /***/function (module, exports, __webpack_require__) {
+      // shim for using process in browser
+      var process = module.exports = {};
 
-            "use strict";
+      // cached from whatever global is present so that test runners that stub it
+      // don't break things.  But we need to wrap it in a try catch in case it is
+      // wrapped in strict mode code which doesn't define any globals.  It's inside a
+      // function because try/catches deoptimize in certain engines.
 
-            var __awaiter = this && this.__awaiter || function (thisArg, _arguments, P, generator) {
-                return new (P || (P = Promise))(function (resolve, reject) {
-                    function fulfilled(value) {
-                        try {
-                            step(generator.next(value));
-                        } catch (e) {
-                            reject(e);
-                        }
-                    }
-                    function rejected(value) {
-                        try {
-                            step(generator["throw"](value));
-                        } catch (e) {
-                            reject(e);
-                        }
-                    }
-                    function step(result) {
-                        result.done ? resolve(result.value) : new P(function (resolve) {
-                            resolve(result.value);
-                        }).then(fulfilled, rejected);
-                    }
-                    step((generator = generator.apply(thisArg, _arguments || [])).next());
-                });
-            };
-            var __generator = this && this.__generator || function (thisArg, body) {
-                var _ = { label: 0, sent: function sent() {
-                        if (t[0] & 1) throw t[1];return t[1];
-                    }, trys: [], ops: [] },
-                    f,
-                    y,
-                    t,
-                    g;
-                return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function () {
-                    return this;
-                }), g;
-                function verb(n) {
-                    return function (v) {
-                        return step([n, v]);
-                    };
-                }
-                function step(op) {
-                    if (f) throw new TypeError("Generator is already executing.");
-                    while (_) {
-                        try {
-                            if (f = 1, y && (t = y[op[0] & 2 ? "return" : op[0] ? "throw" : "next"]) && !(t = t.call(y, op[1])).done) return t;
-                            if (y = 0, t) op = [0, t.value];
-                            switch (op[0]) {
-                                case 0:case 1:
-                                    t = op;break;
-                                case 4:
-                                    _.label++;return { value: op[1], done: false };
-                                case 5:
-                                    _.label++;y = op[1];op = [0];continue;
-                                case 7:
-                                    op = _.ops.pop();_.trys.pop();continue;
-                                default:
-                                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) {
-                                        _ = 0;continue;
-                                    }
-                                    if (op[0] === 3 && (!t || op[1] > t[0] && op[1] < t[3])) {
-                                        _.label = op[1];break;
-                                    }
-                                    if (op[0] === 6 && _.label < t[1]) {
-                                        _.label = t[1];t = op;break;
-                                    }
-                                    if (t && _.label < t[2]) {
-                                        _.label = t[2];_.ops.push(op);break;
-                                    }
-                                    if (t[2]) _.ops.pop();
-                                    _.trys.pop();continue;
-                            }
-                            op = body.call(thisArg, _);
-                        } catch (e) {
-                            op = [6, e];y = 0;
-                        } finally {
-                            f = t = 0;
-                        }
-                    }if (op[0] & 5) throw op[1];return { value: op[0] ? op[1] : void 0, done: true };
-                }
-            };
-            Object.defineProperty(exports, "__esModule", { value: true });
-            var request_1 = __webpack_require__(11);
-            var utils_1 = __webpack_require__(0);
-            var List_1 = __webpack_require__(28);
-            var Web_1 = __webpack_require__(30);
-            var Search_1 = __webpack_require__(31);
-            var CustomActions_1 = __webpack_require__(33);
-            var Profiles_1 = __webpack_require__(35);
-            var tokenHelper_1 = __webpack_require__(36);
-            var Context = function () {
-                function Context(url, options) {
-                    if (options === void 0) {
-                        options = {};
-                    }
-                    var _this = this;
-                    this.webUrl = url;
-                    this.clientId = options.clientId;
-                    this.clientSecret = options.clientSecret;
-                    // TODO serverside: replace with tokenHelper.getAppOnlyToken(this.webUrl, this.clientKey, this.clientSecret).then(token => this.accessToken = token);
-                    this.ensureToken = !options.clientId ? Promise.resolve(true) : tokenHelper_1.getAppOnlyToken(url, options.clientId, options.clientSecret).then(function (token) {
-                        return _this.accessToken = token;
-                    });
-                    this.search = new Search_1.default(this);
-                    this.customActions = new CustomActions_1.default(this);
-                    this.web = new Web_1.default(this);
-                    this.profiles = new Profiles_1.default(this);
-                }
-                Context.prototype.executeRequest = function (url, opts) {
-                    return __awaiter(this, void 0, void 0, function () {
-                        var fullUrl, defaultOptions, requestOptions;
-                        return __generator(this, function (_a) {
-                            switch (_a.label) {
-                                case 0:
-                                    return [4 /*yield*/, this.ensureToken];
-                                case 1:
-                                    _a.sent();
-                                    fullUrl = /^http/i.test(url) ? url : this.webUrl + "/_api" + url;
-                                    defaultOptions = {
-                                        method: "GET",
-                                        headers: {
-                                            Accept: "application/json; odata=verbose",
-                                            "Content-Type": "application/json; odata=verbose"
-                                        }
-                                    };
-                                    requestOptions = _extends({}, defaultOptions, opts);
-                                    if (this.accessToken) {
-                                        requestOptions.headers["Authorization"] = "Bearer " + this.accessToken;
-                                    }
-                                    return [2 /*return*/, request_1.default(fullUrl, requestOptions)];
-                            }
-                        });
-                    });
-                };
-                /** Make a 'GET' request to the '<site>/_api' relative url. */
-                Context.prototype.get = function (url, opts) {
-                    var options = _extends({}, { method: "GET" }, opts);
-                    return this.executeRequest(url, options).then(utils_1.default.parseJSON);
-                };
-                /** Make a 'POST' request to the '<site>/_api' relative url. */
-                Context.prototype.post = function (url, body, opts) {
-                    body = this._packagePostBody(body, opts);
-                    var options = {
-                        method: "POST",
-                        body: body
-                    };
-                    options = _extends({}, options, opts);
-                    return this.executeRequest(url, options).then(utils_1.default.parseJSON);
-                };
-                /** Make a 'POST' request to the '<site>/_api' relative url. SPScript will handle authorizing the request for you.*/
-                Context.prototype.authorizedPost = function (url, body, verb) {
-                    var _this = this;
-                    return this.getRequestDigest().then(function (digest) {
-                        return utils_1.default.headers.getActionHeaders(verb, digest);
-                    }).then(function (headers) {
-                        return _this.post(url, body, { headers: headers });
-                    });
-                };
-                Context.prototype._ensureRequestDigest = function (digest) {
-                    return digest ? Promise.resolve(digest) : this.getRequestDigest();
-                };
-                /** Get a Request Digest token to authorize a request */
-                Context.prototype.getRequestDigest = function () {
-                    return this.post("/contextInfo", {}).then(function (data) {
-                        return data["d"].GetContextWebInformation.FormDigestValue;
-                    });
-                };
-                /** Get an SPScript List instance */
-                Context.prototype.lists = function (name) {
-                    return new List_1.default(name, this);
-                };
-                Context.prototype._packagePostBody = function (body, opts) {
-                    // if its already a string just return
-                    if (typeof body === "string") return body;
-                    // if it has an explicit content-type, asssume the body is already that type
-                    if (opts && opts.headers && opts.headers["Content-Type"] && opts.headers["Content-Type"].indexOf("json") === -1) {
-                        return body;
-                    }
-                    //others stringify
-                    return JSON.stringify(body);
-                };
-                return Context;
-            }();
-            exports.default = Context;
+      var cachedSetTimeout;
+      var cachedClearTimeout;
 
-            /***/
-        },
-        /* 28 */
-        /***/function (module, exports, __webpack_require__) {
+      function defaultSetTimout() {
+        throw new Error('setTimeout has not been defined');
+      }
+      function defaultClearTimeout() {
+        throw new Error('clearTimeout has not been defined');
+      }
+      (function () {
+        try {
+          if (typeof setTimeout === 'function') {
+            cachedSetTimeout = setTimeout;
+          } else {
+            cachedSetTimeout = defaultSetTimout;
+          }
+        } catch (e) {
+          cachedSetTimeout = defaultSetTimout;
+        }
+        try {
+          if (typeof clearTimeout === 'function') {
+            cachedClearTimeout = clearTimeout;
+          } else {
+            cachedClearTimeout = defaultClearTimeout;
+          }
+        } catch (e) {
+          cachedClearTimeout = defaultClearTimeout;
+        }
+      })();
+      function runTimeout(fun) {
+        if (cachedSetTimeout === setTimeout) {
+          //normal enviroments in sane situations
+          return setTimeout(fun, 0);
+        }
+        // if setTimeout wasn't available but was latter defined
+        if ((cachedSetTimeout === defaultSetTimout || !cachedSetTimeout) && setTimeout) {
+          cachedSetTimeout = setTimeout;
+          return setTimeout(fun, 0);
+        }
+        try {
+          // when when somebody has screwed with setTimeout but no I.E. maddness
+          return cachedSetTimeout(fun, 0);
+        } catch (e) {
+          try {
+            // When we are in I.E. but the script has been evaled so I.E. doesn't trust the global object when called normally
+            return cachedSetTimeout.call(null, fun, 0);
+          } catch (e) {
+            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error
+            return cachedSetTimeout.call(this, fun, 0);
+          }
+        }
+      }
+      function runClearTimeout(marker) {
+        if (cachedClearTimeout === clearTimeout) {
+          //normal enviroments in sane situations
+          return clearTimeout(marker);
+        }
+        // if clearTimeout wasn't available but was latter defined
+        if ((cachedClearTimeout === defaultClearTimeout || !cachedClearTimeout) && clearTimeout) {
+          cachedClearTimeout = clearTimeout;
+          return clearTimeout(marker);
+        }
+        try {
+          // when when somebody has screwed with setTimeout but no I.E. maddness
+          return cachedClearTimeout(marker);
+        } catch (e) {
+          try {
+            // When we are in I.E. but the script has been evaled so I.E. doesn't  trust the global object when called normally
+            return cachedClearTimeout.call(null, marker);
+          } catch (e) {
+            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error.
+            // Some versions of I.E. have different rules for clearTimeout vs setTimeout
+            return cachedClearTimeout.call(this, marker);
+          }
+        }
+      }
+      var queue = [];
+      var draining = false;
+      var currentQueue;
+      var queueIndex = -1;
 
-            "use strict";
+      function cleanUpNextTick() {
+        if (!draining || !currentQueue) {
+          return;
+        }
+        draining = false;
+        if (currentQueue.length) {
+          queue = currentQueue.concat(queue);
+        } else {
+          queueIndex = -1;
+        }
+        if (queue.length) {
+          drainQueue();
+        }
+      }
 
-            Object.defineProperty(exports, "__esModule", { value: true });
-            var utils_1 = __webpack_require__(0);
-            var Securable_1 = __webpack_require__(12);
-            var List = function () {
-                function List(name, ctx) {
-                    this.listName = name;
-                    this.baseUrl = "/web/lists/getbytitle('" + this.listName + "')";
-                    this._dao = ctx;
-                    this.permissions = new Securable_1.default(this.baseUrl, ctx);
-                }
-                /** Get items from the list. Will return all items if no OData is passed. */
-                List.prototype.getItems = function (odata) {
-                    return this._dao.get(this.baseUrl + "/items" + appendOData(odata)).then(utils_1.default.validateODataV2);
-                };
-                /** Get a specific item by SharePoint ID */
-                List.prototype.getItemById = function (id, odata) {
-                    var url = this.baseUrl + "/items(" + id + ")" + appendOData(odata);
-                    return this._dao.get(url).then(utils_1.default.validateODataV2);
-                };
-                /** Gets the items returned by the specified View name */
-                List.prototype.getItemsByView = function (viewName) {
-                    var _this = this;
-                    var viewUrl = this.baseUrl + "/Views/getByTitle('" + viewName + "')/ViewQuery";
-                    // 1. Get the targeted view on the targeted list so we can pull out the ViewXml
-                    return this._dao.get(viewUrl).then(utils_1.default.validateODataV2).then(function (view) {
-                        // Now that we found the view, craft a POST request the the /GetItems endpoint
-                        var queryUrl = _this.baseUrl + "/GetItems";
-                        var postBody = {
-                            query: {
-                                "__metadata": {
-                                    type: "SP.CamlQuery"
-                                },
-                                ViewXml: view.ViewQuery
-                            }
-                        };
-                        return _this._dao.authorizedPost(queryUrl, postBody);
-                    }).then(utils_1.default.validateODataV2);
-                };
-                /** Gets you all items whose field(key) matches the value. Currently only text and number columns are supported. */
-                List.prototype.findItems = function (key, value, odata) {
-                    var filterValue = typeof value === "string" ? "'" + value + "'" : value;
-                    odata = "$filter=" + key + " eq " + filterValue + appendOData(odata, "&");
-                    return this.getItems(odata);
-                };
-                /** Get the item whose field(key) matches the value. If multiple matches are found, the first is returned. Currently only text and number columns are supported. */
-                List.prototype.findItem = function (key, value, odata) {
-                    return this.findItems(key, value, odata).then(function (items) {
-                        if (items && items.length && items.length > 0) return items[0];
-                        return null;
-                    });
-                };
-                /** Get all the properties of the List */
-                List.prototype.getInfo = function () {
-                    return this._dao.get(this.baseUrl).then(utils_1.default.validateODataV2);
-                };
-                /** Insert a List Item */
-                List.prototype.addItem = function (item, digest) {
-                    var _this = this;
-                    return this._dao._ensureRequestDigest(digest).then(function (digest) {
-                        return _this._dao.get(_this.baseUrl).then(function (data) {
-                            //decorate the item with the 'type' metadata
-                            item = _extends({}, {
-                                "__metadata": {
-                                    "type": data["d"].ListItemEntityTypeFullName
-                                }
-                            }, item);
-                            var customOptions = {
-                                headers: utils_1.default.headers.getAddHeaders(digest)
-                            };
-                            return _this._dao.post(_this.baseUrl + "/items", item, customOptions);
-                        }).then(utils_1.default.validateODataV2);
-                    });
-                };
-                /** Takes a SharePoint Id, and updates that item ONLY with properties that are found in the passed in updates object. */
-                List.prototype.updateItem = function (itemId, updates, digest) {
-                    var _this = this;
-                    return this._dao._ensureRequestDigest(digest).then(function (digest) {
-                        return _this.getItemById(itemId).then(function (item) {
-                            //decorate the item with the 'type' metadata
-                            updates = _extends({}, {
-                                "__metadata": {
-                                    "type": item["__metadata"].type
-                                }
-                            }, updates);
-                            var customOptions = {
-                                headers: utils_1.default.headers.getUpdateHeaders(digest, item["__metadata"].etag)
-                            };
-                            return _this._dao.post(item["__metadata"].uri, updates, customOptions);
-                        });
-                    });
-                };
-                /** deletes the item with the specified SharePoint Id */
-                List.prototype.deleteItem = function (itemId, digest) {
-                    var _this = this;
-                    return this._dao._ensureRequestDigest(digest).then(function (digest) {
-                        return _this.getItemById(itemId).then(function (item) {
-                            var customOptions = {
-                                headers: utils_1.default.headers.getDeleteHeaders(digest, item["__metadata"].etag)
-                            };
-                            return _this._dao.post(item["__metadata"].uri, "", customOptions);
-                        });
-                    });
-                };
-                return List;
-            }();
-            exports.default = List;
-            var appendOData = function appendOData(odata, prefix) {
-                prefix = prefix || "?";
-                if (odata) return prefix + odata;
-                return "";
-            };
+      function drainQueue() {
+        if (draining) {
+          return;
+        }
+        var timeout = runTimeout(cleanUpNextTick);
+        draining = true;
 
-            /***/
-        },
-        /* 29 */
-        /***/function (module, exports, __webpack_require__) {
+        var len = queue.length;
+        while (len) {
+          currentQueue = queue;
+          queue = [];
+          while (++queueIndex < len) {
+            if (currentQueue) {
+              currentQueue[queueIndex].run();
+            }
+          }
+          queueIndex = -1;
+          len = queue.length;
+        }
+        currentQueue = null;
+        draining = false;
+        runClearTimeout(timeout);
+      }
 
-            "use strict";
+      process.nextTick = function (fun) {
+        var args = new Array(arguments.length - 1);
+        if (arguments.length > 1) {
+          for (var i = 1; i < arguments.length; i++) {
+            args[i - 1] = arguments[i];
+          }
+        }
+        queue.push(new Item(fun, args));
+        if (queue.length === 1 && !draining) {
+          runTimeout(drainQueue);
+        }
+      };
 
-            Object.defineProperty(exports, "__esModule", { value: true });
-            exports.basePermissions = [{
-                "name": "emptyMask",
-                "low": 0,
-                "high": 0
-            }, {
-                "name": "viewListItems",
-                "low": 1,
-                "high": 0
-            }, {
-                "name": "addListItems",
-                "low": 2,
-                "high": 0
-            }, {
-                "name": "editListItems",
-                "low": 4,
-                "high": 0
-            }, {
-                "name": "deleteListItems",
-                "low": 8,
-                "high": 0
-            }, {
-                "name": "approveItems",
-                "low": 16,
-                "high": 0
-            }, {
-                "name": "openItems",
-                "low": 32,
-                "high": 0
-            }, {
-                "name": "viewVersions",
-                "low": 64,
-                "high": 0
-            }, {
-                "name": "deleteVersions",
-                "low": 128,
-                "high": 0
-            }, {
-                "name": "cancelCheckout",
-                "low": 256,
-                "high": 0
-            }, {
-                "name": "managePersonalViews",
-                "low": 512,
-                "high": 0
-            }, {
-                "name": "manageLists",
-                "low": 2048,
-                "high": 0
-            }, {
-                "name": "viewFormPages",
-                "low": 4096,
-                "high": 0
-            }, {
-                "name": "anonymousSearchAccessList",
-                "low": 8192,
-                "high": 0
-            }, {
-                "name": "open",
-                "low": 65536,
-                "high": 0
-            }, {
-                "name": "viewPages",
-                "low": 131072,
-                "high": 0
-            }, {
-                "name": "addAndCustomizePages",
-                "low": 262144,
-                "high": 0
-            }, {
-                "name": "applyThemeAndBorder",
-                "low": 524288,
-                "high": 0
-            }, {
-                "name": "applyStyleSheets",
-                "low": 1048576,
-                "high": 0
-            }, {
-                "name": "viewUsageData",
-                "low": 2097152,
-                "high": 0
-            }, {
-                "name": "createSSCSite",
-                "low": 4194304,
-                "high": 0
-            }, {
-                "name": "manageSubwebs",
-                "low": 8388608,
-                "high": 0
-            }, {
-                "name": "createGroups",
-                "low": 16777216,
-                "high": 0
-            }, {
-                "name": "managePermissions",
-                "low": 33554432,
-                "high": 0
-            }, {
-                "name": "browseDirectories",
-                "low": 67108864,
-                "high": 0
-            }, {
-                "name": "browseUserInfo",
-                "low": 134217728,
-                "high": 0
-            }, {
-                "name": "addDelPrivateWebParts",
-                "low": 268435456,
-                "high": 0
-            }, {
-                "name": "updatePersonalWebParts",
-                "low": 536870912,
-                "high": 0
-            }, {
-                "name": "manageWeb",
-                "low": 1073741824,
-                "high": 0
-            }, {
-                "name": "anonymousSearchAccessWebLists",
-                "low": -2147483648,
-                "high": 0
-            }, {
-                "name": "useClientIntegration",
-                "low": 0,
-                "high": 16
-            }, {
-                "name": "useRemoteAPIs",
-                "low": 0,
-                "high": 32
-            }, {
-                "name": "manageAlerts",
-                "low": 0,
-                "high": 64
-            }, {
-                "name": "createAlerts",
-                "low": 0,
-                "high": 128
-            }, {
-                "name": "editMyUserInfo",
-                "low": 0,
-                "high": 256
-            }, {
-                "name": "enumeratePermissions",
-                "low": 0,
-                "high": 1073741824
-            }];
+      // v8 likes predictible objects
+      function Item(fun, array) {
+        this.fun = fun;
+        this.array = array;
+      }
+      Item.prototype.run = function () {
+        this.fun.apply(null, this.array);
+      };
+      process.title = 'browser';
+      process.browser = true;
+      process.env = {};
+      process.argv = [];
+      process.version = ''; // empty string to avoid regexp issues
+      process.versions = {};
 
-            /***/
-        },
-        /* 30 */
-        /***/function (module, exports, __webpack_require__) {
+      function noop() {}
 
-            "use strict";
+      process.on = noop;
+      process.addListener = noop;
+      process.once = noop;
+      process.off = noop;
+      process.removeListener = noop;
+      process.removeAllListeners = noop;
+      process.emit = noop;
+      process.prependListener = noop;
+      process.prependOnceListener = noop;
 
-            Object.defineProperty(exports, "__esModule", { value: true });
-            var utils_1 = __webpack_require__(0);
-            var Securable_1 = __webpack_require__(12);
-            var Web = function () {
-                function Web(ctx) {
-                    this.baseUrl = "/web";
-                    this._dao = ctx;
-                    this.permissions = new Securable_1.default(this.baseUrl, ctx);
-                }
-                /** Retrieves basic information about the site */
-                Web.prototype.getInfo = function () {
-                    return this._dao.get(this.baseUrl).then(utils_1.default.validateODataV2);
-                };
-                /** Retrieves all of the subsites */
-                Web.prototype.getSubsites = function () {
-                    return this._dao.get(this.baseUrl + "/webinfos").then(utils_1.default.validateODataV2);
-                };
-                Web.prototype.getUser = function (email) {
-                    var url = email ? this.baseUrl + "/SiteUsers/GetByEmail('" + email + "')" : this.baseUrl + "/CurrentUser";
-                    return this._dao.get(url).then(utils_1.default.validateODataV2);
-                };
-                Web.prototype.ensureUser = function (login) {
-                    return this._dao.post("/web/ensureUser('" + login + "')").then(utils_1.default.validateODataV2);
-                };
-                /** Retrieves a file by server relative url */
-                Web.prototype.getFile = function (url) {
-                    var url = "/web/getfilebyserverrelativeurl('" + url + "')";
-                    return this._dao.get(url).then(utils_1.default.validateODataV2);
-                };
-                Web.prototype._copyFile = function (sourceUrl, destinationUrl, digest) {
-                    var url = "/web/getfilebyserverrelativeurl('" + sourceUrl + "')/CopyTo"; //(strnewurl='${destinationUrl}',boverwrite=true)`
-                    var options = {
-                        headers: utils_1.default.headers.getAddHeaders(digest)
-                    };
-                    var body = {
-                        strNewUrl: destinationUrl,
-                        bOverWrite: true
-                    };
-                    return this._dao.post(url, body, options);
-                };
-                // TODO: getFolder
-                // TODO: uploadFile
-                // TODO: fileAction
-                // TODO: deleteFile
-                /** Copies a file from one server relative url to another */
-                Web.prototype.copyFile = function (sourceUrl, destinationUrl, digest) {
-                    var _this = this;
-                    return this._dao._ensureRequestDigest(digest).then(function (digest) {
-                        return _this._copyFile(sourceUrl, destinationUrl, digest);
-                    });
-                };
-                return Web;
-            }();
-            exports.default = Web;
+      process.listeners = function (name) {
+        return [];
+      };
 
-            /***/
-        },
-        /* 31 */
-        /***/function (module, exports, __webpack_require__) {
+      process.binding = function (name) {
+        throw new Error('process.binding is not supported');
+      };
 
-            "use strict";
+      process.cwd = function () {
+        return '/';
+      };
+      process.chdir = function (dir) {
+        throw new Error('process.chdir is not supported');
+      };
+      process.umask = function () {
+        return 0;
+      };
 
-            Object.defineProperty(exports, "__esModule", { value: true });
-            var utils_1 = __webpack_require__(0);
-            var searchMappers_1 = __webpack_require__(32);
-            var Search = function () {
-                function Search(ctx) {
-                    this._dao = ctx;
-                }
-                ;
-                Object.defineProperty(Search.prototype, "defaultQueryOptions", {
-                    /** get default/empty QueryOptions */
-                    get: function get() {
-                        return {
-                            sourceid: null,
-                            startrow: null,
-                            rowlimit: 100,
-                            selectedproperties: null,
-                            refiners: null,
-                            refinementfilters: null,
-                            hiddencontstraints: null,
-                            sortlist: null
-                        };
-                    },
-                    enumerable: true,
-                    configurable: true
-                });
-                ;
-                /** Query the SP Search Service */
-                Search.prototype.query = function (queryText, queryOptions) {
-                    if (queryOptions === void 0) {
-                        queryOptions = {};
-                    }
-                    var optionsQueryString = utils_1.default.qs.fromObj(queryOptions, true);
-                    var url = "/search/query?querytext='" + queryText + "'&" + optionsQueryString;
-                    return this._dao.get(url).then(utils_1.default.validateODataV2).then(function (resp) {
-                        if (resp.query) return searchMappers_1.mapResponse(resp.query);
-                        throw new Error("Invalid response back from search service");
-                    });
-                };
-                ;
-                /** Query for only People results */
-                Search.prototype.people = function (queryText, queryOptions) {
-                    if (queryOptions === void 0) {
-                        queryOptions = {};
-                    }
-                    queryOptions.sourceid = 'b09a7990-05ea-4af9-81ef-edfab16c4e31';
-                    return this.query(queryText, queryOptions);
-                };
-                ;
-                /** Query for only sites (STS_Web). Optionally pass in a url scope. */
-                Search.prototype.sites = function (queryText, urlScope, queryOptions) {
-                    if (queryText === void 0) {
-                        queryText = "";
-                    }
-                    if (urlScope === void 0) {
-                        urlScope = "";
-                    }
-                    if (queryOptions === void 0) {
-                        queryOptions = {};
-                    }
-                    urlScope = urlScope ? "Path:" + urlScope + "*" : "";
-                    var query = (queryText + " contentclass:STS_Web " + urlScope).trim();
-                    queryOptions.rowlimit = queryOptions.rowlimit || 499;
-                    return this.query(query, queryOptions);
-                };
-                ;
-                return Search;
-            }();
-            exports.default = Search;
+      /***/
+    },
+    /* 21 */
+    /***/function (module, exports) {
 
-            /***/
-        },
-        /* 32 */
-        /***/function (module, exports, __webpack_require__) {
+      /* (ignored) */
 
-            "use strict";
+      /***/},
+    /* 22 */
+    /***/function (module, exports, __webpack_require__) {
 
-            Object.defineProperty(exports, "__esModule", { value: true });
-            exports.mapResponse = function (rawResponse) {
-                return {
-                    elapsedTime: rawResponse.ElapsedTime,
-                    suggestion: rawResponse.SpellingSuggestion,
-                    resultsCount: rawResponse.PrimaryQueryResult.RelevantResults.RowCount,
-                    totalResults: rawResponse.PrimaryQueryResult.RelevantResults.TotalRows,
-                    totalResultsIncludingDuplicates: rawResponse.PrimaryQueryResult.RelevantResults.TotalRowsIncludingDuplicates,
-                    items: exports.mapItems(rawResponse.PrimaryQueryResult.RelevantResults.Table.Rows.results),
-                    refiners: exports.mapRefiners(rawResponse.PrimaryQueryResult.RefinementResults)
-                };
-            };
-            exports.mapRefiners = function (refinementResults) {
-                var refiners = [];
-                if (refinementResults && refinementResults.Refiners && refinementResults.Refiners.results) {
-                    refiners = refinementResults.Refiners.results.map(function (r) {
-                        return {
-                            RefinerName: r.Name,
-                            RefinerOptions: r.Entries.results
-                        };
-                    });
-                }
-                return refiners;
-            };
-            exports.mapItems = function (itemRows) {
-                var items = [];
-                for (var i = 0; i < itemRows.length; i++) {
-                    var row = itemRows[i],
-                        item = {};
-                    for (var j = 0; j < row.Cells.results.length; j++) {
-                        item[row.Cells.results[j].Key] = row.Cells.results[j].Value;
-                    }
-                    items.push(item);
-                }
-                return items;
-            };
+      "use strict";
+      /* WEBPACK VAR INJECTION */
+      (function (global) {
+        Object.defineProperty(exports, "__esModule", { value: true });
+        var utils_1 = __webpack_require__(0);
+        var Context_1 = __webpack_require__(29);
+        var csr_1 = __webpack_require__(42);
+        var spscript = {
+          utils: utils_1.default,
+          CSR: csr_1.default,
+          createContext: function createContext(url, options) {
+            try {
+              if (!url && global._spPageContextInfo) {
+                url = global._spPageContextInfo.webAbsoluteUrl;
+              }
+              return new Context_1.default(url, options);
+            } catch (ex) {
+              throw new Error("Unable to create SPScript Context: " + ex.message);
+            }
+          }
+        };
+        exports.default = spscript;
 
-            /***/
-        },
-        /* 33 */
-        /***/function (module, exports, __webpack_require__) {
+        /* WEBPACK VAR INJECTION */
+      }).call(exports, __webpack_require__(2));
 
-            "use strict";
+      /***/
+    },
+    /* 23 */
+    /***/function (module, exports, __webpack_require__) {
 
-            Object.defineProperty(exports, "__esModule", { value: true });
-            var utils_1 = __webpack_require__(0);
-            var ICustomActions_1 = __webpack_require__(34);
-            var CustomActions = function () {
-                function CustomActions(ctx) {
-                    this._dao = ctx;
-                }
-                CustomActions.prototype.getScope = function (scopeId) {
-                    if (scopeId === 3) return ICustomActions_1.scopes.Web;
-                    if (scopeId === 2) return ICustomActions_1.scopes.Site;
-                    throw new Error("Invalid Custom Action Scope");
-                };
-                CustomActions.prototype.get = function (name) {
-                    var _this = this;
-                    // first get the site scoped ones, then the web scoped ones
-                    return this._dao.get(ICustomActions_1.scopes.Site.url).then(utils_1.default.validateODataV2).then(function (siteCustomActions) {
-                        return _this._dao.get(ICustomActions_1.scopes.Web.url).then(utils_1.default.validateODataV2).then(function (webCustomActions) {
-                            return siteCustomActions.concat(webCustomActions);
-                        });
-                    }).then(function (customActions) {
-                        // if a name was passed filter it otherwise return everything
-                        if (name) {
-                            var matches = customActions.filter(function (a) {
-                                return a.Name === name;
-                            });
-                            if (matches.length) {
-                                return matches[0];
-                            }
-                            throw new Error("Unable to find Custom Action with name: " + name);
-                        } else return customActions;
-                    });
-                };
-                /** Gets the API url of a specific Custom Action */
-                CustomActions.prototype._getUrl = function (name) {
-                    var _this = this;
-                    return this.get(name).then(function (a) {
-                        return _this.getScope(a.Scope).url + "('" + a.Id + "')";
-                    });
-                };
-                CustomActions.prototype._getUrlAndDigest = function (name) {
-                    var _this = this;
-                    var prep = {};
-                    return this._getUrl(name).then(function (url) {
-                        prep.url = url;
-                        return _this._dao.getRequestDigest();
-                    }).then(function (digest) {
-                        prep.digest = digest;
-                        return prep;
-                    });
-                };
-                /** Update an existing Custom Action. You must pass a custom action with a 'Name' property */
-                CustomActions.prototype.update = function (updates) {
-                    var _this = this;
-                    if (!updates || !updates.Name) throw new Error("You must at least pass a Custom Action 'Name'");
-                    return this._getUrlAndDigest(updates.Name).then(function (prep) {
-                        updates = _extends({}, ICustomActions_1.metadata, updates);
-                        var opts = {
-                            headers: utils_1.default.headers.getUpdateHeaders(prep.digest)
-                        };
-                        return _this._dao.post(prep.url, updates, opts);
-                    });
-                };
-                /** Remove an existing Custom Action. Searches both Site and Web scoped */
-                CustomActions.prototype.remove = function (name) {
-                    var _this = this;
-                    if (!name) throw new Error("You must at least pass an existing Custom Action name");
-                    return this._getUrlAndDigest(name).then(function (prep) {
-                        var opts = {
-                            headers: utils_1.default.headers.getDeleteHeaders(prep.digest)
-                        };
-                        return _this._dao.post(prep.url, {}, opts);
-                    });
-                };
-                /** Adds a new custom action. If the custom action name already exists, it will be deleted first */
-                CustomActions.prototype.add = function (customAction) {
-                    var _this = this;
-                    if (!customAction || !customAction.Name) throw new Error("You must at least pass a Custom Action 'Name'");
-                    var defaults = {
-                        Name: customAction.Name,
-                        Title: customAction.Name,
-                        Description: customAction.Name,
-                        Group: customAction.Name,
-                        Sequence: 100,
-                        Scope: "Site",
-                        Location: "ScriptLink"
-                    };
-                    customAction = _extends({}, defaults, customAction);
-                    // if it exists already, delete it
-                    return this.get().then(function (existingCustomActions) {
-                        if (existingCustomActions.filter(function (ca) {
-                            return ca.Name === customAction.Name;
-                        }).length) {
-                            return _this.remove(customAction.Name);
-                        }
-                        return true;
-                    }).then(function () {
-                        return _this._dao.getRequestDigest();
-                    }).then(function (digest) {
-                        customAction = _extends({}, ICustomActions_1.metadata, customAction);
-                        var scope = ICustomActions_1.scopes[customAction.Scope];
-                        customAction.Scope = scope.id;
-                        var opts = {
-                            headers: utils_1.default.headers.getAddHeaders(digest)
-                        };
-                        return _this._dao.post(scope.url, customAction, opts);
-                    });
-                };
-                CustomActions.prototype.addScriptBlock = function (name, block, opts) {
-                    if (opts === void 0) {
-                        opts = {};
-                    }
-                    var customAction = {
-                        Name: name,
-                        ScriptBlock: block
-                    };
-                    customAction = _extends({}, customAction, opts);
-                    return this.add(customAction);
-                };
-                /** Injects a CSS file onto your site. Defaults to Site scoped */
-                CustomActions.prototype.addCSSLink = function (name, url, opts) {
-                    if (opts === void 0) {
-                        opts = {};
-                    }
-                    var scriptBlockStr = "\n\t\t(function() {\n\t\t\tvar head = document.querySelector(\"head\");\n\t\t\tvar styleTag = document.createElement(\"style\");\n\t\t\tstyleTag.appendChild(document.createTextNode(\"body { opacity: 0 }\"));\n\t\t\t\n\t\t\tvar linkTag = document.createElement(\"link\");\n\t\t\tlinkTag.rel = \"stylesheet\";\tlinkTag.href = \"" + url + "\"; linkTag.type = \"text/css\";\n\t\t\tlinkTag.addEventListener(\"load\", function() {\n\t\t\t\thead.removeChild(styleTag);\n\t\t\t});\n\n\t\t\thead.appendChild(styleTag);\n\t\t\thead.appendChild(linkTag);\n\t\t})();";
-                    return this.addScriptBlock(name, scriptBlockStr, opts);
-                };
-                CustomActions.prototype.addScriptLink = function (name, url, opts) {
-                    if (opts === void 0) {
-                        opts = {};
-                    }
-                    var scriptBlockStr = "\n\t\t(function() {\n\t\t\tvar head = document.querySelector(\"head\");\n\t\t\tvar scriptTag = document.createElement(\"script\");\n            scriptTag.src = \"" + url + "\";\n            scriptTag.type = \"text/javascript\";\n\t\t\thead.appendChild(scriptTag);\n\t\t})();";
-                    return this.addScriptBlock(name, scriptBlockStr, opts);
-                };
-                return CustomActions;
-            }();
-            exports.default = CustomActions;
-            ;
+      "use strict";
 
-            /***/
-        },
-        /* 34 */
-        /***/function (module, exports, __webpack_require__) {
+      Object.defineProperty(exports, "__esModule", { value: true });
+      var qs = __webpack_require__(5);
+      function fromObj(obj, quoteValues) {
+        var writeParam = function writeParam(key) {
+          var value = (obj[key] + "").trim();
+          // if there is a space, wrap in single quotes
+          if (value.indexOf(" ") > -1 || quoteValues) value = "'" + value + "'";
+          return key + "=" + value;
+        };
+        var str = Object.keys(obj).map(writeParam).join("&");
+        return str;
+      }
+      exports.fromObj = fromObj;
+      function toObj(str) {
+        //if no string is passed use window.location.search
+        if (str === undefined && window && window.location && window.location.search) {
+          str = window.location.search;
+        }
+        if (!str) return {};
+        //trim off the leading '?' if its there
+        if (str[0] === "?") str = str.substr(1);
+        return qs.parse(str);
+      }
+      exports.toObj = toObj;
 
-            "use strict";
+      /***/
+    },
+    /* 24 */
+    /***/function (module, exports, __webpack_require__) {
 
-            Object.defineProperty(exports, "__esModule", { value: true });
-            exports.metadata = {
-                __metadata: {
-                    "type": "SP.UserCustomAction"
-                }
-            };
-            exports.scopes = {
-                "Web": {
-                    id: 3,
-                    name: "Web",
-                    url: "/web/usercustomactions"
-                },
-                "Site": {
-                    id: 2,
-                    name: "Site",
-                    url: "/site/usercustomactions"
-                }
-            };
+      "use strict";
+      // Copyright Joyent, Inc. and other Node contributors.
+      //
+      // Permission is hereby granted, free of charge, to any person obtaining a
+      // copy of this software and associated documentation files (the
+      // "Software"), to deal in the Software without restriction, including
+      // without limitation the rights to use, copy, modify, merge, publish,
+      // distribute, sublicense, and/or sell copies of the Software, and to permit
+      // persons to whom the Software is furnished to do so, subject to the
+      // following conditions:
+      //
+      // The above copyright notice and this permission notice shall be included
+      // in all copies or substantial portions of the Software.
+      //
+      // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+      // OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+      // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+      // NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+      // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+      // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+      // USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-            /***/
-        },
-        /* 35 */
-        /***/function (module, exports, __webpack_require__) {
 
-            "use strict";
+      // If obj.hasOwnProperty has been overridden, then calling
+      // obj.hasOwnProperty(prop) will break.
+      // See: https://github.com/joyent/node/issues/1707
 
-            Object.defineProperty(exports, "__esModule", { value: true });
-            var utils_1 = __webpack_require__(0);
-            var Profiles = function () {
-                function Profiles(ctx) {
-                    this._dao = ctx;
-                    this.baseUrl = "/SP.UserProfiles.PeopleManager";
-                }
-                /** Gets the profile of the current user.  */
-                Profiles.prototype.current = function () {
-                    var url = this.baseUrl + "/GetMyProperties";
-                    return this._dao.get(url).then(utils_1.default.validateODataV2).then(transformPersonProperties);
-                };
-                Profiles.prototype.get = function (user) {
-                    var _this = this;
-                    if (!user) return this.current();
-                    return this.getUserObj(user).then(function (user) {
-                        var login = encodeURIComponent(user.LoginName || user.AccountName);
-                        var url = _this.baseUrl + "/GetPropertiesFor(accountName=@v)?@v='" + login + "'";
-                        return _this._dao.get(url).then(utils_1.default.validateODataV2).then(transformPersonProperties);
-                    });
-                };
-                Profiles.prototype.getUserObj = function (user) {
-                    if (!user || typeof user === "string") {
-                        return this._dao.web.getUser(user);
-                    } else if (user.AccountName || user.LoginName) {
-                        return Promise.resolve(user);
-                    } else throw new Error("profiles.setProperty Error: Invalid user parameter");
-                };
-                Profiles.prototype.setProperty = function (key, value, user) {
-                    var _this = this;
-                    return this.getUserObj(user).then(function (user) {
-                        var args = {
-                            propertyName: key,
-                            propertyValue: value,
-                            accountName: user.LoginName || user.AccountName
-                        };
-                        var url = _this.baseUrl + "/SetSingleValueProfileProperty";
-                        return _this._dao.authorizedPost(url, args);
-                    });
-                };
-                return Profiles;
-            }();
-            exports.default = Profiles;
-            var transformPersonProperties = function transformPersonProperties(profile) {
-                console.log(profile);
-                profile.UserProfileProperties.results.forEach(function (keyvalue) {
-                    profile[keyvalue.Key] = keyvalue.Value;
-                });
-                return profile;
-            };
+      function hasOwnProperty(obj, prop) {
+        return Object.prototype.hasOwnProperty.call(obj, prop);
+      }
 
-            /***/
-        },
-        /* 36 */
-        /***/function (module, exports, __webpack_require__) {
+      module.exports = function (qs, sep, eq, options) {
+        sep = sep || '&';
+        eq = eq || '=';
+        var obj = {};
 
-            "use strict";
+        if (typeof qs !== 'string' || qs.length === 0) {
+          return obj;
+        }
 
-            Object.defineProperty(exports, "__esModule", { value: true });
-            var url_1 = __webpack_require__(37);
-            var querystring = __webpack_require__(8);
-            var request_1 = __webpack_require__(11);
-            exports.getAppOnlyToken = function (url, clientId, clientSecret) {
-                var urlParts = url_1.parse(url);
-                return getRealm(url).then(function (authParams) {
-                    var tokenUrl = "https://accounts.accesscontrol.windows.net/" + authParams.realm + "/tokens/OAuth/2";
-                    var client_id = clientId + "@" + authParams.realm;
-                    var resource = authParams.client_id + "/" + urlParts.host + "@" + authParams.realm;
-                    var postBody = {
-                        grant_type: "client_credentials",
-                        client_id: client_id,
-                        client_secret: clientSecret,
-                        resource: resource,
-                        scope: resource
-                    };
-                    var bodyStr = querystring.stringify(postBody);
-                    var opts = {
-                        method: "POST",
-                        body: bodyStr,
-                        headers: {
-                            "Content-Type": "application/x-www-form-urlencoded",
-                            "Content-Length": bodyStr.length
-                        }
-                    };
-                    return request_1.default(tokenUrl, opts).then(function (data) {
-                        console.log(data);
-                        return data.access_token;
-                    });
-                });
-            };
-            var getRealm = function getRealm(url) {
-                var endpointUrl = url + "/_api/web";
-                var opts = {
+        var regexp = /\+/g;
+        qs = qs.split(sep);
+
+        var maxKeys = 1000;
+        if (options && typeof options.maxKeys === 'number') {
+          maxKeys = options.maxKeys;
+        }
+
+        var len = qs.length;
+        // maxKeys <= 0 means that we should not limit keys count
+        if (maxKeys > 0 && len > maxKeys) {
+          len = maxKeys;
+        }
+
+        for (var i = 0; i < len; ++i) {
+          var x = qs[i].replace(regexp, '%20'),
+              idx = x.indexOf(eq),
+              kstr,
+              vstr,
+              k,
+              v;
+
+          if (idx >= 0) {
+            kstr = x.substr(0, idx);
+            vstr = x.substr(idx + 1);
+          } else {
+            kstr = x;
+            vstr = '';
+          }
+
+          k = decodeURIComponent(kstr);
+          v = decodeURIComponent(vstr);
+
+          if (!hasOwnProperty(obj, k)) {
+            obj[k] = v;
+          } else if (isArray(obj[k])) {
+            obj[k].push(v);
+          } else {
+            obj[k] = [obj[k], v];
+          }
+        }
+
+        return obj;
+      };
+
+      var isArray = Array.isArray || function (xs) {
+        return Object.prototype.toString.call(xs) === '[object Array]';
+      };
+
+      /***/
+    },
+    /* 25 */
+    /***/function (module, exports, __webpack_require__) {
+
+      "use strict";
+      // Copyright Joyent, Inc. and other Node contributors.
+      //
+      // Permission is hereby granted, free of charge, to any person obtaining a
+      // copy of this software and associated documentation files (the
+      // "Software"), to deal in the Software without restriction, including
+      // without limitation the rights to use, copy, modify, merge, publish,
+      // distribute, sublicense, and/or sell copies of the Software, and to permit
+      // persons to whom the Software is furnished to do so, subject to the
+      // following conditions:
+      //
+      // The above copyright notice and this permission notice shall be included
+      // in all copies or substantial portions of the Software.
+      //
+      // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+      // OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+      // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+      // NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+      // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+      // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+      // USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+
+      var stringifyPrimitive = function stringifyPrimitive(v) {
+        switch (typeof v === 'undefined' ? 'undefined' : _typeof(v)) {
+          case 'string':
+            return v;
+
+          case 'boolean':
+            return v ? 'true' : 'false';
+
+          case 'number':
+            return isFinite(v) ? v : '';
+
+          default:
+            return '';
+        }
+      };
+
+      module.exports = function (obj, sep, eq, name) {
+        sep = sep || '&';
+        eq = eq || '=';
+        if (obj === null) {
+          obj = undefined;
+        }
+
+        if ((typeof obj === 'undefined' ? 'undefined' : _typeof(obj)) === 'object') {
+          return map(objectKeys(obj), function (k) {
+            var ks = encodeURIComponent(stringifyPrimitive(k)) + eq;
+            if (isArray(obj[k])) {
+              return map(obj[k], function (v) {
+                return ks + encodeURIComponent(stringifyPrimitive(v));
+              }).join(sep);
+            } else {
+              return ks + encodeURIComponent(stringifyPrimitive(obj[k]));
+            }
+          }).join(sep);
+        }
+
+        if (!name) return '';
+        return encodeURIComponent(stringifyPrimitive(name)) + eq + encodeURIComponent(stringifyPrimitive(obj));
+      };
+
+      var isArray = Array.isArray || function (xs) {
+        return Object.prototype.toString.call(xs) === '[object Array]';
+      };
+
+      function map(xs, f) {
+        if (xs.map) return xs.map(f);
+        var res = [];
+        for (var i = 0; i < xs.length; i++) {
+          res.push(f(xs[i], i));
+        }
+        return res;
+      }
+
+      var objectKeys = Object.keys || function (obj) {
+        var res = [];
+        for (var key in obj) {
+          if (Object.prototype.hasOwnProperty.call(obj, key)) res.push(key);
+        }
+        return res;
+      };
+
+      /***/
+    },
+    /* 26 */
+    /***/function (module, exports, __webpack_require__) {
+
+      "use strict";
+
+      Object.defineProperty(exports, "__esModule", { value: true });
+      ;
+      var jsonMimeType = "application/json;odata=verbose";
+      function getStandardHeaders(digest) {
+        var headers = {
+          "Accept": jsonMimeType,
+          "Content-Type": jsonMimeType
+        };
+        if (digest) headers["X-RequestDigest"] = digest;
+        return headers;
+      }
+      var getAddHeaders = getStandardHeaders;
+      var getFilestreamHeaders = function getFilestreamHeaders(digest) {
+        return {
+          'Accept': jsonMimeType,
+          'X-RequestDigest': digest,
+          'Content-Type': "application/octet-stream",
+          'binaryStringRequestBody': "true"
+        };
+      };
+      var getActionHeaders = function getActionHeaders(verb, digest) {
+        return _extends({}, getStandardHeaders(digest), {
+          "X-HTTP-Method": verb
+        });
+      };
+      var decorateETag = function decorateETag(headers, etag) {
+        if (etag) headers["If-Match"] = etag;
+        return headers;
+      };
+      var getUpdateHeaders = function getUpdateHeaders(digest, etag) {
+        return decorateETag(getActionHeaders("MERGE", digest), etag);
+      };
+      var getDeleteHeaders = function getDeleteHeaders(digest, etag) {
+        return decorateETag(getActionHeaders("DELETE", digest), etag);
+      };
+      var headerUtils = {
+        getStandardHeaders: getStandardHeaders,
+        getAddHeaders: getAddHeaders,
+        getFilestreamHeaders: getFilestreamHeaders,
+        getUpdateHeaders: getUpdateHeaders,
+        getDeleteHeaders: getDeleteHeaders,
+        getActionHeaders: getActionHeaders
+      };
+      exports.default = headerUtils;
+
+      /***/
+    },
+    /* 27 */
+    /***/function (module, exports, __webpack_require__) {
+
+      "use strict";
+
+      Object.defineProperty(exports, "__esModule", { value: true });
+      exports.loadCSS = function (url) {
+        var link = document.createElement("link");
+        link.setAttribute("rel", "stylesheet");
+        link.setAttribute("type", "text/css");
+        link.setAttribute("href", url);
+        document.querySelector("head").appendChild(link);
+      };
+      exports.loadScript = function (url) {
+        return new Promise(function (resolve, reject) {
+          var scriptTag = window.document.createElement("script");
+          var firstScriptTag = document.getElementsByTagName('script')[0];
+          scriptTag.async = true;
+          firstScriptTag.parentNode.insertBefore(scriptTag, firstScriptTag);
+          scriptTag.onload = scriptTag.onreadystatechange = function (arg, isAbort) {
+            // if its been aborted, readyState is gone, or readyState is in a 'done' status
+            if (isAbort || !scriptTag.readyState || /loaded|complete/.test(scriptTag.readyState)) {
+              //clean up
+              scriptTag.onload = scriptTag.onreadystatechange = null;
+              scriptTag = undefined;
+              // resolve/reject the promise
+              if (!isAbort) resolve();else reject;
+            }
+          };
+          scriptTag.src = url;
+        });
+      };
+      exports.loadScripts = function (urls) {
+        return Promise.all(urls.map(exports.loadScript));
+      };
+
+      /***/
+    },
+    /* 28 */
+    /***/function (module, exports, __webpack_require__) {
+
+      "use strict";
+
+      Object.defineProperty(exports, "__esModule", { value: true });
+      exports.validateNamespace = function (namespace) {
+        var scope = window;
+        var sections = namespace.split(".");
+        var sectionsLength = sections.length;
+        for (var i = 0; i < sectionsLength; i++) {
+          var prop = sections[i];
+          if (prop in scope) {
+            scope = scope[prop];
+          } else {
+            return false;
+          }
+        }
+        return true;
+      };
+      var _waitForLibraries = function _waitForLibraries(namespaces, resolve) {
+        var missing = namespaces.filter(function (namespace) {
+          return !exports.validateNamespace(namespace);
+        });
+        if (missing.length === 0) resolve();else setTimeout(function () {
+          return _waitForLibraries(namespaces, resolve);
+        }, 25);
+      };
+      exports.waitForLibraries = function (namespaces) {
+        return new Promise(function (resolve, reject) {
+          return _waitForLibraries(namespaces, resolve);
+        });
+      };
+      exports.waitForLibrary = function (namespace) {
+        return exports.waitForLibraries([namespace]);
+      };
+      exports.waitForElement = function (selector, timeout) {
+        if (timeout === void 0) {
+          timeout = 5000;
+        }
+        var counter = 0;
+        var INTERVAL = 25; //milliseconds
+        var MAX_ATTEMPTS = timeout / INTERVAL; // eventually give up
+        return new Promise(function (resolve, reject) {
+          var _waitForElement = function _waitForElement() {
+            if (counter > MAX_ATTEMPTS) reject("Unable to find element: " + selector);
+            var elem = document.querySelector(selector);
+            if (!elem) {
+              counter++;
+              setTimeout(_waitForElement, INTERVAL);
+            } else resolve(elem);
+          };
+          _waitForElement();
+        });
+      };
+
+      /***/
+    },
+    /* 29 */
+    /***/function (module, exports, __webpack_require__) {
+
+      "use strict";
+
+      var __awaiter = this && this.__awaiter || function (thisArg, _arguments, P, generator) {
+        return new (P || (P = Promise))(function (resolve, reject) {
+          function fulfilled(value) {
+            try {
+              step(generator.next(value));
+            } catch (e) {
+              reject(e);
+            }
+          }
+          function rejected(value) {
+            try {
+              step(generator["throw"](value));
+            } catch (e) {
+              reject(e);
+            }
+          }
+          function step(result) {
+            result.done ? resolve(result.value) : new P(function (resolve) {
+              resolve(result.value);
+            }).then(fulfilled, rejected);
+          }
+          step((generator = generator.apply(thisArg, _arguments || [])).next());
+        });
+      };
+      var __generator = this && this.__generator || function (thisArg, body) {
+        var _ = { label: 0, sent: function sent() {
+            if (t[0] & 1) throw t[1];return t[1];
+          }, trys: [], ops: [] },
+            f,
+            y,
+            t,
+            g;
+        return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function () {
+          return this;
+        }), g;
+        function verb(n) {
+          return function (v) {
+            return step([n, v]);
+          };
+        }
+        function step(op) {
+          if (f) throw new TypeError("Generator is already executing.");
+          while (_) {
+            try {
+              if (f = 1, y && (t = y[op[0] & 2 ? "return" : op[0] ? "throw" : "next"]) && !(t = t.call(y, op[1])).done) return t;
+              if (y = 0, t) op = [0, t.value];
+              switch (op[0]) {
+                case 0:case 1:
+                  t = op;break;
+                case 4:
+                  _.label++;return { value: op[1], done: false };
+                case 5:
+                  _.label++;y = op[1];op = [0];continue;
+                case 7:
+                  op = _.ops.pop();_.trys.pop();continue;
+                default:
+                  if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) {
+                    _ = 0;continue;
+                  }
+                  if (op[0] === 3 && (!t || op[1] > t[0] && op[1] < t[3])) {
+                    _.label = op[1];break;
+                  }
+                  if (op[0] === 6 && _.label < t[1]) {
+                    _.label = t[1];t = op;break;
+                  }
+                  if (t && _.label < t[2]) {
+                    _.label = t[2];_.ops.push(op);break;
+                  }
+                  if (t[2]) _.ops.pop();
+                  _.trys.pop();continue;
+              }
+              op = body.call(thisArg, _);
+            } catch (e) {
+              op = [6, e];y = 0;
+            } finally {
+              f = t = 0;
+            }
+          }if (op[0] & 5) throw op[1];return { value: op[0] ? op[1] : void 0, done: true };
+        }
+      };
+      Object.defineProperty(exports, "__esModule", { value: true });
+      var request_1 = __webpack_require__(8);
+      var utils_1 = __webpack_require__(0);
+      var List_1 = __webpack_require__(30);
+      var Web_1 = __webpack_require__(32);
+      var Search_1 = __webpack_require__(33);
+      var CustomActions_1 = __webpack_require__(35);
+      var Profiles_1 = __webpack_require__(37);
+      var tokenHelper_1 = __webpack_require__(38);
+      var Context = function () {
+        function Context(url, options) {
+          if (options === void 0) {
+            options = {};
+          }
+          var _this = this;
+          this.webUrl = url;
+          this.clientId = options.clientId;
+          this.clientSecret = options.clientSecret;
+          // TODO serverside: replace with tokenHelper.getAppOnlyToken(this.webUrl, this.clientKey, this.clientSecret).then(token => this.accessToken = token);
+          this.ensureToken = !options.clientId ? Promise.resolve(true) : tokenHelper_1.getAppOnlyToken(url, options.clientId, options.clientSecret).then(function (token) {
+            return _this.accessToken = token;
+          });
+          this.search = new Search_1.default(this);
+          this.customActions = new CustomActions_1.default(this);
+          this.web = new Web_1.default(this);
+          this.profiles = new Profiles_1.default(this);
+        }
+        Context.prototype.executeRequest = function (url, opts) {
+          return __awaiter(this, void 0, void 0, function () {
+            var fullUrl, defaultOptions, requestOptions;
+            return __generator(this, function (_a) {
+              switch (_a.label) {
+                case 0:
+                  return [4 /*yield*/, this.ensureToken];
+                case 1:
+                  _a.sent();
+                  fullUrl = /^http/i.test(url) ? url : this.webUrl + "/_api" + url;
+                  defaultOptions = {
                     method: "GET",
                     headers: {
-                        Authorization: "Bearer ",
-                        Accept: "application/json;odata=verbose",
-                        response_type: "code"
+                      Accept: "application/json; odata=verbose",
+                      "Content-Type": "application/json; odata=verbose"
                     }
-                };
-                return new Promise(function (resolve, reject) {
-                    fetch(endpointUrl, opts).then(function (res) {
-                        if (!res.ok) {
-                            var realm = parseRealm(res.headers["www-authenticate"] || res.headers._headers["www-authenticate"][0]);
-                            resolve(realm);
-                        }
-                        //this should fail
-                        reject("Get Realm succeeded somehow?!");
-                    });
-                });
-            };
-            var parseRealm = function parseRealm(raw) {
-                var bearer = "Bearer realm=";
-                if (raw && raw.startsWith("Bearer")) {
-                    raw = raw.substr(7);
-                    var params = raw.split(",").filter(function (p) {
-                        return p.indexOf("=") > -1;
-                    }).reduce(function (params, piece) {
-                        var parts = piece.split("=");
-                        if (parts.length === 2) {
-                            params[parts[0].trim()] = parts[1].trim().replace(/\"/g, "");
-                        }
-                        return params;
-                    }, {});
-                    return params;
-                }
-                return null;
-            };
+                  };
+                  requestOptions = _extends({}, defaultOptions, opts);
+                  if (this.accessToken) {
+                    requestOptions.headers["Authorization"] = "Bearer " + this.accessToken;
+                  }
+                  return [2 /*return*/, request_1.default(fullUrl, requestOptions)];
+              }
+            });
+          });
+        };
+        /** Make a 'GET' request to the '<site>/_api' relative url. */
+        Context.prototype.get = function (url, opts) {
+          var options = _extends({}, { method: "GET" }, opts);
+          return this.executeRequest(url, options).then(utils_1.default.parseJSON);
+        };
+        /** Make a 'POST' request to the '<site>/_api' relative url. */
+        Context.prototype.post = function (url, body, opts) {
+          body = this._packagePostBody(body, opts);
+          var options = {
+            method: "POST",
+            body: body
+          };
+          options = _extends({}, options, opts);
+          return this.executeRequest(url, options).then(utils_1.default.parseJSON);
+        };
+        /** Make a 'POST' request to the '<site>/_api' relative url. SPScript will handle authorizing the request for you.*/
+        Context.prototype.authorizedPost = function (url, body, verb) {
+          var _this = this;
+          return this.getRequestDigest().then(function (digest) {
+            return utils_1.default.headers.getActionHeaders(verb, digest);
+          }).then(function (headers) {
+            return _this.post(url, body, { headers: headers });
+          });
+        };
+        Context.prototype._ensureRequestDigest = function (digest) {
+          return digest ? Promise.resolve(digest) : this.getRequestDigest();
+        };
+        /** Get a Request Digest token to authorize a request */
+        Context.prototype.getRequestDigest = function () {
+          return this.post("/contextInfo", {}).then(function (data) {
+            return data["d"].GetContextWebInformation.FormDigestValue;
+          });
+        };
+        /** Get an SPScript List instance */
+        Context.prototype.lists = function (name) {
+          return new List_1.default(name, this);
+        };
+        Context.prototype._packagePostBody = function (body, opts) {
+          // if its already a string just return
+          if (typeof body === "string") return body;
+          // if it has an explicit content-type, asssume the body is already that type
+          if (opts && opts.headers && opts.headers["Content-Type"] && opts.headers["Content-Type"].indexOf("json") === -1) {
+            return body;
+          }
+          //others stringify
+          return JSON.stringify(body);
+        };
+        return Context;
+      }();
+      exports.default = Context;
 
-            /***/
+      /***/
+    },
+    /* 30 */
+    /***/function (module, exports, __webpack_require__) {
+
+      "use strict";
+
+      Object.defineProperty(exports, "__esModule", { value: true });
+      var utils_1 = __webpack_require__(0);
+      var Securable_1 = __webpack_require__(9);
+      var List = function () {
+        function List(name, ctx) {
+          this.listName = name;
+          this.baseUrl = "/web/lists/getbytitle('" + this.listName + "')";
+          this._dao = ctx;
+          this.permissions = new Securable_1.default(this.baseUrl, ctx);
+        }
+        /** Get items from the list. Will return all items if no OData is passed. */
+        List.prototype.getItems = function (odata) {
+          return this._dao.get(this.baseUrl + "/items" + appendOData(odata)).then(utils_1.default.validateODataV2);
+        };
+        /** Get a specific item by SharePoint ID */
+        List.prototype.getItemById = function (id, odata) {
+          var url = this.baseUrl + "/items(" + id + ")" + appendOData(odata);
+          return this._dao.get(url).then(utils_1.default.validateODataV2);
+        };
+        /** Gets the items returned by the specified View name */
+        List.prototype.getItemsByView = function (viewName) {
+          var _this = this;
+          var viewUrl = this.baseUrl + "/Views/getByTitle('" + viewName + "')/ViewQuery";
+          // 1. Get the targeted view on the targeted list so we can pull out the ViewXml
+          return this._dao.get(viewUrl).then(utils_1.default.validateODataV2).then(function (view) {
+            // Now that we found the view, craft a POST request the the /GetItems endpoint
+            var queryUrl = _this.baseUrl + "/GetItems";
+            var postBody = {
+              query: {
+                "__metadata": {
+                  type: "SP.CamlQuery"
+                },
+                ViewXml: view.ViewQuery
+              }
+            };
+            return _this._dao.authorizedPost(queryUrl, postBody);
+          }).then(utils_1.default.validateODataV2);
+        };
+        /** Gets you all items whose field(key) matches the value. Currently only text and number columns are supported. */
+        List.prototype.findItems = function (key, value, odata) {
+          var filterValue = typeof value === "string" ? "'" + value + "'" : value;
+          odata = "$filter=" + key + " eq " + filterValue + appendOData(odata, "&");
+          return this.getItems(odata);
+        };
+        /** Get the item whose field(key) matches the value. If multiple matches are found, the first is returned. Currently only text and number columns are supported. */
+        List.prototype.findItem = function (key, value, odata) {
+          return this.findItems(key, value, odata).then(function (items) {
+            if (items && items.length && items.length > 0) return items[0];
+            return null;
+          });
+        };
+        /** Get all the properties of the List */
+        List.prototype.getInfo = function () {
+          return this._dao.get(this.baseUrl).then(utils_1.default.validateODataV2);
+        };
+        /** Insert a List Item */
+        List.prototype.addItem = function (item, digest) {
+          var _this = this;
+          return this._dao._ensureRequestDigest(digest).then(function (digest) {
+            return _this._dao.get(_this.baseUrl).then(function (data) {
+              //decorate the item with the 'type' metadata
+              item = _extends({}, {
+                "__metadata": {
+                  "type": data["d"].ListItemEntityTypeFullName
+                }
+              }, item);
+              var customOptions = {
+                headers: utils_1.default.headers.getAddHeaders(digest)
+              };
+              return _this._dao.post(_this.baseUrl + "/items", item, customOptions);
+            }).then(utils_1.default.validateODataV2);
+          });
+        };
+        /** Takes a SharePoint Id, and updates that item ONLY with properties that are found in the passed in updates object. */
+        List.prototype.updateItem = function (itemId, updates, digest) {
+          var _this = this;
+          return this._dao._ensureRequestDigest(digest).then(function (digest) {
+            return _this.getItemById(itemId).then(function (item) {
+              //decorate the item with the 'type' metadata
+              updates = _extends({}, {
+                "__metadata": {
+                  "type": item["__metadata"].type
+                }
+              }, updates);
+              var customOptions = {
+                headers: utils_1.default.headers.getUpdateHeaders(digest, item["__metadata"].etag)
+              };
+              return _this._dao.post(item["__metadata"].uri, updates, customOptions);
+            });
+          });
+        };
+        /** deletes the item with the specified SharePoint Id */
+        List.prototype.deleteItem = function (itemId, digest) {
+          var _this = this;
+          return this._dao._ensureRequestDigest(digest).then(function (digest) {
+            return _this.getItemById(itemId).then(function (item) {
+              var customOptions = {
+                headers: utils_1.default.headers.getDeleteHeaders(digest, item["__metadata"].etag)
+              };
+              return _this._dao.post(item["__metadata"].uri, "", customOptions);
+            });
+          });
+        };
+        return List;
+      }();
+      exports.default = List;
+      var appendOData = function appendOData(odata, prefix) {
+        prefix = prefix || "?";
+        if (odata) return prefix + odata;
+        return "";
+      };
+
+      /***/
+    },
+    /* 31 */
+    /***/function (module, exports, __webpack_require__) {
+
+      "use strict";
+
+      Object.defineProperty(exports, "__esModule", { value: true });
+      exports.basePermissions = [{
+        "name": "emptyMask",
+        "low": 0,
+        "high": 0
+      }, {
+        "name": "viewListItems",
+        "low": 1,
+        "high": 0
+      }, {
+        "name": "addListItems",
+        "low": 2,
+        "high": 0
+      }, {
+        "name": "editListItems",
+        "low": 4,
+        "high": 0
+      }, {
+        "name": "deleteListItems",
+        "low": 8,
+        "high": 0
+      }, {
+        "name": "approveItems",
+        "low": 16,
+        "high": 0
+      }, {
+        "name": "openItems",
+        "low": 32,
+        "high": 0
+      }, {
+        "name": "viewVersions",
+        "low": 64,
+        "high": 0
+      }, {
+        "name": "deleteVersions",
+        "low": 128,
+        "high": 0
+      }, {
+        "name": "cancelCheckout",
+        "low": 256,
+        "high": 0
+      }, {
+        "name": "managePersonalViews",
+        "low": 512,
+        "high": 0
+      }, {
+        "name": "manageLists",
+        "low": 2048,
+        "high": 0
+      }, {
+        "name": "viewFormPages",
+        "low": 4096,
+        "high": 0
+      }, {
+        "name": "anonymousSearchAccessList",
+        "low": 8192,
+        "high": 0
+      }, {
+        "name": "open",
+        "low": 65536,
+        "high": 0
+      }, {
+        "name": "viewPages",
+        "low": 131072,
+        "high": 0
+      }, {
+        "name": "addAndCustomizePages",
+        "low": 262144,
+        "high": 0
+      }, {
+        "name": "applyThemeAndBorder",
+        "low": 524288,
+        "high": 0
+      }, {
+        "name": "applyStyleSheets",
+        "low": 1048576,
+        "high": 0
+      }, {
+        "name": "viewUsageData",
+        "low": 2097152,
+        "high": 0
+      }, {
+        "name": "createSSCSite",
+        "low": 4194304,
+        "high": 0
+      }, {
+        "name": "manageSubwebs",
+        "low": 8388608,
+        "high": 0
+      }, {
+        "name": "createGroups",
+        "low": 16777216,
+        "high": 0
+      }, {
+        "name": "managePermissions",
+        "low": 33554432,
+        "high": 0
+      }, {
+        "name": "browseDirectories",
+        "low": 67108864,
+        "high": 0
+      }, {
+        "name": "browseUserInfo",
+        "low": 134217728,
+        "high": 0
+      }, {
+        "name": "addDelPrivateWebParts",
+        "low": 268435456,
+        "high": 0
+      }, {
+        "name": "updatePersonalWebParts",
+        "low": 536870912,
+        "high": 0
+      }, {
+        "name": "manageWeb",
+        "low": 1073741824,
+        "high": 0
+      }, {
+        "name": "anonymousSearchAccessWebLists",
+        "low": -2147483648,
+        "high": 0
+      }, {
+        "name": "useClientIntegration",
+        "low": 0,
+        "high": 16
+      }, {
+        "name": "useRemoteAPIs",
+        "low": 0,
+        "high": 32
+      }, {
+        "name": "manageAlerts",
+        "low": 0,
+        "high": 64
+      }, {
+        "name": "createAlerts",
+        "low": 0,
+        "high": 128
+      }, {
+        "name": "editMyUserInfo",
+        "low": 0,
+        "high": 256
+      }, {
+        "name": "enumeratePermissions",
+        "low": 0,
+        "high": 1073741824
+      }];
+
+      /***/
+    },
+    /* 32 */
+    /***/function (module, exports, __webpack_require__) {
+
+      "use strict";
+
+      Object.defineProperty(exports, "__esModule", { value: true });
+      var utils_1 = __webpack_require__(0);
+      var Securable_1 = __webpack_require__(9);
+      var Web = function () {
+        function Web(ctx) {
+          this.baseUrl = "/web";
+          this._dao = ctx;
+          this.permissions = new Securable_1.default(this.baseUrl, ctx);
+        }
+        /** Retrieves basic information about the site */
+        Web.prototype.getInfo = function () {
+          return this._dao.get(this.baseUrl).then(utils_1.default.validateODataV2);
+        };
+        /** Retrieves all of the subsites */
+        Web.prototype.getSubsites = function () {
+          return this._dao.get(this.baseUrl + "/webinfos").then(utils_1.default.validateODataV2);
+        };
+        Web.prototype.getUser = function (email) {
+          var url = email ? this.baseUrl + "/SiteUsers/GetByEmail('" + email + "')" : this.baseUrl + "/CurrentUser";
+          return this._dao.get(url).then(utils_1.default.validateODataV2);
+        };
+        Web.prototype.ensureUser = function (login) {
+          return this._dao.post("/web/ensureUser('" + login + "')").then(utils_1.default.validateODataV2);
+        };
+        /** Retrieves a file by server relative url */
+        Web.prototype.getFile = function (url) {
+          var url = "/web/getfilebyserverrelativeurl('" + url + "')";
+          return this._dao.get(url).then(utils_1.default.validateODataV2);
+        };
+        Web.prototype._copyFile = function (sourceUrl, destinationUrl, digest) {
+          var url = "/web/getfilebyserverrelativeurl('" + sourceUrl + "')/CopyTo"; //(strnewurl='${destinationUrl}',boverwrite=true)`
+          var options = {
+            headers: utils_1.default.headers.getAddHeaders(digest)
+          };
+          var body = {
+            strNewUrl: destinationUrl,
+            bOverWrite: true
+          };
+          return this._dao.post(url, body, options);
+        };
+        // TODO: getFolder
+        // TODO: uploadFile
+        // TODO: fileAction
+        // TODO: deleteFile
+        /** Copies a file from one server relative url to another */
+        Web.prototype.copyFile = function (sourceUrl, destinationUrl, digest) {
+          var _this = this;
+          return this._dao._ensureRequestDigest(digest).then(function (digest) {
+            return _this._copyFile(sourceUrl, destinationUrl, digest);
+          });
+        };
+        return Web;
+      }();
+      exports.default = Web;
+
+      /***/
+    },
+    /* 33 */
+    /***/function (module, exports, __webpack_require__) {
+
+      "use strict";
+
+      Object.defineProperty(exports, "__esModule", { value: true });
+      var utils_1 = __webpack_require__(0);
+      var searchMappers_1 = __webpack_require__(34);
+      var Search = function () {
+        function Search(ctx) {
+          this._dao = ctx;
+        }
+        ;
+        Object.defineProperty(Search.prototype, "defaultQueryOptions", {
+          /** get default/empty QueryOptions */
+          get: function get() {
+            return {
+              sourceid: null,
+              startrow: null,
+              rowlimit: 100,
+              selectedproperties: null,
+              refiners: null,
+              refinementfilters: null,
+              hiddencontstraints: null,
+              sortlist: null
+            };
+          },
+          enumerable: true,
+          configurable: true
+        });
+        ;
+        /** Query the SP Search Service */
+        Search.prototype.query = function (queryText, queryOptions) {
+          if (queryOptions === void 0) {
+            queryOptions = {};
+          }
+          var optionsQueryString = utils_1.default.qs.fromObj(queryOptions, true);
+          var url = "/search/query?querytext='" + queryText + "'&" + optionsQueryString;
+          return this._dao.get(url).then(utils_1.default.validateODataV2).then(function (resp) {
+            if (resp.query) return searchMappers_1.mapResponse(resp.query);
+            throw new Error("Invalid response back from search service");
+          });
+        };
+        ;
+        /** Query for only People results */
+        Search.prototype.people = function (queryText, queryOptions) {
+          if (queryOptions === void 0) {
+            queryOptions = {};
+          }
+          queryOptions.sourceid = 'b09a7990-05ea-4af9-81ef-edfab16c4e31';
+          return this.query(queryText, queryOptions);
+        };
+        ;
+        /** Query for only sites (STS_Web). Optionally pass in a url scope. */
+        Search.prototype.sites = function (queryText, urlScope, queryOptions) {
+          if (queryText === void 0) {
+            queryText = "";
+          }
+          if (urlScope === void 0) {
+            urlScope = "";
+          }
+          if (queryOptions === void 0) {
+            queryOptions = {};
+          }
+          urlScope = urlScope ? "Path:" + urlScope + "*" : "";
+          var query = (queryText + " contentclass:STS_Web " + urlScope).trim();
+          queryOptions.rowlimit = queryOptions.rowlimit || 499;
+          return this.query(query, queryOptions);
+        };
+        ;
+        return Search;
+      }();
+      exports.default = Search;
+
+      /***/
+    },
+    /* 34 */
+    /***/function (module, exports, __webpack_require__) {
+
+      "use strict";
+
+      Object.defineProperty(exports, "__esModule", { value: true });
+      exports.mapResponse = function (rawResponse) {
+        return {
+          elapsedTime: rawResponse.ElapsedTime,
+          suggestion: rawResponse.SpellingSuggestion,
+          resultsCount: rawResponse.PrimaryQueryResult.RelevantResults.RowCount,
+          totalResults: rawResponse.PrimaryQueryResult.RelevantResults.TotalRows,
+          totalResultsIncludingDuplicates: rawResponse.PrimaryQueryResult.RelevantResults.TotalRowsIncludingDuplicates,
+          items: exports.mapItems(rawResponse.PrimaryQueryResult.RelevantResults.Table.Rows.results),
+          refiners: exports.mapRefiners(rawResponse.PrimaryQueryResult.RefinementResults)
+        };
+      };
+      exports.mapRefiners = function (refinementResults) {
+        var refiners = [];
+        if (refinementResults && refinementResults.Refiners && refinementResults.Refiners.results) {
+          refiners = refinementResults.Refiners.results.map(function (r) {
+            return {
+              RefinerName: r.Name,
+              RefinerOptions: r.Entries.results
+            };
+          });
+        }
+        return refiners;
+      };
+      exports.mapItems = function (itemRows) {
+        var items = [];
+        for (var i = 0; i < itemRows.length; i++) {
+          var row = itemRows[i],
+              item = {};
+          for (var j = 0; j < row.Cells.results.length; j++) {
+            item[row.Cells.results[j].Key] = row.Cells.results[j].Value;
+          }
+          items.push(item);
+        }
+        return items;
+      };
+
+      /***/
+    },
+    /* 35 */
+    /***/function (module, exports, __webpack_require__) {
+
+      "use strict";
+
+      Object.defineProperty(exports, "__esModule", { value: true });
+      var utils_1 = __webpack_require__(0);
+      var ICustomActions_1 = __webpack_require__(36);
+      var CustomActions = function () {
+        function CustomActions(ctx) {
+          this._dao = ctx;
+        }
+        CustomActions.prototype.getScope = function (scopeId) {
+          if (scopeId === 3) return ICustomActions_1.scopes.Web;
+          if (scopeId === 2) return ICustomActions_1.scopes.Site;
+          throw new Error("Invalid Custom Action Scope");
+        };
+        CustomActions.prototype.get = function (name) {
+          var _this = this;
+          // first get the site scoped ones, then the web scoped ones
+          return this._dao.get(ICustomActions_1.scopes.Site.url).then(utils_1.default.validateODataV2).then(function (siteCustomActions) {
+            return _this._dao.get(ICustomActions_1.scopes.Web.url).then(utils_1.default.validateODataV2).then(function (webCustomActions) {
+              return siteCustomActions.concat(webCustomActions);
+            });
+          }).then(function (customActions) {
+            // if a name was passed filter it otherwise return everything
+            if (name) {
+              var matches = customActions.filter(function (a) {
+                return a.Name === name;
+              });
+              if (matches.length) {
+                return matches[0];
+              }
+              throw new Error("Unable to find Custom Action with name: " + name);
+            } else return customActions;
+          });
+        };
+        /** Gets the API url of a specific Custom Action */
+        CustomActions.prototype._getUrl = function (name) {
+          var _this = this;
+          return this.get(name).then(function (a) {
+            return _this.getScope(a.Scope).url + "('" + a.Id + "')";
+          });
+        };
+        CustomActions.prototype._getUrlAndDigest = function (name) {
+          var _this = this;
+          var prep = {};
+          return this._getUrl(name).then(function (url) {
+            prep.url = url;
+            return _this._dao.getRequestDigest();
+          }).then(function (digest) {
+            prep.digest = digest;
+            return prep;
+          });
+        };
+        /** Update an existing Custom Action. You must pass a custom action with a 'Name' property */
+        CustomActions.prototype.update = function (updates) {
+          var _this = this;
+          if (!updates || !updates.Name) throw new Error("You must at least pass a Custom Action 'Name'");
+          return this._getUrlAndDigest(updates.Name).then(function (prep) {
+            updates = _extends({}, ICustomActions_1.metadata, updates);
+            var opts = {
+              headers: utils_1.default.headers.getUpdateHeaders(prep.digest)
+            };
+            return _this._dao.post(prep.url, updates, opts);
+          });
+        };
+        /** Remove an existing Custom Action. Searches both Site and Web scoped */
+        CustomActions.prototype.remove = function (name) {
+          var _this = this;
+          if (!name) throw new Error("You must at least pass an existing Custom Action name");
+          return this._getUrlAndDigest(name).then(function (prep) {
+            var opts = {
+              headers: utils_1.default.headers.getDeleteHeaders(prep.digest)
+            };
+            return _this._dao.post(prep.url, {}, opts);
+          });
+        };
+        /** Adds a new custom action. If the custom action name already exists, it will be deleted first */
+        CustomActions.prototype.add = function (customAction) {
+          var _this = this;
+          if (!customAction || !customAction.Name) throw new Error("You must at least pass a Custom Action 'Name'");
+          var defaults = {
+            Name: customAction.Name,
+            Title: customAction.Name,
+            Description: customAction.Name,
+            Group: customAction.Name,
+            Sequence: 100,
+            Scope: "Site",
+            Location: "ScriptLink"
+          };
+          customAction = _extends({}, defaults, customAction);
+          // if it exists already, delete it
+          return this.get().then(function (existingCustomActions) {
+            if (existingCustomActions.filter(function (ca) {
+              return ca.Name === customAction.Name;
+            }).length) {
+              return _this.remove(customAction.Name);
+            }
+            return true;
+          }).then(function () {
+            return _this._dao.getRequestDigest();
+          }).then(function (digest) {
+            customAction = _extends({}, ICustomActions_1.metadata, customAction);
+            var scope = ICustomActions_1.scopes[customAction.Scope];
+            customAction.Scope = scope.id;
+            var opts = {
+              headers: utils_1.default.headers.getAddHeaders(digest)
+            };
+            return _this._dao.post(scope.url, customAction, opts);
+          });
+        };
+        CustomActions.prototype.addScriptBlock = function (name, block, opts) {
+          if (opts === void 0) {
+            opts = {};
+          }
+          var customAction = {
+            Name: name,
+            ScriptBlock: block
+          };
+          customAction = _extends({}, customAction, opts);
+          return this.add(customAction);
+        };
+        /** Injects a CSS file onto your site. Defaults to Site scoped */
+        CustomActions.prototype.addCSSLink = function (name, url, opts) {
+          if (opts === void 0) {
+            opts = {};
+          }
+          var scriptBlockStr = "\n\t\t(function() {\n\t\t\tvar head = document.querySelector(\"head\");\n\t\t\tvar styleTag = document.createElement(\"style\");\n\t\t\tstyleTag.appendChild(document.createTextNode(\"body { opacity: 0 }\"));\n\t\t\t\n\t\t\tvar linkTag = document.createElement(\"link\");\n\t\t\tlinkTag.rel = \"stylesheet\";\tlinkTag.href = \"" + url + "\"; linkTag.type = \"text/css\";\n\t\t\tlinkTag.addEventListener(\"load\", function() {\n\t\t\t\thead.removeChild(styleTag);\n\t\t\t});\n\n\t\t\thead.appendChild(styleTag);\n\t\t\thead.appendChild(linkTag);\n\t\t})();";
+          return this.addScriptBlock(name, scriptBlockStr, opts);
+        };
+        CustomActions.prototype.addScriptLink = function (name, url, opts) {
+          if (opts === void 0) {
+            opts = {};
+          }
+          var scriptBlockStr = "\n\t\t(function() {\n\t\t\tvar head = document.querySelector(\"head\");\n\t\t\tvar scriptTag = document.createElement(\"script\");\n            scriptTag.src = \"" + url + "\";\n            scriptTag.type = \"text/javascript\";\n\t\t\thead.appendChild(scriptTag);\n\t\t})();";
+          return this.addScriptBlock(name, scriptBlockStr, opts);
+        };
+        return CustomActions;
+      }();
+      exports.default = CustomActions;
+      ;
+
+      /***/
+    },
+    /* 36 */
+    /***/function (module, exports, __webpack_require__) {
+
+      "use strict";
+
+      Object.defineProperty(exports, "__esModule", { value: true });
+      exports.metadata = {
+        __metadata: {
+          "type": "SP.UserCustomAction"
+        }
+      };
+      exports.scopes = {
+        "Web": {
+          id: 3,
+          name: "Web",
+          url: "/web/usercustomactions"
         },
-        /* 37 */
-        /***/function (module, exports, __webpack_require__) {
+        "Site": {
+          id: 2,
+          name: "Site",
+          url: "/site/usercustomactions"
+        }
+      };
 
-            "use strict";
-            // Copyright Joyent, Inc. and other Node contributors.
-            //
-            // Permission is hereby granted, free of charge, to any person obtaining a
-            // copy of this software and associated documentation files (the
-            // "Software"), to deal in the Software without restriction, including
-            // without limitation the rights to use, copy, modify, merge, publish,
-            // distribute, sublicense, and/or sell copies of the Software, and to permit
-            // persons to whom the Software is furnished to do so, subject to the
-            // following conditions:
-            //
-            // The above copyright notice and this permission notice shall be included
-            // in all copies or substantial portions of the Software.
-            //
-            // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-            // OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-            // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
-            // NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-            // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
-            // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
-            // USE OR OTHER DEALINGS IN THE SOFTWARE.
+      /***/
+    },
+    /* 37 */
+    /***/function (module, exports, __webpack_require__) {
 
+      "use strict";
 
-            var punycode = __webpack_require__(38);
-            var util = __webpack_require__(39);
-
-            exports.parse = urlParse;
-            exports.resolve = urlResolve;
-            exports.resolveObject = urlResolveObject;
-            exports.format = urlFormat;
-
-            exports.Url = Url;
-
-            function Url() {
-                this.protocol = null;
-                this.slashes = null;
-                this.auth = null;
-                this.host = null;
-                this.port = null;
-                this.hostname = null;
-                this.hash = null;
-                this.search = null;
-                this.query = null;
-                this.pathname = null;
-                this.path = null;
-                this.href = null;
-            }
-
-            // Reference: RFC 3986, RFC 1808, RFC 2396
-
-            // define these here so at least they only have to be
-            // compiled once on the first module load.
-            var protocolPattern = /^([a-z0-9.+-]+:)/i,
-                portPattern = /:[0-9]*$/,
-
-
-            // Special case for a simple path URL
-            simplePathPattern = /^(\/\/?(?!\/)[^\?\s]*)(\?[^\s]*)?$/,
-
-
-            // RFC 2396: characters reserved for delimiting URLs.
-            // We actually just auto-escape these.
-            delims = ['<', '>', '"', '`', ' ', '\r', '\n', '\t'],
-
-
-            // RFC 2396: characters not allowed for various reasons.
-            unwise = ['{', '}', '|', '\\', '^', '`'].concat(delims),
-
-
-            // Allowed by RFCs, but cause of XSS attacks.  Always escape these.
-            autoEscape = ['\''].concat(unwise),
-
-            // Characters that are never ever allowed in a hostname.
-            // Note that any invalid chars are also handled, but these
-            // are the ones that are *expected* to be seen, so we fast-path
-            // them.
-            nonHostChars = ['%', '/', '?', ';', '#'].concat(autoEscape),
-                hostEndingChars = ['/', '?', '#'],
-                hostnameMaxLen = 255,
-                hostnamePartPattern = /^[+a-z0-9A-Z_-]{0,63}$/,
-                hostnamePartStart = /^([+a-z0-9A-Z_-]{0,63})(.*)$/,
-
-            // protocols that can allow "unsafe" and "unwise" chars.
-            unsafeProtocol = {
-                'javascript': true,
-                'javascript:': true
-            },
-
-            // protocols that never have a hostname.
-            hostlessProtocol = {
-                'javascript': true,
-                'javascript:': true
-            },
-
-            // protocols that always contain a // bit.
-            slashedProtocol = {
-                'http': true,
-                'https': true,
-                'ftp': true,
-                'gopher': true,
-                'file': true,
-                'http:': true,
-                'https:': true,
-                'ftp:': true,
-                'gopher:': true,
-                'file:': true
-            },
-                querystring = __webpack_require__(8);
-
-            function urlParse(url, parseQueryString, slashesDenoteHost) {
-                if (url && util.isObject(url) && url instanceof Url) return url;
-
-                var u = new Url();
-                u.parse(url, parseQueryString, slashesDenoteHost);
-                return u;
-            }
-
-            Url.prototype.parse = function (url, parseQueryString, slashesDenoteHost) {
-                if (!util.isString(url)) {
-                    throw new TypeError("Parameter 'url' must be a string, not " + (typeof url === 'undefined' ? 'undefined' : _typeof(url)));
-                }
-
-                // Copy chrome, IE, opera backslash-handling behavior.
-                // Back slashes before the query string get converted to forward slashes
-                // See: https://code.google.com/p/chromium/issues/detail?id=25916
-                var queryIndex = url.indexOf('?'),
-                    splitter = queryIndex !== -1 && queryIndex < url.indexOf('#') ? '?' : '#',
-                    uSplit = url.split(splitter),
-                    slashRegex = /\\/g;
-                uSplit[0] = uSplit[0].replace(slashRegex, '/');
-                url = uSplit.join(splitter);
-
-                var rest = url;
-
-                // trim before proceeding.
-                // This is to support parse stuff like "  http://foo.com  \n"
-                rest = rest.trim();
-
-                if (!slashesDenoteHost && url.split('#').length === 1) {
-                    // Try fast path regexp
-                    var simplePath = simplePathPattern.exec(rest);
-                    if (simplePath) {
-                        this.path = rest;
-                        this.href = rest;
-                        this.pathname = simplePath[1];
-                        if (simplePath[2]) {
-                            this.search = simplePath[2];
-                            if (parseQueryString) {
-                                this.query = querystring.parse(this.search.substr(1));
-                            } else {
-                                this.query = this.search.substr(1);
-                            }
-                        } else if (parseQueryString) {
-                            this.search = '';
-                            this.query = {};
-                        }
-                        return this;
-                    }
-                }
-
-                var proto = protocolPattern.exec(rest);
-                if (proto) {
-                    proto = proto[0];
-                    var lowerProto = proto.toLowerCase();
-                    this.protocol = lowerProto;
-                    rest = rest.substr(proto.length);
-                }
-
-                // figure out if it's got a host
-                // user@server is *always* interpreted as a hostname, and url
-                // resolution will treat //foo/bar as host=foo,path=bar because that's
-                // how the browser resolves relative URLs.
-                if (slashesDenoteHost || proto || rest.match(/^\/\/[^@\/]+@[^@\/]+/)) {
-                    var slashes = rest.substr(0, 2) === '//';
-                    if (slashes && !(proto && hostlessProtocol[proto])) {
-                        rest = rest.substr(2);
-                        this.slashes = true;
-                    }
-                }
-
-                if (!hostlessProtocol[proto] && (slashes || proto && !slashedProtocol[proto])) {
-
-                    // there's a hostname.
-                    // the first instance of /, ?, ;, or # ends the host.
-                    //
-                    // If there is an @ in the hostname, then non-host chars *are* allowed
-                    // to the left of the last @ sign, unless some host-ending character
-                    // comes *before* the @-sign.
-                    // URLs are obnoxious.
-                    //
-                    // ex:
-                    // http://a@b@c/ => user:a@b host:c
-                    // http://a@b?@c => user:a host:c path:/?@c
-
-                    // v0.12 TODO(isaacs): This is not quite how Chrome does things.
-                    // Review our test case against browsers more comprehensively.
-
-                    // find the first instance of any hostEndingChars
-                    var hostEnd = -1;
-                    for (var i = 0; i < hostEndingChars.length; i++) {
-                        var hec = rest.indexOf(hostEndingChars[i]);
-                        if (hec !== -1 && (hostEnd === -1 || hec < hostEnd)) hostEnd = hec;
-                    }
-
-                    // at this point, either we have an explicit point where the
-                    // auth portion cannot go past, or the last @ char is the decider.
-                    var auth, atSign;
-                    if (hostEnd === -1) {
-                        // atSign can be anywhere.
-                        atSign = rest.lastIndexOf('@');
-                    } else {
-                        // atSign must be in auth portion.
-                        // http://a@b/c@d => host:b auth:a path:/c@d
-                        atSign = rest.lastIndexOf('@', hostEnd);
-                    }
-
-                    // Now we have a portion which is definitely the auth.
-                    // Pull that off.
-                    if (atSign !== -1) {
-                        auth = rest.slice(0, atSign);
-                        rest = rest.slice(atSign + 1);
-                        this.auth = decodeURIComponent(auth);
-                    }
-
-                    // the host is the remaining to the left of the first non-host char
-                    hostEnd = -1;
-                    for (var i = 0; i < nonHostChars.length; i++) {
-                        var hec = rest.indexOf(nonHostChars[i]);
-                        if (hec !== -1 && (hostEnd === -1 || hec < hostEnd)) hostEnd = hec;
-                    }
-                    // if we still have not hit it, then the entire thing is a host.
-                    if (hostEnd === -1) hostEnd = rest.length;
-
-                    this.host = rest.slice(0, hostEnd);
-                    rest = rest.slice(hostEnd);
-
-                    // pull out port.
-                    this.parseHost();
-
-                    // we've indicated that there is a hostname,
-                    // so even if it's empty, it has to be present.
-                    this.hostname = this.hostname || '';
-
-                    // if hostname begins with [ and ends with ]
-                    // assume that it's an IPv6 address.
-                    var ipv6Hostname = this.hostname[0] === '[' && this.hostname[this.hostname.length - 1] === ']';
-
-                    // validate a little.
-                    if (!ipv6Hostname) {
-                        var hostparts = this.hostname.split(/\./);
-                        for (var i = 0, l = hostparts.length; i < l; i++) {
-                            var part = hostparts[i];
-                            if (!part) continue;
-                            if (!part.match(hostnamePartPattern)) {
-                                var newpart = '';
-                                for (var j = 0, k = part.length; j < k; j++) {
-                                    if (part.charCodeAt(j) > 127) {
-                                        // we replace non-ASCII char with a temporary placeholder
-                                        // we need this to make sure size of hostname is not
-                                        // broken by replacing non-ASCII by nothing
-                                        newpart += 'x';
-                                    } else {
-                                        newpart += part[j];
-                                    }
-                                }
-                                // we test again with ASCII char only
-                                if (!newpart.match(hostnamePartPattern)) {
-                                    var validParts = hostparts.slice(0, i);
-                                    var notHost = hostparts.slice(i + 1);
-                                    var bit = part.match(hostnamePartStart);
-                                    if (bit) {
-                                        validParts.push(bit[1]);
-                                        notHost.unshift(bit[2]);
-                                    }
-                                    if (notHost.length) {
-                                        rest = '/' + notHost.join('.') + rest;
-                                    }
-                                    this.hostname = validParts.join('.');
-                                    break;
-                                }
-                            }
-                        }
-                    }
-
-                    if (this.hostname.length > hostnameMaxLen) {
-                        this.hostname = '';
-                    } else {
-                        // hostnames are always lower case.
-                        this.hostname = this.hostname.toLowerCase();
-                    }
-
-                    if (!ipv6Hostname) {
-                        // IDNA Support: Returns a punycoded representation of "domain".
-                        // It only converts parts of the domain name that
-                        // have non-ASCII characters, i.e. it doesn't matter if
-                        // you call it with a domain that already is ASCII-only.
-                        this.hostname = punycode.toASCII(this.hostname);
-                    }
-
-                    var p = this.port ? ':' + this.port : '';
-                    var h = this.hostname || '';
-                    this.host = h + p;
-                    this.href += this.host;
-
-                    // strip [ and ] from the hostname
-                    // the host field still retains them, though
-                    if (ipv6Hostname) {
-                        this.hostname = this.hostname.substr(1, this.hostname.length - 2);
-                        if (rest[0] !== '/') {
-                            rest = '/' + rest;
-                        }
-                    }
-                }
-
-                // now rest is set to the post-host stuff.
-                // chop off any delim chars.
-                if (!unsafeProtocol[lowerProto]) {
-
-                    // First, make 100% sure that any "autoEscape" chars get
-                    // escaped, even if encodeURIComponent doesn't think they
-                    // need to be.
-                    for (var i = 0, l = autoEscape.length; i < l; i++) {
-                        var ae = autoEscape[i];
-                        if (rest.indexOf(ae) === -1) continue;
-                        var esc = encodeURIComponent(ae);
-                        if (esc === ae) {
-                            esc = escape(ae);
-                        }
-                        rest = rest.split(ae).join(esc);
-                    }
-                }
-
-                // chop off from the tail first.
-                var hash = rest.indexOf('#');
-                if (hash !== -1) {
-                    // got a fragment string.
-                    this.hash = rest.substr(hash);
-                    rest = rest.slice(0, hash);
-                }
-                var qm = rest.indexOf('?');
-                if (qm !== -1) {
-                    this.search = rest.substr(qm);
-                    this.query = rest.substr(qm + 1);
-                    if (parseQueryString) {
-                        this.query = querystring.parse(this.query);
-                    }
-                    rest = rest.slice(0, qm);
-                } else if (parseQueryString) {
-                    // no query string, but parseQueryString still requested
-                    this.search = '';
-                    this.query = {};
-                }
-                if (rest) this.pathname = rest;
-                if (slashedProtocol[lowerProto] && this.hostname && !this.pathname) {
-                    this.pathname = '/';
-                }
-
-                //to support http.request
-                if (this.pathname || this.search) {
-                    var p = this.pathname || '';
-                    var s = this.search || '';
-                    this.path = p + s;
-                }
-
-                // finally, reconstruct the href based on what has been validated.
-                this.href = this.format();
-                return this;
+      Object.defineProperty(exports, "__esModule", { value: true });
+      var utils_1 = __webpack_require__(0);
+      var Profiles = function () {
+        function Profiles(ctx) {
+          this._dao = ctx;
+          this.baseUrl = "/SP.UserProfiles.PeopleManager";
+        }
+        /** Gets the profile of the current user.  */
+        Profiles.prototype.current = function () {
+          var url = this.baseUrl + "/GetMyProperties";
+          return this._dao.get(url).then(utils_1.default.validateODataV2).then(transformPersonProperties);
+        };
+        Profiles.prototype.get = function (user) {
+          var _this = this;
+          if (!user) return this.current();
+          return this.getUserObj(user).then(function (user) {
+            var login = encodeURIComponent(user.LoginName || user.AccountName);
+            var url = _this.baseUrl + "/GetPropertiesFor(accountName=@v)?@v='" + login + "'";
+            return _this._dao.get(url).then(utils_1.default.validateODataV2).then(transformPersonProperties);
+          });
+        };
+        Profiles.prototype.getUserObj = function (user) {
+          if (!user || typeof user === "string") {
+            return this._dao.web.getUser(user);
+          } else if (user.AccountName || user.LoginName) {
+            return Promise.resolve(user);
+          } else throw new Error("profiles.setProperty Error: Invalid user parameter");
+        };
+        Profiles.prototype.setProperty = function (key, value, user) {
+          var _this = this;
+          return this.getUserObj(user).then(function (user) {
+            var args = {
+              propertyName: key,
+              propertyValue: value,
+              accountName: user.LoginName || user.AccountName
             };
+            var url = _this.baseUrl + "/SetSingleValueProfileProperty";
+            return _this._dao.authorizedPost(url, args);
+          });
+        };
+        return Profiles;
+      }();
+      exports.default = Profiles;
+      var transformPersonProperties = function transformPersonProperties(profile) {
+        console.log(profile);
+        profile.UserProfileProperties.results.forEach(function (keyvalue) {
+          profile[keyvalue.Key] = keyvalue.Value;
+        });
+        return profile;
+      };
 
-            // format a parsed object into a url string
-            function urlFormat(obj) {
-                // ensure it's an object, and not a string url.
-                // If it's an obj, this is a no-op.
-                // this way, you can call url_format() on strings
-                // to clean up potentially wonky urls.
-                if (util.isString(obj)) obj = urlParse(obj);
-                if (!(obj instanceof Url)) return Url.prototype.format.call(obj);
-                return obj.format();
+      /***/
+    },
+    /* 38 */
+    /***/function (module, exports, __webpack_require__) {
+
+      "use strict";
+
+      Object.defineProperty(exports, "__esModule", { value: true });
+      var url_1 = __webpack_require__(39);
+      var querystring = __webpack_require__(5);
+      var request_1 = __webpack_require__(8);
+      exports.getAppOnlyToken = function (url, clientId, clientSecret) {
+        var urlParts = url_1.parse(url);
+        return getRealm(url).then(function (authParams) {
+          var tokenUrl = "https://accounts.accesscontrol.windows.net/" + authParams.realm + "/tokens/OAuth/2";
+          var client_id = clientId + "@" + authParams.realm;
+          var resource = authParams.client_id + "/" + urlParts.host + "@" + authParams.realm;
+          var postBody = {
+            grant_type: "client_credentials",
+            client_id: client_id,
+            client_secret: clientSecret,
+            resource: resource,
+            scope: resource
+          };
+          var bodyStr = querystring.stringify(postBody);
+          var opts = {
+            method: "POST",
+            body: bodyStr,
+            headers: {
+              "Content-Type": "application/x-www-form-urlencoded",
+              "Content-Length": bodyStr.length
             }
-
-            Url.prototype.format = function () {
-                var auth = this.auth || '';
-                if (auth) {
-                    auth = encodeURIComponent(auth);
-                    auth = auth.replace(/%3A/i, ':');
-                    auth += '@';
-                }
-
-                var protocol = this.protocol || '',
-                    pathname = this.pathname || '',
-                    hash = this.hash || '',
-                    host = false,
-                    query = '';
-
-                if (this.host) {
-                    host = auth + this.host;
-                } else if (this.hostname) {
-                    host = auth + (this.hostname.indexOf(':') === -1 ? this.hostname : '[' + this.hostname + ']');
-                    if (this.port) {
-                        host += ':' + this.port;
-                    }
-                }
-
-                if (this.query && util.isObject(this.query) && Object.keys(this.query).length) {
-                    query = querystring.stringify(this.query);
-                }
-
-                var search = this.search || query && '?' + query || '';
-
-                if (protocol && protocol.substr(-1) !== ':') protocol += ':';
-
-                // only the slashedProtocols get the //.  Not mailto:, xmpp:, etc.
-                // unless they had them to begin with.
-                if (this.slashes || (!protocol || slashedProtocol[protocol]) && host !== false) {
-                    host = '//' + (host || '');
-                    if (pathname && pathname.charAt(0) !== '/') pathname = '/' + pathname;
-                } else if (!host) {
-                    host = '';
-                }
-
-                if (hash && hash.charAt(0) !== '#') hash = '#' + hash;
-                if (search && search.charAt(0) !== '?') search = '?' + search;
-
-                pathname = pathname.replace(/[?#]/g, function (match) {
-                    return encodeURIComponent(match);
-                });
-                search = search.replace('#', '%23');
-
-                return protocol + host + pathname + search + hash;
-            };
-
-            function urlResolve(source, relative) {
-                return urlParse(source, false, true).resolve(relative);
+          };
+          return request_1.default(tokenUrl, opts).then(function (data) {
+            console.log(data);
+            return data.access_token;
+          });
+        });
+      };
+      var getRealm = function getRealm(url) {
+        var endpointUrl = url + "/_api/web";
+        var opts = {
+          method: "GET",
+          headers: {
+            Authorization: "Bearer ",
+            Accept: "application/json;odata=verbose",
+            response_type: "code"
+          }
+        };
+        return new Promise(function (resolve, reject) {
+          fetch(endpointUrl, opts).then(function (res) {
+            if (!res.ok) {
+              var realm = parseRealm(res.headers["www-authenticate"] || res.headers._headers["www-authenticate"][0]);
+              resolve(realm);
             }
-
-            Url.prototype.resolve = function (relative) {
-                return this.resolveObject(urlParse(relative, false, true)).format();
-            };
-
-            function urlResolveObject(source, relative) {
-                if (!source) return relative;
-                return urlParse(source, false, true).resolveObject(relative);
+            //this should fail
+            reject("Get Realm succeeded somehow?!");
+          });
+        });
+      };
+      var parseRealm = function parseRealm(raw) {
+        var bearer = "Bearer realm=";
+        if (raw && raw.startsWith("Bearer")) {
+          raw = raw.substr(7);
+          var params = raw.split(",").filter(function (p) {
+            return p.indexOf("=") > -1;
+          }).reduce(function (params, piece) {
+            var parts = piece.split("=");
+            if (parts.length === 2) {
+              params[parts[0].trim()] = parts[1].trim().replace(/\"/g, "");
             }
+            return params;
+          }, {});
+          return params;
+        }
+        return null;
+      };
 
-            Url.prototype.resolveObject = function (relative) {
-                if (util.isString(relative)) {
-                    var rel = new Url();
-                    rel.parse(relative, false, true);
-                    relative = rel;
+      /***/
+    },
+    /* 39 */
+    /***/function (module, exports, __webpack_require__) {
+
+      "use strict";
+      // Copyright Joyent, Inc. and other Node contributors.
+      //
+      // Permission is hereby granted, free of charge, to any person obtaining a
+      // copy of this software and associated documentation files (the
+      // "Software"), to deal in the Software without restriction, including
+      // without limitation the rights to use, copy, modify, merge, publish,
+      // distribute, sublicense, and/or sell copies of the Software, and to permit
+      // persons to whom the Software is furnished to do so, subject to the
+      // following conditions:
+      //
+      // The above copyright notice and this permission notice shall be included
+      // in all copies or substantial portions of the Software.
+      //
+      // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+      // OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+      // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+      // NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+      // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+      // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+      // USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+
+      var punycode = __webpack_require__(40);
+      var util = __webpack_require__(41);
+
+      exports.parse = urlParse;
+      exports.resolve = urlResolve;
+      exports.resolveObject = urlResolveObject;
+      exports.format = urlFormat;
+
+      exports.Url = Url;
+
+      function Url() {
+        this.protocol = null;
+        this.slashes = null;
+        this.auth = null;
+        this.host = null;
+        this.port = null;
+        this.hostname = null;
+        this.hash = null;
+        this.search = null;
+        this.query = null;
+        this.pathname = null;
+        this.path = null;
+        this.href = null;
+      }
+
+      // Reference: RFC 3986, RFC 1808, RFC 2396
+
+      // define these here so at least they only have to be
+      // compiled once on the first module load.
+      var protocolPattern = /^([a-z0-9.+-]+:)/i,
+          portPattern = /:[0-9]*$/,
+
+
+      // Special case for a simple path URL
+      simplePathPattern = /^(\/\/?(?!\/)[^\?\s]*)(\?[^\s]*)?$/,
+
+
+      // RFC 2396: characters reserved for delimiting URLs.
+      // We actually just auto-escape these.
+      delims = ['<', '>', '"', '`', ' ', '\r', '\n', '\t'],
+
+
+      // RFC 2396: characters not allowed for various reasons.
+      unwise = ['{', '}', '|', '\\', '^', '`'].concat(delims),
+
+
+      // Allowed by RFCs, but cause of XSS attacks.  Always escape these.
+      autoEscape = ['\''].concat(unwise),
+
+      // Characters that are never ever allowed in a hostname.
+      // Note that any invalid chars are also handled, but these
+      // are the ones that are *expected* to be seen, so we fast-path
+      // them.
+      nonHostChars = ['%', '/', '?', ';', '#'].concat(autoEscape),
+          hostEndingChars = ['/', '?', '#'],
+          hostnameMaxLen = 255,
+          hostnamePartPattern = /^[+a-z0-9A-Z_-]{0,63}$/,
+          hostnamePartStart = /^([+a-z0-9A-Z_-]{0,63})(.*)$/,
+
+      // protocols that can allow "unsafe" and "unwise" chars.
+      unsafeProtocol = {
+        'javascript': true,
+        'javascript:': true
+      },
+
+      // protocols that never have a hostname.
+      hostlessProtocol = {
+        'javascript': true,
+        'javascript:': true
+      },
+
+      // protocols that always contain a // bit.
+      slashedProtocol = {
+        'http': true,
+        'https': true,
+        'ftp': true,
+        'gopher': true,
+        'file': true,
+        'http:': true,
+        'https:': true,
+        'ftp:': true,
+        'gopher:': true,
+        'file:': true
+      },
+          querystring = __webpack_require__(5);
+
+      function urlParse(url, parseQueryString, slashesDenoteHost) {
+        if (url && util.isObject(url) && url instanceof Url) return url;
+
+        var u = new Url();
+        u.parse(url, parseQueryString, slashesDenoteHost);
+        return u;
+      }
+
+      Url.prototype.parse = function (url, parseQueryString, slashesDenoteHost) {
+        if (!util.isString(url)) {
+          throw new TypeError("Parameter 'url' must be a string, not " + (typeof url === 'undefined' ? 'undefined' : _typeof(url)));
+        }
+
+        // Copy chrome, IE, opera backslash-handling behavior.
+        // Back slashes before the query string get converted to forward slashes
+        // See: https://code.google.com/p/chromium/issues/detail?id=25916
+        var queryIndex = url.indexOf('?'),
+            splitter = queryIndex !== -1 && queryIndex < url.indexOf('#') ? '?' : '#',
+            uSplit = url.split(splitter),
+            slashRegex = /\\/g;
+        uSplit[0] = uSplit[0].replace(slashRegex, '/');
+        url = uSplit.join(splitter);
+
+        var rest = url;
+
+        // trim before proceeding.
+        // This is to support parse stuff like "  http://foo.com  \n"
+        rest = rest.trim();
+
+        if (!slashesDenoteHost && url.split('#').length === 1) {
+          // Try fast path regexp
+          var simplePath = simplePathPattern.exec(rest);
+          if (simplePath) {
+            this.path = rest;
+            this.href = rest;
+            this.pathname = simplePath[1];
+            if (simplePath[2]) {
+              this.search = simplePath[2];
+              if (parseQueryString) {
+                this.query = querystring.parse(this.search.substr(1));
+              } else {
+                this.query = this.search.substr(1);
+              }
+            } else if (parseQueryString) {
+              this.search = '';
+              this.query = {};
+            }
+            return this;
+          }
+        }
+
+        var proto = protocolPattern.exec(rest);
+        if (proto) {
+          proto = proto[0];
+          var lowerProto = proto.toLowerCase();
+          this.protocol = lowerProto;
+          rest = rest.substr(proto.length);
+        }
+
+        // figure out if it's got a host
+        // user@server is *always* interpreted as a hostname, and url
+        // resolution will treat //foo/bar as host=foo,path=bar because that's
+        // how the browser resolves relative URLs.
+        if (slashesDenoteHost || proto || rest.match(/^\/\/[^@\/]+@[^@\/]+/)) {
+          var slashes = rest.substr(0, 2) === '//';
+          if (slashes && !(proto && hostlessProtocol[proto])) {
+            rest = rest.substr(2);
+            this.slashes = true;
+          }
+        }
+
+        if (!hostlessProtocol[proto] && (slashes || proto && !slashedProtocol[proto])) {
+
+          // there's a hostname.
+          // the first instance of /, ?, ;, or # ends the host.
+          //
+          // If there is an @ in the hostname, then non-host chars *are* allowed
+          // to the left of the last @ sign, unless some host-ending character
+          // comes *before* the @-sign.
+          // URLs are obnoxious.
+          //
+          // ex:
+          // http://a@b@c/ => user:a@b host:c
+          // http://a@b?@c => user:a host:c path:/?@c
+
+          // v0.12 TODO(isaacs): This is not quite how Chrome does things.
+          // Review our test case against browsers more comprehensively.
+
+          // find the first instance of any hostEndingChars
+          var hostEnd = -1;
+          for (var i = 0; i < hostEndingChars.length; i++) {
+            var hec = rest.indexOf(hostEndingChars[i]);
+            if (hec !== -1 && (hostEnd === -1 || hec < hostEnd)) hostEnd = hec;
+          }
+
+          // at this point, either we have an explicit point where the
+          // auth portion cannot go past, or the last @ char is the decider.
+          var auth, atSign;
+          if (hostEnd === -1) {
+            // atSign can be anywhere.
+            atSign = rest.lastIndexOf('@');
+          } else {
+            // atSign must be in auth portion.
+            // http://a@b/c@d => host:b auth:a path:/c@d
+            atSign = rest.lastIndexOf('@', hostEnd);
+          }
+
+          // Now we have a portion which is definitely the auth.
+          // Pull that off.
+          if (atSign !== -1) {
+            auth = rest.slice(0, atSign);
+            rest = rest.slice(atSign + 1);
+            this.auth = decodeURIComponent(auth);
+          }
+
+          // the host is the remaining to the left of the first non-host char
+          hostEnd = -1;
+          for (var i = 0; i < nonHostChars.length; i++) {
+            var hec = rest.indexOf(nonHostChars[i]);
+            if (hec !== -1 && (hostEnd === -1 || hec < hostEnd)) hostEnd = hec;
+          }
+          // if we still have not hit it, then the entire thing is a host.
+          if (hostEnd === -1) hostEnd = rest.length;
+
+          this.host = rest.slice(0, hostEnd);
+          rest = rest.slice(hostEnd);
+
+          // pull out port.
+          this.parseHost();
+
+          // we've indicated that there is a hostname,
+          // so even if it's empty, it has to be present.
+          this.hostname = this.hostname || '';
+
+          // if hostname begins with [ and ends with ]
+          // assume that it's an IPv6 address.
+          var ipv6Hostname = this.hostname[0] === '[' && this.hostname[this.hostname.length - 1] === ']';
+
+          // validate a little.
+          if (!ipv6Hostname) {
+            var hostparts = this.hostname.split(/\./);
+            for (var i = 0, l = hostparts.length; i < l; i++) {
+              var part = hostparts[i];
+              if (!part) continue;
+              if (!part.match(hostnamePartPattern)) {
+                var newpart = '';
+                for (var j = 0, k = part.length; j < k; j++) {
+                  if (part.charCodeAt(j) > 127) {
+                    // we replace non-ASCII char with a temporary placeholder
+                    // we need this to make sure size of hostname is not
+                    // broken by replacing non-ASCII by nothing
+                    newpart += 'x';
+                  } else {
+                    newpart += part[j];
+                  }
                 }
-
-                var result = new Url();
-                var tkeys = Object.keys(this);
-                for (var tk = 0; tk < tkeys.length; tk++) {
-                    var tkey = tkeys[tk];
-                    result[tkey] = this[tkey];
+                // we test again with ASCII char only
+                if (!newpart.match(hostnamePartPattern)) {
+                  var validParts = hostparts.slice(0, i);
+                  var notHost = hostparts.slice(i + 1);
+                  var bit = part.match(hostnamePartStart);
+                  if (bit) {
+                    validParts.push(bit[1]);
+                    notHost.unshift(bit[2]);
+                  }
+                  if (notHost.length) {
+                    rest = '/' + notHost.join('.') + rest;
+                  }
+                  this.hostname = validParts.join('.');
+                  break;
                 }
+              }
+            }
+          }
 
-                // hash is always overridden, no matter what.
-                // even href="" will remove it.
-                result.hash = relative.hash;
+          if (this.hostname.length > hostnameMaxLen) {
+            this.hostname = '';
+          } else {
+            // hostnames are always lower case.
+            this.hostname = this.hostname.toLowerCase();
+          }
 
-                // if the relative url is empty, then there's nothing left to do here.
-                if (relative.href === '') {
-                    result.href = result.format();
-                    return result;
-                }
+          if (!ipv6Hostname) {
+            // IDNA Support: Returns a punycoded representation of "domain".
+            // It only converts parts of the domain name that
+            // have non-ASCII characters, i.e. it doesn't matter if
+            // you call it with a domain that already is ASCII-only.
+            this.hostname = punycode.toASCII(this.hostname);
+          }
 
-                // hrefs like //foo/bar always cut to the protocol.
-                if (relative.slashes && !relative.protocol) {
-                    // take everything except the protocol from relative
-                    var rkeys = Object.keys(relative);
-                    for (var rk = 0; rk < rkeys.length; rk++) {
-                        var rkey = rkeys[rk];
-                        if (rkey !== 'protocol') result[rkey] = relative[rkey];
-                    }
+          var p = this.port ? ':' + this.port : '';
+          var h = this.hostname || '';
+          this.host = h + p;
+          this.href += this.host;
 
-                    //urlParse appends trailing / to urls like http://www.example.com
-                    if (slashedProtocol[result.protocol] && result.hostname && !result.pathname) {
-                        result.path = result.pathname = '/';
-                    }
+          // strip [ and ] from the hostname
+          // the host field still retains them, though
+          if (ipv6Hostname) {
+            this.hostname = this.hostname.substr(1, this.hostname.length - 2);
+            if (rest[0] !== '/') {
+              rest = '/' + rest;
+            }
+          }
+        }
 
-                    result.href = result.format();
-                    return result;
-                }
+        // now rest is set to the post-host stuff.
+        // chop off any delim chars.
+        if (!unsafeProtocol[lowerProto]) {
 
-                if (relative.protocol && relative.protocol !== result.protocol) {
-                    // if it's a known url protocol, then changing
-                    // the protocol does weird things
-                    // first, if it's not file:, then we MUST have a host,
-                    // and if there was a path
-                    // to begin with, then we MUST have a path.
-                    // if it is file:, then the host is dropped,
-                    // because that's known to be hostless.
-                    // anything else is assumed to be absolute.
-                    if (!slashedProtocol[relative.protocol]) {
-                        var keys = Object.keys(relative);
-                        for (var v = 0; v < keys.length; v++) {
-                            var k = keys[v];
-                            result[k] = relative[k];
-                        }
-                        result.href = result.format();
-                        return result;
-                    }
+          // First, make 100% sure that any "autoEscape" chars get
+          // escaped, even if encodeURIComponent doesn't think they
+          // need to be.
+          for (var i = 0, l = autoEscape.length; i < l; i++) {
+            var ae = autoEscape[i];
+            if (rest.indexOf(ae) === -1) continue;
+            var esc = encodeURIComponent(ae);
+            if (esc === ae) {
+              esc = escape(ae);
+            }
+            rest = rest.split(ae).join(esc);
+          }
+        }
 
-                    result.protocol = relative.protocol;
-                    if (!relative.host && !hostlessProtocol[relative.protocol]) {
-                        var relPath = (relative.pathname || '').split('/');
-                        while (relPath.length && !(relative.host = relPath.shift())) {}
-                        if (!relative.host) relative.host = '';
-                        if (!relative.hostname) relative.hostname = '';
-                        if (relPath[0] !== '') relPath.unshift('');
-                        if (relPath.length < 2) relPath.unshift('');
-                        result.pathname = relPath.join('/');
-                    } else {
-                        result.pathname = relative.pathname;
-                    }
-                    result.search = relative.search;
-                    result.query = relative.query;
-                    result.host = relative.host || '';
-                    result.auth = relative.auth;
-                    result.hostname = relative.hostname || relative.host;
-                    result.port = relative.port;
-                    // to support http.request
-                    if (result.pathname || result.search) {
-                        var p = result.pathname || '';
-                        var s = result.search || '';
-                        result.path = p + s;
-                    }
-                    result.slashes = result.slashes || relative.slashes;
-                    result.href = result.format();
-                    return result;
-                }
+        // chop off from the tail first.
+        var hash = rest.indexOf('#');
+        if (hash !== -1) {
+          // got a fragment string.
+          this.hash = rest.substr(hash);
+          rest = rest.slice(0, hash);
+        }
+        var qm = rest.indexOf('?');
+        if (qm !== -1) {
+          this.search = rest.substr(qm);
+          this.query = rest.substr(qm + 1);
+          if (parseQueryString) {
+            this.query = querystring.parse(this.query);
+          }
+          rest = rest.slice(0, qm);
+        } else if (parseQueryString) {
+          // no query string, but parseQueryString still requested
+          this.search = '';
+          this.query = {};
+        }
+        if (rest) this.pathname = rest;
+        if (slashedProtocol[lowerProto] && this.hostname && !this.pathname) {
+          this.pathname = '/';
+        }
 
-                var isSourceAbs = result.pathname && result.pathname.charAt(0) === '/',
-                    isRelAbs = relative.host || relative.pathname && relative.pathname.charAt(0) === '/',
-                    mustEndAbs = isRelAbs || isSourceAbs || result.host && relative.pathname,
-                    removeAllDots = mustEndAbs,
-                    srcPath = result.pathname && result.pathname.split('/') || [],
-                    relPath = relative.pathname && relative.pathname.split('/') || [],
-                    psychotic = result.protocol && !slashedProtocol[result.protocol];
+        //to support http.request
+        if (this.pathname || this.search) {
+          var p = this.pathname || '';
+          var s = this.search || '';
+          this.path = p + s;
+        }
 
-                // if the url is a non-slashed url, then relative
-                // links like ../.. should be able
-                // to crawl up to the hostname, as well.  This is strange.
-                // result.protocol has already been set by now.
-                // Later on, put the first path part into the host field.
-                if (psychotic) {
-                    result.hostname = '';
-                    result.port = null;
-                    if (result.host) {
-                        if (srcPath[0] === '') srcPath[0] = result.host;else srcPath.unshift(result.host);
-                    }
-                    result.host = '';
-                    if (relative.protocol) {
-                        relative.hostname = null;
-                        relative.port = null;
-                        if (relative.host) {
-                            if (relPath[0] === '') relPath[0] = relative.host;else relPath.unshift(relative.host);
-                        }
-                        relative.host = null;
-                    }
-                    mustEndAbs = mustEndAbs && (relPath[0] === '' || srcPath[0] === '');
-                }
+        // finally, reconstruct the href based on what has been validated.
+        this.href = this.format();
+        return this;
+      };
 
-                if (isRelAbs) {
-                    // it's absolute.
-                    result.host = relative.host || relative.host === '' ? relative.host : result.host;
-                    result.hostname = relative.hostname || relative.hostname === '' ? relative.hostname : result.hostname;
-                    result.search = relative.search;
-                    result.query = relative.query;
-                    srcPath = relPath;
-                    // fall through to the dot-handling below.
-                } else if (relPath.length) {
-                    // it's relative
-                    // throw away the existing file, and take the new path instead.
-                    if (!srcPath) srcPath = [];
-                    srcPath.pop();
-                    srcPath = srcPath.concat(relPath);
-                    result.search = relative.search;
-                    result.query = relative.query;
-                } else if (!util.isNullOrUndefined(relative.search)) {
-                    // just pull out the search.
-                    // like href='?foo'.
-                    // Put this after the other two cases because it simplifies the booleans
-                    if (psychotic) {
-                        result.hostname = result.host = srcPath.shift();
-                        //occationaly the auth can get stuck only in host
-                        //this especially happens in cases like
-                        //url.resolveObject('mailto:local1@domain1', 'local2@domain2')
-                        var authInHost = result.host && result.host.indexOf('@') > 0 ? result.host.split('@') : false;
-                        if (authInHost) {
-                            result.auth = authInHost.shift();
-                            result.host = result.hostname = authInHost.shift();
-                        }
-                    }
-                    result.search = relative.search;
-                    result.query = relative.query;
-                    //to support http.request
-                    if (!util.isNull(result.pathname) || !util.isNull(result.search)) {
-                        result.path = (result.pathname ? result.pathname : '') + (result.search ? result.search : '');
-                    }
-                    result.href = result.format();
-                    return result;
-                }
+      // format a parsed object into a url string
+      function urlFormat(obj) {
+        // ensure it's an object, and not a string url.
+        // If it's an obj, this is a no-op.
+        // this way, you can call url_format() on strings
+        // to clean up potentially wonky urls.
+        if (util.isString(obj)) obj = urlParse(obj);
+        if (!(obj instanceof Url)) return Url.prototype.format.call(obj);
+        return obj.format();
+      }
 
-                if (!srcPath.length) {
-                    // no path at all.  easy.
-                    // we've already handled the other stuff above.
-                    result.pathname = null;
-                    //to support http.request
-                    if (result.search) {
-                        result.path = '/' + result.search;
-                    } else {
-                        result.path = null;
-                    }
-                    result.href = result.format();
-                    return result;
-                }
+      Url.prototype.format = function () {
+        var auth = this.auth || '';
+        if (auth) {
+          auth = encodeURIComponent(auth);
+          auth = auth.replace(/%3A/i, ':');
+          auth += '@';
+        }
 
-                // if a url ENDs in . or .., then it must get a trailing slash.
-                // however, if it ends in anything else non-slashy,
-                // then it must NOT get a trailing slash.
-                var last = srcPath.slice(-1)[0];
-                var hasTrailingSlash = (result.host || relative.host || srcPath.length > 1) && (last === '.' || last === '..') || last === '';
+        var protocol = this.protocol || '',
+            pathname = this.pathname || '',
+            hash = this.hash || '',
+            host = false,
+            query = '';
 
-                // strip single dots, resolve double dots to parent dir
-                // if the path tries to go above the root, `up` ends up > 0
-                var up = 0;
-                for (var i = srcPath.length; i >= 0; i--) {
-                    last = srcPath[i];
-                    if (last === '.') {
-                        srcPath.splice(i, 1);
-                    } else if (last === '..') {
-                        srcPath.splice(i, 1);
-                        up++;
-                    } else if (up) {
-                        srcPath.splice(i, 1);
-                        up--;
-                    }
-                }
+        if (this.host) {
+          host = auth + this.host;
+        } else if (this.hostname) {
+          host = auth + (this.hostname.indexOf(':') === -1 ? this.hostname : '[' + this.hostname + ']');
+          if (this.port) {
+            host += ':' + this.port;
+          }
+        }
 
-                // if the path is allowed to go above the root, restore leading ..s
-                if (!mustEndAbs && !removeAllDots) {
-                    for (; up--; up) {
-                        srcPath.unshift('..');
-                    }
-                }
+        if (this.query && util.isObject(this.query) && Object.keys(this.query).length) {
+          query = querystring.stringify(this.query);
+        }
 
-                if (mustEndAbs && srcPath[0] !== '' && (!srcPath[0] || srcPath[0].charAt(0) !== '/')) {
-                    srcPath.unshift('');
-                }
+        var search = this.search || query && '?' + query || '';
 
-                if (hasTrailingSlash && srcPath.join('/').substr(-1) !== '/') {
-                    srcPath.push('');
-                }
+        if (protocol && protocol.substr(-1) !== ':') protocol += ':';
 
-                var isAbsolute = srcPath[0] === '' || srcPath[0] && srcPath[0].charAt(0) === '/';
+        // only the slashedProtocols get the //.  Not mailto:, xmpp:, etc.
+        // unless they had them to begin with.
+        if (this.slashes || (!protocol || slashedProtocol[protocol]) && host !== false) {
+          host = '//' + (host || '');
+          if (pathname && pathname.charAt(0) !== '/') pathname = '/' + pathname;
+        } else if (!host) {
+          host = '';
+        }
 
-                // put the host back
-                if (psychotic) {
-                    result.hostname = result.host = isAbsolute ? '' : srcPath.length ? srcPath.shift() : '';
-                    //occationaly the auth can get stuck only in host
-                    //this especially happens in cases like
-                    //url.resolveObject('mailto:local1@domain1', 'local2@domain2')
-                    var authInHost = result.host && result.host.indexOf('@') > 0 ? result.host.split('@') : false;
-                    if (authInHost) {
-                        result.auth = authInHost.shift();
-                        result.host = result.hostname = authInHost.shift();
-                    }
-                }
+        if (hash && hash.charAt(0) !== '#') hash = '#' + hash;
+        if (search && search.charAt(0) !== '?') search = '?' + search;
 
-                mustEndAbs = mustEndAbs || result.host && srcPath.length;
+        pathname = pathname.replace(/[?#]/g, function (match) {
+          return encodeURIComponent(match);
+        });
+        search = search.replace('#', '%23');
 
-                if (mustEndAbs && !isAbsolute) {
-                    srcPath.unshift('');
-                }
+        return protocol + host + pathname + search + hash;
+      };
 
-                if (!srcPath.length) {
-                    result.pathname = null;
-                    result.path = null;
+      function urlResolve(source, relative) {
+        return urlParse(source, false, true).resolve(relative);
+      }
+
+      Url.prototype.resolve = function (relative) {
+        return this.resolveObject(urlParse(relative, false, true)).format();
+      };
+
+      function urlResolveObject(source, relative) {
+        if (!source) return relative;
+        return urlParse(source, false, true).resolveObject(relative);
+      }
+
+      Url.prototype.resolveObject = function (relative) {
+        if (util.isString(relative)) {
+          var rel = new Url();
+          rel.parse(relative, false, true);
+          relative = rel;
+        }
+
+        var result = new Url();
+        var tkeys = Object.keys(this);
+        for (var tk = 0; tk < tkeys.length; tk++) {
+          var tkey = tkeys[tk];
+          result[tkey] = this[tkey];
+        }
+
+        // hash is always overridden, no matter what.
+        // even href="" will remove it.
+        result.hash = relative.hash;
+
+        // if the relative url is empty, then there's nothing left to do here.
+        if (relative.href === '') {
+          result.href = result.format();
+          return result;
+        }
+
+        // hrefs like //foo/bar always cut to the protocol.
+        if (relative.slashes && !relative.protocol) {
+          // take everything except the protocol from relative
+          var rkeys = Object.keys(relative);
+          for (var rk = 0; rk < rkeys.length; rk++) {
+            var rkey = rkeys[rk];
+            if (rkey !== 'protocol') result[rkey] = relative[rkey];
+          }
+
+          //urlParse appends trailing / to urls like http://www.example.com
+          if (slashedProtocol[result.protocol] && result.hostname && !result.pathname) {
+            result.path = result.pathname = '/';
+          }
+
+          result.href = result.format();
+          return result;
+        }
+
+        if (relative.protocol && relative.protocol !== result.protocol) {
+          // if it's a known url protocol, then changing
+          // the protocol does weird things
+          // first, if it's not file:, then we MUST have a host,
+          // and if there was a path
+          // to begin with, then we MUST have a path.
+          // if it is file:, then the host is dropped,
+          // because that's known to be hostless.
+          // anything else is assumed to be absolute.
+          if (!slashedProtocol[relative.protocol]) {
+            var keys = Object.keys(relative);
+            for (var v = 0; v < keys.length; v++) {
+              var k = keys[v];
+              result[k] = relative[k];
+            }
+            result.href = result.format();
+            return result;
+          }
+
+          result.protocol = relative.protocol;
+          if (!relative.host && !hostlessProtocol[relative.protocol]) {
+            var relPath = (relative.pathname || '').split('/');
+            while (relPath.length && !(relative.host = relPath.shift())) {}
+            if (!relative.host) relative.host = '';
+            if (!relative.hostname) relative.hostname = '';
+            if (relPath[0] !== '') relPath.unshift('');
+            if (relPath.length < 2) relPath.unshift('');
+            result.pathname = relPath.join('/');
+          } else {
+            result.pathname = relative.pathname;
+          }
+          result.search = relative.search;
+          result.query = relative.query;
+          result.host = relative.host || '';
+          result.auth = relative.auth;
+          result.hostname = relative.hostname || relative.host;
+          result.port = relative.port;
+          // to support http.request
+          if (result.pathname || result.search) {
+            var p = result.pathname || '';
+            var s = result.search || '';
+            result.path = p + s;
+          }
+          result.slashes = result.slashes || relative.slashes;
+          result.href = result.format();
+          return result;
+        }
+
+        var isSourceAbs = result.pathname && result.pathname.charAt(0) === '/',
+            isRelAbs = relative.host || relative.pathname && relative.pathname.charAt(0) === '/',
+            mustEndAbs = isRelAbs || isSourceAbs || result.host && relative.pathname,
+            removeAllDots = mustEndAbs,
+            srcPath = result.pathname && result.pathname.split('/') || [],
+            relPath = relative.pathname && relative.pathname.split('/') || [],
+            psychotic = result.protocol && !slashedProtocol[result.protocol];
+
+        // if the url is a non-slashed url, then relative
+        // links like ../.. should be able
+        // to crawl up to the hostname, as well.  This is strange.
+        // result.protocol has already been set by now.
+        // Later on, put the first path part into the host field.
+        if (psychotic) {
+          result.hostname = '';
+          result.port = null;
+          if (result.host) {
+            if (srcPath[0] === '') srcPath[0] = result.host;else srcPath.unshift(result.host);
+          }
+          result.host = '';
+          if (relative.protocol) {
+            relative.hostname = null;
+            relative.port = null;
+            if (relative.host) {
+              if (relPath[0] === '') relPath[0] = relative.host;else relPath.unshift(relative.host);
+            }
+            relative.host = null;
+          }
+          mustEndAbs = mustEndAbs && (relPath[0] === '' || srcPath[0] === '');
+        }
+
+        if (isRelAbs) {
+          // it's absolute.
+          result.host = relative.host || relative.host === '' ? relative.host : result.host;
+          result.hostname = relative.hostname || relative.hostname === '' ? relative.hostname : result.hostname;
+          result.search = relative.search;
+          result.query = relative.query;
+          srcPath = relPath;
+          // fall through to the dot-handling below.
+        } else if (relPath.length) {
+          // it's relative
+          // throw away the existing file, and take the new path instead.
+          if (!srcPath) srcPath = [];
+          srcPath.pop();
+          srcPath = srcPath.concat(relPath);
+          result.search = relative.search;
+          result.query = relative.query;
+        } else if (!util.isNullOrUndefined(relative.search)) {
+          // just pull out the search.
+          // like href='?foo'.
+          // Put this after the other two cases because it simplifies the booleans
+          if (psychotic) {
+            result.hostname = result.host = srcPath.shift();
+            //occationaly the auth can get stuck only in host
+            //this especially happens in cases like
+            //url.resolveObject('mailto:local1@domain1', 'local2@domain2')
+            var authInHost = result.host && result.host.indexOf('@') > 0 ? result.host.split('@') : false;
+            if (authInHost) {
+              result.auth = authInHost.shift();
+              result.host = result.hostname = authInHost.shift();
+            }
+          }
+          result.search = relative.search;
+          result.query = relative.query;
+          //to support http.request
+          if (!util.isNull(result.pathname) || !util.isNull(result.search)) {
+            result.path = (result.pathname ? result.pathname : '') + (result.search ? result.search : '');
+          }
+          result.href = result.format();
+          return result;
+        }
+
+        if (!srcPath.length) {
+          // no path at all.  easy.
+          // we've already handled the other stuff above.
+          result.pathname = null;
+          //to support http.request
+          if (result.search) {
+            result.path = '/' + result.search;
+          } else {
+            result.path = null;
+          }
+          result.href = result.format();
+          return result;
+        }
+
+        // if a url ENDs in . or .., then it must get a trailing slash.
+        // however, if it ends in anything else non-slashy,
+        // then it must NOT get a trailing slash.
+        var last = srcPath.slice(-1)[0];
+        var hasTrailingSlash = (result.host || relative.host || srcPath.length > 1) && (last === '.' || last === '..') || last === '';
+
+        // strip single dots, resolve double dots to parent dir
+        // if the path tries to go above the root, `up` ends up > 0
+        var up = 0;
+        for (var i = srcPath.length; i >= 0; i--) {
+          last = srcPath[i];
+          if (last === '.') {
+            srcPath.splice(i, 1);
+          } else if (last === '..') {
+            srcPath.splice(i, 1);
+            up++;
+          } else if (up) {
+            srcPath.splice(i, 1);
+            up--;
+          }
+        }
+
+        // if the path is allowed to go above the root, restore leading ..s
+        if (!mustEndAbs && !removeAllDots) {
+          for (; up--; up) {
+            srcPath.unshift('..');
+          }
+        }
+
+        if (mustEndAbs && srcPath[0] !== '' && (!srcPath[0] || srcPath[0].charAt(0) !== '/')) {
+          srcPath.unshift('');
+        }
+
+        if (hasTrailingSlash && srcPath.join('/').substr(-1) !== '/') {
+          srcPath.push('');
+        }
+
+        var isAbsolute = srcPath[0] === '' || srcPath[0] && srcPath[0].charAt(0) === '/';
+
+        // put the host back
+        if (psychotic) {
+          result.hostname = result.host = isAbsolute ? '' : srcPath.length ? srcPath.shift() : '';
+          //occationaly the auth can get stuck only in host
+          //this especially happens in cases like
+          //url.resolveObject('mailto:local1@domain1', 'local2@domain2')
+          var authInHost = result.host && result.host.indexOf('@') > 0 ? result.host.split('@') : false;
+          if (authInHost) {
+            result.auth = authInHost.shift();
+            result.host = result.hostname = authInHost.shift();
+          }
+        }
+
+        mustEndAbs = mustEndAbs || result.host && srcPath.length;
+
+        if (mustEndAbs && !isAbsolute) {
+          srcPath.unshift('');
+        }
+
+        if (!srcPath.length) {
+          result.pathname = null;
+          result.path = null;
+        } else {
+          result.pathname = srcPath.join('/');
+        }
+
+        //to support request.http
+        if (!util.isNull(result.pathname) || !util.isNull(result.search)) {
+          result.path = (result.pathname ? result.pathname : '') + (result.search ? result.search : '');
+        }
+        result.auth = relative.auth || result.auth;
+        result.slashes = result.slashes || relative.slashes;
+        result.href = result.format();
+        return result;
+      };
+
+      Url.prototype.parseHost = function () {
+        var host = this.host;
+        var port = portPattern.exec(host);
+        if (port) {
+          port = port[0];
+          if (port !== ':') {
+            this.port = port.substr(1);
+          }
+          host = host.substr(0, host.length - port.length);
+        }
+        if (host) this.hostname = host;
+      };
+
+      /***/
+    },
+    /* 40 */
+    /***/function (module, exports, __webpack_require__) {
+
+      /* WEBPACK VAR INJECTION */(function (module, global) {
+        var __WEBPACK_AMD_DEFINE_RESULT__; /*! https://mths.be/punycode v1.4.1 by @mathias */
+        ;(function (root) {
+
+          /** Detect free variables */
+          var freeExports = (typeof exports === 'undefined' ? 'undefined' : _typeof(exports)) == 'object' && exports && !exports.nodeType && exports;
+          var freeModule = (typeof module === 'undefined' ? 'undefined' : _typeof(module)) == 'object' && module && !module.nodeType && module;
+          var freeGlobal = (typeof global === 'undefined' ? 'undefined' : _typeof(global)) == 'object' && global;
+          if (freeGlobal.global === freeGlobal || freeGlobal.window === freeGlobal || freeGlobal.self === freeGlobal) {
+            root = freeGlobal;
+          }
+
+          /**
+           * The `punycode` object.
+           * @name punycode
+           * @type Object
+           */
+          var punycode,
+
+
+          /** Highest positive signed 32-bit float value */
+          maxInt = 2147483647,
+              // aka. 0x7FFFFFFF or 2^31-1
+
+          /** Bootstring parameters */
+          base = 36,
+              tMin = 1,
+              tMax = 26,
+              skew = 38,
+              damp = 700,
+              initialBias = 72,
+              initialN = 128,
+              // 0x80
+          delimiter = '-',
+              // '\x2D'
+
+          /** Regular expressions */
+          regexPunycode = /^xn--/,
+              regexNonASCII = /[^\x20-\x7E]/,
+              // unprintable ASCII chars + non-ASCII chars
+          regexSeparators = /[\x2E\u3002\uFF0E\uFF61]/g,
+              // RFC 3490 separators
+
+          /** Error messages */
+          errors = {
+            'overflow': 'Overflow: input needs wider integers to process',
+            'not-basic': 'Illegal input >= 0x80 (not a basic code point)',
+            'invalid-input': 'Invalid input'
+          },
+
+
+          /** Convenience shortcuts */
+          baseMinusTMin = base - tMin,
+              floor = Math.floor,
+              stringFromCharCode = String.fromCharCode,
+
+
+          /** Temporary variable */
+          key;
+
+          /*--------------------------------------------------------------------------*/
+
+          /**
+           * A generic error utility function.
+           * @private
+           * @param {String} type The error type.
+           * @returns {Error} Throws a `RangeError` with the applicable error message.
+           */
+          function error(type) {
+            throw new RangeError(errors[type]);
+          }
+
+          /**
+           * A generic `Array#map` utility function.
+           * @private
+           * @param {Array} array The array to iterate over.
+           * @param {Function} callback The function that gets called for every array
+           * item.
+           * @returns {Array} A new array of values returned by the callback function.
+           */
+          function map(array, fn) {
+            var length = array.length;
+            var result = [];
+            while (length--) {
+              result[length] = fn(array[length]);
+            }
+            return result;
+          }
+
+          /**
+           * A simple `Array#map`-like wrapper to work with domain name strings or email
+           * addresses.
+           * @private
+           * @param {String} domain The domain name or email address.
+           * @param {Function} callback The function that gets called for every
+           * character.
+           * @returns {Array} A new string of characters returned by the callback
+           * function.
+           */
+          function mapDomain(string, fn) {
+            var parts = string.split('@');
+            var result = '';
+            if (parts.length > 1) {
+              // In email addresses, only the domain name should be punycoded. Leave
+              // the local part (i.e. everything up to `@`) intact.
+              result = parts[0] + '@';
+              string = parts[1];
+            }
+            // Avoid `split(regex)` for IE8 compatibility. See #17.
+            string = string.replace(regexSeparators, '\x2E');
+            var labels = string.split('.');
+            var encoded = map(labels, fn).join('.');
+            return result + encoded;
+          }
+
+          /**
+           * Creates an array containing the numeric code points of each Unicode
+           * character in the string. While JavaScript uses UCS-2 internally,
+           * this function will convert a pair of surrogate halves (each of which
+           * UCS-2 exposes as separate characters) into a single code point,
+           * matching UTF-16.
+           * @see `punycode.ucs2.encode`
+           * @see <https://mathiasbynens.be/notes/javascript-encoding>
+           * @memberOf punycode.ucs2
+           * @name decode
+           * @param {String} string The Unicode input string (UCS-2).
+           * @returns {Array} The new array of code points.
+           */
+          function ucs2decode(string) {
+            var output = [],
+                counter = 0,
+                length = string.length,
+                value,
+                extra;
+            while (counter < length) {
+              value = string.charCodeAt(counter++);
+              if (value >= 0xD800 && value <= 0xDBFF && counter < length) {
+                // high surrogate, and there is a next character
+                extra = string.charCodeAt(counter++);
+                if ((extra & 0xFC00) == 0xDC00) {
+                  // low surrogate
+                  output.push(((value & 0x3FF) << 10) + (extra & 0x3FF) + 0x10000);
                 } else {
-                    result.pathname = srcPath.join('/');
+                  // unmatched surrogate; only append this code unit, in case the next
+                  // code unit is the high surrogate of a surrogate pair
+                  output.push(value);
+                  counter--;
                 }
-
-                //to support request.http
-                if (!util.isNull(result.pathname) || !util.isNull(result.search)) {
-                    result.path = (result.pathname ? result.pathname : '') + (result.search ? result.search : '');
-                }
-                result.auth = relative.auth || result.auth;
-                result.slashes = result.slashes || relative.slashes;
-                result.href = result.format();
-                return result;
-            };
-
-            Url.prototype.parseHost = function () {
-                var host = this.host;
-                var port = portPattern.exec(host);
-                if (port) {
-                    port = port[0];
-                    if (port !== ':') {
-                        this.port = port.substr(1);
-                    }
-                    host = host.substr(0, host.length - port.length);
-                }
-                if (host) this.hostname = host;
-            };
-
-            /***/
-        },
-        /* 38 */
-        /***/function (module, exports, __webpack_require__) {
-
-            /* WEBPACK VAR INJECTION */(function (module, global) {
-                var __WEBPACK_AMD_DEFINE_RESULT__; /*! https://mths.be/punycode v1.4.1 by @mathias */
-                ;(function (root) {
-
-                    /** Detect free variables */
-                    var freeExports = (typeof exports === 'undefined' ? 'undefined' : _typeof(exports)) == 'object' && exports && !exports.nodeType && exports;
-                    var freeModule = (typeof module === 'undefined' ? 'undefined' : _typeof(module)) == 'object' && module && !module.nodeType && module;
-                    var freeGlobal = (typeof global === 'undefined' ? 'undefined' : _typeof(global)) == 'object' && global;
-                    if (freeGlobal.global === freeGlobal || freeGlobal.window === freeGlobal || freeGlobal.self === freeGlobal) {
-                        root = freeGlobal;
-                    }
-
-                    /**
-                     * The `punycode` object.
-                     * @name punycode
-                     * @type Object
-                     */
-                    var punycode,
-
-
-                    /** Highest positive signed 32-bit float value */
-                    maxInt = 2147483647,
-                        // aka. 0x7FFFFFFF or 2^31-1
-
-                    /** Bootstring parameters */
-                    base = 36,
-                        tMin = 1,
-                        tMax = 26,
-                        skew = 38,
-                        damp = 700,
-                        initialBias = 72,
-                        initialN = 128,
-                        // 0x80
-                    delimiter = '-',
-                        // '\x2D'
-
-                    /** Regular expressions */
-                    regexPunycode = /^xn--/,
-                        regexNonASCII = /[^\x20-\x7E]/,
-                        // unprintable ASCII chars + non-ASCII chars
-                    regexSeparators = /[\x2E\u3002\uFF0E\uFF61]/g,
-                        // RFC 3490 separators
-
-                    /** Error messages */
-                    errors = {
-                        'overflow': 'Overflow: input needs wider integers to process',
-                        'not-basic': 'Illegal input >= 0x80 (not a basic code point)',
-                        'invalid-input': 'Invalid input'
-                    },
-
-
-                    /** Convenience shortcuts */
-                    baseMinusTMin = base - tMin,
-                        floor = Math.floor,
-                        stringFromCharCode = String.fromCharCode,
-
-
-                    /** Temporary variable */
-                    key;
-
-                    /*--------------------------------------------------------------------------*/
-
-                    /**
-                     * A generic error utility function.
-                     * @private
-                     * @param {String} type The error type.
-                     * @returns {Error} Throws a `RangeError` with the applicable error message.
-                     */
-                    function error(type) {
-                        throw new RangeError(errors[type]);
-                    }
-
-                    /**
-                     * A generic `Array#map` utility function.
-                     * @private
-                     * @param {Array} array The array to iterate over.
-                     * @param {Function} callback The function that gets called for every array
-                     * item.
-                     * @returns {Array} A new array of values returned by the callback function.
-                     */
-                    function map(array, fn) {
-                        var length = array.length;
-                        var result = [];
-                        while (length--) {
-                            result[length] = fn(array[length]);
-                        }
-                        return result;
-                    }
-
-                    /**
-                     * A simple `Array#map`-like wrapper to work with domain name strings or email
-                     * addresses.
-                     * @private
-                     * @param {String} domain The domain name or email address.
-                     * @param {Function} callback The function that gets called for every
-                     * character.
-                     * @returns {Array} A new string of characters returned by the callback
-                     * function.
-                     */
-                    function mapDomain(string, fn) {
-                        var parts = string.split('@');
-                        var result = '';
-                        if (parts.length > 1) {
-                            // In email addresses, only the domain name should be punycoded. Leave
-                            // the local part (i.e. everything up to `@`) intact.
-                            result = parts[0] + '@';
-                            string = parts[1];
-                        }
-                        // Avoid `split(regex)` for IE8 compatibility. See #17.
-                        string = string.replace(regexSeparators, '\x2E');
-                        var labels = string.split('.');
-                        var encoded = map(labels, fn).join('.');
-                        return result + encoded;
-                    }
-
-                    /**
-                     * Creates an array containing the numeric code points of each Unicode
-                     * character in the string. While JavaScript uses UCS-2 internally,
-                     * this function will convert a pair of surrogate halves (each of which
-                     * UCS-2 exposes as separate characters) into a single code point,
-                     * matching UTF-16.
-                     * @see `punycode.ucs2.encode`
-                     * @see <https://mathiasbynens.be/notes/javascript-encoding>
-                     * @memberOf punycode.ucs2
-                     * @name decode
-                     * @param {String} string The Unicode input string (UCS-2).
-                     * @returns {Array} The new array of code points.
-                     */
-                    function ucs2decode(string) {
-                        var output = [],
-                            counter = 0,
-                            length = string.length,
-                            value,
-                            extra;
-                        while (counter < length) {
-                            value = string.charCodeAt(counter++);
-                            if (value >= 0xD800 && value <= 0xDBFF && counter < length) {
-                                // high surrogate, and there is a next character
-                                extra = string.charCodeAt(counter++);
-                                if ((extra & 0xFC00) == 0xDC00) {
-                                    // low surrogate
-                                    output.push(((value & 0x3FF) << 10) + (extra & 0x3FF) + 0x10000);
-                                } else {
-                                    // unmatched surrogate; only append this code unit, in case the next
-                                    // code unit is the high surrogate of a surrogate pair
-                                    output.push(value);
-                                    counter--;
-                                }
-                            } else {
-                                output.push(value);
-                            }
-                        }
-                        return output;
-                    }
-
-                    /**
-                     * Creates a string based on an array of numeric code points.
-                     * @see `punycode.ucs2.decode`
-                     * @memberOf punycode.ucs2
-                     * @name encode
-                     * @param {Array} codePoints The array of numeric code points.
-                     * @returns {String} The new Unicode string (UCS-2).
-                     */
-                    function ucs2encode(array) {
-                        return map(array, function (value) {
-                            var output = '';
-                            if (value > 0xFFFF) {
-                                value -= 0x10000;
-                                output += stringFromCharCode(value >>> 10 & 0x3FF | 0xD800);
-                                value = 0xDC00 | value & 0x3FF;
-                            }
-                            output += stringFromCharCode(value);
-                            return output;
-                        }).join('');
-                    }
-
-                    /**
-                     * Converts a basic code point into a digit/integer.
-                     * @see `digitToBasic()`
-                     * @private
-                     * @param {Number} codePoint The basic numeric code point value.
-                     * @returns {Number} The numeric value of a basic code point (for use in
-                     * representing integers) in the range `0` to `base - 1`, or `base` if
-                     * the code point does not represent a value.
-                     */
-                    function basicToDigit(codePoint) {
-                        if (codePoint - 48 < 10) {
-                            return codePoint - 22;
-                        }
-                        if (codePoint - 65 < 26) {
-                            return codePoint - 65;
-                        }
-                        if (codePoint - 97 < 26) {
-                            return codePoint - 97;
-                        }
-                        return base;
-                    }
-
-                    /**
-                     * Converts a digit/integer into a basic code point.
-                     * @see `basicToDigit()`
-                     * @private
-                     * @param {Number} digit The numeric value of a basic code point.
-                     * @returns {Number} The basic code point whose value (when used for
-                     * representing integers) is `digit`, which needs to be in the range
-                     * `0` to `base - 1`. If `flag` is non-zero, the uppercase form is
-                     * used; else, the lowercase form is used. The behavior is undefined
-                     * if `flag` is non-zero and `digit` has no uppercase form.
-                     */
-                    function digitToBasic(digit, flag) {
-                        //  0..25 map to ASCII a..z or A..Z
-                        // 26..35 map to ASCII 0..9
-                        return digit + 22 + 75 * (digit < 26) - ((flag != 0) << 5);
-                    }
-
-                    /**
-                     * Bias adaptation function as per section 3.4 of RFC 3492.
-                     * https://tools.ietf.org/html/rfc3492#section-3.4
-                     * @private
-                     */
-                    function adapt(delta, numPoints, firstTime) {
-                        var k = 0;
-                        delta = firstTime ? floor(delta / damp) : delta >> 1;
-                        delta += floor(delta / numPoints);
-                        for (; /* no initialization */delta > baseMinusTMin * tMax >> 1; k += base) {
-                            delta = floor(delta / baseMinusTMin);
-                        }
-                        return floor(k + (baseMinusTMin + 1) * delta / (delta + skew));
-                    }
-
-                    /**
-                     * Converts a Punycode string of ASCII-only symbols to a string of Unicode
-                     * symbols.
-                     * @memberOf punycode
-                     * @param {String} input The Punycode string of ASCII-only symbols.
-                     * @returns {String} The resulting string of Unicode symbols.
-                     */
-                    function decode(input) {
-                        // Don't use UCS-2
-                        var output = [],
-                            inputLength = input.length,
-                            out,
-                            i = 0,
-                            n = initialN,
-                            bias = initialBias,
-                            basic,
-                            j,
-                            index,
-                            oldi,
-                            w,
-                            k,
-                            digit,
-                            t,
-
-                        /** Cached calculation results */
-                        baseMinusT;
-
-                        // Handle the basic code points: let `basic` be the number of input code
-                        // points before the last delimiter, or `0` if there is none, then copy
-                        // the first basic code points to the output.
-
-                        basic = input.lastIndexOf(delimiter);
-                        if (basic < 0) {
-                            basic = 0;
-                        }
-
-                        for (j = 0; j < basic; ++j) {
-                            // if it's not a basic code point
-                            if (input.charCodeAt(j) >= 0x80) {
-                                error('not-basic');
-                            }
-                            output.push(input.charCodeAt(j));
-                        }
-
-                        // Main decoding loop: start just after the last delimiter if any basic code
-                        // points were copied; start at the beginning otherwise.
-
-                        for (index = basic > 0 ? basic + 1 : 0; index < inputLength;) /* no final expression */{
-
-                            // `index` is the index of the next character to be consumed.
-                            // Decode a generalized variable-length integer into `delta`,
-                            // which gets added to `i`. The overflow checking is easier
-                            // if we increase `i` as we go, then subtract off its starting
-                            // value at the end to obtain `delta`.
-                            for (oldi = i, w = 1, k = base;; /* no condition */k += base) {
-
-                                if (index >= inputLength) {
-                                    error('invalid-input');
-                                }
-
-                                digit = basicToDigit(input.charCodeAt(index++));
-
-                                if (digit >= base || digit > floor((maxInt - i) / w)) {
-                                    error('overflow');
-                                }
-
-                                i += digit * w;
-                                t = k <= bias ? tMin : k >= bias + tMax ? tMax : k - bias;
-
-                                if (digit < t) {
-                                    break;
-                                }
-
-                                baseMinusT = base - t;
-                                if (w > floor(maxInt / baseMinusT)) {
-                                    error('overflow');
-                                }
-
-                                w *= baseMinusT;
-                            }
-
-                            out = output.length + 1;
-                            bias = adapt(i - oldi, out, oldi == 0);
-
-                            // `i` was supposed to wrap around from `out` to `0`,
-                            // incrementing `n` each time, so we'll fix that now:
-                            if (floor(i / out) > maxInt - n) {
-                                error('overflow');
-                            }
-
-                            n += floor(i / out);
-                            i %= out;
-
-                            // Insert `n` at position `i` of the output
-                            output.splice(i++, 0, n);
-                        }
-
-                        return ucs2encode(output);
-                    }
-
-                    /**
-                     * Converts a string of Unicode symbols (e.g. a domain name label) to a
-                     * Punycode string of ASCII-only symbols.
-                     * @memberOf punycode
-                     * @param {String} input The string of Unicode symbols.
-                     * @returns {String} The resulting Punycode string of ASCII-only symbols.
-                     */
-                    function encode(input) {
-                        var n,
-                            delta,
-                            handledCPCount,
-                            basicLength,
-                            bias,
-                            j,
-                            m,
-                            q,
-                            k,
-                            t,
-                            currentValue,
-                            output = [],
-
-                        /** `inputLength` will hold the number of code points in `input`. */
-                        inputLength,
-
-                        /** Cached calculation results */
-                        handledCPCountPlusOne,
-                            baseMinusT,
-                            qMinusT;
-
-                        // Convert the input in UCS-2 to Unicode
-                        input = ucs2decode(input);
-
-                        // Cache the length
-                        inputLength = input.length;
-
-                        // Initialize the state
-                        n = initialN;
-                        delta = 0;
-                        bias = initialBias;
-
-                        // Handle the basic code points
-                        for (j = 0; j < inputLength; ++j) {
-                            currentValue = input[j];
-                            if (currentValue < 0x80) {
-                                output.push(stringFromCharCode(currentValue));
-                            }
-                        }
-
-                        handledCPCount = basicLength = output.length;
-
-                        // `handledCPCount` is the number of code points that have been handled;
-                        // `basicLength` is the number of basic code points.
-
-                        // Finish the basic string - if it is not empty - with a delimiter
-                        if (basicLength) {
-                            output.push(delimiter);
-                        }
-
-                        // Main encoding loop:
-                        while (handledCPCount < inputLength) {
-
-                            // All non-basic code points < n have been handled already. Find the next
-                            // larger one:
-                            for (m = maxInt, j = 0; j < inputLength; ++j) {
-                                currentValue = input[j];
-                                if (currentValue >= n && currentValue < m) {
-                                    m = currentValue;
-                                }
-                            }
-
-                            // Increase `delta` enough to advance the decoder's <n,i> state to <m,0>,
-                            // but guard against overflow
-                            handledCPCountPlusOne = handledCPCount + 1;
-                            if (m - n > floor((maxInt - delta) / handledCPCountPlusOne)) {
-                                error('overflow');
-                            }
-
-                            delta += (m - n) * handledCPCountPlusOne;
-                            n = m;
-
-                            for (j = 0; j < inputLength; ++j) {
-                                currentValue = input[j];
-
-                                if (currentValue < n && ++delta > maxInt) {
-                                    error('overflow');
-                                }
-
-                                if (currentValue == n) {
-                                    // Represent delta as a generalized variable-length integer
-                                    for (q = delta, k = base;; /* no condition */k += base) {
-                                        t = k <= bias ? tMin : k >= bias + tMax ? tMax : k - bias;
-                                        if (q < t) {
-                                            break;
-                                        }
-                                        qMinusT = q - t;
-                                        baseMinusT = base - t;
-                                        output.push(stringFromCharCode(digitToBasic(t + qMinusT % baseMinusT, 0)));
-                                        q = floor(qMinusT / baseMinusT);
-                                    }
-
-                                    output.push(stringFromCharCode(digitToBasic(q, 0)));
-                                    bias = adapt(delta, handledCPCountPlusOne, handledCPCount == basicLength);
-                                    delta = 0;
-                                    ++handledCPCount;
-                                }
-                            }
-
-                            ++delta;
-                            ++n;
-                        }
-                        return output.join('');
-                    }
-
-                    /**
-                     * Converts a Punycode string representing a domain name or an email address
-                     * to Unicode. Only the Punycoded parts of the input will be converted, i.e.
-                     * it doesn't matter if you call it on a string that has already been
-                     * converted to Unicode.
-                     * @memberOf punycode
-                     * @param {String} input The Punycoded domain name or email address to
-                     * convert to Unicode.
-                     * @returns {String} The Unicode representation of the given Punycode
-                     * string.
-                     */
-                    function toUnicode(input) {
-                        return mapDomain(input, function (string) {
-                            return regexPunycode.test(string) ? decode(string.slice(4).toLowerCase()) : string;
-                        });
-                    }
-
-                    /**
-                     * Converts a Unicode string representing a domain name or an email address to
-                     * Punycode. Only the non-ASCII parts of the domain name will be converted,
-                     * i.e. it doesn't matter if you call it with a domain that's already in
-                     * ASCII.
-                     * @memberOf punycode
-                     * @param {String} input The domain name or email address to convert, as a
-                     * Unicode string.
-                     * @returns {String} The Punycode representation of the given domain name or
-                     * email address.
-                     */
-                    function toASCII(input) {
-                        return mapDomain(input, function (string) {
-                            return regexNonASCII.test(string) ? 'xn--' + encode(string) : string;
-                        });
-                    }
-
-                    /*--------------------------------------------------------------------------*/
-
-                    /** Define the public API */
-                    punycode = {
-                        /**
-                         * A string representing the current Punycode.js version number.
-                         * @memberOf punycode
-                         * @type String
-                         */
-                        'version': '1.4.1',
-                        /**
-                         * An object of methods to convert from JavaScript's internal character
-                         * representation (UCS-2) to Unicode code points, and back.
-                         * @see <https://mathiasbynens.be/notes/javascript-encoding>
-                         * @memberOf punycode
-                         * @type Object
-                         */
-                        'ucs2': {
-                            'decode': ucs2decode,
-                            'encode': ucs2encode
-                        },
-                        'decode': decode,
-                        'encode': encode,
-                        'toASCII': toASCII,
-                        'toUnicode': toUnicode
-                    };
-
-                    /** Expose `punycode` */
-                    // Some AMD build optimizers, like r.js, check for specific condition patterns
-                    // like the following:
-                    if (true) {
-                        !(__WEBPACK_AMD_DEFINE_RESULT__ = function () {
-                            return punycode;
-                        }.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-                    } else if (freeExports && freeModule) {
-                        if (module.exports == freeExports) {
-                            // in Node.js, io.js, or RingoJS v0.8.0+
-                            freeModule.exports = punycode;
-                        } else {
-                            // in Narwhal or RingoJS v0.7.0-
-                            for (key in punycode) {
-                                punycode.hasOwnProperty(key) && (freeExports[key] = punycode[key]);
-                            }
-                        }
-                    } else {
-                        // in Rhino or a web browser
-                        root.punycode = punycode;
-                    }
-                })(this);
-
-                /* WEBPACK VAR INJECTION */
-            }).call(exports, __webpack_require__(9)(module), __webpack_require__(1));
-
-            /***/
-        },
-        /* 39 */
-        /***/function (module, exports, __webpack_require__) {
-
-            "use strict";
-
-            module.exports = {
-                isString: function isString(arg) {
-                    return typeof arg === 'string';
-                },
-                isObject: function isObject(arg) {
-                    return (typeof arg === 'undefined' ? 'undefined' : _typeof(arg)) === 'object' && arg !== null;
-                },
-                isNull: function isNull(arg) {
-                    return arg === null;
-                },
-                isNullOrUndefined: function isNullOrUndefined(arg) {
-                    return arg == null;
-                }
-            };
-
-            /***/
-        },
-        /* 40 */
-        /***/function (module, exports, __webpack_require__) {
-
-            "use strict";
-
-            Object.defineProperty(exports, "__esModule", { value: true });
-            var utils_1 = __webpack_require__(0);
-            var registerField = function registerField(field, renderer, opts) {
-                if (opts === void 0) {
-                    opts = {};
-                }
-                if (!utils_1.default.validateNamespace("SPClientTemplates.TemplateManager")) {
-                    throw new Error("Unable to register CSR template.  SPClientTemplates.TemplateManager does not exist");
-                }
-                var renderers = {};
-                //View, DisplayForm, EditForm, NewForm
-                field.locations.forEach(function (l) {
-                    return renderers[l] = renderer;
-                });
-                var defaults = {
-                    Templates: {
-                        Fields: {}
-                    }
-                };
-                var templateOverride = _extends({}, defaults, opts);
-                templateOverride.Templates.Fields[field.name] = renderers;
-                SPClientTemplates.TemplateManager.RegisterTemplateOverrides(templateOverride);
-                return field;
-            };
-            var registerDisplayField = function registerDisplayField(fieldComponent, opts) {
-                if (opts === void 0) {
-                    opts = {};
-                }
-                var renderer = createDisplayFieldRenderer(fieldComponent);
-                fieldComponent.locations = fieldComponent.locations || ["View", "DisplayForm"];
-                return registerField(fieldComponent, renderer, opts);
-            };
-            var registerFormField = function registerFormField(fieldComponent, opts) {
-                if (opts === void 0) {
-                    opts = {};
-                }
-                var renderer = createFormFieldRenderer(fieldComponent);
-                fieldComponent.locations = fieldComponent.locations || ["NewForm", "EditForm"];
-                return registerField(fieldComponent, renderer, opts);
-            };
-            function createFormFieldRenderer(field) {
-                return function (ctx) {
-                    var formCtx = ctx.FormContext;
-                    // need to clone ctx, it is getting overwritten so we lost CurrentItem
-                    var clonedCtx = _extends({}, ctx);
-                    if (field.onReady) {
-                        if (formCtx) {
-                            formCtx.registerInitCallback(field.name, field.onReady.bind(null, clonedCtx));
-                        } else {
-                            setTimeout(field.onReady.bind(null, clonedCtx), 100);
-                        }
-                    }
-                    if (field.getValue && formCtx) {
-                        formCtx.registerGetValueCallback(field.name, field.getValue.bind(null, clonedCtx));
-                    }
-                    // tack on 'setValue' function
-                    if (formCtx && formCtx.updateControlValue) {
-                        field.setValue = function (value) {
-                            formCtx.updateControlValue(field.name, value);
-                        };
-                    }
-                    return field.render(ctx);
-                };
+              } else {
+                output.push(value);
+              }
             }
-            function createDisplayFieldRenderer(field) {
-                return function (ctx) {
-                    var formCtx = ctx.FormContext;
-                    if (formCtx && formCtx.registerInitCallback && field.onReady) {
-                        formCtx.registerInitCallback(field.name, field.onReady);
-                    }
-                    return field.render(ctx);
-                };
-            }
-            var CSR = {
-                registerDisplayField: registerDisplayField,
-                registerFormField: registerFormField
-            };
-            exports.default = CSR;
+            return output;
+          }
 
-            /***/
-        }]
-        /******/)
-    );
+          /**
+           * Creates a string based on an array of numeric code points.
+           * @see `punycode.ucs2.decode`
+           * @memberOf punycode.ucs2
+           * @name encode
+           * @param {Array} codePoints The array of numeric code points.
+           * @returns {String} The new Unicode string (UCS-2).
+           */
+          function ucs2encode(array) {
+            return map(array, function (value) {
+              var output = '';
+              if (value > 0xFFFF) {
+                value -= 0x10000;
+                output += stringFromCharCode(value >>> 10 & 0x3FF | 0xD800);
+                value = 0xDC00 | value & 0x3FF;
+              }
+              output += stringFromCharCode(value);
+              return output;
+            }).join('');
+          }
+
+          /**
+           * Converts a basic code point into a digit/integer.
+           * @see `digitToBasic()`
+           * @private
+           * @param {Number} codePoint The basic numeric code point value.
+           * @returns {Number} The numeric value of a basic code point (for use in
+           * representing integers) in the range `0` to `base - 1`, or `base` if
+           * the code point does not represent a value.
+           */
+          function basicToDigit(codePoint) {
+            if (codePoint - 48 < 10) {
+              return codePoint - 22;
+            }
+            if (codePoint - 65 < 26) {
+              return codePoint - 65;
+            }
+            if (codePoint - 97 < 26) {
+              return codePoint - 97;
+            }
+            return base;
+          }
+
+          /**
+           * Converts a digit/integer into a basic code point.
+           * @see `basicToDigit()`
+           * @private
+           * @param {Number} digit The numeric value of a basic code point.
+           * @returns {Number} The basic code point whose value (when used for
+           * representing integers) is `digit`, which needs to be in the range
+           * `0` to `base - 1`. If `flag` is non-zero, the uppercase form is
+           * used; else, the lowercase form is used. The behavior is undefined
+           * if `flag` is non-zero and `digit` has no uppercase form.
+           */
+          function digitToBasic(digit, flag) {
+            //  0..25 map to ASCII a..z or A..Z
+            // 26..35 map to ASCII 0..9
+            return digit + 22 + 75 * (digit < 26) - ((flag != 0) << 5);
+          }
+
+          /**
+           * Bias adaptation function as per section 3.4 of RFC 3492.
+           * https://tools.ietf.org/html/rfc3492#section-3.4
+           * @private
+           */
+          function adapt(delta, numPoints, firstTime) {
+            var k = 0;
+            delta = firstTime ? floor(delta / damp) : delta >> 1;
+            delta += floor(delta / numPoints);
+            for (; /* no initialization */delta > baseMinusTMin * tMax >> 1; k += base) {
+              delta = floor(delta / baseMinusTMin);
+            }
+            return floor(k + (baseMinusTMin + 1) * delta / (delta + skew));
+          }
+
+          /**
+           * Converts a Punycode string of ASCII-only symbols to a string of Unicode
+           * symbols.
+           * @memberOf punycode
+           * @param {String} input The Punycode string of ASCII-only symbols.
+           * @returns {String} The resulting string of Unicode symbols.
+           */
+          function decode(input) {
+            // Don't use UCS-2
+            var output = [],
+                inputLength = input.length,
+                out,
+                i = 0,
+                n = initialN,
+                bias = initialBias,
+                basic,
+                j,
+                index,
+                oldi,
+                w,
+                k,
+                digit,
+                t,
+
+            /** Cached calculation results */
+            baseMinusT;
+
+            // Handle the basic code points: let `basic` be the number of input code
+            // points before the last delimiter, or `0` if there is none, then copy
+            // the first basic code points to the output.
+
+            basic = input.lastIndexOf(delimiter);
+            if (basic < 0) {
+              basic = 0;
+            }
+
+            for (j = 0; j < basic; ++j) {
+              // if it's not a basic code point
+              if (input.charCodeAt(j) >= 0x80) {
+                error('not-basic');
+              }
+              output.push(input.charCodeAt(j));
+            }
+
+            // Main decoding loop: start just after the last delimiter if any basic code
+            // points were copied; start at the beginning otherwise.
+
+            for (index = basic > 0 ? basic + 1 : 0; index < inputLength;) /* no final expression */{
+
+              // `index` is the index of the next character to be consumed.
+              // Decode a generalized variable-length integer into `delta`,
+              // which gets added to `i`. The overflow checking is easier
+              // if we increase `i` as we go, then subtract off its starting
+              // value at the end to obtain `delta`.
+              for (oldi = i, w = 1, k = base;; /* no condition */k += base) {
+
+                if (index >= inputLength) {
+                  error('invalid-input');
+                }
+
+                digit = basicToDigit(input.charCodeAt(index++));
+
+                if (digit >= base || digit > floor((maxInt - i) / w)) {
+                  error('overflow');
+                }
+
+                i += digit * w;
+                t = k <= bias ? tMin : k >= bias + tMax ? tMax : k - bias;
+
+                if (digit < t) {
+                  break;
+                }
+
+                baseMinusT = base - t;
+                if (w > floor(maxInt / baseMinusT)) {
+                  error('overflow');
+                }
+
+                w *= baseMinusT;
+              }
+
+              out = output.length + 1;
+              bias = adapt(i - oldi, out, oldi == 0);
+
+              // `i` was supposed to wrap around from `out` to `0`,
+              // incrementing `n` each time, so we'll fix that now:
+              if (floor(i / out) > maxInt - n) {
+                error('overflow');
+              }
+
+              n += floor(i / out);
+              i %= out;
+
+              // Insert `n` at position `i` of the output
+              output.splice(i++, 0, n);
+            }
+
+            return ucs2encode(output);
+          }
+
+          /**
+           * Converts a string of Unicode symbols (e.g. a domain name label) to a
+           * Punycode string of ASCII-only symbols.
+           * @memberOf punycode
+           * @param {String} input The string of Unicode symbols.
+           * @returns {String} The resulting Punycode string of ASCII-only symbols.
+           */
+          function encode(input) {
+            var n,
+                delta,
+                handledCPCount,
+                basicLength,
+                bias,
+                j,
+                m,
+                q,
+                k,
+                t,
+                currentValue,
+                output = [],
+
+            /** `inputLength` will hold the number of code points in `input`. */
+            inputLength,
+
+            /** Cached calculation results */
+            handledCPCountPlusOne,
+                baseMinusT,
+                qMinusT;
+
+            // Convert the input in UCS-2 to Unicode
+            input = ucs2decode(input);
+
+            // Cache the length
+            inputLength = input.length;
+
+            // Initialize the state
+            n = initialN;
+            delta = 0;
+            bias = initialBias;
+
+            // Handle the basic code points
+            for (j = 0; j < inputLength; ++j) {
+              currentValue = input[j];
+              if (currentValue < 0x80) {
+                output.push(stringFromCharCode(currentValue));
+              }
+            }
+
+            handledCPCount = basicLength = output.length;
+
+            // `handledCPCount` is the number of code points that have been handled;
+            // `basicLength` is the number of basic code points.
+
+            // Finish the basic string - if it is not empty - with a delimiter
+            if (basicLength) {
+              output.push(delimiter);
+            }
+
+            // Main encoding loop:
+            while (handledCPCount < inputLength) {
+
+              // All non-basic code points < n have been handled already. Find the next
+              // larger one:
+              for (m = maxInt, j = 0; j < inputLength; ++j) {
+                currentValue = input[j];
+                if (currentValue >= n && currentValue < m) {
+                  m = currentValue;
+                }
+              }
+
+              // Increase `delta` enough to advance the decoder's <n,i> state to <m,0>,
+              // but guard against overflow
+              handledCPCountPlusOne = handledCPCount + 1;
+              if (m - n > floor((maxInt - delta) / handledCPCountPlusOne)) {
+                error('overflow');
+              }
+
+              delta += (m - n) * handledCPCountPlusOne;
+              n = m;
+
+              for (j = 0; j < inputLength; ++j) {
+                currentValue = input[j];
+
+                if (currentValue < n && ++delta > maxInt) {
+                  error('overflow');
+                }
+
+                if (currentValue == n) {
+                  // Represent delta as a generalized variable-length integer
+                  for (q = delta, k = base;; /* no condition */k += base) {
+                    t = k <= bias ? tMin : k >= bias + tMax ? tMax : k - bias;
+                    if (q < t) {
+                      break;
+                    }
+                    qMinusT = q - t;
+                    baseMinusT = base - t;
+                    output.push(stringFromCharCode(digitToBasic(t + qMinusT % baseMinusT, 0)));
+                    q = floor(qMinusT / baseMinusT);
+                  }
+
+                  output.push(stringFromCharCode(digitToBasic(q, 0)));
+                  bias = adapt(delta, handledCPCountPlusOne, handledCPCount == basicLength);
+                  delta = 0;
+                  ++handledCPCount;
+                }
+              }
+
+              ++delta;
+              ++n;
+            }
+            return output.join('');
+          }
+
+          /**
+           * Converts a Punycode string representing a domain name or an email address
+           * to Unicode. Only the Punycoded parts of the input will be converted, i.e.
+           * it doesn't matter if you call it on a string that has already been
+           * converted to Unicode.
+           * @memberOf punycode
+           * @param {String} input The Punycoded domain name or email address to
+           * convert to Unicode.
+           * @returns {String} The Unicode representation of the given Punycode
+           * string.
+           */
+          function toUnicode(input) {
+            return mapDomain(input, function (string) {
+              return regexPunycode.test(string) ? decode(string.slice(4).toLowerCase()) : string;
+            });
+          }
+
+          /**
+           * Converts a Unicode string representing a domain name or an email address to
+           * Punycode. Only the non-ASCII parts of the domain name will be converted,
+           * i.e. it doesn't matter if you call it with a domain that's already in
+           * ASCII.
+           * @memberOf punycode
+           * @param {String} input The domain name or email address to convert, as a
+           * Unicode string.
+           * @returns {String} The Punycode representation of the given domain name or
+           * email address.
+           */
+          function toASCII(input) {
+            return mapDomain(input, function (string) {
+              return regexNonASCII.test(string) ? 'xn--' + encode(string) : string;
+            });
+          }
+
+          /*--------------------------------------------------------------------------*/
+
+          /** Define the public API */
+          punycode = {
+            /**
+             * A string representing the current Punycode.js version number.
+             * @memberOf punycode
+             * @type String
+             */
+            'version': '1.4.1',
+            /**
+             * An object of methods to convert from JavaScript's internal character
+             * representation (UCS-2) to Unicode code points, and back.
+             * @see <https://mathiasbynens.be/notes/javascript-encoding>
+             * @memberOf punycode
+             * @type Object
+             */
+            'ucs2': {
+              'decode': ucs2decode,
+              'encode': ucs2encode
+            },
+            'decode': decode,
+            'encode': encode,
+            'toASCII': toASCII,
+            'toUnicode': toUnicode
+          };
+
+          /** Expose `punycode` */
+          // Some AMD build optimizers, like r.js, check for specific condition patterns
+          // like the following:
+          if (true) {
+            !(__WEBPACK_AMD_DEFINE_RESULT__ = function () {
+              return punycode;
+            }.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+          } else if (freeExports && freeModule) {
+            if (module.exports == freeExports) {
+              // in Node.js, io.js, or RingoJS v0.8.0+
+              freeModule.exports = punycode;
+            } else {
+              // in Narwhal or RingoJS v0.7.0-
+              for (key in punycode) {
+                punycode.hasOwnProperty(key) && (freeExports[key] = punycode[key]);
+              }
+            }
+          } else {
+            // in Rhino or a web browser
+            root.punycode = punycode;
+          }
+        })(this);
+
+        /* WEBPACK VAR INJECTION */
+      }).call(exports, __webpack_require__(6)(module), __webpack_require__(2));
+
+      /***/
+    },
+    /* 41 */
+    /***/function (module, exports, __webpack_require__) {
+
+      "use strict";
+
+      module.exports = {
+        isString: function isString(arg) {
+          return typeof arg === 'string';
+        },
+        isObject: function isObject(arg) {
+          return (typeof arg === 'undefined' ? 'undefined' : _typeof(arg)) === 'object' && arg !== null;
+        },
+        isNull: function isNull(arg) {
+          return arg === null;
+        },
+        isNullOrUndefined: function isNullOrUndefined(arg) {
+          return arg == null;
+        }
+      };
+
+      /***/
+    },
+    /* 42 */
+    /***/function (module, exports, __webpack_require__) {
+
+      "use strict";
+
+      Object.defineProperty(exports, "__esModule", { value: true });
+      var utils_1 = __webpack_require__(0);
+      var registerField = function registerField(field, renderer, opts) {
+        if (opts === void 0) {
+          opts = {};
+        }
+        if (!utils_1.default.validateNamespace("SPClientTemplates.TemplateManager")) {
+          throw new Error("Unable to register CSR template.  SPClientTemplates.TemplateManager does not exist");
+        }
+        var renderers = {};
+        //View, DisplayForm, EditForm, NewForm
+        field.locations.forEach(function (l) {
+          return renderers[l] = renderer;
+        });
+        var defaults = {
+          Templates: {
+            Fields: {}
+          }
+        };
+        var templateOverride = _extends({}, defaults, opts);
+        templateOverride.Templates.Fields[field.name] = renderers;
+        SPClientTemplates.TemplateManager.RegisterTemplateOverrides(templateOverride);
+        return field;
+      };
+      var registerDisplayField = function registerDisplayField(fieldComponent, opts) {
+        if (opts === void 0) {
+          opts = {};
+        }
+        var renderer = createDisplayFieldRenderer(fieldComponent);
+        fieldComponent.locations = fieldComponent.locations || ["View", "DisplayForm"];
+        return registerField(fieldComponent, renderer, opts);
+      };
+      var registerFormField = function registerFormField(fieldComponent, opts) {
+        if (opts === void 0) {
+          opts = {};
+        }
+        var renderer = createFormFieldRenderer(fieldComponent);
+        fieldComponent.locations = fieldComponent.locations || ["NewForm", "EditForm"];
+        return registerField(fieldComponent, renderer, opts);
+      };
+      function createFormFieldRenderer(field) {
+        return function (ctx) {
+          var formCtx = ctx.FormContext;
+          // need to clone ctx, it is getting overwritten so we lost CurrentItem
+          var clonedCtx = _extends({}, ctx);
+          if (field.onReady) {
+            if (formCtx) {
+              formCtx.registerInitCallback(field.name, field.onReady.bind(null, clonedCtx));
+            } else {
+              setTimeout(field.onReady.bind(null, clonedCtx), 100);
+            }
+          }
+          if (field.getValue && formCtx) {
+            formCtx.registerGetValueCallback(field.name, field.getValue.bind(null, clonedCtx));
+          }
+          // tack on 'setValue' function
+          if (formCtx && formCtx.updateControlValue) {
+            field.setValue = function (value) {
+              formCtx.updateControlValue(field.name, value);
+            };
+          }
+          return field.render(ctx);
+        };
+      }
+      function createDisplayFieldRenderer(field) {
+        return function (ctx) {
+          var formCtx = ctx.FormContext;
+          if (formCtx && formCtx.registerInitCallback && field.onReady) {
+            formCtx.registerInitCallback(field.name, field.onReady);
+          }
+          return field.render(ctx);
+        };
+      }
+      var CSR = {
+        registerDisplayField: registerDisplayField,
+        registerFormField: registerFormField
+      };
+      exports.default = CSR;
+
+      /***/
+    }]
+    /******/)
+  );
 });
 //# sourceMappingURL=spscript.js.map
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5).setImmediate, __webpack_require__(5).clearImmediate, __webpack_require__(9)(module)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(6)(module)))
 
 /***/ }),
-/* 43 */
+/* 45 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
 exports.run = function (SPScript, ctx) {
-	console.log("SPScript Env: " + SPScript._env);
-	var should = __webpack_require__(2).should();
+	var should = __webpack_require__(1).should();
 
 	describe("SPScript Global Namespace", function () {
 		it("Should have a 'SPScript.createContext()' method", function () {
@@ -5074,19 +5795,19 @@ exports.run = function (SPScript, ctx) {
 			SPScript.should.have.property("utils");
 		});
 	});
-	if (!ctx) __webpack_require__(72).run(SPScript);
+	if (!ctx) __webpack_require__(74).run(SPScript);
 	ctx = ctx || SPScript.createContext();
 
-	__webpack_require__(73).run(ctx);
-	__webpack_require__(74).run(ctx);
+	__webpack_require__(75).run(ctx);
 	__webpack_require__(76).run(ctx);
 	__webpack_require__(77).run(ctx);
 	__webpack_require__(78).run(ctx);
-	__webpack_require__(75).run(SPScript.utils);
+	__webpack_require__(79).run(ctx);
+	__webpack_require__(80).run(SPScript.utils);
 };
 
 /***/ }),
-/* 44 */
+/* 46 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*!
@@ -5108,13 +5829,13 @@ exports.version = '1.10.0';
  * Assertion Error
  */
 
-exports.AssertionError = __webpack_require__(45);
+exports.AssertionError = __webpack_require__(47);
 
 /*!
  * Utils for plugins (not exported)
  */
 
-var util = __webpack_require__(46);
+var util = __webpack_require__(48);
 
 /**
  * # .use(function)
@@ -5146,40 +5867,40 @@ exports.config = config;
  * Primary `Assertion` prototype
  */
 
-var assertion = __webpack_require__(67);
+var assertion = __webpack_require__(69);
 exports.use(assertion);
 
 /*!
  * Core Assertions
  */
 
-var core = __webpack_require__(68);
+var core = __webpack_require__(70);
 exports.use(core);
 
 /*!
  * Expect interface
  */
 
-var expect = __webpack_require__(69);
+var expect = __webpack_require__(71);
 exports.use(expect);
 
 /*!
  * Should interface
  */
 
-var should = __webpack_require__(70);
+var should = __webpack_require__(72);
 exports.use(should);
 
 /*!
  * Assert interface
  */
 
-var assert = __webpack_require__(71);
+var assert = __webpack_require__(73);
 exports.use(assert);
 
 
 /***/ }),
-/* 45 */
+/* 47 */
 /***/ (function(module, exports) {
 
 /*!
@@ -5295,7 +6016,7 @@ AssertionError.prototype.toJSON = function (stack) {
 
 
 /***/ }),
-/* 46 */
+/* 48 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*!
@@ -5314,37 +6035,37 @@ var exports = module.exports = {};
  * test utility
  */
 
-exports.test = __webpack_require__(47);
+exports.test = __webpack_require__(49);
 
 /*!
  * type utility
  */
 
-exports.type = __webpack_require__(48);
+exports.type = __webpack_require__(50);
 
 /*!
  * message utility
  */
 
-exports.getMessage = __webpack_require__(49);
+exports.getMessage = __webpack_require__(51);
 
 /*!
  * actual utility
  */
 
-exports.getActual = __webpack_require__(13);
+exports.getActual = __webpack_require__(10);
 
 /*!
  * Inspect util
  */
 
-exports.inspect = __webpack_require__(10);
+exports.inspect = __webpack_require__(7);
 
 /*!
  * Object Display util
  */
 
-exports.objDisplay = __webpack_require__(15);
+exports.objDisplay = __webpack_require__(12);
 
 /*!
  * Flag utility
@@ -5356,66 +6077,66 @@ exports.flag = __webpack_require__(3);
  * Flag transferring utility
  */
 
-exports.transferFlags = __webpack_require__(16);
+exports.transferFlags = __webpack_require__(13);
 
 /*!
  * Deep equal utility
  */
 
-exports.eql = __webpack_require__(52);
+exports.eql = __webpack_require__(54);
 
 /*!
  * Deep path value
  */
 
-exports.getPathValue = __webpack_require__(60);
+exports.getPathValue = __webpack_require__(62);
 
 /*!
  * Function name
  */
 
-exports.getName = __webpack_require__(14);
+exports.getName = __webpack_require__(11);
 
 /*!
  * add Property
  */
 
-exports.addProperty = __webpack_require__(61);
+exports.addProperty = __webpack_require__(63);
 
 /*!
  * add Method
  */
 
-exports.addMethod = __webpack_require__(62);
+exports.addMethod = __webpack_require__(64);
 
 /*!
  * overwrite Property
  */
 
-exports.overwriteProperty = __webpack_require__(63);
+exports.overwriteProperty = __webpack_require__(65);
 
 /*!
  * overwrite Method
  */
 
-exports.overwriteMethod = __webpack_require__(64);
+exports.overwriteMethod = __webpack_require__(66);
 
 /*!
  * Add a chainable method
  */
 
-exports.addChainableMethod = __webpack_require__(65);
+exports.addChainableMethod = __webpack_require__(67);
 
 /*!
  * Overwrite chainable method
  */
 
-exports.overwriteChainableMethod = __webpack_require__(66);
+exports.overwriteChainableMethod = __webpack_require__(68);
 
 
 
 /***/ }),
-/* 47 */
+/* 49 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*!
@@ -5447,7 +6168,7 @@ module.exports = function (obj, args) {
 
 
 /***/ }),
-/* 48 */
+/* 50 */
 /***/ (function(module, exports) {
 
 /*!
@@ -5498,7 +6219,7 @@ module.exports = function (obj) {
 
 
 /***/ }),
-/* 49 */
+/* 51 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*!
@@ -5512,9 +6233,9 @@ module.exports = function (obj) {
  */
 
 var flag = __webpack_require__(3)
-  , getActual = __webpack_require__(13)
-  , inspect = __webpack_require__(10)
-  , objDisplay = __webpack_require__(15);
+  , getActual = __webpack_require__(10)
+  , inspect = __webpack_require__(7)
+  , objDisplay = __webpack_require__(12);
 
 /**
  * ### .getMessage(object, message, negateMessage)
@@ -5554,7 +6275,7 @@ module.exports = function (obj, args) {
 
 
 /***/ }),
-/* 50 */
+/* 52 */
 /***/ (function(module, exports) {
 
 /*!
@@ -5595,7 +6316,7 @@ module.exports = function getProperties(object) {
 
 
 /***/ }),
-/* 51 */
+/* 53 */
 /***/ (function(module, exports) {
 
 /*!
@@ -5626,14 +6347,14 @@ module.exports = function getEnumerableProperties(object) {
 
 
 /***/ }),
-/* 52 */
+/* 54 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(53);
+module.exports = __webpack_require__(55);
 
 
 /***/ }),
-/* 53 */
+/* 55 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*!
@@ -5646,14 +6367,14 @@ module.exports = __webpack_require__(53);
  * Module dependencies
  */
 
-var type = __webpack_require__(54);
+var type = __webpack_require__(56);
 
 /*!
  * Buffer.isBuffer browser shim
  */
 
 var Buffer;
-try { Buffer = __webpack_require__(56).Buffer; }
+try { Buffer = __webpack_require__(58).Buffer; }
 catch(ex) {
   Buffer = {};
   Buffer.isBuffer = function() { return false; }
@@ -5896,14 +6617,14 @@ function objectEqual(a, b, m) {
 
 
 /***/ }),
-/* 54 */
+/* 56 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(55);
+module.exports = __webpack_require__(57);
 
 
 /***/ }),
-/* 55 */
+/* 57 */
 /***/ (function(module, exports) {
 
 /*!
@@ -6051,7 +6772,7 @@ Library.prototype.test = function (obj, type) {
 
 
 /***/ }),
-/* 56 */
+/* 58 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6065,9 +6786,9 @@ Library.prototype.test = function (obj, type) {
 
 
 
-var base64 = __webpack_require__(57)
-var ieee754 = __webpack_require__(58)
-var isArray = __webpack_require__(59)
+var base64 = __webpack_require__(59)
+var ieee754 = __webpack_require__(60)
+var isArray = __webpack_require__(61)
 
 exports.Buffer = Buffer
 exports.SlowBuffer = SlowBuffer
@@ -7845,10 +8566,10 @@ function isnan (val) {
   return val !== val // eslint-disable-line no-self-compare
 }
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(2)))
 
 /***/ }),
-/* 57 */
+/* 59 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7969,7 +8690,7 @@ function fromByteArray (uint8) {
 
 
 /***/ }),
-/* 58 */
+/* 60 */
 /***/ (function(module, exports) {
 
 exports.read = function (buffer, offset, isLE, mLen, nBytes) {
@@ -8059,7 +8780,7 @@ exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
 
 
 /***/ }),
-/* 59 */
+/* 61 */
 /***/ (function(module, exports) {
 
 var toString = {}.toString;
@@ -8070,7 +8791,7 @@ module.exports = Array.isArray || function (arr) {
 
 
 /***/ }),
-/* 60 */
+/* 62 */
 /***/ (function(module, exports) {
 
 /*!
@@ -8178,7 +8899,7 @@ function _getPathValue (parsed, obj) {
 
 
 /***/ }),
-/* 61 */
+/* 63 */
 /***/ (function(module, exports) {
 
 /*!
@@ -8224,7 +8945,7 @@ module.exports = function (ctx, name, getter) {
 
 
 /***/ }),
-/* 62 */
+/* 64 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*!
@@ -8273,7 +8994,7 @@ module.exports = function (ctx, name, method) {
 
 
 /***/ }),
-/* 63 */
+/* 65 */
 /***/ (function(module, exports) {
 
 /*!
@@ -8333,7 +9054,7 @@ module.exports = function (ctx, name, getter) {
 
 
 /***/ }),
-/* 64 */
+/* 66 */
 /***/ (function(module, exports) {
 
 /*!
@@ -8390,7 +9111,7 @@ module.exports = function (ctx, name, method) {
 
 
 /***/ }),
-/* 65 */
+/* 67 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*!
@@ -8403,7 +9124,7 @@ module.exports = function (ctx, name, method) {
  * Module dependencies
  */
 
-var transferFlags = __webpack_require__(16);
+var transferFlags = __webpack_require__(13);
 var flag = __webpack_require__(3);
 var config = __webpack_require__(4);
 
@@ -8507,7 +9228,7 @@ module.exports = function (ctx, name, method, chainingBehavior) {
 
 
 /***/ }),
-/* 66 */
+/* 68 */
 /***/ (function(module, exports) {
 
 /*!
@@ -8566,7 +9287,7 @@ module.exports = function (ctx, name, method, chainingBehavior) {
 
 
 /***/ }),
-/* 67 */
+/* 69 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*!
@@ -8707,7 +9428,7 @@ module.exports = function (_chai, util) {
 
 
 /***/ }),
-/* 68 */
+/* 70 */
 /***/ (function(module, exports) {
 
 /*!
@@ -10072,7 +10793,7 @@ module.exports = function (chai, _) {
 
 
 /***/ }),
-/* 69 */
+/* 71 */
 /***/ (function(module, exports) {
 
 /*!
@@ -10090,7 +10811,7 @@ module.exports = function (chai, util) {
 
 
 /***/ }),
-/* 70 */
+/* 72 */
 /***/ (function(module, exports) {
 
 /*!
@@ -10174,7 +10895,7 @@ module.exports = function (chai, util) {
 
 
 /***/ }),
-/* 71 */
+/* 73 */
 /***/ (function(module, exports) {
 
 /*!
@@ -11236,13 +11957,13 @@ module.exports = function (chai, util) {
 
 
 /***/ }),
-/* 72 */
+/* 74 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var should = __webpack_require__(2).should();
+var should = __webpack_require__(1).should();
 
 exports.run = function (SPScript) {
 	describe("SPScript Context", function () {
@@ -11355,14 +12076,14 @@ exports.run = function (SPScript) {
 };
 
 /***/ }),
-/* 73 */
+/* 75 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var permissionsTests = __webpack_require__(17);
-var should = __webpack_require__(2).should();
+var permissionsTests = __webpack_require__(14);
+var should = __webpack_require__(1).should();
 
 exports.run = function (dao) {
     describe("var web = ctx.web", function () {
@@ -11579,14 +12300,14 @@ function isBrowser() {
 }
 
 /***/ }),
-/* 74 */
+/* 76 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var permissionsTests = __webpack_require__(17);
-var should = __webpack_require__(2).should();
+var permissionsTests = __webpack_require__(14);
+var should = __webpack_require__(1).should();
 
 exports.run = function (dao) {
 	describe("var list = ctx.lists(listname)", function () {
@@ -11880,169 +12601,13 @@ function isBrowser() {
 }
 
 /***/ }),
-/* 75 */
+/* 77 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var should = __webpack_require__(2).should();
-
-exports.run = function (utils) {
-    describe("var utils = SPScript.utils", function () {
-        describe("utils.parseJSON(data)", function () {
-            it("Should exist on the utils object", function () {
-                utils.should.have.property("parseJSON");
-                utils.parseJSON.should.be.a("function");
-            });
-            it("Should take a string or an object and return an object", function () {
-                var obj = { one: "value of one", two: "value of two" };
-                var jsonStr = JSON.stringify(obj);
-
-                var res1 = utils.parseJSON(obj);
-                res1.should.not.be.null;
-                res1.should.have.property("one");
-                res1.one.should.equal(obj.one);
-
-                var res2 = utils.parseJSON(jsonStr);
-                res2.should.not.be.null;
-                res2.should.have.property("one");
-                res2.one.should.equal(obj.one);
-            });
-        });
-
-        describe("Query String", function () {
-            describe("utils.qs.toObj(str)", function () {
-                it("Should take in a string in the form of key=value&key2=value and return an Object", function () {
-                    var str1 = "key1=value1";
-                    var str2 = "key1=value1&key2=value2";
-                    var obj1 = utils.qs.toObj(str1);
-                    obj1.should.have.property("key1");
-                    obj1.key1.should.equal("value1");
-
-                    var obj2 = utils.qs.toObj(str2);
-                    obj2.should.have.property("key1");
-                    obj2.should.have.property("key2");
-                    obj2.key2.should.equal("value2");
-                });
-                it("Should support an optional leading '?' ", function () {
-                    var str1 = "?key1=value1";
-                    var obj1 = utils.qs.toObj(str1);
-                    obj1.should.have.property("key1");
-                    obj1.key1.should.equal("value1");
-                });
-                it("Should default to 'window.location.search' if no value is passed");
-            });
-
-            describe("utils.qs.fromObj(obj, quoteValues?)", function () {
-                it("Should turn { key1: 'value1', key2: 'value2' } into 'key1=value1&key2=value2'", function () {
-                    var obj = { key1: "value1", key2: "value2" };
-                    var str = utils.qs.fromObj(obj);
-                    str.should.equal("key1=value1&key2=value2");
-                });
-                it("Should put single quotes around words with spaces", function () {
-                    var obj = { key1: "my value" };
-                    var str = utils.qs.fromObj(obj);
-                    str.should.equal("key1='my value'");
-                });
-                it("Should put single quotes around every value is an optional 'quoteValues' param is set to true", function () {
-                    var obj = { key1: "value1", key2: "value2" };
-                    var str = utils.qs.fromObj(obj, true);
-                    str.should.equal("key1='value1'&key2='value2'");
-                });
-            });
-        });
-
-        describe("Headers", function () {
-
-            describe("utils.headers.getStandardHeaders(digest?)", function () {
-                var jsonMimeType = "application/json;odata=verbose";
-                it("Should set the Accept header", function () {
-                    var headers = utils.headers.getStandardHeaders();
-                    headers.should.have.property("Accept");
-                    headers.Accept.should.equal(jsonMimeType);
-                });
-                it("Should set the Request Digest if a digest is passed", function () {
-                    var digest = "123Fake";
-                    var headers = utils.headers.getStandardHeaders(digest);
-                    headers.should.have.property("Accept");
-                    headers.Accept.should.equal(jsonMimeType);
-                    headers.should.have.property("X-RequestDigest");
-                    headers["X-RequestDigest"].should.equal(digest);
-                });
-            });
-
-            describe("utils.headers.getAddHeaders(digest)", function () {
-                var jsonMimeType = "application/json;odata=verbose";
-                it("Should set the Request Digest if a digest is passed", function () {
-                    var digest = "123Fake";
-                    var headers = utils.headers.getAddHeaders(digest);
-                    headers.should.have.property("Accept");
-                    headers.Accept.should.equal(jsonMimeType);
-                    headers.should.have.property("X-RequestDigest");
-                    headers["X-RequestDigest"].should.equal(digest);
-                });
-            });
-
-            describe("utils.headers.getUpdateHeaders(digest)", function () {
-                var jsonMimeType = "application/json;odata=verbose";
-                it("Should set X-HTTP-Method to MERGE and include X-RequestDigest", function () {
-                    var digest = "123Fake";
-                    var headers = utils.headers.getUpdateHeaders(digest);
-                    headers.should.have.property("Accept");
-                    headers.Accept.should.equal(jsonMimeType);
-                    headers.should.have.property("X-RequestDigest");
-                    headers["X-RequestDigest"].should.equal(digest);
-                    headers.should.have.property("X-HTTP-Method");
-                    headers["X-HTTP-Method"].should.equal("MERGE");
-                });
-            });
-
-            describe("utils.headers.getDeleteHeaders(digest)", function () {
-                var jsonMimeType = "application/json;odata=verbose";
-                it("Should set X-HTTP-Method to DELETE and include X-RequestDigest", function () {
-                    var digest = "123Fake";
-                    var headers = utils.headers.getDeleteHeaders(digest);
-                    headers.should.have.property("Accept");
-                    headers.Accept.should.equal(jsonMimeType);
-                    headers.should.have.property("X-RequestDigest");
-                    headers["X-RequestDigest"].should.equal(digest);
-                    headers.should.have.property("X-HTTP-Method");
-                    headers["X-HTTP-Method"].should.equal("DELETE");
-                });
-            });
-        });
-
-        describe("Dependency Management", function () {
-            describe("utils.validateNamespace(namespace)", function () {
-                it("Should return false if that namespace is not on global window");
-                it("Should return true if that namespace is on global window");
-            });
-
-            describe("utils.waitForLibrary(namespace)", function () {
-                it("Should return a promise that resolves when that namespace is on the global");
-            });
-
-            describe("utils.waitForLibraries(namespaces)", function () {
-                it("Should return a promise that resolves when all the namespacea are on the global");
-            });
-
-            describe("utils.waitForElement(selector)", function () {
-                it("Should return a promise that resolves an element that matches the selector is on the page");
-                it("Should eventually time out");
-            });
-        });
-    });
-};
-
-/***/ }),
-/* 76 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var should = __webpack_require__(2).should();
+var should = __webpack_require__(1).should();
 
 exports.run = function (dao) {
     describe("var search = ctx.search;", function () {
@@ -12169,7 +12734,7 @@ exports.run = function (dao) {
 };
 
 /***/ }),
-/* 77 */
+/* 78 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -12430,13 +12995,13 @@ exports.run = function (dao) {
 };
 
 /***/ }),
-/* 78 */
+/* 79 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var should = __webpack_require__(2).should();
+var should = __webpack_require__(1).should();
 
 exports.run = function (dao) {
     console.log("HERE I AM");
@@ -12629,6 +13194,162 @@ exports.run = function (dao) {
                 }).catch(function (err) {
                     done(err);
                 });
+            });
+        });
+    });
+};
+
+/***/ }),
+/* 80 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var should = __webpack_require__(1).should();
+
+exports.run = function (utils) {
+    describe("var utils = SPScript.utils", function () {
+        describe("utils.parseJSON(data)", function () {
+            it("Should exist on the utils object", function () {
+                utils.should.have.property("parseJSON");
+                utils.parseJSON.should.be.a("function");
+            });
+            it("Should take a string or an object and return an object", function () {
+                var obj = { one: "value of one", two: "value of two" };
+                var jsonStr = JSON.stringify(obj);
+
+                var res1 = utils.parseJSON(obj);
+                res1.should.not.be.null;
+                res1.should.have.property("one");
+                res1.one.should.equal(obj.one);
+
+                var res2 = utils.parseJSON(jsonStr);
+                res2.should.not.be.null;
+                res2.should.have.property("one");
+                res2.one.should.equal(obj.one);
+            });
+        });
+
+        describe("Query String", function () {
+            describe("utils.qs.toObj(str)", function () {
+                it("Should take in a string in the form of key=value&key2=value and return an Object", function () {
+                    var str1 = "key1=value1";
+                    var str2 = "key1=value1&key2=value2";
+                    var obj1 = utils.qs.toObj(str1);
+                    obj1.should.have.property("key1");
+                    obj1.key1.should.equal("value1");
+
+                    var obj2 = utils.qs.toObj(str2);
+                    obj2.should.have.property("key1");
+                    obj2.should.have.property("key2");
+                    obj2.key2.should.equal("value2");
+                });
+                it("Should support an optional leading '?' ", function () {
+                    var str1 = "?key1=value1";
+                    var obj1 = utils.qs.toObj(str1);
+                    obj1.should.have.property("key1");
+                    obj1.key1.should.equal("value1");
+                });
+                it("Should default to 'window.location.search' if no value is passed");
+            });
+
+            describe("utils.qs.fromObj(obj, quoteValues?)", function () {
+                it("Should turn { key1: 'value1', key2: 'value2' } into 'key1=value1&key2=value2'", function () {
+                    var obj = { key1: "value1", key2: "value2" };
+                    var str = utils.qs.fromObj(obj);
+                    str.should.equal("key1=value1&key2=value2");
+                });
+                it("Should put single quotes around words with spaces", function () {
+                    var obj = { key1: "my value" };
+                    var str = utils.qs.fromObj(obj);
+                    str.should.equal("key1='my value'");
+                });
+                it("Should put single quotes around every value is an optional 'quoteValues' param is set to true", function () {
+                    var obj = { key1: "value1", key2: "value2" };
+                    var str = utils.qs.fromObj(obj, true);
+                    str.should.equal("key1='value1'&key2='value2'");
+                });
+            });
+        });
+
+        describe("Headers", function () {
+
+            describe("utils.headers.getStandardHeaders(digest?)", function () {
+                var jsonMimeType = "application/json;odata=verbose";
+                it("Should set the Accept header", function () {
+                    var headers = utils.headers.getStandardHeaders();
+                    headers.should.have.property("Accept");
+                    headers.Accept.should.equal(jsonMimeType);
+                });
+                it("Should set the Request Digest if a digest is passed", function () {
+                    var digest = "123Fake";
+                    var headers = utils.headers.getStandardHeaders(digest);
+                    headers.should.have.property("Accept");
+                    headers.Accept.should.equal(jsonMimeType);
+                    headers.should.have.property("X-RequestDigest");
+                    headers["X-RequestDigest"].should.equal(digest);
+                });
+            });
+
+            describe("utils.headers.getAddHeaders(digest)", function () {
+                var jsonMimeType = "application/json;odata=verbose";
+                it("Should set the Request Digest if a digest is passed", function () {
+                    var digest = "123Fake";
+                    var headers = utils.headers.getAddHeaders(digest);
+                    headers.should.have.property("Accept");
+                    headers.Accept.should.equal(jsonMimeType);
+                    headers.should.have.property("X-RequestDigest");
+                    headers["X-RequestDigest"].should.equal(digest);
+                });
+            });
+
+            describe("utils.headers.getUpdateHeaders(digest)", function () {
+                var jsonMimeType = "application/json;odata=verbose";
+                it("Should set X-HTTP-Method to MERGE and include X-RequestDigest", function () {
+                    var digest = "123Fake";
+                    var headers = utils.headers.getUpdateHeaders(digest);
+                    headers.should.have.property("Accept");
+                    headers.Accept.should.equal(jsonMimeType);
+                    headers.should.have.property("X-RequestDigest");
+                    headers["X-RequestDigest"].should.equal(digest);
+                    headers.should.have.property("X-HTTP-Method");
+                    headers["X-HTTP-Method"].should.equal("MERGE");
+                });
+            });
+
+            describe("utils.headers.getDeleteHeaders(digest)", function () {
+                var jsonMimeType = "application/json;odata=verbose";
+                it("Should set X-HTTP-Method to DELETE and include X-RequestDigest", function () {
+                    var digest = "123Fake";
+                    var headers = utils.headers.getDeleteHeaders(digest);
+                    headers.should.have.property("Accept");
+                    headers.Accept.should.equal(jsonMimeType);
+                    headers.should.have.property("X-RequestDigest");
+                    headers["X-RequestDigest"].should.equal(digest);
+                    headers.should.have.property("X-HTTP-Method");
+                    headers["X-HTTP-Method"].should.equal("DELETE");
+                });
+            });
+        });
+
+        describe("Dependency Management", function () {
+            describe("utils.validateNamespace(namespace)", function () {
+                it("Should return false if that namespace is not on global window");
+                it("Should return true if that namespace is on global window");
+            });
+
+            describe("utils.waitForLibrary(namespace)", function () {
+                it("Should return a promise that resolves when that namespace is on the global");
+            });
+
+            describe("utils.waitForLibraries(namespaces)", function () {
+                it("Should return a promise that resolves when all the namespacea are on the global");
+            });
+
+            describe("utils.waitForElement(selector)", function () {
+                it("Should return a promise that resolves an element that matches the selector is on the page");
+                it("Should eventually time out");
             });
         });
     });

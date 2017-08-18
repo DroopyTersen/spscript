@@ -1,10 +1,5 @@
-import promisePolyfill from "promise-polyfill";
+import "isomorphic-fetch";
+import "es6-promise/auto";
 import SPScript from "./SPScript";
-
-declare var global;
-if (!global.Promise) {
-	global.Promise = promisePolyfill;
-}
-// global.SPScript = SPScript;
 
 export = SPScript;
