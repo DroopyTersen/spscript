@@ -1,13 +1,13 @@
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
-		module.exports = factory();
+		module.exports = factory(require("isomorphic-fetch"));
 	else if(typeof define === 'function' && define.amd)
-		define("SPScript", [], factory);
+		define("SPScript", ["isomorphic-fetch"], factory);
 	else if(typeof exports === 'object')
-		exports["SPScript"] = factory();
+		exports["SPScript"] = factory(require("isomorphic-fetch"));
 	else
-		root["SPScript"] = factory();
-})(this, function() {
+		root["SPScript"] = factory(root["isomorphic-fetch"]);
+})(this, function(__WEBPACK_EXTERNAL_MODULE_5__) {
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
@@ -70,7 +70,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 43);
+/******/ 	return __webpack_require__(__webpack_require__.s = 42);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -78,7 +78,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 1 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(46);
+module.exports = __webpack_require__(45);
 
 
 /***/ }),
@@ -203,8 +203,14 @@ module.exports = {
 
 
 /***/ }),
-/* 5 */,
-/* 6 */
+/* 5 */
+/***/ (function(module, exports) {
+
+module.exports = __WEBPACK_EXTERNAL_MODULE_5__;
+
+/***/ }),
+/* 6 */,
+/* 7 */
 /***/ (function(module, exports) {
 
 module.exports = function(module) {
@@ -232,15 +238,15 @@ module.exports = function(module) {
 
 
 /***/ }),
-/* 7 */
+/* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // This is (almost) directly from Node.js utils
 // https://github.com/joyent/node/blob/f8c335d0caf47f16d31413f89aa28eda3878e3aa/lib/util.js
 
-var getName = __webpack_require__(11);
-var getProperties = __webpack_require__(52);
-var getEnumerableProperties = __webpack_require__(53);
+var getName = __webpack_require__(12);
+var getProperties = __webpack_require__(51);
+var getEnumerableProperties = __webpack_require__(52);
 
 module.exports = inspect;
 
@@ -571,9 +577,9 @@ function objectToString(o) {
 
 
 /***/ }),
-/* 8 */,
 /* 9 */,
-/* 10 */
+/* 10 */,
+/* 11 */
 /***/ (function(module, exports) {
 
 /*!
@@ -597,7 +603,7 @@ module.exports = function (obj, args) {
 
 
 /***/ }),
-/* 11 */
+/* 12 */
 /***/ (function(module, exports) {
 
 /*!
@@ -623,7 +629,7 @@ module.exports = function (func) {
 
 
 /***/ }),
-/* 12 */
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*!
@@ -636,7 +642,7 @@ module.exports = function (func) {
  * Module dependancies
  */
 
-var inspect = __webpack_require__(7);
+var inspect = __webpack_require__(8);
 var config = __webpack_require__(4);
 
 /**
@@ -678,7 +684,7 @@ module.exports = function (obj) {
 
 
 /***/ }),
-/* 13 */
+/* 14 */
 /***/ (function(module, exports) {
 
 /*!
@@ -728,7 +734,7 @@ module.exports = function (assertion, object, includeAll) {
 
 
 /***/ }),
-/* 14 */
+/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -802,7 +808,6 @@ var create = exports.create = function (securable, action, email) {
 };
 
 /***/ }),
-/* 15 */,
 /* 16 */,
 /* 17 */,
 /* 18 */,
@@ -829,8 +834,7 @@ var create = exports.create = function (securable, action, email) {
 /* 39 */,
 /* 40 */,
 /* 41 */,
-/* 42 */,
-/* 43 */
+/* 42 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -843,13 +847,13 @@ var create = exports.create = function (securable, action, email) {
 
 mocha.setup("bdd");
 chai.should();
-var SPScript = __webpack_require__(44);
-__webpack_require__(45).run(SPScript);
+var SPScript = __webpack_require__(43);
+__webpack_require__(44).run(SPScript);
 
 mocha.run();
 
 /***/ }),
-/* 44 */
+/* 43 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -860,11 +864,11 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 (function webpackUniversalModuleDefinition(root, factory) {
-  if (( false ? 'undefined' : _typeof(exports)) === 'object' && ( false ? 'undefined' : _typeof(module)) === 'object') module.exports = factory();else if (true) !(__WEBPACK_AMD_DEFINE_ARRAY__ = [], __WEBPACK_AMD_DEFINE_FACTORY__ = (factory),
+  if (( false ? 'undefined' : _typeof(exports)) === 'object' && ( false ? 'undefined' : _typeof(module)) === 'object') module.exports = factory(__webpack_require__(5));else if (true) !(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(5)], __WEBPACK_AMD_DEFINE_FACTORY__ = (factory),
 				__WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ?
 				(__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__),
-				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));else if ((typeof exports === 'undefined' ? 'undefined' : _typeof(exports)) === 'object') exports["SPScript"] = factory();else root["SPScript"] = factory();
-})(undefined, function () {
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));else if ((typeof exports === 'undefined' ? 'undefined' : _typeof(exports)) === 'object') exports["SPScript"] = factory(require("isomorphic-fetch"));else root["SPScript"] = factory(root["isomorphic-fetch"]);
+})(undefined, function (__WEBPACK_EXTERNAL_MODULE_5__) {
   return (/******/function (modules) {
       // webpackBootstrap
       /******/ // The module cache
@@ -939,7 +943,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
       /******/__webpack_require__.p = "";
       /******/
       /******/ // Load entry module and return exports
-      /******/return __webpack_require__(__webpack_require__.s = 15);
+      /******/return __webpack_require__(__webpack_require__.s = 16);
       /******/
     }(
     /************************************************************************/
@@ -959,10 +963,10 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         return t;
       };
       Object.defineProperty(exports, "__esModule", { value: true });
-      var queryString_1 = __webpack_require__(23);
-      var headers_1 = __webpack_require__(26);
-      var loaders_1 = __webpack_require__(27);
-      var dependencyManagement_1 = __webpack_require__(28);
+      var queryString_1 = __webpack_require__(22);
+      var headers_1 = __webpack_require__(25);
+      var loaders_1 = __webpack_require__(26);
+      var dependencyManagement_1 = __webpack_require__(27);
       function isBrowser() {
         return !(typeof window === "undefined");
       }
@@ -1060,16 +1064,23 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
     /* 3 */
     /* 4 */
     /* 5 */
-    /***/function (module, exports, __webpack_require__) {
+    /***/function (module, exports) {
 
-      "use strict";
-
-      exports.decode = exports.parse = __webpack_require__(24);
-      exports.encode = exports.stringify = __webpack_require__(25);
+      module.exports = __WEBPACK_EXTERNAL_MODULE_5__;
 
       /***/
     },
     /* 6 */
+    /***/function (module, exports, __webpack_require__) {
+
+      "use strict";
+
+      exports.decode = exports.parse = __webpack_require__(23);
+      exports.encode = exports.stringify = __webpack_require__(24);
+
+      /***/
+    },
+    /* 7 */
     /***/function (module, exports) {
 
       module.exports = function (module) {
@@ -1097,8 +1108,8 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
       /***/
     },,
-    /* 7 */
     /* 8 */
+    /* 9 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
@@ -1129,14 +1140,14 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
       /***/
     },
-    /* 9 */
+    /* 10 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
 
       Object.defineProperty(exports, "__esModule", { value: true });
       var utils_1 = __webpack_require__(0);
-      var IPermissions_1 = __webpack_require__(31);
+      var IPermissions_1 = __webpack_require__(30);
       /** Allows you to check the permissions of a securable (list or site) */
       var Securable = function () {
         function Securable(baseUrl, ctx) {
@@ -1201,510 +1212,35 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
       /***/
     },,,,,,
-    /* 10 */
     /* 11 */
     /* 12 */
     /* 13 */
     /* 14 */
     /* 15 */
+    /* 16 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
 
-      __webpack_require__(16);
-      __webpack_require__(18);
-      var SPScript_1 = __webpack_require__(22);
+      __webpack_require__(5);
+      __webpack_require__(17);
+      var SPScript_1 = __webpack_require__(21);
       module.exports = SPScript_1.default;
 
       /***/
     },
-    /* 16 */
-    /***/function (module, exports, __webpack_require__) {
-
-      // the whatwg-fetch polyfill installs the fetch() function
-      // on the global object (window or self)
-      //
-      // Return that as the export for use in Webpack, Browserify etc.
-      __webpack_require__(17);
-      module.exports = self.fetch.bind(self);
-
-      /***/
-    },
     /* 17 */
-    /***/function (module, exports) {
-
-      (function (self) {
-        'use strict';
-
-        if (self.fetch) {
-          return;
-        }
-
-        var support = {
-          searchParams: 'URLSearchParams' in self,
-          iterable: 'Symbol' in self && 'iterator' in Symbol,
-          blob: 'FileReader' in self && 'Blob' in self && function () {
-            try {
-              new Blob();
-              return true;
-            } catch (e) {
-              return false;
-            }
-          }(),
-          formData: 'FormData' in self,
-          arrayBuffer: 'ArrayBuffer' in self
-        };
-
-        if (support.arrayBuffer) {
-          var viewClasses = ['[object Int8Array]', '[object Uint8Array]', '[object Uint8ClampedArray]', '[object Int16Array]', '[object Uint16Array]', '[object Int32Array]', '[object Uint32Array]', '[object Float32Array]', '[object Float64Array]'];
-
-          var isDataView = function isDataView(obj) {
-            return obj && DataView.prototype.isPrototypeOf(obj);
-          };
-
-          var isArrayBufferView = ArrayBuffer.isView || function (obj) {
-            return obj && viewClasses.indexOf(Object.prototype.toString.call(obj)) > -1;
-          };
-        }
-
-        function normalizeName(name) {
-          if (typeof name !== 'string') {
-            name = String(name);
-          }
-          if (/[^a-z0-9\-#$%&'*+.\^_`|~]/i.test(name)) {
-            throw new TypeError('Invalid character in header field name');
-          }
-          return name.toLowerCase();
-        }
-
-        function normalizeValue(value) {
-          if (typeof value !== 'string') {
-            value = String(value);
-          }
-          return value;
-        }
-
-        // Build a destructive iterator for the value list
-        function iteratorFor(items) {
-          var iterator = {
-            next: function next() {
-              var value = items.shift();
-              return { done: value === undefined, value: value };
-            }
-          };
-
-          if (support.iterable) {
-            iterator[Symbol.iterator] = function () {
-              return iterator;
-            };
-          }
-
-          return iterator;
-        }
-
-        function Headers(headers) {
-          this.map = {};
-
-          if (headers instanceof Headers) {
-            headers.forEach(function (value, name) {
-              this.append(name, value);
-            }, this);
-          } else if (Array.isArray(headers)) {
-            headers.forEach(function (header) {
-              this.append(header[0], header[1]);
-            }, this);
-          } else if (headers) {
-            Object.getOwnPropertyNames(headers).forEach(function (name) {
-              this.append(name, headers[name]);
-            }, this);
-          }
-        }
-
-        Headers.prototype.append = function (name, value) {
-          name = normalizeName(name);
-          value = normalizeValue(value);
-          var oldValue = this.map[name];
-          this.map[name] = oldValue ? oldValue + ',' + value : value;
-        };
-
-        Headers.prototype['delete'] = function (name) {
-          delete this.map[normalizeName(name)];
-        };
-
-        Headers.prototype.get = function (name) {
-          name = normalizeName(name);
-          return this.has(name) ? this.map[name] : null;
-        };
-
-        Headers.prototype.has = function (name) {
-          return this.map.hasOwnProperty(normalizeName(name));
-        };
-
-        Headers.prototype.set = function (name, value) {
-          this.map[normalizeName(name)] = normalizeValue(value);
-        };
-
-        Headers.prototype.forEach = function (callback, thisArg) {
-          for (var name in this.map) {
-            if (this.map.hasOwnProperty(name)) {
-              callback.call(thisArg, this.map[name], name, this);
-            }
-          }
-        };
-
-        Headers.prototype.keys = function () {
-          var items = [];
-          this.forEach(function (value, name) {
-            items.push(name);
-          });
-          return iteratorFor(items);
-        };
-
-        Headers.prototype.values = function () {
-          var items = [];
-          this.forEach(function (value) {
-            items.push(value);
-          });
-          return iteratorFor(items);
-        };
-
-        Headers.prototype.entries = function () {
-          var items = [];
-          this.forEach(function (value, name) {
-            items.push([name, value]);
-          });
-          return iteratorFor(items);
-        };
-
-        if (support.iterable) {
-          Headers.prototype[Symbol.iterator] = Headers.prototype.entries;
-        }
-
-        function consumed(body) {
-          if (body.bodyUsed) {
-            return Promise.reject(new TypeError('Already read'));
-          }
-          body.bodyUsed = true;
-        }
-
-        function fileReaderReady(reader) {
-          return new Promise(function (resolve, reject) {
-            reader.onload = function () {
-              resolve(reader.result);
-            };
-            reader.onerror = function () {
-              reject(reader.error);
-            };
-          });
-        }
-
-        function readBlobAsArrayBuffer(blob) {
-          var reader = new FileReader();
-          var promise = fileReaderReady(reader);
-          reader.readAsArrayBuffer(blob);
-          return promise;
-        }
-
-        function readBlobAsText(blob) {
-          var reader = new FileReader();
-          var promise = fileReaderReady(reader);
-          reader.readAsText(blob);
-          return promise;
-        }
-
-        function readArrayBufferAsText(buf) {
-          var view = new Uint8Array(buf);
-          var chars = new Array(view.length);
-
-          for (var i = 0; i < view.length; i++) {
-            chars[i] = String.fromCharCode(view[i]);
-          }
-          return chars.join('');
-        }
-
-        function bufferClone(buf) {
-          if (buf.slice) {
-            return buf.slice(0);
-          } else {
-            var view = new Uint8Array(buf.byteLength);
-            view.set(new Uint8Array(buf));
-            return view.buffer;
-          }
-        }
-
-        function Body() {
-          this.bodyUsed = false;
-
-          this._initBody = function (body) {
-            this._bodyInit = body;
-            if (!body) {
-              this._bodyText = '';
-            } else if (typeof body === 'string') {
-              this._bodyText = body;
-            } else if (support.blob && Blob.prototype.isPrototypeOf(body)) {
-              this._bodyBlob = body;
-            } else if (support.formData && FormData.prototype.isPrototypeOf(body)) {
-              this._bodyFormData = body;
-            } else if (support.searchParams && URLSearchParams.prototype.isPrototypeOf(body)) {
-              this._bodyText = body.toString();
-            } else if (support.arrayBuffer && support.blob && isDataView(body)) {
-              this._bodyArrayBuffer = bufferClone(body.buffer);
-              // IE 10-11 can't handle a DataView body.
-              this._bodyInit = new Blob([this._bodyArrayBuffer]);
-            } else if (support.arrayBuffer && (ArrayBuffer.prototype.isPrototypeOf(body) || isArrayBufferView(body))) {
-              this._bodyArrayBuffer = bufferClone(body);
-            } else {
-              throw new Error('unsupported BodyInit type');
-            }
-
-            if (!this.headers.get('content-type')) {
-              if (typeof body === 'string') {
-                this.headers.set('content-type', 'text/plain;charset=UTF-8');
-              } else if (this._bodyBlob && this._bodyBlob.type) {
-                this.headers.set('content-type', this._bodyBlob.type);
-              } else if (support.searchParams && URLSearchParams.prototype.isPrototypeOf(body)) {
-                this.headers.set('content-type', 'application/x-www-form-urlencoded;charset=UTF-8');
-              }
-            }
-          };
-
-          if (support.blob) {
-            this.blob = function () {
-              var rejected = consumed(this);
-              if (rejected) {
-                return rejected;
-              }
-
-              if (this._bodyBlob) {
-                return Promise.resolve(this._bodyBlob);
-              } else if (this._bodyArrayBuffer) {
-                return Promise.resolve(new Blob([this._bodyArrayBuffer]));
-              } else if (this._bodyFormData) {
-                throw new Error('could not read FormData body as blob');
-              } else {
-                return Promise.resolve(new Blob([this._bodyText]));
-              }
-            };
-
-            this.arrayBuffer = function () {
-              if (this._bodyArrayBuffer) {
-                return consumed(this) || Promise.resolve(this._bodyArrayBuffer);
-              } else {
-                return this.blob().then(readBlobAsArrayBuffer);
-              }
-            };
-          }
-
-          this.text = function () {
-            var rejected = consumed(this);
-            if (rejected) {
-              return rejected;
-            }
-
-            if (this._bodyBlob) {
-              return readBlobAsText(this._bodyBlob);
-            } else if (this._bodyArrayBuffer) {
-              return Promise.resolve(readArrayBufferAsText(this._bodyArrayBuffer));
-            } else if (this._bodyFormData) {
-              throw new Error('could not read FormData body as text');
-            } else {
-              return Promise.resolve(this._bodyText);
-            }
-          };
-
-          if (support.formData) {
-            this.formData = function () {
-              return this.text().then(decode);
-            };
-          }
-
-          this.json = function () {
-            return this.text().then(JSON.parse);
-          };
-
-          return this;
-        }
-
-        // HTTP methods whose capitalization should be normalized
-        var methods = ['DELETE', 'GET', 'HEAD', 'OPTIONS', 'POST', 'PUT'];
-
-        function normalizeMethod(method) {
-          var upcased = method.toUpperCase();
-          return methods.indexOf(upcased) > -1 ? upcased : method;
-        }
-
-        function Request(input, options) {
-          options = options || {};
-          var body = options.body;
-
-          if (input instanceof Request) {
-            if (input.bodyUsed) {
-              throw new TypeError('Already read');
-            }
-            this.url = input.url;
-            this.credentials = input.credentials;
-            if (!options.headers) {
-              this.headers = new Headers(input.headers);
-            }
-            this.method = input.method;
-            this.mode = input.mode;
-            if (!body && input._bodyInit != null) {
-              body = input._bodyInit;
-              input.bodyUsed = true;
-            }
-          } else {
-            this.url = String(input);
-          }
-
-          this.credentials = options.credentials || this.credentials || 'omit';
-          if (options.headers || !this.headers) {
-            this.headers = new Headers(options.headers);
-          }
-          this.method = normalizeMethod(options.method || this.method || 'GET');
-          this.mode = options.mode || this.mode || null;
-          this.referrer = null;
-
-          if ((this.method === 'GET' || this.method === 'HEAD') && body) {
-            throw new TypeError('Body not allowed for GET or HEAD requests');
-          }
-          this._initBody(body);
-        }
-
-        Request.prototype.clone = function () {
-          return new Request(this, { body: this._bodyInit });
-        };
-
-        function decode(body) {
-          var form = new FormData();
-          body.trim().split('&').forEach(function (bytes) {
-            if (bytes) {
-              var split = bytes.split('=');
-              var name = split.shift().replace(/\+/g, ' ');
-              var value = split.join('=').replace(/\+/g, ' ');
-              form.append(decodeURIComponent(name), decodeURIComponent(value));
-            }
-          });
-          return form;
-        }
-
-        function parseHeaders(rawHeaders) {
-          var headers = new Headers();
-          rawHeaders.split(/\r?\n/).forEach(function (line) {
-            var parts = line.split(':');
-            var key = parts.shift().trim();
-            if (key) {
-              var value = parts.join(':').trim();
-              headers.append(key, value);
-            }
-          });
-          return headers;
-        }
-
-        Body.call(Request.prototype);
-
-        function Response(bodyInit, options) {
-          if (!options) {
-            options = {};
-          }
-
-          this.type = 'default';
-          this.status = 'status' in options ? options.status : 200;
-          this.ok = this.status >= 200 && this.status < 300;
-          this.statusText = 'statusText' in options ? options.statusText : 'OK';
-          this.headers = new Headers(options.headers);
-          this.url = options.url || '';
-          this._initBody(bodyInit);
-        }
-
-        Body.call(Response.prototype);
-
-        Response.prototype.clone = function () {
-          return new Response(this._bodyInit, {
-            status: this.status,
-            statusText: this.statusText,
-            headers: new Headers(this.headers),
-            url: this.url
-          });
-        };
-
-        Response.error = function () {
-          var response = new Response(null, { status: 0, statusText: '' });
-          response.type = 'error';
-          return response;
-        };
-
-        var redirectStatuses = [301, 302, 303, 307, 308];
-
-        Response.redirect = function (url, status) {
-          if (redirectStatuses.indexOf(status) === -1) {
-            throw new RangeError('Invalid status code');
-          }
-
-          return new Response(null, { status: status, headers: { location: url } });
-        };
-
-        self.Headers = Headers;
-        self.Request = Request;
-        self.Response = Response;
-
-        self.fetch = function (input, init) {
-          return new Promise(function (resolve, reject) {
-            var request = new Request(input, init);
-            var xhr = new XMLHttpRequest();
-
-            xhr.onload = function () {
-              var options = {
-                status: xhr.status,
-                statusText: xhr.statusText,
-                headers: parseHeaders(xhr.getAllResponseHeaders() || '')
-              };
-              options.url = 'responseURL' in xhr ? xhr.responseURL : options.headers.get('X-Request-URL');
-              var body = 'response' in xhr ? xhr.response : xhr.responseText;
-              resolve(new Response(body, options));
-            };
-
-            xhr.onerror = function () {
-              reject(new TypeError('Network request failed'));
-            };
-
-            xhr.ontimeout = function () {
-              reject(new TypeError('Network request failed'));
-            };
-
-            xhr.open(request.method, request.url, true);
-
-            if (request.credentials === 'include') {
-              xhr.withCredentials = true;
-            }
-
-            if ('responseType' in xhr && support.blob) {
-              xhr.responseType = 'blob';
-            }
-
-            request.headers.forEach(function (value, name) {
-              xhr.setRequestHeader(name, value);
-            });
-
-            xhr.send(typeof request._bodyInit === 'undefined' ? null : request._bodyInit);
-          });
-        };
-        self.fetch.polyfill = true;
-      })(typeof self !== 'undefined' ? self : this);
-
-      /***/
-    },
-    /* 18 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
       // This file can be required in Browserify and Node.js for automatic polyfill
       // To use it:  require('es6-promise/auto');
 
-      module.exports = __webpack_require__(19).polyfill();
+      module.exports = __webpack_require__(18).polyfill();
 
       /***/
     },
-    /* 19 */
+    /* 18 */
     /***/function (module, exports, __webpack_require__) {
 
       /* WEBPACK VAR INJECTION */(function (process, global) {
@@ -1844,7 +1380,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
           function attemptVertx() {
             try {
               var r = require;
-              var vertx = __webpack_require__(21);
+              var vertx = __webpack_require__(20);
               vertxNext = vertx.runOnLoop || vertx.runOnContext;
               return useVertxTimer();
             } catch (e) {
@@ -2865,11 +2401,11 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         //# sourceMappingURL=es6-promise.map
 
         /* WEBPACK VAR INJECTION */
-      }).call(exports, __webpack_require__(20), __webpack_require__(2));
+      }).call(exports, __webpack_require__(19), __webpack_require__(2));
 
       /***/
     },
-    /* 20 */
+    /* 19 */
     /***/function (module, exports) {
 
       // shim for using process in browser
@@ -3060,13 +2596,13 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
       /***/
     },
-    /* 21 */
+    /* 20 */
     /***/function (module, exports) {
 
       /* (ignored) */
 
       /***/},
-    /* 22 */
+    /* 21 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
@@ -3074,8 +2610,8 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
       (function (global) {
         Object.defineProperty(exports, "__esModule", { value: true });
         var utils_1 = __webpack_require__(0);
-        var Context_1 = __webpack_require__(29);
-        var csr_1 = __webpack_require__(42);
+        var Context_1 = __webpack_require__(28);
+        var csr_1 = __webpack_require__(41);
         var spscript = {
           utils: utils_1.default,
           CSR: csr_1.default,
@@ -3097,13 +2633,13 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
       /***/
     },
-    /* 23 */
+    /* 22 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
 
       Object.defineProperty(exports, "__esModule", { value: true });
-      var qs = __webpack_require__(5);
+      var qs = __webpack_require__(6);
       function fromObj(obj, quoteValues) {
         var writeParam = function writeParam(key) {
           var value = (obj[key] + "").trim();
@@ -3129,7 +2665,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
       /***/
     },
-    /* 24 */
+    /* 23 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
@@ -3223,7 +2759,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
       /***/
     },
-    /* 25 */
+    /* 24 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
@@ -3312,7 +2848,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
       /***/
     },
-    /* 26 */
+    /* 25 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
@@ -3364,7 +2900,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
       /***/
     },
-    /* 27 */
+    /* 26 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
@@ -3402,7 +2938,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
       /***/
     },
-    /* 28 */
+    /* 27 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
@@ -3460,7 +2996,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
       /***/
     },
-    /* 29 */
+    /* 28 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
@@ -3546,14 +3082,14 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         }
       };
       Object.defineProperty(exports, "__esModule", { value: true });
-      var request_1 = __webpack_require__(8);
+      var request_1 = __webpack_require__(9);
       var utils_1 = __webpack_require__(0);
-      var List_1 = __webpack_require__(30);
-      var Web_1 = __webpack_require__(32);
-      var Search_1 = __webpack_require__(33);
-      var CustomActions_1 = __webpack_require__(35);
-      var Profiles_1 = __webpack_require__(37);
-      var tokenHelper_1 = __webpack_require__(38);
+      var List_1 = __webpack_require__(29);
+      var Web_1 = __webpack_require__(31);
+      var Search_1 = __webpack_require__(32);
+      var CustomActions_1 = __webpack_require__(34);
+      var Profiles_1 = __webpack_require__(36);
+      var tokenHelper_1 = __webpack_require__(37);
       var Context = function () {
         function Context(url, options) {
           if (options === void 0) {
@@ -3651,14 +3187,14 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
       /***/
     },
-    /* 30 */
+    /* 29 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
 
       Object.defineProperty(exports, "__esModule", { value: true });
       var utils_1 = __webpack_require__(0);
-      var Securable_1 = __webpack_require__(9);
+      var Securable_1 = __webpack_require__(10);
       var List = function () {
         function List(name, ctx) {
           this.listName = name;
@@ -3770,7 +3306,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
       /***/
     },
-    /* 31 */
+    /* 30 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
@@ -3924,14 +3460,14 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
       /***/
     },
-    /* 32 */
+    /* 31 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
 
       Object.defineProperty(exports, "__esModule", { value: true });
       var utils_1 = __webpack_require__(0);
-      var Securable_1 = __webpack_require__(9);
+      var Securable_1 = __webpack_require__(10);
       var Web = function () {
         function Web(ctx) {
           this.baseUrl = "/web";
@@ -3986,14 +3522,14 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
       /***/
     },
-    /* 33 */
+    /* 32 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
 
       Object.defineProperty(exports, "__esModule", { value: true });
       var utils_1 = __webpack_require__(0);
-      var searchMappers_1 = __webpack_require__(34);
+      var searchMappers_1 = __webpack_require__(33);
       var Search = function () {
         function Search(ctx) {
           this._dao = ctx;
@@ -4062,7 +3598,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
       /***/
     },
-    /* 34 */
+    /* 33 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
@@ -4106,14 +3642,14 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
       /***/
     },
-    /* 35 */
+    /* 34 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
 
       Object.defineProperty(exports, "__esModule", { value: true });
       var utils_1 = __webpack_require__(0);
-      var ICustomActions_1 = __webpack_require__(36);
+      var ICustomActions_1 = __webpack_require__(35);
       var CustomActions = function () {
         function CustomActions(ctx) {
           this._dao = ctx;
@@ -4251,7 +3787,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
       /***/
     },
-    /* 36 */
+    /* 35 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
@@ -4277,7 +3813,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
       /***/
     },
-    /* 37 */
+    /* 36 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
@@ -4326,7 +3862,6 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
       }();
       exports.default = Profiles;
       var transformPersonProperties = function transformPersonProperties(profile) {
-        console.log(profile);
         profile.UserProfileProperties.results.forEach(function (keyvalue) {
           profile[keyvalue.Key] = keyvalue.Value;
         });
@@ -4335,15 +3870,15 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
       /***/
     },
-    /* 38 */
+    /* 37 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
 
       Object.defineProperty(exports, "__esModule", { value: true });
-      var url_1 = __webpack_require__(39);
-      var querystring = __webpack_require__(5);
-      var request_1 = __webpack_require__(8);
+      var url_1 = __webpack_require__(38);
+      var querystring = __webpack_require__(6);
+      var request_1 = __webpack_require__(9);
       exports.getAppOnlyToken = function (url, clientId, clientSecret) {
         var urlParts = url_1.parse(url);
         return getRealm(url).then(function (authParams) {
@@ -4367,7 +3902,6 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             }
           };
           return request_1.default(tokenUrl, opts).then(function (data) {
-            console.log(data);
             return data.access_token;
           });
         });
@@ -4413,7 +3947,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
       /***/
     },
-    /* 39 */
+    /* 38 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
@@ -4439,8 +3973,8 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
       // USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-      var punycode = __webpack_require__(40);
-      var util = __webpack_require__(41);
+      var punycode = __webpack_require__(39);
+      var util = __webpack_require__(40);
 
       exports.parse = urlParse;
       exports.resolve = urlResolve;
@@ -4523,7 +4057,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         'gopher:': true,
         'file:': true
       },
-          querystring = __webpack_require__(5);
+          querystring = __webpack_require__(6);
 
       function urlParse(url, parseQueryString, slashesDenoteHost) {
         if (url && util.isObject(url) && url instanceof Url) return url;
@@ -5126,7 +4660,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
       /***/
     },
-    /* 40 */
+    /* 39 */
     /***/function (module, exports, __webpack_require__) {
 
       /* WEBPACK VAR INJECTION */(function (module, global) {
@@ -5657,11 +5191,11 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         })(this);
 
         /* WEBPACK VAR INJECTION */
-      }).call(exports, __webpack_require__(6)(module), __webpack_require__(2));
+      }).call(exports, __webpack_require__(7)(module), __webpack_require__(2));
 
       /***/
     },
-    /* 41 */
+    /* 40 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
@@ -5683,7 +5217,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
       /***/
     },
-    /* 42 */
+    /* 41 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
@@ -5773,16 +5307,17 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
   );
 });
 //# sourceMappingURL=spscript.js.map
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(6)(module)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(7)(module)))
 
 /***/ }),
-/* 45 */
+/* 44 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
 exports.run = function (SPScript, ctx) {
+	var isServer = !!ctx;
 	var should = __webpack_require__(1).should();
 
 	describe("SPScript Global Namespace", function () {
@@ -5795,19 +5330,24 @@ exports.run = function (SPScript, ctx) {
 			SPScript.should.have.property("utils");
 		});
 	});
-	if (!ctx) __webpack_require__(74).run(SPScript);
-	ctx = ctx || SPScript.createContext();
 
+	if (!isServer) {
+		__webpack_require__(73).run(SPScript);
+		ctx = SPScript.createContext();
+	}
+
+	__webpack_require__(74).run(ctx);
 	__webpack_require__(75).run(ctx);
-	__webpack_require__(76).run(ctx);
 	__webpack_require__(77).run(ctx);
-	__webpack_require__(78).run(ctx);
-	__webpack_require__(79).run(ctx);
-	__webpack_require__(80).run(SPScript.utils);
+	if (!isServer) {
+		__webpack_require__(76).run(ctx);
+		__webpack_require__(78).run(ctx);
+	}
+	__webpack_require__(79).run(SPScript.utils);
 };
 
 /***/ }),
-/* 46 */
+/* 45 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*!
@@ -5829,13 +5369,13 @@ exports.version = '1.10.0';
  * Assertion Error
  */
 
-exports.AssertionError = __webpack_require__(47);
+exports.AssertionError = __webpack_require__(46);
 
 /*!
  * Utils for plugins (not exported)
  */
 
-var util = __webpack_require__(48);
+var util = __webpack_require__(47);
 
 /**
  * # .use(function)
@@ -5867,40 +5407,40 @@ exports.config = config;
  * Primary `Assertion` prototype
  */
 
-var assertion = __webpack_require__(69);
+var assertion = __webpack_require__(68);
 exports.use(assertion);
 
 /*!
  * Core Assertions
  */
 
-var core = __webpack_require__(70);
+var core = __webpack_require__(69);
 exports.use(core);
 
 /*!
  * Expect interface
  */
 
-var expect = __webpack_require__(71);
+var expect = __webpack_require__(70);
 exports.use(expect);
 
 /*!
  * Should interface
  */
 
-var should = __webpack_require__(72);
+var should = __webpack_require__(71);
 exports.use(should);
 
 /*!
  * Assert interface
  */
 
-var assert = __webpack_require__(73);
+var assert = __webpack_require__(72);
 exports.use(assert);
 
 
 /***/ }),
-/* 47 */
+/* 46 */
 /***/ (function(module, exports) {
 
 /*!
@@ -6016,7 +5556,7 @@ AssertionError.prototype.toJSON = function (stack) {
 
 
 /***/ }),
-/* 48 */
+/* 47 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*!
@@ -6035,37 +5575,37 @@ var exports = module.exports = {};
  * test utility
  */
 
-exports.test = __webpack_require__(49);
+exports.test = __webpack_require__(48);
 
 /*!
  * type utility
  */
 
-exports.type = __webpack_require__(50);
+exports.type = __webpack_require__(49);
 
 /*!
  * message utility
  */
 
-exports.getMessage = __webpack_require__(51);
+exports.getMessage = __webpack_require__(50);
 
 /*!
  * actual utility
  */
 
-exports.getActual = __webpack_require__(10);
+exports.getActual = __webpack_require__(11);
 
 /*!
  * Inspect util
  */
 
-exports.inspect = __webpack_require__(7);
+exports.inspect = __webpack_require__(8);
 
 /*!
  * Object Display util
  */
 
-exports.objDisplay = __webpack_require__(12);
+exports.objDisplay = __webpack_require__(13);
 
 /*!
  * Flag utility
@@ -6077,66 +5617,66 @@ exports.flag = __webpack_require__(3);
  * Flag transferring utility
  */
 
-exports.transferFlags = __webpack_require__(13);
+exports.transferFlags = __webpack_require__(14);
 
 /*!
  * Deep equal utility
  */
 
-exports.eql = __webpack_require__(54);
+exports.eql = __webpack_require__(53);
 
 /*!
  * Deep path value
  */
 
-exports.getPathValue = __webpack_require__(62);
+exports.getPathValue = __webpack_require__(61);
 
 /*!
  * Function name
  */
 
-exports.getName = __webpack_require__(11);
+exports.getName = __webpack_require__(12);
 
 /*!
  * add Property
  */
 
-exports.addProperty = __webpack_require__(63);
+exports.addProperty = __webpack_require__(62);
 
 /*!
  * add Method
  */
 
-exports.addMethod = __webpack_require__(64);
+exports.addMethod = __webpack_require__(63);
 
 /*!
  * overwrite Property
  */
 
-exports.overwriteProperty = __webpack_require__(65);
+exports.overwriteProperty = __webpack_require__(64);
 
 /*!
  * overwrite Method
  */
 
-exports.overwriteMethod = __webpack_require__(66);
+exports.overwriteMethod = __webpack_require__(65);
 
 /*!
  * Add a chainable method
  */
 
-exports.addChainableMethod = __webpack_require__(67);
+exports.addChainableMethod = __webpack_require__(66);
 
 /*!
  * Overwrite chainable method
  */
 
-exports.overwriteChainableMethod = __webpack_require__(68);
+exports.overwriteChainableMethod = __webpack_require__(67);
 
 
 
 /***/ }),
-/* 49 */
+/* 48 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*!
@@ -6168,7 +5708,7 @@ module.exports = function (obj, args) {
 
 
 /***/ }),
-/* 50 */
+/* 49 */
 /***/ (function(module, exports) {
 
 /*!
@@ -6219,7 +5759,7 @@ module.exports = function (obj) {
 
 
 /***/ }),
-/* 51 */
+/* 50 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*!
@@ -6233,9 +5773,9 @@ module.exports = function (obj) {
  */
 
 var flag = __webpack_require__(3)
-  , getActual = __webpack_require__(10)
-  , inspect = __webpack_require__(7)
-  , objDisplay = __webpack_require__(12);
+  , getActual = __webpack_require__(11)
+  , inspect = __webpack_require__(8)
+  , objDisplay = __webpack_require__(13);
 
 /**
  * ### .getMessage(object, message, negateMessage)
@@ -6275,7 +5815,7 @@ module.exports = function (obj, args) {
 
 
 /***/ }),
-/* 52 */
+/* 51 */
 /***/ (function(module, exports) {
 
 /*!
@@ -6316,7 +5856,7 @@ module.exports = function getProperties(object) {
 
 
 /***/ }),
-/* 53 */
+/* 52 */
 /***/ (function(module, exports) {
 
 /*!
@@ -6347,14 +5887,14 @@ module.exports = function getEnumerableProperties(object) {
 
 
 /***/ }),
-/* 54 */
+/* 53 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(55);
+module.exports = __webpack_require__(54);
 
 
 /***/ }),
-/* 55 */
+/* 54 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*!
@@ -6367,14 +5907,14 @@ module.exports = __webpack_require__(55);
  * Module dependencies
  */
 
-var type = __webpack_require__(56);
+var type = __webpack_require__(55);
 
 /*!
  * Buffer.isBuffer browser shim
  */
 
 var Buffer;
-try { Buffer = __webpack_require__(58).Buffer; }
+try { Buffer = __webpack_require__(57).Buffer; }
 catch(ex) {
   Buffer = {};
   Buffer.isBuffer = function() { return false; }
@@ -6617,14 +6157,14 @@ function objectEqual(a, b, m) {
 
 
 /***/ }),
-/* 56 */
+/* 55 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(57);
+module.exports = __webpack_require__(56);
 
 
 /***/ }),
-/* 57 */
+/* 56 */
 /***/ (function(module, exports) {
 
 /*!
@@ -6772,7 +6312,7 @@ Library.prototype.test = function (obj, type) {
 
 
 /***/ }),
-/* 58 */
+/* 57 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6786,9 +6326,9 @@ Library.prototype.test = function (obj, type) {
 
 
 
-var base64 = __webpack_require__(59)
-var ieee754 = __webpack_require__(60)
-var isArray = __webpack_require__(61)
+var base64 = __webpack_require__(58)
+var ieee754 = __webpack_require__(59)
+var isArray = __webpack_require__(60)
 
 exports.Buffer = Buffer
 exports.SlowBuffer = SlowBuffer
@@ -8569,7 +8109,7 @@ function isnan (val) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(2)))
 
 /***/ }),
-/* 59 */
+/* 58 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8690,7 +8230,7 @@ function fromByteArray (uint8) {
 
 
 /***/ }),
-/* 60 */
+/* 59 */
 /***/ (function(module, exports) {
 
 exports.read = function (buffer, offset, isLE, mLen, nBytes) {
@@ -8780,7 +8320,7 @@ exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
 
 
 /***/ }),
-/* 61 */
+/* 60 */
 /***/ (function(module, exports) {
 
 var toString = {}.toString;
@@ -8791,7 +8331,7 @@ module.exports = Array.isArray || function (arr) {
 
 
 /***/ }),
-/* 62 */
+/* 61 */
 /***/ (function(module, exports) {
 
 /*!
@@ -8899,7 +8439,7 @@ function _getPathValue (parsed, obj) {
 
 
 /***/ }),
-/* 63 */
+/* 62 */
 /***/ (function(module, exports) {
 
 /*!
@@ -8945,7 +8485,7 @@ module.exports = function (ctx, name, getter) {
 
 
 /***/ }),
-/* 64 */
+/* 63 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*!
@@ -8994,7 +8534,7 @@ module.exports = function (ctx, name, method) {
 
 
 /***/ }),
-/* 65 */
+/* 64 */
 /***/ (function(module, exports) {
 
 /*!
@@ -9054,7 +8594,7 @@ module.exports = function (ctx, name, getter) {
 
 
 /***/ }),
-/* 66 */
+/* 65 */
 /***/ (function(module, exports) {
 
 /*!
@@ -9111,7 +8651,7 @@ module.exports = function (ctx, name, method) {
 
 
 /***/ }),
-/* 67 */
+/* 66 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*!
@@ -9124,7 +8664,7 @@ module.exports = function (ctx, name, method) {
  * Module dependencies
  */
 
-var transferFlags = __webpack_require__(13);
+var transferFlags = __webpack_require__(14);
 var flag = __webpack_require__(3);
 var config = __webpack_require__(4);
 
@@ -9228,7 +8768,7 @@ module.exports = function (ctx, name, method, chainingBehavior) {
 
 
 /***/ }),
-/* 68 */
+/* 67 */
 /***/ (function(module, exports) {
 
 /*!
@@ -9287,7 +8827,7 @@ module.exports = function (ctx, name, method, chainingBehavior) {
 
 
 /***/ }),
-/* 69 */
+/* 68 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*!
@@ -9428,7 +8968,7 @@ module.exports = function (_chai, util) {
 
 
 /***/ }),
-/* 70 */
+/* 69 */
 /***/ (function(module, exports) {
 
 /*!
@@ -10793,7 +10333,7 @@ module.exports = function (chai, _) {
 
 
 /***/ }),
-/* 71 */
+/* 70 */
 /***/ (function(module, exports) {
 
 /*!
@@ -10811,7 +10351,7 @@ module.exports = function (chai, util) {
 
 
 /***/ }),
-/* 72 */
+/* 71 */
 /***/ (function(module, exports) {
 
 /*!
@@ -10895,7 +10435,7 @@ module.exports = function (chai, util) {
 
 
 /***/ }),
-/* 73 */
+/* 72 */
 /***/ (function(module, exports) {
 
 /*!
@@ -11957,7 +11497,7 @@ module.exports = function (chai, util) {
 
 
 /***/ }),
-/* 74 */
+/* 73 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -12076,13 +11616,13 @@ exports.run = function (SPScript) {
 };
 
 /***/ }),
-/* 75 */
+/* 74 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var permissionsTests = __webpack_require__(14);
+var permissionsTests = __webpack_require__(15);
 var should = __webpack_require__(1).should();
 
 exports.run = function (dao) {
@@ -12300,13 +11840,13 @@ function isBrowser() {
 }
 
 /***/ }),
-/* 76 */
+/* 75 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var permissionsTests = __webpack_require__(14);
+var permissionsTests = __webpack_require__(15);
 var should = __webpack_require__(1).should();
 
 exports.run = function (dao) {
@@ -12536,7 +12076,6 @@ exports.run = function (dao) {
 			var itemToDelete = null;
 			before(function (done) {
 				list.getItems("$orderby=Id").then(function (items) {
-					console.log(items);
 					itemToDelete = items[items.length - 1];
 					return list.deleteItem(itemToDelete.Id);
 				}).then(function () {
@@ -12601,7 +12140,7 @@ function isBrowser() {
 }
 
 /***/ }),
-/* 77 */
+/* 76 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -12734,7 +12273,7 @@ exports.run = function (dao) {
 };
 
 /***/ }),
-/* 78 */
+/* 77 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -12995,7 +12534,7 @@ exports.run = function (dao) {
 };
 
 /***/ }),
-/* 79 */
+/* 78 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -13004,203 +12543,201 @@ exports.run = function (dao) {
 var should = __webpack_require__(1).should();
 
 exports.run = function (dao) {
-    console.log("HERE I AM");
-    describe("var profiles = ctx.profiles", function () {
-        this.timeout(5000);
+	describe("var profiles = ctx.profiles", function () {
+		this.timeout(5000);
 
-        describe("ctx.profiles.current()", function () {
-            var profile = null;
-            before(function (done) {
-                dao.profiles.current().then(function (result) {
-                    profile = result;
-                    console.log(profile);
-                    done();
-                });
-            });
+		describe("ctx.profiles.current()", function () {
+			var profile = null;
+			before(function (done) {
+				dao.profiles.current().then(function (result) {
+					profile = result;
+					done();
+				});
+			});
 
-            it("Should return a promise that resolves to a profile properties object", function () {
-                profile.should.be.an("object");
-                profile.should.have.property("AccountName");
-                profile.should.have.property("Email");
-                profile.should.have.property("PreferredName");
-            });
-            it("Should return the profile of the current user", function () {
-                profile.should.have.property("Email");
-                profile.Email.should.equal(_spPageContextInfo.userEmail);
-            });
-        });
+			it("Should return a promise that resolves to a profile properties object", function () {
+				profile.should.be.an("object");
+				profile.should.have.property("AccountName");
+				profile.should.have.property("Email");
+				profile.should.have.property("PreferredName");
+			});
+			it("Should return the profile of the current user", function () {
+				profile.should.have.property("Email");
+				profile.Email.should.equal(_spPageContextInfo.userEmail);
+			});
+		});
 
-        describe("ctx.profiles.get()", function () {
-            var profile = null;
-            before(function (done) {
-                dao.profiles.get().then(function (result) {
-                    profile = result;
-                    done();
-                });
-            });
-            it("Should return a promise that resolves to a profile properties object", function () {
-                profile.should.be.an("object");
-                profile.should.have.property("AccountName");
-                profile.should.have.property("Email");
-                profile.should.have.property("PreferredName");
-            });
+		describe("ctx.profiles.get()", function () {
+			var profile = null;
+			before(function (done) {
+				dao.profiles.get().then(function (result) {
+					profile = result;
+					done();
+				});
+			});
+			it("Should return a promise that resolves to a profile properties object", function () {
+				profile.should.be.an("object");
+				profile.should.have.property("AccountName");
+				profile.should.have.property("Email");
+				profile.should.have.property("PreferredName");
+			});
 
-            it("Should return the profile of the current user", function () {
-                profile.should.have.property("Email");
-                profile.Email.should.equal(_spPageContextInfo.userEmail);
-            });
-        });
+			it("Should return the profile of the current user", function () {
+				profile.should.have.property("Email");
+				profile.Email.should.equal(_spPageContextInfo.userEmail);
+			});
+		});
 
-        describe("ctx.profiles.get(email)", function () {
-            var email = "andrew@andrewpetersen.onmicrosoft.com";
-            var profile = null;
-            before(function (done) {
-                dao.profiles.get(email).then(function (result) {
-                    profile = result;
-                    done();
-                }).catch(function (err) {
-                    done(err);
-                });
-            });
-            it("Should return a promise that resolves to a profile properties object", function () {
-                profile.should.be.an("object");
-                profile.should.have.property("AccountName");
-                profile.should.have.property("Email");
-                profile.should.have.property("PreferredName");
-            });
+		describe("ctx.profiles.get(email)", function () {
+			var email = "andrew@andrewpetersen.onmicrosoft.com";
+			var profile = null;
+			before(function (done) {
+				dao.profiles.get(email).then(function (result) {
+					profile = result;
+					done();
+				}).catch(function (err) {
+					done(err);
+				});
+			});
+			it("Should return a promise that resolves to a profile properties object", function () {
+				profile.should.be.an("object");
+				profile.should.have.property("AccountName");
+				profile.should.have.property("Email");
+				profile.should.have.property("PreferredName");
+			});
 
-            it("Should give you the matching person", function () {
-                profile.should.have.property("Email");
-                profile.Email.should.equal(email);
-            });
+			it("Should give you the matching person", function () {
+				profile.should.have.property("Email");
+				profile.Email.should.equal(email);
+			});
 
-            it("Should reject the promise for an invalid email", function (done) {
-                dao.profiles.get("invalid@invalid123.com").then(function (result) {
-                    done("The request should have failed.");
-                }).catch(function () {
-                    done();
-                });
-            });
-        });
+			it("Should reject the promise for an invalid email", function (done) {
+				dao.profiles.get("invalid@invalid123.com").then(function (result) {
+					done("The request should have failed.");
+				}).catch(function () {
+					done();
+				});
+			});
+		});
 
-        describe("ctx.profiles.get({ AccountName })", function () {
-            var email = "andrew@andrewpetersen.onmicrosoft.com";
-            var accountName = "i:0#.f|membership|andrew@andrewpetersen.onmicrosoft.com";
-            var profile = null;
-            before(function (done) {
-                dao.profiles.get({ AccountName: accountName }).then(function (result) {
-                    profile = result;
-                    done();
-                }).catch(function (err) {
-                    done(err);
-                });
-            });
-            it("Should return a promise that resolves to a profile properties object", function () {
-                profile.should.be.an("object");
-                profile.should.have.property("AccountName");
-                profile.should.have.property("Email");
-                profile.should.have.property("PreferredName");
-            });
+		describe("ctx.profiles.get({ AccountName })", function () {
+			var email = "andrew@andrewpetersen.onmicrosoft.com";
+			var accountName = "i:0#.f|membership|andrew@andrewpetersen.onmicrosoft.com";
+			var profile = null;
+			before(function (done) {
+				dao.profiles.get({ AccountName: accountName }).then(function (result) {
+					profile = result;
+					done();
+				}).catch(function (err) {
+					done(err);
+				});
+			});
+			it("Should return a promise that resolves to a profile properties object", function () {
+				profile.should.be.an("object");
+				profile.should.have.property("AccountName");
+				profile.should.have.property("Email");
+				profile.should.have.property("PreferredName");
+			});
 
-            it("Should give you the matching person", function () {
-                profile.should.have.property("Email");
-                profile.Email.should.equal(email);
-            });
+			it("Should give you the matching person", function () {
+				profile.should.have.property("Email");
+				profile.Email.should.equal(email);
+			});
 
-            it("Should reject the promise for an invalid account name", function (done) {
-                dao.profiles.get({ AccountName: "Invalid" }).then(function (result) {
-                    done("The request should have failed.");
-                }).catch(function () {
-                    done();
-                });
-            });
-        });
+			it("Should reject the promise for an invalid account name", function (done) {
+				dao.profiles.get({ AccountName: "Invalid" }).then(function (result) {
+					done("The request should have failed.");
+				}).catch(function () {
+					done();
+				});
+			});
+		});
 
-        describe("ctx.profiles.get({ LoginName })", function () {
-            var email = "andrew@andrewpetersen.onmicrosoft.com";
-            var accountName = "i:0#.f|membership|andrew@andrewpetersen.onmicrosoft.com";
-            var profile = null;
-            before(function (done) {
-                dao.profiles.get({ LoginName: accountName }).then(function (result) {
-                    profile = result;
-                    done();
-                }).catch(function (err) {
-                    done(err);
-                });
-            });
-            it("Should return a promise that resolves to a profile properties object", function () {
-                profile.should.be.an("object");
-                profile.should.have.property("AccountName");
-                profile.should.have.property("Email");
-                profile.should.have.property("PreferredName");
-            });
+		describe("ctx.profiles.get({ LoginName })", function () {
+			var email = "andrew@andrewpetersen.onmicrosoft.com";
+			var accountName = "i:0#.f|membership|andrew@andrewpetersen.onmicrosoft.com";
+			var profile = null;
+			before(function (done) {
+				dao.profiles.get({ LoginName: accountName }).then(function (result) {
+					profile = result;
+					done();
+				}).catch(function (err) {
+					done(err);
+				});
+			});
+			it("Should return a promise that resolves to a profile properties object", function () {
+				profile.should.be.an("object");
+				profile.should.have.property("AccountName");
+				profile.should.have.property("Email");
+				profile.should.have.property("PreferredName");
+			});
 
-            it("Should give you the matching person", function () {
-                profile.should.have.property("Email");
-                profile.Email.should.equal(email);
-            });
+			it("Should give you the matching person", function () {
+				profile.should.have.property("Email");
+				profile.Email.should.equal(email);
+			});
 
-            it("Should reject the promise for an invalid account name", function (done) {
-                dao.profiles.get({ LoginName: "Invalid" }).then(function (result) {
-                    done("The request should have failed.");
-                }).catch(function () {
-                    done();
-                });
-            });
-        });
+			it("Should reject the promise for an invalid account name", function (done) {
+				dao.profiles.get({ LoginName: "Invalid" }).then(function (result) {
+					done("The request should have failed.");
+				}).catch(function () {
+					done();
+				});
+			});
+		});
 
-        describe("ctx.profiles.setProperty(propertyName, propertyValue)", function () {
-            it("Should update the About Me profile property of the current user", function (done) {
-                var aboutMeValue = "Hi there. I was updated with SPScript 1";
-                dao.profiles.setProperty("AboutMe", aboutMeValue).then(function () {
-                    return dao.profiles.current();
-                }).then(function (profile) {
-                    profile.should.have.property("AboutMe");
-                    profile.AboutMe.should.equal(aboutMeValue);
-                    done();
-                }).catch(function (err) {
-                    done(err);
-                });
-            });
-        });
+		describe("ctx.profiles.setProperty(propertyName, propertyValue)", function () {
+			it("Should update the About Me profile property of the current user", function (done) {
+				var aboutMeValue = "Hi there. I was updated with SPScript 1";
+				dao.profiles.setProperty("AboutMe", aboutMeValue).then(function () {
+					return dao.profiles.current();
+				}).then(function (profile) {
+					profile.should.have.property("AboutMe");
+					profile.AboutMe.should.equal(aboutMeValue);
+					done();
+				}).catch(function (err) {
+					done(err);
+				});
+			});
+		});
 
-        describe("ctx.profiles.setProperty(propertyName, propertyValue, email)", function () {
-            var email = "andrew@andrewpetersen.onmicrosoft.com";
-            it("Should update the About Me profile property based on the specified email", function (done) {
-                var aboutMeValue = "Hi there. I was updated with SPScript 2";
-                dao.profiles.setProperty("AboutMe", aboutMeValue, email).then(function () {
-                    return dao.profiles.get(email);
-                }).then(function (profile) {
-                    profile.should.have.property("AboutMe");
-                    profile.AboutMe.should.equal(aboutMeValue);
-                    done();
-                }).catch(function (err) {
-                    done(err);
-                });
-            });
-        });
+		describe("ctx.profiles.setProperty(propertyName, propertyValue, email)", function () {
+			var email = "andrew@andrewpetersen.onmicrosoft.com";
+			it("Should update the About Me profile property based on the specified email", function (done) {
+				var aboutMeValue = "Hi there. I was updated with SPScript 2";
+				dao.profiles.setProperty("AboutMe", aboutMeValue, email).then(function () {
+					return dao.profiles.get(email);
+				}).then(function (profile) {
+					profile.should.have.property("AboutMe");
+					profile.AboutMe.should.equal(aboutMeValue);
+					done();
+				}).catch(function (err) {
+					done(err);
+				});
+			});
+		});
 
-        describe("ctx.profiles.setProperty(propertyName, propertyValue, { AccountName|LoginName })", function () {
-            var accountName = "i:0#.f|membership|andrew@andrewpetersen.onmicrosoft.com";
-            var email = "andrew@andrewpetersen.onmicrosoft.com";
-            it("Should update the About Me profile property of the passed in User object", function (done) {
-                var aboutMeValue = "Hi there. I was updated with SPScript 3";
-                dao.profiles.setProperty("AboutMe", aboutMeValue, { AccountName: accountName }).then(function () {
-                    return dao.profiles.get({ AccountName: accountName });
-                }).then(function (profile) {
-                    profile.should.have.property("AboutMe");
-                    profile.AboutMe.should.equal(aboutMeValue);
-                    done();
-                }).catch(function (err) {
-                    done(err);
-                });
-            });
-        });
-    });
+		describe("ctx.profiles.setProperty(propertyName, propertyValue, { AccountName|LoginName })", function () {
+			var accountName = "i:0#.f|membership|andrew@andrewpetersen.onmicrosoft.com";
+			var email = "andrew@andrewpetersen.onmicrosoft.com";
+			it("Should update the About Me profile property of the passed in User object", function (done) {
+				var aboutMeValue = "Hi there. I was updated with SPScript 3";
+				dao.profiles.setProperty("AboutMe", aboutMeValue, { AccountName: accountName }).then(function () {
+					return dao.profiles.get({ AccountName: accountName });
+				}).then(function (profile) {
+					profile.should.have.property("AboutMe");
+					profile.AboutMe.should.equal(aboutMeValue);
+					done();
+				}).catch(function (err) {
+					done(err);
+				});
+			});
+		});
+	});
 };
 
 /***/ }),
-/* 80 */
+/* 79 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";

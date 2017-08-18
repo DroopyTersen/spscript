@@ -1,13 +1,13 @@
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
-		module.exports = factory();
+		module.exports = factory(require("isomorphic-fetch"));
 	else if(typeof define === 'function' && define.amd)
-		define("SPScript", [], factory);
+		define("SPScript", ["isomorphic-fetch"], factory);
 	else if(typeof exports === 'object')
-		exports["SPScript"] = factory();
+		exports["SPScript"] = factory(require("isomorphic-fetch"));
 	else
-		root["SPScript"] = factory();
-})(this, function() {
+		root["SPScript"] = factory(root["isomorphic-fetch"]);
+})(this, function(__WEBPACK_EXTERNAL_MODULE_5__) {
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
@@ -70,7 +70,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 15);
+/******/ 	return __webpack_require__(__webpack_require__.s = 16);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -88,10 +88,10 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
     return t;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var queryString_1 = __webpack_require__(23);
-var headers_1 = __webpack_require__(26);
-var loaders_1 = __webpack_require__(27);
-var dependencyManagement_1 = __webpack_require__(28);
+var queryString_1 = __webpack_require__(22);
+var headers_1 = __webpack_require__(25);
+var loaders_1 = __webpack_require__(26);
+var dependencyManagement_1 = __webpack_require__(27);
 function isBrowser() {
     return !(typeof window === "undefined");
 }
@@ -193,17 +193,23 @@ module.exports = g;
 /* 3 */,
 /* 4 */,
 /* 5 */
+/***/ (function(module, exports) {
+
+module.exports = __WEBPACK_EXTERNAL_MODULE_5__;
+
+/***/ }),
+/* 6 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-exports.decode = exports.parse = __webpack_require__(24);
-exports.encode = exports.stringify = __webpack_require__(25);
+exports.decode = exports.parse = __webpack_require__(23);
+exports.encode = exports.stringify = __webpack_require__(24);
 
 
 /***/ }),
-/* 6 */
+/* 7 */
 /***/ (function(module, exports) {
 
 module.exports = function(module) {
@@ -231,8 +237,8 @@ module.exports = function(module) {
 
 
 /***/ }),
-/* 7 */,
-/* 8 */
+/* 8 */,
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -263,14 +269,14 @@ exports.default = request;
 
 
 /***/ }),
-/* 9 */
+/* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
 var utils_1 = __webpack_require__(0);
-var IPermissions_1 = __webpack_require__(31);
+var IPermissions_1 = __webpack_require__(30);
 /** Allows you to check the permissions of a securable (list or site) */
 var Securable = (function () {
     function Securable(baseUrl, ctx) {
@@ -332,514 +338,35 @@ var permissionMaskToStrings = function (lowMask, highMask) {
 
 
 /***/ }),
-/* 10 */,
 /* 11 */,
 /* 12 */,
 /* 13 */,
 /* 14 */,
-/* 15 */
+/* 15 */,
+/* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
-__webpack_require__(16);
-__webpack_require__(18);
-var SPScript_1 = __webpack_require__(22);
+__webpack_require__(5);
+__webpack_require__(17);
+var SPScript_1 = __webpack_require__(21);
 module.exports = SPScript_1.default;
 
 
 /***/ }),
-/* 16 */
-/***/ (function(module, exports, __webpack_require__) {
-
-// the whatwg-fetch polyfill installs the fetch() function
-// on the global object (window or self)
-//
-// Return that as the export for use in Webpack, Browserify etc.
-__webpack_require__(17);
-module.exports = self.fetch.bind(self);
-
-
-/***/ }),
 /* 17 */
-/***/ (function(module, exports) {
-
-(function(self) {
-  'use strict';
-
-  if (self.fetch) {
-    return
-  }
-
-  var support = {
-    searchParams: 'URLSearchParams' in self,
-    iterable: 'Symbol' in self && 'iterator' in Symbol,
-    blob: 'FileReader' in self && 'Blob' in self && (function() {
-      try {
-        new Blob()
-        return true
-      } catch(e) {
-        return false
-      }
-    })(),
-    formData: 'FormData' in self,
-    arrayBuffer: 'ArrayBuffer' in self
-  }
-
-  if (support.arrayBuffer) {
-    var viewClasses = [
-      '[object Int8Array]',
-      '[object Uint8Array]',
-      '[object Uint8ClampedArray]',
-      '[object Int16Array]',
-      '[object Uint16Array]',
-      '[object Int32Array]',
-      '[object Uint32Array]',
-      '[object Float32Array]',
-      '[object Float64Array]'
-    ]
-
-    var isDataView = function(obj) {
-      return obj && DataView.prototype.isPrototypeOf(obj)
-    }
-
-    var isArrayBufferView = ArrayBuffer.isView || function(obj) {
-      return obj && viewClasses.indexOf(Object.prototype.toString.call(obj)) > -1
-    }
-  }
-
-  function normalizeName(name) {
-    if (typeof name !== 'string') {
-      name = String(name)
-    }
-    if (/[^a-z0-9\-#$%&'*+.\^_`|~]/i.test(name)) {
-      throw new TypeError('Invalid character in header field name')
-    }
-    return name.toLowerCase()
-  }
-
-  function normalizeValue(value) {
-    if (typeof value !== 'string') {
-      value = String(value)
-    }
-    return value
-  }
-
-  // Build a destructive iterator for the value list
-  function iteratorFor(items) {
-    var iterator = {
-      next: function() {
-        var value = items.shift()
-        return {done: value === undefined, value: value}
-      }
-    }
-
-    if (support.iterable) {
-      iterator[Symbol.iterator] = function() {
-        return iterator
-      }
-    }
-
-    return iterator
-  }
-
-  function Headers(headers) {
-    this.map = {}
-
-    if (headers instanceof Headers) {
-      headers.forEach(function(value, name) {
-        this.append(name, value)
-      }, this)
-    } else if (Array.isArray(headers)) {
-      headers.forEach(function(header) {
-        this.append(header[0], header[1])
-      }, this)
-    } else if (headers) {
-      Object.getOwnPropertyNames(headers).forEach(function(name) {
-        this.append(name, headers[name])
-      }, this)
-    }
-  }
-
-  Headers.prototype.append = function(name, value) {
-    name = normalizeName(name)
-    value = normalizeValue(value)
-    var oldValue = this.map[name]
-    this.map[name] = oldValue ? oldValue+','+value : value
-  }
-
-  Headers.prototype['delete'] = function(name) {
-    delete this.map[normalizeName(name)]
-  }
-
-  Headers.prototype.get = function(name) {
-    name = normalizeName(name)
-    return this.has(name) ? this.map[name] : null
-  }
-
-  Headers.prototype.has = function(name) {
-    return this.map.hasOwnProperty(normalizeName(name))
-  }
-
-  Headers.prototype.set = function(name, value) {
-    this.map[normalizeName(name)] = normalizeValue(value)
-  }
-
-  Headers.prototype.forEach = function(callback, thisArg) {
-    for (var name in this.map) {
-      if (this.map.hasOwnProperty(name)) {
-        callback.call(thisArg, this.map[name], name, this)
-      }
-    }
-  }
-
-  Headers.prototype.keys = function() {
-    var items = []
-    this.forEach(function(value, name) { items.push(name) })
-    return iteratorFor(items)
-  }
-
-  Headers.prototype.values = function() {
-    var items = []
-    this.forEach(function(value) { items.push(value) })
-    return iteratorFor(items)
-  }
-
-  Headers.prototype.entries = function() {
-    var items = []
-    this.forEach(function(value, name) { items.push([name, value]) })
-    return iteratorFor(items)
-  }
-
-  if (support.iterable) {
-    Headers.prototype[Symbol.iterator] = Headers.prototype.entries
-  }
-
-  function consumed(body) {
-    if (body.bodyUsed) {
-      return Promise.reject(new TypeError('Already read'))
-    }
-    body.bodyUsed = true
-  }
-
-  function fileReaderReady(reader) {
-    return new Promise(function(resolve, reject) {
-      reader.onload = function() {
-        resolve(reader.result)
-      }
-      reader.onerror = function() {
-        reject(reader.error)
-      }
-    })
-  }
-
-  function readBlobAsArrayBuffer(blob) {
-    var reader = new FileReader()
-    var promise = fileReaderReady(reader)
-    reader.readAsArrayBuffer(blob)
-    return promise
-  }
-
-  function readBlobAsText(blob) {
-    var reader = new FileReader()
-    var promise = fileReaderReady(reader)
-    reader.readAsText(blob)
-    return promise
-  }
-
-  function readArrayBufferAsText(buf) {
-    var view = new Uint8Array(buf)
-    var chars = new Array(view.length)
-
-    for (var i = 0; i < view.length; i++) {
-      chars[i] = String.fromCharCode(view[i])
-    }
-    return chars.join('')
-  }
-
-  function bufferClone(buf) {
-    if (buf.slice) {
-      return buf.slice(0)
-    } else {
-      var view = new Uint8Array(buf.byteLength)
-      view.set(new Uint8Array(buf))
-      return view.buffer
-    }
-  }
-
-  function Body() {
-    this.bodyUsed = false
-
-    this._initBody = function(body) {
-      this._bodyInit = body
-      if (!body) {
-        this._bodyText = ''
-      } else if (typeof body === 'string') {
-        this._bodyText = body
-      } else if (support.blob && Blob.prototype.isPrototypeOf(body)) {
-        this._bodyBlob = body
-      } else if (support.formData && FormData.prototype.isPrototypeOf(body)) {
-        this._bodyFormData = body
-      } else if (support.searchParams && URLSearchParams.prototype.isPrototypeOf(body)) {
-        this._bodyText = body.toString()
-      } else if (support.arrayBuffer && support.blob && isDataView(body)) {
-        this._bodyArrayBuffer = bufferClone(body.buffer)
-        // IE 10-11 can't handle a DataView body.
-        this._bodyInit = new Blob([this._bodyArrayBuffer])
-      } else if (support.arrayBuffer && (ArrayBuffer.prototype.isPrototypeOf(body) || isArrayBufferView(body))) {
-        this._bodyArrayBuffer = bufferClone(body)
-      } else {
-        throw new Error('unsupported BodyInit type')
-      }
-
-      if (!this.headers.get('content-type')) {
-        if (typeof body === 'string') {
-          this.headers.set('content-type', 'text/plain;charset=UTF-8')
-        } else if (this._bodyBlob && this._bodyBlob.type) {
-          this.headers.set('content-type', this._bodyBlob.type)
-        } else if (support.searchParams && URLSearchParams.prototype.isPrototypeOf(body)) {
-          this.headers.set('content-type', 'application/x-www-form-urlencoded;charset=UTF-8')
-        }
-      }
-    }
-
-    if (support.blob) {
-      this.blob = function() {
-        var rejected = consumed(this)
-        if (rejected) {
-          return rejected
-        }
-
-        if (this._bodyBlob) {
-          return Promise.resolve(this._bodyBlob)
-        } else if (this._bodyArrayBuffer) {
-          return Promise.resolve(new Blob([this._bodyArrayBuffer]))
-        } else if (this._bodyFormData) {
-          throw new Error('could not read FormData body as blob')
-        } else {
-          return Promise.resolve(new Blob([this._bodyText]))
-        }
-      }
-
-      this.arrayBuffer = function() {
-        if (this._bodyArrayBuffer) {
-          return consumed(this) || Promise.resolve(this._bodyArrayBuffer)
-        } else {
-          return this.blob().then(readBlobAsArrayBuffer)
-        }
-      }
-    }
-
-    this.text = function() {
-      var rejected = consumed(this)
-      if (rejected) {
-        return rejected
-      }
-
-      if (this._bodyBlob) {
-        return readBlobAsText(this._bodyBlob)
-      } else if (this._bodyArrayBuffer) {
-        return Promise.resolve(readArrayBufferAsText(this._bodyArrayBuffer))
-      } else if (this._bodyFormData) {
-        throw new Error('could not read FormData body as text')
-      } else {
-        return Promise.resolve(this._bodyText)
-      }
-    }
-
-    if (support.formData) {
-      this.formData = function() {
-        return this.text().then(decode)
-      }
-    }
-
-    this.json = function() {
-      return this.text().then(JSON.parse)
-    }
-
-    return this
-  }
-
-  // HTTP methods whose capitalization should be normalized
-  var methods = ['DELETE', 'GET', 'HEAD', 'OPTIONS', 'POST', 'PUT']
-
-  function normalizeMethod(method) {
-    var upcased = method.toUpperCase()
-    return (methods.indexOf(upcased) > -1) ? upcased : method
-  }
-
-  function Request(input, options) {
-    options = options || {}
-    var body = options.body
-
-    if (input instanceof Request) {
-      if (input.bodyUsed) {
-        throw new TypeError('Already read')
-      }
-      this.url = input.url
-      this.credentials = input.credentials
-      if (!options.headers) {
-        this.headers = new Headers(input.headers)
-      }
-      this.method = input.method
-      this.mode = input.mode
-      if (!body && input._bodyInit != null) {
-        body = input._bodyInit
-        input.bodyUsed = true
-      }
-    } else {
-      this.url = String(input)
-    }
-
-    this.credentials = options.credentials || this.credentials || 'omit'
-    if (options.headers || !this.headers) {
-      this.headers = new Headers(options.headers)
-    }
-    this.method = normalizeMethod(options.method || this.method || 'GET')
-    this.mode = options.mode || this.mode || null
-    this.referrer = null
-
-    if ((this.method === 'GET' || this.method === 'HEAD') && body) {
-      throw new TypeError('Body not allowed for GET or HEAD requests')
-    }
-    this._initBody(body)
-  }
-
-  Request.prototype.clone = function() {
-    return new Request(this, { body: this._bodyInit })
-  }
-
-  function decode(body) {
-    var form = new FormData()
-    body.trim().split('&').forEach(function(bytes) {
-      if (bytes) {
-        var split = bytes.split('=')
-        var name = split.shift().replace(/\+/g, ' ')
-        var value = split.join('=').replace(/\+/g, ' ')
-        form.append(decodeURIComponent(name), decodeURIComponent(value))
-      }
-    })
-    return form
-  }
-
-  function parseHeaders(rawHeaders) {
-    var headers = new Headers()
-    rawHeaders.split(/\r?\n/).forEach(function(line) {
-      var parts = line.split(':')
-      var key = parts.shift().trim()
-      if (key) {
-        var value = parts.join(':').trim()
-        headers.append(key, value)
-      }
-    })
-    return headers
-  }
-
-  Body.call(Request.prototype)
-
-  function Response(bodyInit, options) {
-    if (!options) {
-      options = {}
-    }
-
-    this.type = 'default'
-    this.status = 'status' in options ? options.status : 200
-    this.ok = this.status >= 200 && this.status < 300
-    this.statusText = 'statusText' in options ? options.statusText : 'OK'
-    this.headers = new Headers(options.headers)
-    this.url = options.url || ''
-    this._initBody(bodyInit)
-  }
-
-  Body.call(Response.prototype)
-
-  Response.prototype.clone = function() {
-    return new Response(this._bodyInit, {
-      status: this.status,
-      statusText: this.statusText,
-      headers: new Headers(this.headers),
-      url: this.url
-    })
-  }
-
-  Response.error = function() {
-    var response = new Response(null, {status: 0, statusText: ''})
-    response.type = 'error'
-    return response
-  }
-
-  var redirectStatuses = [301, 302, 303, 307, 308]
-
-  Response.redirect = function(url, status) {
-    if (redirectStatuses.indexOf(status) === -1) {
-      throw new RangeError('Invalid status code')
-    }
-
-    return new Response(null, {status: status, headers: {location: url}})
-  }
-
-  self.Headers = Headers
-  self.Request = Request
-  self.Response = Response
-
-  self.fetch = function(input, init) {
-    return new Promise(function(resolve, reject) {
-      var request = new Request(input, init)
-      var xhr = new XMLHttpRequest()
-
-      xhr.onload = function() {
-        var options = {
-          status: xhr.status,
-          statusText: xhr.statusText,
-          headers: parseHeaders(xhr.getAllResponseHeaders() || '')
-        }
-        options.url = 'responseURL' in xhr ? xhr.responseURL : options.headers.get('X-Request-URL')
-        var body = 'response' in xhr ? xhr.response : xhr.responseText
-        resolve(new Response(body, options))
-      }
-
-      xhr.onerror = function() {
-        reject(new TypeError('Network request failed'))
-      }
-
-      xhr.ontimeout = function() {
-        reject(new TypeError('Network request failed'))
-      }
-
-      xhr.open(request.method, request.url, true)
-
-      if (request.credentials === 'include') {
-        xhr.withCredentials = true
-      }
-
-      if ('responseType' in xhr && support.blob) {
-        xhr.responseType = 'blob'
-      }
-
-      request.headers.forEach(function(value, name) {
-        xhr.setRequestHeader(name, value)
-      })
-
-      xhr.send(typeof request._bodyInit === 'undefined' ? null : request._bodyInit)
-    })
-  }
-  self.fetch.polyfill = true
-})(typeof self !== 'undefined' ? self : this);
-
-
-/***/ }),
-/* 18 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 // This file can be required in Browserify and Node.js for automatic polyfill
 // To use it:  require('es6-promise/auto');
 
-module.exports = __webpack_require__(19).polyfill();
+module.exports = __webpack_require__(18).polyfill();
 
 
 /***/ }),
-/* 19 */
+/* 18 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(process, global) {var require;/*!
@@ -979,7 +506,7 @@ function flush() {
 function attemptVertx() {
   try {
     var r = require;
-    var vertx = __webpack_require__(21);
+    var vertx = __webpack_require__(20);
     vertxNext = vertx.runOnLoop || vertx.runOnContext;
     return useVertxTimer();
   } catch (e) {
@@ -2000,10 +1527,10 @@ return Promise$2;
 
 //# sourceMappingURL=es6-promise.map
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(20), __webpack_require__(2)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(19), __webpack_require__(2)))
 
 /***/ }),
-/* 20 */
+/* 19 */
 /***/ (function(module, exports) {
 
 // shim for using process in browser
@@ -2193,21 +1720,21 @@ process.umask = function() { return 0; };
 
 
 /***/ }),
-/* 21 */
+/* 20 */
 /***/ (function(module, exports) {
 
 /* (ignored) */
 
 /***/ }),
-/* 22 */
+/* 21 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 /* WEBPACK VAR INJECTION */(function(global) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var utils_1 = __webpack_require__(0);
-var Context_1 = __webpack_require__(29);
-var csr_1 = __webpack_require__(42);
+var Context_1 = __webpack_require__(28);
+var csr_1 = __webpack_require__(41);
 var spscript = {
     utils: utils_1.default,
     CSR: csr_1.default,
@@ -2228,13 +1755,13 @@ exports.default = spscript;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(2)))
 
 /***/ }),
-/* 23 */
+/* 22 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var qs = __webpack_require__(5);
+var qs = __webpack_require__(6);
 function fromObj(obj, quoteValues) {
     var writeParam = function (key) {
         var value = (obj[key] + "").trim();
@@ -2265,7 +1792,7 @@ exports.toObj = toObj;
 
 
 /***/ }),
-/* 24 */
+/* 23 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2356,7 +1883,7 @@ var isArray = Array.isArray || function (xs) {
 
 
 /***/ }),
-/* 25 */
+/* 24 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2448,7 +1975,7 @@ var objectKeys = Object.keys || function (obj) {
 
 
 /***/ }),
-/* 26 */
+/* 25 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2498,7 +2025,7 @@ exports.default = headerUtils;
 
 
 /***/ }),
-/* 27 */
+/* 26 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2539,7 +2066,7 @@ exports.loadScripts = function (urls) {
 
 
 /***/ }),
-/* 28 */
+/* 27 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2596,7 +2123,7 @@ exports.waitForElement = function (selector, timeout) {
 
 
 /***/ }),
-/* 29 */
+/* 28 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2637,14 +2164,14 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var request_1 = __webpack_require__(8);
+var request_1 = __webpack_require__(9);
 var utils_1 = __webpack_require__(0);
-var List_1 = __webpack_require__(30);
-var Web_1 = __webpack_require__(32);
-var Search_1 = __webpack_require__(33);
-var CustomActions_1 = __webpack_require__(35);
-var Profiles_1 = __webpack_require__(37);
-var tokenHelper_1 = __webpack_require__(38);
+var List_1 = __webpack_require__(29);
+var Web_1 = __webpack_require__(31);
+var Search_1 = __webpack_require__(32);
+var CustomActions_1 = __webpack_require__(34);
+var Profiles_1 = __webpack_require__(36);
+var tokenHelper_1 = __webpack_require__(37);
 var Context = (function () {
     function Context(url, options) {
         if (options === void 0) { options = {}; }
@@ -2740,14 +2267,14 @@ exports.default = Context;
 
 
 /***/ }),
-/* 30 */
+/* 29 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
 var utils_1 = __webpack_require__(0);
-var Securable_1 = __webpack_require__(9);
+var Securable_1 = __webpack_require__(10);
 var List = (function () {
     function List(name, ctx) {
         this.listName = name;
@@ -2869,7 +2396,7 @@ var appendOData = function (odata, prefix) {
 
 
 /***/ }),
-/* 31 */
+/* 30 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3023,14 +2550,14 @@ exports.basePermissions = [{
 
 
 /***/ }),
-/* 32 */
+/* 31 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
 var utils_1 = __webpack_require__(0);
-var Securable_1 = __webpack_require__(9);
+var Securable_1 = __webpack_require__(10);
 var Web = (function () {
     function Web(ctx) {
         this.baseUrl = "/web";
@@ -3088,14 +2615,14 @@ exports.default = Web;
 
 
 /***/ }),
-/* 33 */
+/* 32 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
 var utils_1 = __webpack_require__(0);
-var searchMappers_1 = __webpack_require__(34);
+var searchMappers_1 = __webpack_require__(33);
 var Search = (function () {
     function Search(ctx) {
         this._dao = ctx;
@@ -3157,7 +2684,7 @@ exports.default = Search;
 
 
 /***/ }),
-/* 34 */
+/* 33 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3200,14 +2727,14 @@ exports.mapItems = function (itemRows) {
 
 
 /***/ }),
-/* 35 */
+/* 34 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
 var utils_1 = __webpack_require__(0);
-var ICustomActions_1 = __webpack_require__(36);
+var ICustomActions_1 = __webpack_require__(35);
 var CustomActions = (function () {
     function CustomActions(ctx) {
         this._dao = ctx;
@@ -3349,7 +2876,7 @@ exports.default = CustomActions;
 
 
 /***/ }),
-/* 36 */
+/* 35 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3375,7 +2902,7 @@ exports.scopes = {
 
 
 /***/ }),
-/* 37 */
+/* 36 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3390,9 +2917,7 @@ var Profiles = (function () {
     /** Gets the profile of the current user.  */
     Profiles.prototype.current = function () {
         var url = this.baseUrl + "/GetMyProperties";
-        return this._dao.get(url)
-            .then(utils_1.default.validateODataV2)
-            .then(transformPersonProperties);
+        return this._dao.get(url).then(utils_1.default.validateODataV2).then(transformPersonProperties);
     };
     Profiles.prototype.get = function (user) {
         var _this = this;
@@ -3401,9 +2926,7 @@ var Profiles = (function () {
         return this.getUserObj(user).then(function (user) {
             var login = encodeURIComponent(user.LoginName || user.AccountName);
             var url = _this.baseUrl + "/GetPropertiesFor(accountName=@v)?@v='" + login + "'";
-            return _this._dao.get(url)
-                .then(utils_1.default.validateODataV2)
-                .then(transformPersonProperties);
+            return _this._dao.get(url).then(utils_1.default.validateODataV2).then(transformPersonProperties);
         });
     };
     Profiles.prototype.getUserObj = function (user) {
@@ -3432,7 +2955,6 @@ var Profiles = (function () {
 }());
 exports.default = Profiles;
 var transformPersonProperties = function (profile) {
-    console.log(profile);
     profile.UserProfileProperties.results.forEach(function (keyvalue) {
         profile[keyvalue.Key] = keyvalue.Value;
     });
@@ -3441,15 +2963,15 @@ var transformPersonProperties = function (profile) {
 
 
 /***/ }),
-/* 38 */
+/* 37 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var url_1 = __webpack_require__(39);
-var querystring = __webpack_require__(5);
-var request_1 = __webpack_require__(8);
+var url_1 = __webpack_require__(38);
+var querystring = __webpack_require__(6);
+var request_1 = __webpack_require__(9);
 exports.getAppOnlyToken = function (url, clientId, clientSecret) {
     var urlParts = url_1.parse(url);
     return getRealm(url).then(function (authParams) {
@@ -3473,7 +2995,6 @@ exports.getAppOnlyToken = function (url, clientId, clientSecret) {
             }
         };
         return request_1.default(tokenUrl, opts).then(function (data) {
-            console.log(data);
             return data.access_token;
         });
     });
@@ -3491,8 +3012,7 @@ var getRealm = function (url) {
     return new Promise(function (resolve, reject) {
         fetch(endpointUrl, opts).then(function (res) {
             if (!res.ok) {
-                var realm = parseRealm(res.headers["www-authenticate"] ||
-                    res.headers._headers["www-authenticate"][0]);
+                var realm = parseRealm(res.headers["www-authenticate"] || res.headers._headers["www-authenticate"][0]);
                 resolve(realm);
             }
             //this should fail
@@ -3504,15 +3024,10 @@ var parseRealm = function (raw) {
     var bearer = "Bearer realm=";
     if (raw && raw.startsWith("Bearer")) {
         raw = raw.substr(7);
-        var params = raw
-            .split(",")
-            .filter(function (p) { return p.indexOf("=") > -1; })
-            .reduce(function (params, piece) {
+        var params = raw.split(",").filter(function (p) { return p.indexOf("=") > -1; }).reduce(function (params, piece) {
             var parts = piece.split("=");
             if (parts.length === 2) {
-                params[parts[0].trim()] = parts[1]
-                    .trim()
-                    .replace(/\"/g, "");
+                params[parts[0].trim()] = parts[1].trim().replace(/\"/g, "");
             }
             return params;
         }, {});
@@ -3523,7 +3038,7 @@ var parseRealm = function (raw) {
 
 
 /***/ }),
-/* 39 */
+/* 38 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3550,8 +3065,8 @@ var parseRealm = function (raw) {
 
 
 
-var punycode = __webpack_require__(40);
-var util = __webpack_require__(41);
+var punycode = __webpack_require__(39);
+var util = __webpack_require__(40);
 
 exports.parse = urlParse;
 exports.resolve = urlResolve;
@@ -3626,7 +3141,7 @@ var protocolPattern = /^([a-z0-9.+-]+:)/i,
       'gopher:': true,
       'file:': true
     },
-    querystring = __webpack_require__(5);
+    querystring = __webpack_require__(6);
 
 function urlParse(url, parseQueryString, slashesDenoteHost) {
   if (url && util.isObject(url) && url instanceof Url) return url;
@@ -4262,7 +3777,7 @@ Url.prototype.parseHost = function() {
 
 
 /***/ }),
-/* 40 */
+/* 39 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(module, global) {var __WEBPACK_AMD_DEFINE_RESULT__;/*! https://mths.be/punycode v1.4.1 by @mathias */
@@ -4798,10 +4313,10 @@ Url.prototype.parseHost = function() {
 
 }(this));
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(6)(module), __webpack_require__(2)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(7)(module), __webpack_require__(2)))
 
 /***/ }),
-/* 41 */
+/* 40 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4824,7 +4339,7 @@ module.exports = {
 
 
 /***/ }),
-/* 42 */
+/* 41 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";

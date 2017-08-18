@@ -23,7 +23,19 @@ module.exports = {
 			},
 			addBabelLoader() //Enable writing ES6 javascript
 		]
-	}
+	},
+	// Not totally getting why i need to do this but...
+	//https://github.com/matthew-andrews/isomorphic-fetch/issues/98
+	externals: [
+		{
+			"isomorphic-fetch": {
+				root: "isomorphic-fetch",
+				commonjs2: "isomorphic-fetch",
+				commonjs: "isomorphic-fetch",
+				amd: "isomorphic-fetch"
+			}
+		}
+	]
 };
 
 function addBabelLoader() {

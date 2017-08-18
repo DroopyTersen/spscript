@@ -2,11 +2,7 @@ import { parse as parseUrl } from "url";
 import * as querystring from "querystring";
 import request from "./request";
 
-export var getAppOnlyToken = function(
-	url: string,
-	clientId: string,
-	clientSecret: string
-) {
+export var getAppOnlyToken = function(url: string, clientId: string, clientSecret: string) {
 	var urlParts = parseUrl(url);
 	return getRealm(url).then(authParams => {
 		var tokenUrl = `https://accounts.accesscontrol.windows.net/${authParams.realm}/tokens/OAuth/2`;
@@ -31,7 +27,6 @@ export var getAppOnlyToken = function(
 			}
 		};
 		return request(tokenUrl, opts).then(data => {
-			console.log(data);
 			return data.access_token;
 		});
 	});
@@ -51,8 +46,7 @@ var getRealm = function(url: string): Promise<any> {
 		fetch(endpointUrl, opts).then((res: any) => {
 			if (!res.ok) {
 				var realm = parseRealm(
-					res.headers["www-authenticate"] ||
-						res.headers._headers["www-authenticate"][0]
+					res.headers["www-authenticate"] || res.headers._headers["www-authenticate"][0]
 				);
 				resolve(realm);
 			}
@@ -66,18 +60,13 @@ var parseRealm = function(raw): any {
 	var bearer = "Bearer realm=";
 	if (raw && raw.startsWith("Bearer")) {
 		raw = raw.substr(7);
-		var params = raw
-			.split(",")
-			.filter(p => p.indexOf("=") > -1)
-			.reduce((params, piece) => {
-				var parts = piece.split("=");
-				if (parts.length === 2) {
-					params[parts[0].trim()] = parts[1]
-						.trim()
-						.replace(/\"/g, "");
-				}
-				return params;
-			}, {});
+		var params = raw.split(",").filter(p => p.indexOf("=") > -1).reduce((params, piece) => {
+			var parts = piece.split("=");
+			if (parts.length === 2) {
+				params[parts[0].trim()] = parts[1].trim().replace(/\"/g, "");
+			}
+			return params;
+		}, {});
 		return params;
 	}
 	return null;

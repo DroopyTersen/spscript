@@ -1,8 +1,7 @@
 var config = require("../../app.config");
-var SPScript = require("../../lib/entry.server");
+var SPScript = require("../../dist/v3/spscript");
 var chai = require("chai");
 chai.should();
-var SPScript = require("../../lib/SPScript").default;
 
 var ctx = SPScript.createContext(config.SP_SITE_URL, {
 	clientId: config.CLIENT_KEY,

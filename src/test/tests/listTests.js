@@ -242,7 +242,6 @@ exports.run = function(dao) {
 				list
 					.getItems("$orderby=Id")
 					.then(function(items) {
-						console.log(items);
 						itemToDelete = items[items.length - 1];
 						return list.deleteItem(itemToDelete.Id);
 					})

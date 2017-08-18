@@ -5,7 +5,6 @@
 	"main": "./dist/v3/spscript.js",
 	"scripts": {
 		"build": "webpack -p",
-		"pretest": "npm run build",
 		"test": "mocha src/test/test.server.js",
 		"test:browser": "concurrently \"npm run watch\" \"npm run serve\"",
 		"serve": "concurrently \"live-server --no-browser\" \"ngrok http 8080 -subdomain=droopytersen\"",
