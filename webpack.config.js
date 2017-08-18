@@ -1,6 +1,6 @@
 module.exports = {
 	entry: {
-		spscript: `./src/entry.browser.ts`,
+		spscript: `./src/entry.spscript.ts`,
 		tests: "./src/test/test.browser.js"
 	},
 	output: {
