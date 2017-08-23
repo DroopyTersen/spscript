@@ -1,6 +1,6 @@
 {
 	"name": "spscript",
-	"version": "3.0.4-beta",
+	"version": "3.0.5-beta",
 	"description": "ShareP0oint 2013 Rest Api Wrappers",
 	"main": "./dist/v3/spscript.js",
 	"scripts": {
@@ -8,7 +8,8 @@
 		"test": "mocha src/test/test.server.js",
 		"test:browser": "concurrently \"npm run watch\" \"npm run serve\"",
 		"serve": "concurrently \"live-server --no-browser\" \"ngrok http 8080 -subdomain=droopytersen\"",
-		"watch": "webpack --watch"
+		"watch": "webpack --watch",
+		"docs": "typedoc --out dist/docs ./src/entry.spscript.ts --theme minimal --entryPoint \"/interfaces/spscript\""
 	},
 	"repository": {
 		"type": "git",
@@ -37,7 +38,7 @@
 		"rimraf": "^2.5.2",
 		"style-loader": "^0.13.1",
 		"ts-loader": "^2.3.3",
-		"typedoc": "^0.7.1",
+		"typedoc": "^0.7.2",
 		"typescript": "^2.3.4",
 		"webpack": "^3.5.5"
 	},
@@ -45,5 +46,5 @@
 		"es6-promise": "^4.1.1",
 		"isomorphic-fetch": "^2.2.1"
 	},
-	"types": "./dist/v3/lib/entry.browser.d.ts"
+	"types": "./dist/v3/lib/entry.spscript.d.ts"
 }
