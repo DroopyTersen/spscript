@@ -1,3 +1,4 @@
+require('isomorphic-fetch');
 var config = require("../../app.config");
 var SPScript = require("../../dist/v3/spscript");
 var chai = require("chai");

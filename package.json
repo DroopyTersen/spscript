@@ -1,10 +1,11 @@
 {
 	"name": "spscript",
-	"version": "3.0.5-beta",
+	"version": "3.0.6-beta",
 	"description": "ShareP0oint 2013 Rest Api Wrappers",
 	"main": "./dist/v3/spscript.js",
 	"scripts": {
-		"build": "webpack -p",
+		"build": "webpack",
+		"copy": "powershell Copy-Item C:\\gitwip\\spscript\\dist\\v3\\spscript.js C:\\gitwip\\Skyline\\portals\\spark-rewards\\src",
 		"test": "mocha src/test/test.server.js",
 		"test:browser": "concurrently \"npm run watch\" \"npm run serve\"",
 		"serve": "concurrently \"live-server --no-browser\" \"ngrok http 8080 -subdomain=droopytersen\"",
@@ -15,7 +16,9 @@
 		"type": "git",
 		"url": "https://github.com/DroopyTersen/spscript"
 	},
-	"keywords": ["sharepoint"],
+	"keywords": [
+		"sharepoint"
+	],
 	"author": "Andrew Petersen",
 	"bugs": {
 		"url": "https://github.com/DroopyTersen/spscript/issues"
@@ -33,6 +36,7 @@
 		"css-loader": "^0.23.1",
 		"file-loader": "^0.8.5",
 		"html-loader": "^0.4.3",
+		"isomorphic-fetch": "^2.2.1",
 		"mocha": "^2.4.5",
 		"ngrok": "^2.2.17",
 		"rimraf": "^2.5.2",
@@ -42,9 +46,6 @@
 		"typescript": "^2.3.4",
 		"webpack": "^3.5.5"
 	},
-	"dependencies": {
-		"es6-promise": "^4.1.1",
-		"isomorphic-fetch": "^2.2.1"
-	},
+	"dependencies": {},
 	"types": "./dist/v3/lib/entry.spscript.d.ts"
 }

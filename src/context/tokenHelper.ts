@@ -45,9 +45,7 @@ var getRealm = function(url: string): Promise<any> {
 	return new Promise((resolve, reject) => {
 		fetch(endpointUrl, opts).then((res: any) => {
 			if (!res.ok) {
-				var realm = parseRealm(
-					res.headers["www-authenticate"] || res.headers._headers["www-authenticate"][0]
-				);
+				var realm = parseRealm(getWWWAuthenticate(res.headers));
 				resolve(realm);
 			}
 			//this should fail
@@ -56,6 +54,16 @@ var getRealm = function(url: string): Promise<any> {
 	});
 };
 
+var getWWWAuthenticate = function (headers) {
+	var key = "www-authenticate";
+	if (typeof headers[key] === "string") return headers[key];
+	if (headers._headers && Array.isArray(headers._headers[key])) {
+		return headers._headers[key][0];
+	}
+	if (headers.map && Array.isArray(headers.map[key])) {
+		return headers.map[key][0];
+	}
+}
 var parseRealm = function(raw): any {
 	var bearer = "Bearer realm=";
 	if (raw && raw.startsWith("Bearer")) {

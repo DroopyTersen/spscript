@@ -1,7 +1,5 @@
-// var promisePolyfill = require("promise-polyfill");
-// if (!global.Promise) {
-// 	global.Promise = promisePolyfill;
-// }
+require('es6-promise').polyfill();
+require('isomorphic-fetch');
 
 mocha.setup("bdd");
 chai.should();

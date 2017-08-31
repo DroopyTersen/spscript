@@ -1,4 +1,3 @@
-// require("isomorphic-fetch");
 import utils from "../utils";
 
 var defaults: RequestInit = {
