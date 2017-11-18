@@ -30,12 +30,12 @@ export default class Context {
 		this.webUrl = url;
 		this.clientId = options.clientId;
 		this.clientSecret = options.clientSecret;
+		this.accessToken = options.token;
 		// TODO serverside: replace with tokenHelper.getAppOnlyToken(this.webUrl, this.clientKey, this.clientSecret).then(token => this.accessToken = token);
-		this.ensureToken = !options.clientId
-			? Promise.resolve(true)
-			: getAppOnlyToken(url, options.clientId, options.clientSecret).then(
-					token => (this.accessToken = token)
-				);
+		this.ensureToken = options.clientSecret
+			? getAppOnlyToken(url, options.clientId, options.clientSecret)
+				.then(token => (this.accessToken = token))
+			: Promise.resolve(this.accessToken || true);
 
 		this.search = new Search(this);
 		this.customActions = new CustomActions(this);

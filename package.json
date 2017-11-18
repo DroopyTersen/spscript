@@ -46,6 +46,8 @@
 		"typescript": "^2.3.4",
 		"webpack": "^3.5.5"
 	},
-	"dependencies": {},
+	"dependencies": {
+		"es6-promise": "^4.1.1"
+	},
 	"types": "./dist/v3/lib/entry.spscript.d.ts"
 }
