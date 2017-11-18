@@ -72,7 +72,7 @@ export default class List {
 
     /** Insert a List Item */
     addItem(item: any, digest?: string): Promise<any> {
-        return this._dao._ensureRequestDigest(digest).then(digest => {
+        return this._dao.auth.ensureRequestDigest(digest).then(digest => {
             return this._dao.get(this.baseUrl)
                 .then(data => {
                     //decorate the item with the 'type' metadata
@@ -93,7 +93,7 @@ export default class List {
 
     /** Takes a SharePoint Id, and updates that item ONLY with properties that are found in the passed in updates object. */
     updateItem(itemId: number, updates: any, digest?: string) {
-        return this._dao._ensureRequestDigest(digest).then(digest => {
+        return this._dao.auth.ensureRequestDigest(digest).then(digest => {
             return this.getItemById(itemId).then(item => {
                 //decorate the item with the 'type' metadata
                 updates = Object.assign({}, {
@@ -113,7 +113,7 @@ export default class List {
 
     /** deletes the item with the specified SharePoint Id */
     deleteItem(itemId: number, digest?: string) {
-        return this._dao._ensureRequestDigest(digest).then(digest => {
+        return this._dao.auth.ensureRequestDigest(digest).then(digest => {
             return this.getItemById(itemId).then(item => {
                 var customOptions = {
                     headers: utils.headers.getDeleteHeaders(digest, item["__metadata"].etag)

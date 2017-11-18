@@ -101,15 +101,7 @@ exports.run = function(SPScript) {
 				it("Should resolve to a JS object, not a JSON string");
 			});
 
-			describe("ctx.getRequestDigest()", function() {
-				it("Should resolve to a string request digest", function(done) {
-					ctx.getRequestDigest().then(function(digest) {
-						digest.should.be.a("string");
-						digest.should.not.be.empty;
-						done();
-					});
-				});
-			});
+
 		});
 	});
 };

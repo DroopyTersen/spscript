@@ -1,6 +1,4 @@
-require('es6-promise').polyfill();
-require('isomorphic-fetch');
-
+require("babel-polyfill");
 mocha.setup("bdd");
 chai.should();
 var SPScript = require("../../dist/v3/spscript");

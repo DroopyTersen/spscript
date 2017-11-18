@@ -7,7 +7,7 @@ import Search from "../search/Search";
 import CustomActions from "../customActions/CustomActions";
 import Profiles from "../profiles/Profiles";
 import { getAppOnlyToken } from "./tokenHelper";
-
+import Auth from "../auth/Auth";
 export default class Context {
 	/** The url of the SPScript data context */
 	webUrl: string;
@@ -19,6 +19,8 @@ export default class Context {
 	profiles: Profiles;
 	/** Work with Site/Web scoped Custom Actions */
 	customActions: CustomActions;
+	/** Request Digest and Access token helpers */
+	auth: Auth;
 
 	private request: (url: string, options: RequestInit) => Promise<any>;
 	private clientId: string;
@@ -41,6 +43,7 @@ export default class Context {
 		this.customActions = new CustomActions(this);
 		this.web = new Web(this);
 		this.profiles = new Profiles(this);
+		this.auth = new Auth(this);
 	}
 
 	private async executeRequest(url: string, opts: RequestInit): Promise<any> {
@@ -80,20 +83,9 @@ export default class Context {
 
 	/** Make a 'POST' request to the '<site>/_api' relative url. SPScript will handle authorizing the request for you.*/
 	authorizedPost(url: string, body?: any, verb?: string) {
-		return this.getRequestDigest()
+		return this.auth.getRequestDigest()
 			.then(digest => utils.headers.getActionHeaders(verb, digest))
 			.then(headers => this.post(url, body, { headers }));
-	}
-
-	_ensureRequestDigest(digest?: string): Promise<string> {
-		return digest ? Promise.resolve(digest) : this.getRequestDigest();
-	}
-
-	/** Get a Request Digest token to authorize a request */
-	getRequestDigest(): Promise<string> {
-		return this.post("/contextInfo", {}).then(
-			data => data["d"].GetContextWebInformation.FormDigestValue
-		);
 	}
 
 	/** Get an SPScript List instance */

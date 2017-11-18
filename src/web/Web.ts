@@ -64,7 +64,7 @@ export default class Web {
 
     /** Copies a file from one server relative url to another */
     copyFile(sourceUrl: string, destinationUrl: string, digest?: string) {
-        return this._dao._ensureRequestDigest(digest)
+        return this._dao.auth.ensureRequestDigest(digest)
             .then(digest => this._copyFile(sourceUrl, destinationUrl, digest))
     }
 

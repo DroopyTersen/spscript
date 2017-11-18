@@ -17,13 +17,13 @@ exports.run = function(SPScript, ctx) {
 		require("./contextTests").run(SPScript);
 		ctx = SPScript.createContext();
 	}
-
-	require("./webTests").run(ctx);
-	require("./listTests").run(ctx);
-	require("./customActionTests").run(ctx);
-	if (!isServer) {
-		require("./searchTests").run(ctx);
-		require("./profileTests").run(ctx);
-	}
-	require("./utilsTests").run(SPScript.utils);
+	require("./authTests").run(ctx);
+	// require("./webTests").run(ctx);
+	// require("./listTests").run(ctx);
+	// require("./customActionTests").run(ctx);
+	// if (!isServer) {
+	// 	require("./searchTests").run(ctx);
+	// 	require("./profileTests").run(ctx);
+	// }
+	// require("./utilsTests").run(SPScript.utils);
 };

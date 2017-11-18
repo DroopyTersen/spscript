@@ -58,7 +58,7 @@ export default class CustomActions {
         return this._getUrl(name)
             .then(url => {
                 prep.url = url;
-                return this._dao.getRequestDigest()
+                return this._dao.auth.getRequestDigest()
             })
             .then(digest => {
                 prep.digest = digest;
@@ -116,7 +116,7 @@ export default class CustomActions {
                 }
                 return true;
             })
-            .then(() => this._dao.getRequestDigest())
+            .then(() => this._dao.auth.getRequestDigest())
             .then(digest => {
                 customAction = Object.assign({}, metadata, customAction);
                 var scope = scopes[customAction.Scope]
