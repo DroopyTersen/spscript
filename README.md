@@ -53,7 +53,11 @@ var ctx = SPScript.createContext(siteUrl);
 - `ctx.get(url, opts)` - Generic helper to make AJAX GET request. Sets proper headers, promisifies, and parses JSON response. `url` is the API url relative to "/_api". 
 - `ctx.post(url, body, opts)` - Generic helper to make AJAX POST request. `url` is the API url relative to "/_api".
 - `ctx.authorizedPost(url, body, opts)` - Same as `ctx.post` except that it also takes care of including the proper authorization headers.
-- `ctx.getRequestDigest()` - Retrieves a token needed to authorize any updates
+
+### Auth Helpers
+- `ctx.auth.getRequestDigest()` - Retrieves a token needed to authorize any updates
+- `ctx.auth.ensureRequestDigest(digest?)` - Retrieves a token needed to authorize if a digest isn't given
+- `ctx.auth.getGraphToken()` - Retrieves an token that can be used to authorize requests to the MS Graph API
 
 ### Web
 - `ctx.web.getInfo()` - Gets you the [SPWeb properties](https://msdn.microsoft.com/en-us/library/office/jj245288.aspx#properties) of your site

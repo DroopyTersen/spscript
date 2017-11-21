@@ -18,12 +18,12 @@ exports.run = function(SPScript, ctx) {
 		ctx = SPScript.createContext();
 	}
 	require("./authTests").run(ctx);
-	// require("./webTests").run(ctx);
-	// require("./listTests").run(ctx);
-	// require("./customActionTests").run(ctx);
-	// if (!isServer) {
-	// 	require("./searchTests").run(ctx);
-	// 	require("./profileTests").run(ctx);
-	// }
-	// require("./utilsTests").run(SPScript.utils);
+	require("./webTests").run(ctx);
+	require("./listTests").run(ctx);
+	require("./customActionTests").run(ctx);
+	if (!isServer) {
+		require("./searchTests").run(ctx);
+		require("./profileTests").run(ctx);
+	}
+	require("./utilsTests").run(SPScript.utils);
 };
