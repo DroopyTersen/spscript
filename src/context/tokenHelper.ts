@@ -18,7 +18,7 @@ export var getAppOnlyToken = function(url: string, clientId: string, clientSecre
 		};
 		var bodyStr = querystring.stringify(postBody);
 
-		var opts: RequestInit = {
+		var opts: any = {
 			method: "POST",
 			body: bodyStr,
 			headers: {

@@ -1,6 +1,6 @@
 {
 	"name": "spscript",
-	"version": "3.0.8-beta",
+	"version": "3.0.9-beta",
 	"description": "ShareP0oint 2013 Rest Api Wrappers",
 	"main": "./dist/v3/spscript.js",
 	"scripts": {

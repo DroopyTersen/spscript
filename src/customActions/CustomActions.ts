@@ -101,7 +101,7 @@ export default class CustomActions {
             Name: customAction.Name,
             Title: customAction.Name,
             Description: customAction.Name,
-            Group: customAction.Name,
+            // Group: customAction.Name,
             Sequence: 100,
             Scope: "Site",
             Location: "ScriptLink",
@@ -131,7 +131,8 @@ export default class CustomActions {
     private addScriptBlock(name:string, block:string, opts:CustomAction = {}) {
         var customAction : CustomAction = {
             Name: name,
-            ScriptBlock: block
+            ScriptBlock: block,
+            Group: name,
         };
         customAction = Object.assign({}, customAction, opts);
         return this.add(customAction);
