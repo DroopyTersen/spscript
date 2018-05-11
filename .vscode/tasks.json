@@ -1,15 +1,15 @@
 {
     "version": "0.1.0",
-    "command": "gulp",
+    "command": "npm",
     "isShellCommand": true,
     "args": [
-        "--no-color"
+        "run"
     ],
     "tasks": [
         {
-            "taskName": "default",
+            "taskName": "build",
             "args": [],
-            "isTestCommand": true,
+            "isTestCommand": false,
             "isBuildCommand": true
         }
     ]
