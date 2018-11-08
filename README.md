@@ -69,7 +69,7 @@ var ctx = SPScript.createContext(siteUrl);
 <!--TODO document fileAction-->
 <!--- `ctx.web.deleteFile(fileUrl)` - Deletes the file at the specified server relative url-->
 <!--- `ctx.web.uploadFile(fileContent, folderUrl)` - Allows passing in an file content as text or as an HTML5 File (from File input type).  Uploads file to the specified server relative folder url.-->
-- `ctx.web.permissions.getRoleAssignments()` - Gets you an an array of permissions that have been setup for that site. Each permission object has a `member` (the user or group) and a `roles` array (the permissions that user or group has). 
+- `ctx.web.permissions.getRoleAssignments()` - Gets you an array of permissions that have been setup for that site. Each permission object has a `member` (the user or group) and a `roles` array (the permissions that user or group has). 
 - `ctx.web.permissions.check()` - Looks up the permissions of the current user. 
 - `ctx.web.permissions.check(email)` - Looks up a user by their email address, then gets you a list of permissions that user has for your site.  Similiar to "Check Permissions". 
 
@@ -86,7 +86,7 @@ var ctx = SPScript.createContext(siteUrl);
 - `ctx.lists(listname).addItem(item)` - takes a javascript object and creates a list item.
 - `ctx.lists(listname).updateItem(id, updates)` - takes a SharePoint Id, and updates that item ONLY with properties that are found in the passed in `updates` object.
 - `ctx.lists(listname).deleteItem(id)` - deletes the item with the specified SharePoint Id
-- `ctx.lists(listname).permissions.getRoleAssignments()` - Gets you an an array of permissions that have been setup for that list. Each permission object has a `member` (the user or group) and a `roles` array (the permissions that user or group has). 
+- `ctx.lists(listname).permissions.getRoleAssignments()` - Gets you an array of permissions that have been setup for that list. Each permission object has a `member` (the user or group) and a `roles` array (the permissions that user or group has). 
 - `ctx.lists(listname).permissions.check()` - Looks up the permissions of the current user. 
 - `ctx.lists(listname).permissions.check(email)` - Looks up a user by their email address, then gets the permissions that user has for that list.  Similiar to "Check Permissions". 
 
