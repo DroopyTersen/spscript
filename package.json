@@ -6,8 +6,6 @@
   "scripts": {
     "build": "webpack -p",
     "copy": "powershell Copy-Item C:\\gitwip\\spscript\\dist\\v3\\spscript.js C:\\gitwip\\Skyline\\portals\\spark-rewards\\src",
-    "test": "mocha src/test/test.server.js",
-    "test:browser": "concurrently \"npm run watch\" \"npm run serve\"",
     "serve": "concurrently \"live-server --no-browser\" \"ngrok http 8080 -subdomain=droopytersen\"",
     "watch": "webpack --watch",
     "docs": "typedoc --out dist/docs ./src/entry.spscript.ts --theme minimal --entryPoint \"/interfaces/spscript\""
