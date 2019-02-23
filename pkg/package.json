@@ -26,6 +26,7 @@
   },
   "dependencies": {},
   "devDependencies": {
+    "@pika/pack": "^0.3.2",
     "@pika/plugin-build-node": "^0.3.11",
     "@pika/plugin-build-types": "^0.3.11",
     "@pika/plugin-build-web": "^0.3.11",
