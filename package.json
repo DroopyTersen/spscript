@@ -28,6 +28,7 @@
     "@pika/plugin-build-types": "^0.3.11",
     "@pika/plugin-build-umd": "^0.3.11",
     "@pika/plugin-build-web": "^0.3.11",
+    "@pika/plugin-bundle-web": "^0.3.11",
     "@pika/plugin-standard-pkg": "^0.3.11",
     "@pika/plugin-ts-standard-pkg": "^0.3.11",
     "chai": "^1.10.0",
@@ -68,7 +69,7 @@
         }
       ],
       [
-        "@pika/plugin-build-umd",
+        "@pika/plugin-bundle-web",
         {
           "name": "SPScript",
           "exclude": [
