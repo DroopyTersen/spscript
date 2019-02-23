@@ -295,6 +295,16 @@ ctx.search.people("petersen").then(function(searchResults) {
 
 ### NodeJS
 
+#### Fetch Polyfill
+
+In order to work in Node.js, you need to import `isomorphic-fetch`. This is because under the hood, SPScript uses `fetch` for all the requests. However, I wanted to leave it up to the consumer to decide whether they needed a `fetch` polyfill (old IE or Node).
+
+For node, Just add this line to the top of your entry file
+
+```
+require("isomorphic-fetch")
+```
+
 You can pass a `headers` property to the `ContextOptions` param in `createContext`.
 
 For example you could use [node-sp-auth](https://www.npmjs.com/package/node-sp-auth) to log in with username and password (only do this serverside), then pass the Fed Auth cookie you receive to SPScript:
