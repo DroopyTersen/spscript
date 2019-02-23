@@ -60,16 +60,7 @@
         }
       ],
       [
-        "@pika/plugin-build-web",
-        {
-          "exclude": [
-            "__tests__/*",
-            "test/*"
-          ]
-        }
-      ],
-      [
-        "@pika/plugin-bundle-web",
+        "@pika/plugin-build-umd",
         {
           "name": "SPScript",
           "exclude": [
