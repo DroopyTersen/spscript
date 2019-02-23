@@ -1,14 +1,14 @@
 {
   "name": "spscript",
   "version": "4.0.5",
-  "description": "ShareP0oint 2013 Rest Api Wrappers",
-  "main": "./dist/v3/spscript.js",
+  "description": "ShareP0oint Rest Api Wrappers",
   "scripts": {
-    "build": "webpack -p",
+    "build": "pack build",
+    "test": "jest",
     "copy": "powershell Copy-Item C:\\gitwip\\spscript\\dist\\v3\\spscript.js C:\\gitwip\\Skyline\\portals\\spark-rewards\\src",
     "serve": "concurrently \"live-server --no-browser\" \"ngrok http 8080 -subdomain=droopytersen\"",
     "watch": "webpack --watch",
-    "docs": "typedoc --out dist/docs ./src/entry.spscript.ts --theme minimal --entryPoint \"/interfaces/spscript\""
+    "docs": "typedoc --out docs ./src/index.ts --entryPoint \"/interfaces/spscript\""
   },
   "repository": {
     "type": "git",
@@ -31,12 +31,15 @@
     "@pika/plugin-bundle-web": "^0.3.11",
     "@pika/plugin-standard-pkg": "^0.3.11",
     "@pika/plugin-ts-standard-pkg": "^0.3.11",
+    "@types/jest": "^24.0.6",
     "chai": "^1.10.0",
     "concurrently": "^3.4.0",
     "isomorphic-fetch": "^2.2.1",
+    "jest": "^24.1.0",
     "mocha": "^2.4.5",
     "ngrok": "^2.2.17",
     "rimraf": "^2.5.2",
+    "ts-jest": "^24.0.0",
     "typescript": "^3.3.3333"
   },
   "@pika/pack": {

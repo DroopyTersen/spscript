@@ -16,3 +16,8 @@ export function createContext(url?: string, options?: ContextOptions) {
     throw new Error("Unable to create SPScript Context: " + ex.message);
   }
 }
+
+export interface SPScript {
+  utils: Utils;
+  createContext(url?: string, options?: ContextOptions): Context;
+}

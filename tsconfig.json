@@ -7,7 +7,14 @@
     "target": "es2018",
     "lib": ["es2015", "es2016", "dom"],
     "declaration": true,
-    "moduleResolution": "node"
+    "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true
   },
-  "include": ["./src/**/*"]
+  "include": ["./src/**/*"],
+  "exclude": ["node_modules", "lib"],
+  "typedocOptions": {
+    "mode": "file",
+    "out": "docs",
+    "entryPoint": "interfaces/spscript"
+  }
 }
