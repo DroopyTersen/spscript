@@ -27,12 +27,14 @@ export default class Context {
   private clientSecret: string;
   private ensureToken: Promise<any>;
   private accessToken: string;
+  private headers: any;
 
   constructor(url: string, options: ContextOptions = {}) {
     this.webUrl = url;
     this.clientId = options.clientId;
     this.clientSecret = options.clientSecret;
     this.accessToken = options.token;
+    this.headers = options.headers;
     // TODO serverside: replace with tokenHelper.getAppOnlyToken(this.webUrl, this.clientKey, this.clientSecret).then(token => this.accessToken = token);
     this.ensureToken = options.clientSecret
       ? getAppOnlyToken(url, options.clientId, options.clientSecret).then(
@@ -54,7 +56,8 @@ export default class Context {
       method: "GET",
       headers: {
         Accept: "application/json; odata=verbose",
-        "Content-Type": "application/json; odata=verbose"
+        "Content-Type": "application/json; odata=verbose",
+        ...this.headers
       }
     };
     var requestOptions = Object.assign({}, defaultOptions, opts);

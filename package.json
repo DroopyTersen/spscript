@@ -34,10 +34,12 @@
     "@types/jest": "^24.0.6",
     "chai": "^1.10.0",
     "concurrently": "^3.4.0",
+    "dotenv": "^6.2.0",
     "isomorphic-fetch": "^2.2.1",
     "jest": "^24.1.0",
     "mocha": "^2.4.5",
     "ngrok": "^2.2.17",
+    "node-sp-auth": "^2.5.7",
     "rimraf": "^2.5.2",
     "ts-jest": "^24.0.0",
     "typescript": "^3.3.3333"

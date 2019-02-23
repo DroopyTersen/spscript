@@ -1,4 +1,5 @@
 import * as SPScript from "../src/index";
+require("dotenv").config();
 
 describe("SPScript Namespace", () => {
   test("Should have a 'SPScript.createContext()' method", function() {
