@@ -24,5 +24,6 @@ describe("node-sp-auth", () => {
     let webInfo = await ctx.web.getInfo();
     expect(webInfo).toBeTruthy();
     expect(webInfo).toHaveProperty("Title");
+    console.log(webInfo);
   });
 });
