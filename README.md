@@ -111,11 +111,6 @@ var ctx = SPScript.createContext(siteUrl);
 -   `ctx.profiles.setProperty(key, value, { AccountName|LoginName })` - sets a profile property (key) for the specified user. User object should have `AccountName` or `LoginName` property
 -   `ctx.profiles.setProperty(key, value, email)` - sets a profile property (key) for the user tied to that email address
 
-### Clientside Rendering (CSR)
-
--   `SPScript.CSR.registerDisplayField(field)` - Registers a field override once you pass an object with at lease `name` (internal field name), `render`
--   `SPScript.CSR.registerFormField(field)` - Registers a field override once you pass an object with `name` (internal field name), `render`
-
 ### Utility Functions
 
 -   `SPScript.utils.openModal(url, modalOpts)` - Launch a SharePoint modal

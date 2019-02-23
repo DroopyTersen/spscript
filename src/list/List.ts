@@ -25,7 +25,7 @@ export default class List {
 		return this._dao.get(url).then(utils.validateODataV2);
 	}
 
-	/** Gets the items returned by the specified CAML query*/
+	/** Gets the items returned by the specified CAML query. CAML should be something like <View><Query><Where>...</Where></Query></View>*/
 	getItemsByCaml(caml: string) {
 		var queryUrl = this.baseUrl + "/GetItems";
 		var postBody = {
