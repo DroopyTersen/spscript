@@ -25,6 +25,20 @@ export default class List {
 		return this._dao.get(url).then(utils.validateODataV2);
 	}
 
+	/** Gets the items returned by the specified CAML query*/
+	getItemsByCaml(caml: string) {
+		var queryUrl = this.baseUrl + "/GetItems";
+		var postBody = {
+			query: {
+				__metadata: {
+					type: "SP.CamlQuery",
+				},
+				ViewXml: caml,
+			},
+		};
+		return this._dao.authorizedPost(queryUrl, postBody).then(utils.validateODataV2);
+	}
+
 	/** Gets the items returned by the specified View name */
 	getItemsByView(viewName: string) {
 		var viewUrl = this.baseUrl + "/Views/getByTitle('" + viewName + "')/ViewQuery";
@@ -32,20 +46,7 @@ export default class List {
 		return this._dao
 			.get(viewUrl)
 			.then(utils.validateODataV2)
-			.then(view => {
-				// Now that we found the view, craft a POST request the the /GetItems endpoint
-				var queryUrl = this.baseUrl + "/GetItems";
-				var postBody = {
-					query: {
-						__metadata: {
-							type: "SP.CamlQuery",
-						},
-						ViewXml: view.ViewQuery,
-					},
-				};
-				return this._dao.authorizedPost(queryUrl, postBody);
-			})
-			.then(utils.validateODataV2);
+			.then(view => this.getItemsByCaml(view.ViewQuery));
 	}
 
 	/** Gets you all items whose field(key) matches the value. Currently only text and number columns are supported. */
