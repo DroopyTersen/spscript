@@ -1,52 +1,81 @@
 {
-	"name": "spscript",
-	"version": "3.1.0",
-	"description": "ShareP0oint 2013 Rest Api Wrappers",
-	"main": "./dist/v3/spscript.js",
-	"scripts": {
-		"build": "webpack -p",
-		"copy": "powershell Copy-Item C:\\gitwip\\spscript\\dist\\v3\\spscript.js C:\\gitwip\\Skyline\\portals\\spark-rewards\\src",
-		"test": "mocha src/test/test.server.js",
-		"test:browser": "concurrently \"npm run watch\" \"npm run serve\"",
-		"serve": "concurrently \"live-server --no-browser\" \"ngrok http 8080 -subdomain=droopytersen\"",
-		"watch": "webpack --watch",
-		"docs": "typedoc --out dist/docs ./src/entry.spscript.ts --theme minimal --entryPoint \"/interfaces/spscript\""
-	},
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/DroopyTersen/spscript"
-	},
-	"keywords": [
-		"sharepoint"
-	],
-	"author": "Andrew Petersen",
-	"bugs": {
-		"url": "https://github.com/DroopyTersen/spscript/issues"
-	},
-	"homepage": "https://github.com/DroopyTersen/spscript",
-	"devDependencies": {
-		"awesome-typescript-loader": "^3.2.3",
-		"babel-cli": "^6.24.1",
-		"babel-core": "^6.24.1",
-		"babel-loader": "^6.2.4",
-		"babel-preset-env": "^1.6.1",
-		"chai": "^1.10.0",
-		"concurrently": "^3.4.0",
-		"css-loader": "^0.23.1",
-		"file-loader": "^0.8.5",
-		"html-loader": "^0.4.3",
-		"isomorphic-fetch": "^2.2.1",
-		"mocha": "^2.4.5",
-		"ngrok": "^2.2.17",
-		"rimraf": "^2.5.2",
-		"style-loader": "^0.13.1",
-		"ts-loader": "^2.3.3",
-		"typedoc": "^0.7.2",
-		"typescript": "^2.3.4",
-		"webpack": "^3.5.5"
-	},
-	"dependencies": {
-		"babel-polyfill": "^6.26.0"
-	},
-	"types": "./dist/v3/lib/entry.spscript.d.ts"
+  "name": "spscript",
+  "version": "3.1.0",
+  "description": "ShareP0oint 2013 Rest Api Wrappers",
+  "main": "./dist/v3/spscript.js",
+  "scripts": {
+    "build": "webpack -p",
+    "copy": "powershell Copy-Item C:\\gitwip\\spscript\\dist\\v3\\spscript.js C:\\gitwip\\Skyline\\portals\\spark-rewards\\src",
+    "test": "mocha src/test/test.server.js",
+    "test:browser": "concurrently \"npm run watch\" \"npm run serve\"",
+    "serve": "concurrently \"live-server --no-browser\" \"ngrok http 8080 -subdomain=droopytersen\"",
+    "watch": "webpack --watch",
+    "docs": "typedoc --out dist/docs ./src/entry.spscript.ts --theme minimal --entryPoint \"/interfaces/spscript\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/DroopyTersen/spscript"
+  },
+  "keywords": [
+    "sharepoint"
+  ],
+  "author": "Andrew Petersen",
+  "bugs": {
+    "url": "https://github.com/DroopyTersen/spscript/issues"
+  },
+  "homepage": "https://github.com/DroopyTersen/spscript",
+  "devDependencies": {
+    "@pika/plugin-build-node": "^0.3.11",
+    "@pika/plugin-build-types": "^0.3.11",
+    "@pika/plugin-build-web": "^0.3.11",
+    "@pika/plugin-standard-pkg": "^0.3.11",
+    "@pika/plugin-ts-standard-pkg": "^0.3.11",
+    "chai": "^1.10.0",
+    "concurrently": "^3.4.0",
+    "isomorphic-fetch": "^2.2.1",
+    "mocha": "^2.4.5",
+    "ngrok": "^2.2.17",
+    "rimraf": "^2.5.2",
+    "typescript": "^3.3.3333"
+  },
+  "@pika/pack": {
+    "pipeline": [
+      [
+        "@pika/plugin-standard-pkg",
+        {
+          "exclude": [
+            "__tests__/*",
+            "test/*"
+          ]
+        }
+      ],
+      [
+        "@pika/plugin-build-node",
+        {
+          "exclude": [
+            "__tests__/*",
+            "test/*"
+          ]
+        }
+      ],
+      [
+        "@pika/plugin-build-web",
+        {
+          "exclude": [
+            "__tests__/*",
+            "test/*"
+          ]
+        }
+      ],
+      [
+        "@pika/plugin-build-types",
+        {
+          "exclude": [
+            "__tests__/*",
+            "test/*"
+          ]
+        }
+      ]
+    ]
+  }
 }
