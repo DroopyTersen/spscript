@@ -1,6 +1,6 @@
 - [Introduction](introduction)
 - [Getting Started](getting-started)
-- [Querying List Items](listitems)
+- [Querying List Items](querying-listitems)
 - [Generic Request Helpers](request-helpers)
 - [SharePoint Search](search)
 - [SharePoint Profiles](profiles)

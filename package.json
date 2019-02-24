@@ -1,89 +1,90 @@
 {
-	"name": "spscript",
-	"version": "4.0.5",
-	"description": "ShareP0oint Rest Api Wrappers",
-	"scripts": {
-		"build": "pack build && docsify build",
-		"test": "jest",
-		"docs": "docsify build",
-		"docs:serve": "docsify serve .\\docs\\"
-	},
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/DroopyTersen/spscript"
-	},
-	"keywords": [
-		"sharepoint"
-	],
-	"author": "Andrew Petersen",
-	"bugs": {
-		"url": "https://github.com/DroopyTersen/spscript/issues"
-	},
-	"homepage": "https://github.com/DroopyTersen/spscript",
-	"devDependencies": {
-		"@pika/pack": "^0.3.2",
-		"@pika/plugin-build-node": "^0.3.11",
-		"@pika/plugin-build-types": "^0.3.11",
-		"@pika/plugin-build-umd": "^0.3.11",
-		"@pika/plugin-build-web": "^0.3.11",
-		"@pika/plugin-bundle-web": "^0.3.11",
-		"@pika/plugin-standard-pkg": "^0.3.11",
-		"@pika/plugin-ts-standard-pkg": "^0.3.11",
-		"@types/jest": "^24.0.6",
-		"chai": "^1.10.0",
-		"concurrently": "^3.4.0",
-		"dotenv": "^6.2.0",
-		"isomorphic-fetch": "^2.2.1",
-		"jest": "^24.1.0",
-		"mocha": "^2.4.5",
-		"ngrok": "^2.2.17",
-		"node-sp-auth": "^2.5.7",
-		"rimraf": "^2.5.2",
-		"ts-jest": "^24.0.0",
-		"typescript": "^3.3.3333"
-	},
-	"@pika/pack": {
-		"pipeline": [
-			[
-				"@pika/plugin-standard-pkg",
-				{
-					"exclude": [
-						"__tests__/*",
-						"test/*"
-					]
-				}
-			],
-			[
-				"@pika/plugin-build-node",
-				{
-					"exclude": [
-						"__tests__/*",
-						"test/*"
-					]
-				}
-			],
-			[
-				"@pika/plugin-build-umd",
-				{
-					"name": "SPScript",
-					"exclude": [
-						"__tests__/*",
-						"test/*"
-					]
-				}
-			],
-			[
-				"@pika/plugin-build-types",
-				{
-					"exclude": [
-						"__tests__/*",
-						"test/*"
-					]
-				}
-			]
-		]
-	},
-	"dependencies": {
-		"axios": "^0.18.0"
-	}
+  "name": "spscript",
+  "version": "4.0.5",
+  "description": "ShareP0oint Rest Api Wrappers",
+  "scripts": {
+    "build": "pack build && docsify build",
+    "test": "jest",
+    "docs": "docsify build",
+    "docs:serve": "docsify serve docs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/DroopyTersen/spscript"
+  },
+  "keywords": [
+    "sharepoint"
+  ],
+  "author": "Andrew Petersen",
+  "bugs": {
+    "url": "https://github.com/DroopyTersen/spscript/issues"
+  },
+  "homepage": "https://github.com/DroopyTersen/spscript",
+  "devDependencies": {
+    "@pika/pack": "^0.3.2",
+    "@pika/plugin-build-node": "^0.3.11",
+    "@pika/plugin-build-types": "^0.3.11",
+    "@pika/plugin-build-umd": "^0.3.11",
+    "@pika/plugin-build-web": "^0.3.11",
+    "@pika/plugin-bundle-web": "^0.3.11",
+    "@pika/plugin-standard-pkg": "^0.3.11",
+    "@pika/plugin-ts-standard-pkg": "^0.3.11",
+    "@types/jest": "^24.0.6",
+    "chai": "^1.10.0",
+    "concurrently": "^3.4.0",
+    "docsify": "^4.9.1",
+    "dotenv": "^6.2.0",
+    "isomorphic-fetch": "^2.2.1",
+    "jest": "^24.1.0",
+    "mocha": "^2.4.5",
+    "ngrok": "^2.2.17",
+    "node-sp-auth": "^2.5.7",
+    "rimraf": "^2.5.2",
+    "ts-jest": "^24.0.0",
+    "typescript": "^3.3.3333"
+  },
+  "@pika/pack": {
+    "pipeline": [
+      [
+        "@pika/plugin-standard-pkg",
+        {
+          "exclude": [
+            "__tests__/*",
+            "test/*"
+          ]
+        }
+      ],
+      [
+        "@pika/plugin-build-node",
+        {
+          "exclude": [
+            "__tests__/*",
+            "test/*"
+          ]
+        }
+      ],
+      [
+        "@pika/plugin-build-umd",
+        {
+          "name": "SPScript",
+          "exclude": [
+            "__tests__/*",
+            "test/*"
+          ]
+        }
+      ],
+      [
+        "@pika/plugin-build-types",
+        {
+          "exclude": [
+            "__tests__/*",
+            "test/*"
+          ]
+        }
+      ]
+    ]
+  },
+  "dependencies": {
+    "axios": "^0.18.0"
+  }
 }

@@ -7,15 +7,21 @@ SPScript is a JavaScript library meant to simplify working with the SharePoint R
 - No more pulling out hair with working with SharePoint Search endpoints
 - Profile service helpers
 - Generic `GET` and `POST` helpers to simplify calling arbitrary endpoints
+- Full intellisense in VSCode
 - Works server-side in Node.js
 
-For example, lets say you wanted to get all of the "Active" items in the "Tasks" list:
+For example, lets say you wanted to get all of the "Active" items in the "Tasks" list and set them to "Canceled"
 
 ```javascript
 // Create an SPScript Context targeting your site
 let ctx = SPScript.createContext("https://TENANT.shareoint.com/sites/YOURSITE");
 // Find all items in the "Tasks" list with a "Status" of "Active"
 let activeTasks = await ctx.lists("Tasks").findItems("Status", "Active");
+// Loop through each task and update its Status
+for (task of activeTasks) {
+  await ctx.lists("Tasks").updateItem(task.Id, { Status: "Canceled" });
+}
+// All done, no more "Active" tasks.
 ```
 
 **PnPJS Comparison**

@@ -71,6 +71,7 @@ var ctx = SPScript.createContext(siteUrl);
 - `ctx.lists(listname).getInfo()` - gets you that list's [SPList properties](https://msdn.microsoft.com/en-us/library/office/jj245826.aspx#properties)
 - `ctx.lists(listname).getItems()` - gets you all the items in that list
 - `ctx.lists(listname).getItems(odata)` - gets all the items in that list based on the [OData](http://www.odata.org/documentation/odata-version-2-0/uri-conventions/) you pass in. This allows you to trim selection, filter, sort etc..
+- `ctx.lists(listname).getItemsByCaml(caml)` - gets all the items based on the specified CAML query.
 - `ctx.lists(listname).getItemsByView(viewName)` - gets all the items based on the specified View name.
 - `ctx.lists(listname).getItemById(id)` - gets you a specific item based on the SharePoint Id
 - `ctx.lists(listname).findItems(key, value)` - gets you all items whose field(key) matches the value. Currently only text and number columns are supported.
@@ -158,16 +159,18 @@ taskList.findItems("Status", "Approved").then(logApprovedTasks);
 taskList.getItems("$filter=Status eq 'Approved'").then(logApprovedTasks);
 
 // GOOD: Options 3 - Manual 'GET'
-ctx.get("/web/lists/getByTitle('Tasks')?$filter=Status eq 'Approved'").then(function(data) {
-	if (data && data.d && data.d.results) {
-		logApprovedTasks(data.d.results);
-	}
-});
+ctx
+  .get("/web/lists/getByTitle('Tasks')?$filter=Status eq 'Approved'")
+  .then(function(data) {
+    if (data && data.d && data.d.results) {
+      logApprovedTasks(data.d.results);
+    }
+  });
 
 var logApprovedTasks = function(tasks) {
-	tasks.forEach(function(task) {
-		console.log(task.Title);
-	});
+  tasks.forEach(function(task) {
+    console.log(task.Title);
+  });
 };
 ```
 
@@ -177,11 +180,11 @@ Get the task with a SharePoint ID of 29
 
 ```javascript
 ctx
-	.lists("Tasks")
-	.getItemById(29)
-	.then(displayTask);
+  .lists("Tasks")
+  .getItemById(29)
+  .then(displayTask);
 var displayTask = function(task) {
-	//blah blah blah
+  //blah blah blah
 };
 ```
 
@@ -191,9 +194,9 @@ Add item to the **"Tasks"** list
 
 ```javascript
 var newItem = {
-	Title: "My New Task",
-	Status: "Not Started",
-	RemainingHours: 12,
+  Title: "My New Task",
+  Status: "Not Started",
+  RemainingHours: 12
 };
 ctx.lists("Tasks").addItem(newItem);
 ```
@@ -213,11 +216,11 @@ Get the one item whose **"RequestId"** is **"abc123"**
 
 ```javascript
 ctx
-	.lists("IT Requests")
-	.findItem("RequestId", "abc123")
-	.then(function(request) {
-		console.log(request.RequestId + ": " + request.Title);
-	});
+  .lists("IT Requests")
+  .findItem("RequestId", "abc123")
+  .then(function(request) {
+    console.log(request.RequestId + ": " + request.Title);
+  });
 ```
 
 If there is more than one match, it will return the first result. If there are zero matches, it will return `null`
@@ -228,20 +231,20 @@ Get all items in the **"Tasks"** list and log the 'Title'
 
 ```javascript
 ctx
-	.lists("Tasks")
-	.getItems()
-	.then(function(tasks) {
-		tasks.forEach(function(task) {
-			console.log(task.Title);
-		});
-	});
+  .lists("Tasks")
+  .getItems()
+  .then(function(tasks) {
+    tasks.forEach(function(task) {
+      console.log(task.Title);
+    });
+  });
 import SPScript from "spscript";
 
 const getPublishedNews = async function(siteUrl) {
-	let ctx = SPScript.createContext(siteUrl);
-	let pages = await ctx.lists("Site Pages").findItems("PromotedState", 2);
-	console.log(pages); // This will show an Array of Page List Items
-	return pages;
+  let ctx = SPScript.createContext(siteUrl);
+  let pages = await ctx.lists("Site Pages").findItems("PromotedState", 2);
+  console.log(pages); // This will show an Array of Page List Items
+  return pages;
 };
 ```
 
@@ -251,10 +254,10 @@ Every REST Api call that SharePoint supports can be called using SPService. Both
 
 ```javascript
 ctx.get("/web/lists/getByTitle('Tasks')/items").then(function(data) {
-	var tasks = data.d.results;
-	tasks.forEach(function(task) {
-		console.log(task.Title);
-	});
+  var tasks = data.d.results;
+  tasks.forEach(function(task) {
+    console.log(task.Title);
+  });
 });
 ```
 
@@ -262,16 +265,16 @@ Here is a more advanced usage that uses ctx.authorizedPost to update the site's 
 
 ```javascript
 var setSiteLogo = function(siteLogoUrl, siteUrl) {
-	var ctx = SPScript.createContext();
-	var body = { __metadata: { type: "SP.Web" }, SiteLogoUrl: siteLogoUrl };
-	ctx
-		.authorizedPost("/web", body)
-		.then(function(result) {
-			console.log("Set Site Logo Success!");
-		})
-		.catch(function(error) {
-			console.log("Set Site Logo Error. Message: " + error);
-		});
+  var ctx = SPScript.createContext();
+  var body = { __metadata: { type: "SP.Web" }, SiteLogoUrl: siteLogoUrl };
+  ctx
+    .authorizedPost("/web", body)
+    .then(function(result) {
+      console.log("Set Site Logo Success!");
+    })
+    .catch(function(error) {
+      console.log("Set Site Logo Error. Message: " + error);
+    });
 };
 ```
 
@@ -281,7 +284,7 @@ Get the current user's profile properties
 
 ```javascript
 ctx.profiles.current().then(function(profile) {
-	console.log(JSON.stringify(profile));
+  console.log(JSON.stringify(profile));
 });
 ```
 
@@ -291,9 +294,9 @@ Search for **"petersen"** and get the url of each search result
 
 ```javascript
 ctx.search.query("petersen").then(function(searchResults) {
-	searchResults.items.forEach(function(item) {
-		console.log(item.FileRef);
-	});
+  searchResults.items.forEach(function(item) {
+    console.log(item.FileRef);
+  });
 });
 ```
 
@@ -301,7 +304,9 @@ Search for People named **"petersen"**
 
 ```javascript
 ctx.search.people("petersen").then(function(searchResults) {
-	console.log("There are " + searchResults.totalResults + " people named 'andrew'");
+  console.log(
+    "There are " + searchResults.totalResults + " people named 'andrew'"
+  );
 });
 ```
 
@@ -325,9 +330,9 @@ For example you could use [node-sp-auth](https://www.npmjs.com/package/node-sp-a
 // Use node-sp-auth to get a Fed Auth cookie.
 // This cookie can be include in the headers of REST calls to authorize them.
 let auth = await spauth.getAuth(process.env.SITE_URL, {
-	online: true,
-	username: process.env.SP_USER,
-	password: process.env.PASSWORD,
+  online: true,
+  username: process.env.SP_USER,
+  password: process.env.PASSWORD
 });
 // Pass the auth headers to SPScript via the optional ContextOptions param
 let ctx = SPScript.createContext(siteUrl, { headers: auth.headers });
