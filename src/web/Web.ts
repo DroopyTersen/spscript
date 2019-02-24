@@ -53,7 +53,6 @@ export default class Web {
 			strNewUrl: destinationUrl,
 			bOverWrite: true,
 		};
-		console.log(url, options, body);
 		return this._dao.post(url, body, options);
 	}
 	// TODO: getFolder

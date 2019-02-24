@@ -17,6 +17,5 @@ bower_components
 lib
 app.config.js
 pkg
-docs
 coverage
 .env
