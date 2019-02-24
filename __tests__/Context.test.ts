@@ -1,21 +1,14 @@
 import * as SPScript from "../src/index";
-import "isomorphic-fetch";
-require("dotenv").config();
-import * as spauth from "node-sp-auth";
-let authHeaders = null;
-let siteUrl = process.env.SITE_URL;
+import { getAuthHeaders, getContext } from "./testUtils";
 
 describe("SPScript.createContext(url, { headers: { FedAuthCookie }} )", () => {
-	beforeAll(async () => {
-		authHeaders = await _getAuthHeaders();
-	});
-
-	test("There is a FedAuth token", () => {
+	test("There is a FedAuth token", async () => {
+		let authHeaders = await getAuthHeaders();
 		expect(authHeaders).toBeTruthy();
 	});
 
 	test("The FedAuth token can be used to authenticate requests", async () => {
-		let ctx = SPScript.createContext(siteUrl, { headers: authHeaders });
+		let ctx = await getContext();
 		let webInfo = await ctx.web.getInfo();
 		expect(webInfo).toBeTruthy();
 		expect(webInfo).toHaveProperty("Title");
@@ -89,8 +82,7 @@ describe("Context Namespaces", function() {
 describe("Context Methods", () => {
 	let ctx = null;
 	beforeAll(async () => {
-		authHeaders = await _getAuthHeaders();
-		ctx = SPScript.createContext(siteUrl, { headers: authHeaders });
+		ctx = await getContext();
 	});
 
 	describe("ctx.lists(name)", function() {
@@ -134,14 +126,3 @@ describe("Context Methods", () => {
 		// it("Should resolve to a JS object, not a JSON string");
 	});
 });
-
-const _getAuthHeaders = async () => {
-	if (authHeaders) return authHeaders;
-	let auth = await spauth.getAuth(process.env.SITE_URL, {
-		online: true,
-		username: process.env.SP_USER,
-		password: process.env.PASSWORD,
-	});
-	authHeaders = auth.headers;
-	return authHeaders;
-};
