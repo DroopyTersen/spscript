@@ -60,3 +60,7 @@ _Delete the Shared Documents item with an ID of 47_
 ```javascript
 await ctx.lists("Shared Documents").deleteItem(47);
 ```
+
+## Source Code
+
+Github Source: [/src/list/List.ts](https://github.com/DroopyTersen/spscript/blob/master/src/list/List.ts)
