@@ -15,13 +15,21 @@ For example, lets say you wanted to get all of the "Active" items in the "Tasks"
 ```javascript
 // Create an SPScript Context targeting your site
 let ctx = SPScript.createContext("https://TENANT.shareoint.com/sites/YOURSITE");
+let tasksList = ctx.lists("Tasks");
+
 // Find all items in the "Tasks" list with a "Status" of "Active"
-let activeTasks = await ctx.lists("Tasks").findItems("Status", "Active");
+let activeTasks = await tasksList.findItems("Status", "Active");
 // Loop through each task and update its Status
 for (task of activeTasks) {
-  await ctx.lists("Tasks").updateItem(task.Id, { Status: "Canceled" });
+  await tasksList.updateItem(task.Id, { Status: "Canceled" });
 }
 // All done, no more "Active" tasks.
+
+//Add a new "Active" task
+let newTask = await tasksList.addItem({
+  Title: "Hello from SPScript",
+  Status: "Active"
+});
 ```
 
 **PnPJS Comparison**

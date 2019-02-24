@@ -4,6 +4,8 @@
 
 [![Join the chat at https://gitter.im/DroopyTersen/spscript](https://badges.gitter.im/DroopyTersen/spscript.svg)](https://gitter.im/DroopyTersen/spscript?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
+### Visit [https://spcript.com](https://spscript.com) for full documentation.
+
 SPScript is a collection of javascript helpers for the SharePoint Rest API. Some features include...
 
 - Easy querying of list data.
