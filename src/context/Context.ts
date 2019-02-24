@@ -1,4 +1,3 @@
-import { ContextOptions } from "./interfaces";
 import request from "./request";
 import utils from "../utils/index";
 import List from "../list/List";
@@ -8,6 +7,14 @@ import CustomActions from "../customActions/CustomActions";
 import Profiles from "../profiles/Profiles";
 import { getAppOnlyToken } from "./tokenHelper";
 import Auth from "../auth/Auth";
+
+export interface ContextOptions {
+  clientSecret?: string;
+  clientId?: string;
+  token?: string;
+  headers?: { [any: string]: string };
+}
+
 export default class Context {
 	/** The url of the SPScript data context */
 	webUrl: string;
