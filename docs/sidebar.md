@@ -2,7 +2,7 @@
 - [Getting Started](getting-started)
 - [Query List Items](querying-listitems)
 - [Mutate List Items](modifying-listitems)
+- [Arbitrary Requests](arbitrary-requests)
 - [SharePoint Search](search)
-- [Request Helpers](request-helpers)
 - [Utilities](utilities)
 - [Serverside w/ Node.js](nodejs)
