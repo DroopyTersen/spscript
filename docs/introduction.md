@@ -1,15 +1,15 @@
-# Introduction
+# SPScript
 
 SPScript is a JavaScript library meant to simplify working with the SharePoint REST API.
 
 - Easy querying of list items
 - Add and Update list items with a single line of code
-- No more pulling out hair with working with Search endpoints
+- No more pulling out hair with working with SharePoint Search endpoints
 - Profile service helpers
 - Generic `GET` and `POST` helpers to simplify calling arbitrary endpoints
 - Works server-side in Node.js
 
-For example, lets say I wanted to get all of the "Active" items in the "Tasks" list of the current site.
+For example, lets say you wanted to get all of the "Active" items in the "Tasks" list:
 
 ```javascript
 // Create an SPScript Context targeting your site

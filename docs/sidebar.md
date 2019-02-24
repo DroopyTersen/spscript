@@ -2,4 +2,7 @@
 - [Getting Started](getting-started)
 - [Querying List Items](listitems)
 - [Generic Request Helpers](request-helpers)
+- [SharePoint Search](search)
+- [SharePoint Profiles](profiles)
 - [Utilities](utilities)
+- [Serverside w/ Node.js](nodejs)
