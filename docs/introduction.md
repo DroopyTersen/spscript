@@ -10,7 +10,7 @@ SPScript is a JavaScript library meant to simplify working with the SharePoint R
 - Full intellisense in VSCode
 - Works server-side in Node.js
 
-For example, lets say you wanted to get all of the "Active" items in the "Tasks" list and set them to "Canceled"
+For example, lets say you wanted to get all of the "Active" items in the "Tasks" list and set them to "Canceled", then add a new item.
 
 ```javascript
 // Create an SPScript Context targeting your site
@@ -19,11 +19,11 @@ let tasksList = ctx.lists("Tasks");
 
 // Find all items in the "Tasks" list with a "Status" of "Active"
 let activeTasks = await tasksList.findItems("Status", "Active");
+
 // Loop through each task and update its Status
 for (task of activeTasks) {
   await tasksList.updateItem(task.Id, { Status: "Canceled" });
 }
-// All done, no more "Active" tasks.
 
 //Add a new "Active" task
 let newTask = await tasksList.addItem({
