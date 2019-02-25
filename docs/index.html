@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>spscript - ShareP0oint Rest Api Wrappers</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name="description" content="ShareP0oint Rest Api Wrappers" />
+    <meta
+      name="viewport"
+      content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/docsify-themeable@0/dist/css/theme-simple.css"
+    />
+    <style>
+      @media only screen and (max-width: 768px) {
+        :root {
+          /* --code-block-margin: 0 -45px; */
+          --code-block-padding: 10px 10px 10px 15px;
+          --code-font-size: 13px;
+        }
+        .content .markdown-section {
+          padding: 2rem 35px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script>
+      window.$docsify = {
+        name: "spscript",
+        repo: "https://github.com/DroopyTersen/spscript",
+        themeable: {
+          readyTransition: true, // default
+          responsiveTables: true // default
+        }
+      };
+
+      window.$docsify = {
+        // GENERAL
+        // -----------------------------------------------------------------
+        name: "SPScript",
+        repo: "https://github.com/DroopyTersen/spscript",
+        // coverpage: "coverpage.md",
+        homepage: "introduction.md",
+        loadSidebar: "sidebar.md",
+        // NAVIGATION
+        // -----------------------------------------------------------------
+
+        auto2top: true,
+        maxLevel: 3,
+        subMaxLevel: 3,
+        // PLUGINS
+        // -----------------------------------------------------------------
+        executeScript: true,
+        ga: "UA-38387621-5",
+        search: {
+          depth: 3,
+          noData: "No results!",
+          placeholder: "Search..."
+        },
+        tabs: {
+          persist: true, // default
+          sync: true, // default
+          theme: "classic", // default
+          tabComments: true, // default
+          tabHeadings: true // default
+        }
+      };
+    </script>
+    <script src="//unpkg.com/docsify/lib/docsify.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/docsify-themeable@0"></script>
+    <script src="https://cdn.jsdelivr.net/npm/docsify-tabs@1"></script>
+    <script src="https://cdn.jsdelivr.net/npm/docsify-copy-code@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/docsify-tabs@1"></script>
+    <script src="https://cdn.jsdelivr.net/npm/docsify-pagination@2/dist/docsify-pagination.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/docsify@4/lib/plugins/external-script.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/docsify@4/lib/plugins/ga.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/docsify@4/lib/plugins/search.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/docsify@4/lib/plugins/zoom-image.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1/components/prism-bash.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/docsify-tabs@1"></script>
+  </body>
+</html>

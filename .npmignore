@@ -3,5 +3,4 @@ docs
 .vscode
 *.config
 src
-app.config.js
 .env

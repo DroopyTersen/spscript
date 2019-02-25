@@ -1,7 +1,6 @@
 import utilsImport from "./utils";
 import { Utils } from "./utils/IUtils";
-import Context from "./context/Context";
-import { ContextOptions } from "./context/interfaces";
+import Context, { ContextOptions } from "./context/Context";
 declare var global: any;
 
 export const utils = utilsImport;

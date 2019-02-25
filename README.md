@@ -4,6 +4,8 @@
 
 [![Join the chat at https://gitter.im/DroopyTersen/spscript](https://badges.gitter.im/DroopyTersen/spscript.svg)](https://gitter.im/DroopyTersen/spscript?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
+### Visit [https://spcript.com](https://spscript.com) for full documentation.
+
 SPScript is a collection of javascript helpers for the SharePoint Rest API. Some features include...
 
 - Easy querying of list data.
@@ -13,23 +15,13 @@ SPScript is a collection of javascript helpers for the SharePoint Rest API. Some
 - Check permissions on sites and lists
 - Work with CustomActions
 
-## Including SPScript
+## Getting Started
 
-**Option 1**: NPM Package
+**Install NPM Pacakge**: NPM Package
 
 ```bash
 npm install spscript
 ```
-
-**Option 2**: Traditional Script Reference
-
-Download the script from [here](https://raw.githubusercontent.com/DroopyTersen/spscript/typescript/dist/v3/spscript.js) and add the following script tag to your page:
-
-```html
-<script type="text/javascript" src="PATH_TO_SPSCRIPT/spscript.js"></script>
-```
-
-You will then have `window.SPScript` available.
 
 ## Initialization
 
@@ -81,6 +73,7 @@ var ctx = SPScript.createContext(siteUrl);
 - `ctx.lists(listname).getInfo()` - gets you that list's [SPList properties](https://msdn.microsoft.com/en-us/library/office/jj245826.aspx#properties)
 - `ctx.lists(listname).getItems()` - gets you all the items in that list
 - `ctx.lists(listname).getItems(odata)` - gets all the items in that list based on the [OData](http://www.odata.org/documentation/odata-version-2-0/uri-conventions/) you pass in. This allows you to trim selection, filter, sort etc..
+- `ctx.lists(listname).getItemsByCaml(caml)` - gets all the items based on the specified CAML query.
 - `ctx.lists(listname).getItemsByView(viewName)` - gets all the items based on the specified View name.
 - `ctx.lists(listname).getItemById(id)` - gets you a specific item based on the SharePoint Id
 - `ctx.lists(listname).findItems(key, value)` - gets you all items whose field(key) matches the value. Currently only text and number columns are supported.
@@ -113,18 +106,13 @@ var ctx = SPScript.createContext(siteUrl);
 
 ### Profiles
 
-- `dao.profiles.current()` - gets you all the profile properties for the current user
-- `dao.profiles.get()` - gets you all the profile properties for the current user
-- `dao.profiles.get(email)` - looks up a user based on their email and returns their profile properties
-- `dao.profiles.get({ AccountName|LoginName })` - gets you all the profile properties of the passed in user object. It must have a valid `AccountName` (or `LoginName`) property
-- `dao.profiles.setProperty(key, value)` - sets a profile property (key) for the current user
-- `dao.profiles.setProperty(key, value, { AccountName|LoginName })` - sets a profile property (key) for the specified user. User object should have `AccountName` or `LoginName` property
-- `dao.profiles.setProperty(key, value, email)` - sets a profile property (key) for the user tied to that email address
-
-### Clientside Rendering (CSR)
-
-- `SPScript.CSR.registerDisplayField(field)` - Registers a field override once you pass an object with at lease `name` (internal field name), `render`
-- `SPScript.CSR.registerFormField(field)` - Registers a field override once you pass an object with `name` (internal field name), `render`
+- `ctx.profiles.current()` - gets you all the profile properties for the current user
+- `ctx.profiles.get()` - gets you all the profile properties for the current user
+- `ctx.profiles.get(email)` - looks up a user based on their email and returns their profile properties
+- `ctx.profiles.get({ AccountName|LoginName })` - gets you all the profile properties of the passed in user object. It must have a valid `AccountName` (or `LoginName`) property
+- `ctx.profiles.setProperty(key, value)` - sets a profile property (key) for the current user
+- `ctx.profiles.setProperty(key, value, { AccountName|LoginName })` - sets a profile property (key) for the specified user. User object should have `AccountName` or `LoginName` property
+- `ctx.profiles.setProperty(key, value, email)` - sets a profile property (key) for the user tied to that email address
 
 ### Utility Functions
 
@@ -252,6 +240,14 @@ ctx
       console.log(task.Title);
     });
   });
+import SPScript from "spscript";
+
+const getPublishedNews = async function(siteUrl) {
+  let ctx = SPScript.createContext(siteUrl);
+  let pages = await ctx.lists("Site Pages").findItems("PromotedState", 2);
+  console.log(pages); // This will show an Array of Page List Items
+  return pages;
+};
 ```
 
 ### GET & POST Requests
@@ -316,7 +312,39 @@ ctx.search.people("petersen").then(function(searchResults) {
 });
 ```
 
-### Upload Files
+### NodeJS
+
+#### Fetch Polyfill
+
+In order to work in Node.js, you need to import `isomorphic-fetch`. This is because under the hood, SPScript uses `fetch` for all the requests. However, I wanted to leave it up to the consumer to decide whether they needed a `fetch` polyfill (old IE or Node).
+
+For node, Just add this line to the top of your entry file
+
+```
+require("isomorphic-fetch")
+```
+
+You can pass a `headers` property to the `ContextOptions` param in `createContext`.
+
+For example you could use [node-sp-auth](https://www.npmjs.com/package/node-sp-auth) to log in with username and password (only do this serverside), then pass the Fed Auth cookie you receive to SPScript:
+
+```typescript
+// Use node-sp-auth to get a Fed Auth cookie.
+// This cookie can be include in the headers of REST calls to authorize them.
+let auth = await spauth.getAuth(process.env.SITE_URL, {
+  online: true,
+  username: process.env.SP_USER,
+  password: process.env.PASSWORD
+});
+// Pass the auth headers to SPScript via the optional ContextOptions param
+let ctx = SPScript.createContext(siteUrl, { headers: auth.headers });
+let webInfo = await ctx.web.getInfo();
+console.log(webInfo);
+```
+
+With that snippet, you could easily perform REST operation in a Node.js app using service account creds.
+
+<!-- ### Upload Files
 
 If you have a input element of type 'file' it is very easy to upload files
 
@@ -333,4 +361,4 @@ function handleFiles() {
     });
   }
 }
-```
+``` -->

@@ -3,12 +3,10 @@
   "version": "4.0.5",
   "description": "ShareP0oint Rest Api Wrappers",
   "scripts": {
-    "build": "pack build",
+    "build": "pack build && docsify build",
     "test": "jest",
-    "copy": "powershell Copy-Item C:\\gitwip\\spscript\\dist\\v3\\spscript.js C:\\gitwip\\Skyline\\portals\\spark-rewards\\src",
-    "serve": "concurrently \"live-server --no-browser\" \"ngrok http 8080 -subdomain=droopytersen\"",
-    "watch": "webpack --watch",
-    "docs": "typedoc --out docs ./src/index.ts --entryPoint \"/interfaces/spscript\""
+    "docs": "docsify build",
+    "docs:serve": "docsify serve docs"
   },
   "repository": {
     "type": "git",
@@ -34,6 +32,7 @@
     "@types/jest": "^24.0.6",
     "chai": "^1.10.0",
     "concurrently": "^3.4.0",
+    "docsify": "^4.9.1",
     "dotenv": "^6.2.0",
     "isomorphic-fetch": "^2.2.1",
     "jest": "^24.1.0",
@@ -84,5 +83,8 @@
         }
       ]
     ]
+  },
+  "dependencies": {
+    "axios": "^0.18.0"
   }
 }
