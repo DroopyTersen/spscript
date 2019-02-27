@@ -2,9 +2,9 @@
 
 ## Introduction
 
-The SharePoint Search REST API responses are notoriously difficult to work with. To get the items you'd have to say `data.PrimaryQueryResult.RelevantResults.Table.Rows`. But you're not done yet! Each Row is a `{}` with a `Cells` array which contains key value pairs of the item's managed properties and values. It's a huge mess.
+The SharePoint Search REST API responses are notoriously difficult to work with. To get the items you'd have to say `data.PrimaryQueryResult.RelevantResults.Table.Rows`. But you're not done yet! Each Row is a `{}` with a `Cells` array which contains key value pairs of the item's managed properties and values. It's a huge mess...
 
-_This is about the shortest way you could parse the Search Rest API response. Not very readable..._
+_This is about the shortest way you could parse the Search Rest API response._
 
 ```javascript
 let items = data.PrimaryQueryResult.RelevantResults.Table.Rows.map(row => {
