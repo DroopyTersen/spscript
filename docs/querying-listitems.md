@@ -2,7 +2,7 @@
 
 ## Setup
 
-If you need to query list items, you need to:
+If you are querying list items, you need to:
 
 1. Create an SPScript Context, `SPScript.createContext(siteUrl)`
 2. Get a list by Title, `ctx.lists("LIST TITLE")`
@@ -34,9 +34,7 @@ You can also pass an optional OData string, giving you full control over your `$
 _Get the file names of the last 5 modified "Shared Documents"_
 
 ```javascript
-let items = await ctx
-  .lists("Shared Documents")
-  .getItems("$select=FileLeafRef&$orderby=Modified desc&$top=5");
+let items = await ctx.lists("Shared Documents").getItems("$select=FileLeafRef&$orderby=Modified desc&$top=5");
 let filenames = items.map(item => item.FileLeafRef);
 ```
 
@@ -61,9 +59,7 @@ If you want to find all items that match a specified Field value, you can use `f
 _Find all pages with a Category of "New Hire"_
 
 ```javascript
-let newHireAnnouncements = await ctx
-  .lists("Site Pages")
-  .findItems("Category", "New Hire");
+let newHireAnnouncements = await ctx.lists("Site Pages").findItems("Category", "New Hire");
 ```
 
 You can use the optional odata argument for more control (just don't use `$filter` because `findItems` is already taking care of that for you).
@@ -72,8 +68,8 @@ _Find the 5 most recent "New Hire" pages_
 
 ```javascript
 let newHireAnnouncements = await ctx
-  .lists("Site Pages")
-  .findItems("Category", "New Hire", "$orderby=Modified desc&$top=5");
+	.lists("Site Pages")
+	.findItems("Category", "New Hire", "$orderby=Modified desc&$top=5");
 ```
 
 ## findItem
@@ -86,9 +82,7 @@ The same as `findItems` except that it returns a single item (as an `Object`) in
 _Find the Blog post with a Title of "SPScript is Awesome!"_
 
 ```javascript
-let item = await ctx
-  .lists("Site Pages")
-  .findItem("Title", "SPScript is Awesome!");
+let item = await ctx.lists("Site Pages").findItem("Title", "SPScript is Awesome!");
 ```
 
 ## getItemsByView
@@ -134,6 +128,7 @@ For when you want items based on a single field value.
 You can pass an optional OData string as a third argument to control things like `$orderby`, `$select`, `$expand`, and `$top`.
 
 ```javascript
+let ctx = SPScript.createContext("https://MYTENANT.sharepoint.com/sites/MYSITE");
 let items = await ctx.lists("Events").findItems("Category", "Birthday");
 ```
 
@@ -144,9 +139,8 @@ let items = await ctx.lists("Events").findItems("Category", "Birthday");
 Takes an arbtrary OData string, giving you full control over your `$filter`, `$orderby`, `$select`, `$expand`, and `$top`.
 
 ```javascript
-let items = await ctx
-  .lists("Events")
-  .getItems("$filter=Category eq 'Birthday'");
+let ctx = SPScript.createContext("https://MYTENANT.sharepoint.com/sites/MYSITE");
+let items = await ctx.lists("Events").getItems("$filter=Category eq 'Birthday'");
 ```
 
 #### ** Long-winded**
@@ -156,8 +150,8 @@ let items = await ctx
 You can always make a generic `GET` request using SPScript's helper to setup the proper headers.
 
 ```javascript
-let endpoint =
-  "/web/lists/getByTitle('Events')/items?$filter=Category eq 'Birthday'";
+let ctx = SPScript.createContext("https://MYTENANT.sharepoint.com/sites/MYSITE");
+let endpoint = "/web/lists/getByTitle('Events')/items?$filter=Category eq 'Birthday'";
 let data = await ctx.get(endpoint);
 let items = data.d.results;
 ```
