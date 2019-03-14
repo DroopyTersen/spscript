@@ -24,6 +24,16 @@ You can use SPScript in your Javascript/Typescript files with:
 import SPScript from "spscript";
 ```
 
+## ProTip: Dynamically/Temporarily add SPScript to any page with Dev Tools
+
+You can enter the following into a browser console to dynamically load SPScript on a page.
+
+```javascript
+_spComponentLoader.loadScript("https://unpkg.com/spscript/pkg/dist/spscript.js", {
+	globalExportsName: "SPScript",
+});
+```
+
 ## SPScript Context
 
 Almost everything in SPScript is based off an SPScript `Context` class. An SPScript `Context` is tied to specific SharePoint site. You get a `Context` by calling `SPScript.createContext(siteUrl)`.
