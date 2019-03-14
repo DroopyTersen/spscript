@@ -2,9 +2,9 @@
 	"name": "spscript",
 	"version": "4.1.0",
 	"description": "ShareP0oint Rest Api Wrappers",
-	"main": "pkg/lib/index.js",
-	"types": "pkg/lib/index.d.ts",
-	"umd:main": "pkg/dist/spscript.js",
+	"main": "lib/index.js",
+	"types": "lib/index.d.ts",
+	"umd:main": "dist/spscript.js",
 	"scripts": {
 		"prebuild": "rimraf lib && rimraf .cache && rimraf dist",
 		"build": "tsc && npm run docs && npm run parcel",
