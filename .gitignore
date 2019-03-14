@@ -16,5 +16,7 @@ node_modules
 bower_components
 lib
 pkg
+dist
 coverage
 .env
+.cache

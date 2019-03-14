@@ -1,8 +1,8 @@
 # Arbitrary API Requests
 
-If SPScript doesn't method to that specifically solves your need, you can always use the base request helpers, `ctx.get`, `ctx.post`, and `ctx.authorizedPost`.
+If SPScript doesn't have a method that specifically solves your needs, you can always use the base request helpers, `ctx.get` and `ctx.authorizedPost`. These methods expect you to pass an endpoint path relative to `<SITE_URL>/_api`.
 
-These methods all expect you to pass an endpoint path relative to `/_api`.
+> **IMPORTANT!** These methods expect you to pass an endpoint path relative to `<SITE_URL>/_api`.
 
 For example, given the API url, `https://TENANT.sharepoint.com/sites/YOURSITE/_api/web/lists/getByTitle('Site%20Pages')/items`, you'd pass `/web/lists/getByTitle('Site%20Pages')/items`.
 
@@ -28,8 +28,7 @@ let themes = data.d.GetTenantThemingOptions.themePreviews.results;
 Takes an API path and a payload, and performs a `POST` request that includes the necessary headers and RequestDigest.
 
 ```javascript
-let endpoint =
-  "/Microsoft.Sharepoint.Utilities.WebTemplateExtensions.SiteScriptUtility.ApplySiteDesign";
+let endpoint = "/Microsoft.Sharepoint.Utilities.WebTemplateExtensions.SiteScriptUtility.ApplySiteDesign";
 let payload = { siteDesignId: siteDesign.Id, webUrl: siteUrl };
 await ctx.authorizedPost(endpoint, payload);
 ```
@@ -46,28 +45,24 @@ _Applying a Site Design by name_
 
 ```javascript
 async function getSiteDesign(siteUrl, siteDesignName) {
-  const ctx = SPScript.createContext(siteUrl);
-  // GetSiteDesigns actually requires a POST
-  let data = await ctx.authorizedPost(
-    "/Microsoft.Sharepoint.Utilities.WebTemplateExtensions.SiteScriptUtility.GetSiteDesigns"
-  );
-  let siteDesigns = data.d.GetSiteDesigns.results;
-  return siteDesigns.find(sd => sd.Title === siteDesignName);
+	const ctx = SPScript.createContext(siteUrl);
+	// GetSiteDesigns actually requires a POST
+	let data = await ctx.authorizedPost(
+		"/Microsoft.Sharepoint.Utilities.WebTemplateExtensions.SiteScriptUtility.GetSiteDesigns"
+	);
+	let siteDesigns = data.d.GetSiteDesigns.results;
+	return siteDesigns.find(sd => sd.Title === siteDesignName);
 }
 
 async function applySiteDesign(siteUrl, siteDesignName) {
-  // Take the name and try to find a Site Design with that Title
-  let siteDesign = await getSiteDesign(siteUrl, siteDesignName);
-  if (!siteDesign)
-    throw new Error(
-      "Couldn't find a site design with the name, " + siteDesignName
-    );
-  let ctx = SPScript.createContext(siteUrl);
+	// Take the name and try to find a Site Design with that Title
+	let siteDesign = await getSiteDesign(siteUrl, siteDesignName);
+	if (!siteDesign) throw new Error("Couldn't find a site design with the name, " + siteDesignName);
+	let ctx = SPScript.createContext(siteUrl);
 
-  let endpoint =
-    "/Microsoft.Sharepoint.Utilities.WebTemplateExtensions.SiteScriptUtility.ApplySiteDesign";
-  let payload = { siteDesignId: siteDesign.Id, webUrl: siteUrl };
-  await ctx.authorizedPost(endpoint, payload);
+	let endpoint = "/Microsoft.Sharepoint.Utilities.WebTemplateExtensions.SiteScriptUtility.ApplySiteDesign";
+	let payload = { siteDesignId: siteDesign.Id, webUrl: siteUrl };
+	await ctx.authorizedPost(endpoint, payload);
 }
 ```
 
