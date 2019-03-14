@@ -60,7 +60,7 @@ describe("ctx.web", () => {
 		});
 	});
 
-	describe("ctx.web.copyFile(serverRelativeSourceUrl, serverRelativeDestUrl)", function() {
+	describe.skip("ctx.web.copyFile(serverRelativeSourceUrl, serverRelativeDestUrl)", function() {
 		let sourceUrl = "/sites/spscript/shared documents/testfile.txt";
 		let filename = "testfile-" + Date.now() + ".txt";
 		let destinationUrl = "/sites/spscript/shared documents/" + filename;
