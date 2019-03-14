@@ -1,7 +1,7 @@
 {
 	"compilerOptions": {
 		"outDir": "./lib/",
-		"sourceMap": true,
+		"sourceMap": false,
 		"noImplicitAny": false,
 		"module": "esnext",
 		"target": "es5",
@@ -11,10 +11,5 @@
 		"allowSyntheticDefaultImports": true
 	},
 	"include": ["./src/**/*"],
-	"exclude": ["node_modules", "lib"],
-	"typedocOptions": {
-		"mode": "file",
-		"out": "docs",
-		"entryPoint": "interfaces/spscript"
-	}
+	"exclude": ["node_modules", "lib"]
 }
