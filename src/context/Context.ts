@@ -9,10 +9,10 @@ import { getAppOnlyToken } from "./tokenHelper";
 import Auth from "../auth/Auth";
 
 export interface ContextOptions {
-  clientSecret?: string;
-  clientId?: string;
-  token?: string;
-  headers?: { [any: string]: string };
+	clientSecret?: string;
+	clientId?: string;
+	token?: string;
+	headers?: { [any: string]: string };
 }
 
 export default class Context {
@@ -44,9 +44,7 @@ export default class Context {
 		this.headers = options.headers;
 		// TODO serverside: replace with tokenHelper.getAppOnlyToken(this.webUrl, this.clientKey, this.clientSecret).then(token => this.accessToken = token);
 		this.ensureToken = options.clientSecret
-			? getAppOnlyToken(url, options.clientId, options.clientSecret).then(
-					token => (this.accessToken = token)
-			  )
+			? getAppOnlyToken(url, options.clientId, options.clientSecret).then(token => (this.accessToken = token))
 			: Promise.resolve(this.accessToken || true);
 
 		this.search = new Search(this);
@@ -56,7 +54,7 @@ export default class Context {
 		this.auth = new Auth(this);
 	}
 
-	private async executeRequest(url: string, opts: RequestInit): Promise<any> {
+	private async executeRequest(url: string, opts: RequestInit = {}): Promise<any> {
 		await this.ensureToken;
 		var fullUrl = /^http/i.test(url) ? url : this.webUrl + "/_api" + url;
 		var defaultOptions: RequestInit = {
@@ -67,7 +65,11 @@ export default class Context {
 				...this.headers,
 			},
 		};
-		var requestOptions = Object.assign({}, defaultOptions, opts);
+		var requestOptions = {
+			...defaultOptions,
+			...opts,
+			headers: { ...defaultOptions.headers, ...opts.headers },
+		};
 		if (this.accessToken) {
 			requestOptions.headers["Authorization"] = "Bearer " + this.accessToken;
 		}
