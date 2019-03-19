@@ -24,14 +24,14 @@ You can use SPScript in your Javascript/Typescript files with:
 import SPScript from "spscript";
 ```
 
-## ProTip: Dynamically/Temporarily add SPScript to any page with Dev Tools
+**ProTip: Dynamically/Temporarily add SPScript to a Modern page with Dev Tools**
 
 You can enter the following into a browser console to dynamically load SPScript on a page.
 
 ```javascript
-_spComponentLoader.loadScript("https://unpkg.com/spscript/pkg/dist/spscript.js", {
-	globalExportsName: "SPScript",
-});
+_spComponentLoader.loadScript(
+    "https://unpkg.com/spscript/pkg/dist/spscript.js"
+);
 ```
 
 ## SPScript Context
@@ -52,10 +52,10 @@ _Example Usage: Get the News Pages of the specified site._
 import SPScript from "spscript";
 
 const getPublishedNews = async function(siteUrl) {
-	let ctx = SPScript.createContext(siteUrl);
-	let pages = await ctx.lists("Site Pages").findItems("PromotedState", 2);
-	console.log(pages); // This will show an Array of Page List Items
-	return pages;
+    let ctx = SPScript.createContext(siteUrl);
+    let pages = await ctx.lists("Site Pages").findItems("PromotedState", 2);
+    console.log(pages); // This will show an Array of Page List Items
+    return pages;
 };
 ```
 
