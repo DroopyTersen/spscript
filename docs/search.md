@@ -1,4 +1,4 @@
-# Hitting the SP Search Service
+# Querying the SP Search Service
 
 ## Introduction
 
