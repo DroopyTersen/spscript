@@ -4,5 +4,6 @@
 - [Mutate List Items](modifying-listitems)
 - [Arbitrary Requests](arbitrary-requests)
 - [SharePoint Search](search)
+- [SharePoint Profiles](profiles)
 - [Utilities](utilities)
 - [Serverside w/ Node.js](nodejs)

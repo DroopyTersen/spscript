@@ -9,7 +9,7 @@
 		"prebuild": "rimraf lib && rimraf .cache && rimraf dist",
 		"build": "tsc && npm run docs && npm run parcel",
 		"parcel": "parcel build src/index.ts --out-file spscript.js",
-		"test": "jest",
+		"test": "jest --verbose --coverage",
 		"docs": "docsify build",
 		"docs:serve": "docsify serve docs"
 	},

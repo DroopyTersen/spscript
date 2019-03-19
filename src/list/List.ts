@@ -57,7 +57,11 @@ export default class List {
 	}
 
 	/** Get the item whose field(key) matches the value. If multiple matches are found, the first is returned. Currently only text and number columns are supported. */
-	findItem(key: string, value: any, odata?: string) {
+	findItem(key: string, value: any, odata: string = "") {
+		// Add a top=1 if there wasn't a specified top
+		if (odata.indexOf("$top") === -1) {
+			odata += odata ? "&$top=1" : "$top=1";
+		}
 		return this.findItems(key, value, odata).then(items => {
 			if (items && items.length && items.length > 0) return items[0];
 			return null;
@@ -67,6 +71,16 @@ export default class List {
 	/** Get all the properties of the List */
 	getInfo(): Promise<any> {
 		return this._dao.get(this.baseUrl).then(utils.validateODataV2);
+	}
+
+	/** Check whether the list exists */
+	async checkExists(): Promise<boolean> {
+		try {
+			await this.getInfo();
+			return true;
+		} catch (err) {
+			return false;
+		}
 	}
 
 	/** Insert a List Item */

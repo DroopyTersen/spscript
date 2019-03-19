@@ -1,24 +1,19 @@
-import utilsImport from "./utils";
-import { Utils } from "./utils/IUtils";
+import utils from "./utils";
 import Context, { ContextOptions } from "./context/Context";
 declare var global: any;
 
-export const utils = utilsImport;
 export function createContext(url?: string, options?: ContextOptions) {
 	try {
 		// TODO: use get Site url util
 		if (!url && global._spPageContextInfo) {
 			url = global._spPageContextInfo.webAbsoluteUrl;
 		}
+		if (!url) url = utils.getSiteUrl();
+		if (!url) throw new Error("Unable to find url to create SPScript Context");
 		return new Context(url, options);
 	} catch (ex) {
 		throw new Error("Unable to create SPScript Context: " + ex.message);
 	}
-}
-
-export interface SPScript {
-	utils: Utils;
-	createContext(url?: string, options?: ContextOptions): Context;
 }
 
 let spscript = {
@@ -28,4 +23,4 @@ let spscript = {
 
 (global as any).SPScript = spscript;
 
-export default spscript as SPScript;
+export default spscript;

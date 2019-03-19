@@ -9,7 +9,6 @@ let siteUrl = process.env.SITE_URL;
 export const getAuthHeaders = async () => {
 	if (authHeaders) return authHeaders;
 	let auth = await spauth.getAuth(siteUrl, {
-		online: true,
 		username: process.env.SP_USER,
 		password: process.env.PASSWORD,
 	});
