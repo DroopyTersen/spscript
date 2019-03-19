@@ -29,7 +29,6 @@ For example you could use [node-sp-auth](https://www.npmjs.com/package/node-sp-a
 const spauth = require("node-sp-auth");
 
 let auth = await spauth.getAuth(process.env.SITE_URL, {
-	online: true,
 	username: process.env.SP_USER,
 	password: process.env.PASSWORD,
 });

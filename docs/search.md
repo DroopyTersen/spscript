@@ -24,14 +24,6 @@ console.log(searchResult.items);
 
 ## Search Methods
 
-The following search methods all take query text as the first parameter. This text can be:
-
-- An arbitrary string - `"spscript is awesome"`
-- A Keyword Query (KQL) - `"Title:SPScript OR Path:https://andrew.sharepoint.com/sites/spscript"`
-- Both `"Author:Petersen come find me"`
-
-Methods
-
 - `ctx.search.query(text)` - query the Search Service, async resolves to a `SearchResultResponse` (see below)
 - `ctx.search.query(text, queryOptions)` - query the Search Service and specify `QueryOptions`
 - `ctx.search.people(text)` - limits the search to just people
@@ -39,6 +31,12 @@ Methods
 - `ctx.search.sites(text)` - limits the search to just sites (STS_Web)
 - `ctx.search.sites(text, urlScope)`- limits the search to just sites (STS_Web) that are underneath the specified `scopeUrl`
 - `ctx.search.sites(text, urlScope, queryOptions)` - limits the search to just sites (STS_Web) that are underneath the specified `scopeUrl` with the specified `QueryOptions`
+
+The previous search methods all take query text as the first parameter. This text can be:
+
+- An arbitrary string - `"spscript is awesome"`
+- A Keyword Query (KQL) - `"Title:SPScript OR Path:https://andrew.sharepoint.com/sites/spscript"`
+- Both `"Author:Petersen come find me"`
 
 ## Search Response
 
