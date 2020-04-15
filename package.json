@@ -1,48 +1,49 @@
 {
-	"name": "spscript",
-	"version": "4.2.0",
-	"description": "ShareP0oint Rest Api Wrappers",
-	"main": "lib/index.js",
-	"types": "lib/index.d.ts",
-	"umd:main": "dist/spscript.js",
-	"scripts": {
-		"prebuild": "rimraf lib && rimraf .cache && rimraf dist",
-		"build": "tsc && npm run docs && npm run parcel",
-		"parcel": "parcel build src/index.ts --out-file spscript.js",
-		"test": "jest --verbose --coverage",
-		"docs": "docsify build",
-		"docs:serve": "docsify serve docs"
-	},
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/DroopyTersen/spscript"
-	},
-	"keywords": [
-		"sharepoint",
-		"spfx",
-		"o365",
-		"microsoft",
-		"office"
-	],
-	"author": "Andrew Petersen",
-	"bugs": {
-		"url": "https://github.com/DroopyTersen/spscript/issues"
-	},
-	"homepage": "https://github.com/DroopyTersen/spscript",
-	"devDependencies": {
-		"@types/jest": "^24.0.11",
-		"chai": "^1.10.0",
-		"concurrently": "^3.4.0",
-		"docsify": "^4.9.1",
-		"dotenv": "^6.2.0",
-		"isomorphic-fetch": "^2.2.1",
-		"jest": "^24.1.0",
-		"ngrok": "^2.2.17",
-		"node-sp-auth": "^2.5.7",
-		"parcel-bundler": "^1.12.2",
-		"rimraf": "^2.6.3",
-		"ts-jest": "^24.0.0",
-		"typescript": "^3.3.3333"
-	},
-	"dependencies": {}
+  "name": "spscript",
+  "version": "4.2.0",
+  "description": "ShareP0oint Rest Api Wrappers",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "umd:main": "dist/spscript.js",
+  "scripts": {
+    "prebuild": "rimraf lib && rimraf .cache && rimraf dist",
+    "build": "tsc && npm run docs && npm run parcel",
+    "parcel": "parcel build src/index.ts --out-file spscript.js",
+    "test": "jest --verbose --coverage",
+    "test:watch": "jest --verbose --watch",
+    "docs": "docsify build",
+    "docs:serve": "docsify serve docs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/DroopyTersen/spscript"
+  },
+  "keywords": [
+    "sharepoint",
+    "spfx",
+    "o365",
+    "microsoft",
+    "office"
+  ],
+  "author": "Andrew Petersen",
+  "bugs": {
+    "url": "https://github.com/DroopyTersen/spscript/issues"
+  },
+  "homepage": "https://github.com/DroopyTersen/spscript",
+  "devDependencies": {
+    "@types/jest": "^24.0.11",
+    "chai": "^1.10.0",
+    "concurrently": "^3.4.0",
+    "docsify": "^4.9.1",
+    "dotenv": "^6.2.0",
+    "isomorphic-fetch": "^2.2.1",
+    "jest": "^24.1.0",
+    "ngrok": "^2.2.17",
+    "node-sp-auth": "^2.5.7",
+    "parcel-bundler": "^1.12.2",
+    "rimraf": "^2.6.3",
+    "ts-jest": "^24.0.0",
+    "typescript": "^3.3.3333"
+  },
+  "dependencies": {}
 }

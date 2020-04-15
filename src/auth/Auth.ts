@@ -13,9 +13,7 @@ export default class Auth {
 
   /** Get a Request Digest token to authorize a request */
   getRequestDigest(): Promise<string> {
-    return this.ctx
-      .post("/contextInfo", {})
-      .then(data => data["d"].GetContextWebInformation.FormDigestValue);
+    return this.ctx.post("/contextInfo", {}).then((data) => data.FormDigestValue);
   }
 
   getGraphToken(): Promise<string> {
