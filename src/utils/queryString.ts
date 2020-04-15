@@ -2,7 +2,7 @@ export function fromObj(obj: any, quoteValues: boolean = false): string {
   var writeParam = function (key) {
     var value = (obj[key] + "").trim();
     // if there is a space, wrap in single quotes
-    if (value.indexOf(" ") > -1 || quoteValues) value = "'" + value + "'";
+    if (value.indexOf(" ") > -1 && !quoteValues) value = "'" + value + "'";
 
     return key + "=" + value;
   };
