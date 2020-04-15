@@ -49,25 +49,6 @@ function validateODataV2(data: any): any {
   }
   return results || data;
 }
-declare var SP: any;
-function openModal(url: string, modalOptions?: any) {
-  ensureModalLibrary().then(() => {
-    var defaults = {
-      title: " ",
-    };
-    var options = Object.assign({}, defaults, modalOptions, { url });
-    return SP.UI.ModalDialog.showModalDialog(options);
-  });
-}
-
-var ensureModalLibrary = function () {
-  if (!validateNamespace("SP.UI.ModalDialog")) {
-    return loadScript("/_layouts/15/1033/sp.res.js").then(() =>
-      loadScript("/_layouts/15/sp.ui.dialog.js")
-    );
-  }
-  return Promise.resolve(true);
-};
 
 export function checkIsSharePointLink(url: string) {
   return url && url.search(/\.sharepoint\.com/i) > -1;
@@ -118,7 +99,6 @@ var utils = {
   waitForLibrary,
   validateNamespace,
   waitForElement,
-  openModal,
   getTenant,
   getSiteUrl,
 };
