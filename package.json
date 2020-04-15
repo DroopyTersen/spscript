@@ -7,7 +7,8 @@
   "umd:main": "dist/spscript.js",
   "scripts": {
     "prebuild": "rimraf lib && rimraf .cache && rimraf dist",
-    "build": "tsc && npm run docs && npm run parcel",
+    "build-old": "tsc && npm run docs && npm run parcel",
+    "build": "rollup -c",
     "parcel": "parcel build src/index.ts --out-file spscript.js",
     "test": "jest --verbose --coverage",
     "test:watch": "jest --verbose --watch",
@@ -42,8 +43,11 @@
     "node-sp-auth": "^2.5.7",
     "parcel-bundler": "^1.12.2",
     "rimraf": "^2.6.3",
+    "rollup": "^2.6.1",
+    "rollup-plugin-terser": "^5.3.0",
+    "rollup-plugin-typescript2": "^0.27.0",
     "ts-jest": "^24.0.0",
-    "typescript": "^3.3.3333"
+    "typescript": "^3.8.3"
   },
   "dependencies": {}
 }

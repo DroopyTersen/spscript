@@ -3,6 +3,19 @@
         "titleBar.activeBackground": "#0b87da",
         "titleBar.inactiveBackground": "#0b87da99",
         "titleBar.activeForeground": "#e7e7e7",
-        "titleBar.inactiveForeground": "#e7e7e799"
-    }
+        "titleBar.inactiveForeground": "#e7e7e799",
+        "activityBar.activeBackground": "#24a1f4",
+        "activityBar.activeBorder": "#b60971",
+        "activityBar.background": "#24a1f4",
+        "activityBar.foreground": "#15202b",
+        "activityBar.inactiveForeground": "#15202b99",
+        "activityBarBadge.background": "#b60971",
+        "activityBarBadge.foreground": "#e7e7e7",
+        "statusBar.background": "#0b87da",
+        "statusBar.border": "#0b87da",
+        "statusBar.foreground": "#e7e7e7",
+        "statusBarItem.hoverBackground": "#24a1f4",
+        "titleBar.border": "#0b87da"
+    },
+    "peacock.color": "#0b87da"
 }
