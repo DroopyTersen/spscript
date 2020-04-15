@@ -11,7 +11,7 @@
     "parcel": "parcel build src/index.ts --out-file spscript.js",
     "test": "jest --verbose --coverage",
     "test:watch": "jest --verbose --watch",
-    "docs": "docsify build",
+    "docs": "docsify init",
     "docs:serve": "docsify serve docs"
   },
   "repository": {
@@ -35,6 +35,7 @@
     "chai": "^1.10.0",
     "concurrently": "^3.4.0",
     "docsify": "^4.11.3",
+    "docsify-cli": "^4.4.0",
     "dotenv": "^6.2.0",
     "isomorphic-fetch": "^2.2.1",
     "jest": "^24.1.0",
