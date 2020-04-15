@@ -52,7 +52,7 @@ export default class Profiles {
         accountName: user.LoginName || user.AccountName,
       };
       var url = this.baseUrl + "/SetSingleValueProfileProperty";
-      return this._dao.authorizedPost(url, args);
+      return this._dao.post(url, args);
     });
   }
 }

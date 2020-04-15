@@ -15,7 +15,7 @@ export default class List {
     this.permissions = new Securable(this.baseUrl, ctx);
   }
   /** Get items from the list. Will return all items if no OData is passed. */
-  getItems(odata?: string): Promise<any> {
+  getItems(odata = "$top=5000"): Promise<any> {
     return this._dao.get(this.baseUrl + "/items" + appendOData(odata)).then(utils.validateODataV2);
   }
 
@@ -30,27 +30,22 @@ export default class List {
     var queryUrl = this.baseUrl + "/GetItems";
     var postBody = {
       query: {
-        __metadata: {
-          type: "SP.CamlQuery",
-        },
         ViewXml: caml,
       },
     };
-    return this._dao.authorizedPost(queryUrl, postBody).then(utils.validateODataV2);
+    return this._dao.post(queryUrl, postBody).then(utils.validateODataV2);
   }
 
   /** Gets the items returned by the specified View name */
-  getItemsByView(viewName: string) {
+  async getItemsByView(viewName: string) {
     var viewUrl = this.baseUrl + "/Views/getByTitle('" + viewName + "')/ViewQuery";
-    // 1. Get the targeted view on the targeted list so we can pull out the ViewXml
-    return this._dao
-      .get(viewUrl)
-      .then(utils.validateODataV2)
-      .then((view) => this.getItemsByCaml(view.ViewQuery));
+    let view = await this._dao.get(viewUrl).then(utils.validateODataV2);
+    let caml = `<View><Query>${view}</Query></View>`;
+    return this.getItemsByCaml(caml);
   }
 
   /** Gets you all items whose field(key) matches the value. Currently only text and number columns are supported. */
-  findItems(key: string, value: any, odata?: string) {
+  findItems(key: string, value: any, odata = "$top=5000") {
     var filterValue = typeof value === "string" ? "'" + value + "'" : value;
     odata = "$filter=" + key + " eq " + filterValue + appendOData(odata, "&");
     return this.getItems(odata);
@@ -85,51 +80,25 @@ export default class List {
 
   /** Insert a List Item */
   addItem(item: any, digest?: string): Promise<any> {
-    return this._dao.auth
-      .ensureRequestDigest(digest)
-      .then((digest) => {
-        var customOptions = {
-          headers: utils.headers.getAddHeaders(digest),
-        };
-        return this._dao.post(this.baseUrl + "/items", item, customOptions);
-      })
-      .then(utils.validateODataV2);
+    return this._dao.post(this.baseUrl + "/items", item).then(utils.validateODataV2);
   }
 
   /** Takes a SharePoint Id, and updates that item ONLY with properties that are found in the passed in updates object. */
-  updateItem(itemId: number, updates: any, digest?: string) {
-    return this._dao.auth.ensureRequestDigest(digest).then((digest) => {
-      return this.getItemById(itemId).then((item) => {
-        //decorate the item with the 'type' metadata
-        updates = Object.assign(
-          {},
-          {
-            __metadata: {
-              type: item["__metadata"].type,
-            },
-          },
-          updates
-        );
-
-        var customOptions = {
-          headers: utils.headers.getUpdateHeaders(digest, item["__metadata"].etag),
-        };
-
-        return this._dao.post(item["__metadata"].uri, updates, customOptions);
-      });
-    });
+  async updateItem(itemId: number, updates: any, digest?: string) {
+    let url = this.baseUrl + `/items(${itemId})`;
+    return this._dao.post(url, updates, "MERGE");
   }
 
   /** deletes the item with the specified SharePoint Id */
-  deleteItem(itemId: number, digest?: string) {
-    return this._dao.auth.ensureRequestDigest(digest).then((digest) => {
-      return this.getItemById(itemId).then((item) => {
-        var customOptions = {
-          headers: utils.headers.getDeleteHeaders(digest, item["__metadata"].etag),
-        };
-        return this._dao.post(item["__metadata"].uri, "", customOptions);
-      });
-    });
+  async deleteItem(itemId: number, digest?: string) {
+    let url = this.baseUrl + `/items(${itemId})`;
+
+    // digest = await this._dao.auth.ensureRequestDigest(digest);
+
+    // let options = {
+    //   headers: utils.headers.getDeleteHeaders(digest, "*"),
+    // };
+    return this._dao.post(url, "", "DELETE");
   }
 
   //TODO: getFields
@@ -137,7 +106,7 @@ export default class List {
   //TODO: updateField
 }
 
-var appendOData = function (odata?: string, prefix?: string) {
+var appendOData = function (odata = "", prefix?: string) {
   prefix = prefix || "?";
   if (odata) return prefix + odata;
   return "";

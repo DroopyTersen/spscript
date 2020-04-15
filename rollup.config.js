@@ -1,6 +1,7 @@
 import typescript from 'rollup-plugin-typescript2';
 import pkg from './package.json';
 import {terser} from "rollup-plugin-terser";
+import visualizer from 'rollup-plugin-visualizer';
 export default {
  input: 'src/index.ts', // our source file
  output: [
@@ -9,22 +10,20 @@ export default {
    format: 'cjs'
   },
   {
-   file: pkg.module,
-   format: 'es' // the preferred format
-  },
-  {
    file: pkg.browser,
    format: 'iife',
    name: 'SPScript' // the global which can be used in a browser
-  }
- ],
- external: [
-  ...Object.keys(pkg.dependencies || {})
+  },
+  {
+   file: pkg.module,
+   format: 'es' // the preferred format
+  },
  ],
  plugins: [
   typescript({
    typescript: require('typescript'),
   }),
-  terser() // minifies generated bundles
+  terser(),
+  visualizer({ title: "SPScript Bundle", open: true}),
  ]
 };

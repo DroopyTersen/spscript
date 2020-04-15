@@ -36,6 +36,7 @@ var getFilestreamHeaders = function (digest: string) {
 var getActionHeaders = function (verb: string, digest?: string) {
   return Object.assign({}, getStandardHeaders(digest), {
     "X-HTTP-Method": verb,
+    "If-Match": "*",
   });
 };
 

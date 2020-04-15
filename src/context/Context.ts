@@ -72,7 +72,7 @@ export default class Context {
   }
 
   /** Make a 'POST' request to the '<site>/_api' relative url. */
-  post(url: string, body?: any, opts?: RequestInit) {
+  _post(url: string, body?: any, opts?: RequestInit) {
     body = this._packagePostBody(body, opts);
     var options: RequestInit = {
       method: "POST",
@@ -83,11 +83,11 @@ export default class Context {
   }
 
   /** Make a 'POST' request to the '<site>/_api' relative url. SPScript will handle authorizing the request for you.*/
-  authorizedPost(url: string, body?: any, verb?: string) {
+  post(url: string, body?: any, verb?: string) {
     return this.auth
       .getRequestDigest()
       .then((digest) => utils.headers.getActionHeaders(verb, digest))
-      .then((headers) => this.post(url, body, { headers }));
+      .then((headers) => this._post(url, body, { headers }));
   }
 
   /** Get an SPScript List instance */

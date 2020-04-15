@@ -27,7 +27,6 @@ describe("Context Namespaces", function () {
     expect(ctx).toHaveProperty("executeRequest");
     expect(ctx).toHaveProperty("get");
     expect(ctx).toHaveProperty("post");
-    expect(ctx).toHaveProperty("authorizedPost");
     expect(ctx).toHaveProperty("lists");
     expect(ctx).toHaveProperty("auth");
   });
@@ -115,13 +114,12 @@ describe("Context Methods", () => {
 
   // TODO: look into JEST mocking of executeRequest
   describe("ctx.post(url, [body], [opts]", function () {
-    // it("Should return a Promise");
-    // it("Should resolve to a JS object, not a JSON string");
-  });
-
-  describe("ctx.authorizedPost(url, [body], [opts]", function () {
-    // it("Should include a request digest in the headers");
-    // it("Should return a Promise");
-    // it("Should resolve to a JS object, not a JSON string");
+    it("Should resolve to a JS object, not a JSON string", async () => {
+      let data = await ctx.post(
+        "/Microsoft.Sharepoint.Utilities.WebTemplateExtensions.SiteScriptUtility.GetSiteDesigns"
+      );
+      console.log("data", data);
+      expect(data).toBeTruthy();
+    });
   });
 });

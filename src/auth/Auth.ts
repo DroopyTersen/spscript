@@ -13,13 +13,13 @@ export default class Auth {
 
   /** Get a Request Digest token to authorize a request */
   getRequestDigest(): Promise<string> {
-    return this.ctx.post("/contextInfo", {}).then((data) => data.FormDigestValue);
+    return this.ctx._post("/contextInfo", {}).then((data) => data.FormDigestValue);
   }
 
   getGraphToken(): Promise<string> {
     let endpoint = "/SP.OAuth.Token/Acquire";
     return this.ctx
-      .authorizedPost(endpoint, { resource: "https://graph.microsoft.com" })
+      ._post(endpoint, { resource: "https://graph.microsoft.com" })
       .then(utils.validateODataV2);
   }
 }

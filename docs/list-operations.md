@@ -1,13 +1,13 @@
-# Querying List Items
+# List Operations
 
 ## Setup
 
-If you are querying list items, you need to:
+Performing list operations you need to:
 
 1. Create an SPScript Context, `SPScript.createContext(siteUrl)`
 2. Get a list by Title, `ctx.lists("LIST TITLE")`
 
-These 2 steps are synchronous,they are really just building up the base REST API url for you.
+These 2 steps are synchronous. They are really just building up the base REST API url for you.
 
 ```javascript
 // Create a Context and get a list by Title
@@ -16,6 +16,27 @@ let list = ctx.lists("YOUR LIST TITLE");
 
 // This call is async, it actually makes a REST request
 let items = await list.getItems();
+```
+
+## getInfo
+
+- `getInfo() => ListProperties`
+
+Get the properties of the list. Stuff like `ItemCount`, `Hidden`, etc...
+
+```javascript
+let info = await ctx.lists("Featured Links").getInfo();
+console.log("List Item Count", info.ItemCount);
+```
+
+## checkExists
+
+- `checkExists() => boolean`
+
+Check whether a specific list exists
+
+```javascript
+let exists = await ctx.lists("Featured Links").checkExists();
 ```
 
 ## getItems
@@ -34,8 +55,10 @@ You can also pass an optional OData string, giving you full control over your `$
 _Get the file names of the last 5 modified "Shared Documents"_
 
 ```javascript
-let items = await ctx.lists("Shared Documents").getItems("$select=FileLeafRef&$orderby=Modified desc&$top=5");
-let filenames = items.map(item => item.FileLeafRef);
+let items = await ctx
+  .lists("Shared Documents")
+  .getItems("$select=FileLeafRef&$orderby=Modified desc&$top=5");
+let filenames = items.map((item) => item.FileLeafRef);
 ```
 
 ## getItemById
@@ -68,8 +91,8 @@ _Find the 5 most recent "New Hire" pages_
 
 ```javascript
 let newHireAnnouncements = await ctx
-	.lists("Site Pages")
-	.findItems("Category", "New Hire", "$orderby=Modified desc&$top=5");
+  .lists("Site Pages")
+  .findItems("Category", "New Hire", "$orderby=Modified desc&$top=5");
 ```
 
 ## findItem
@@ -113,7 +136,7 @@ Instead of OData, pass a CAML query. The parent node should be a `<View>`. Somet
 
 I've only found one scenario where I need this, querying by Calculated Fields. You can't do that via OData.
 
-## More Examples
+## Query Examples
 
 _Find all Events with a Category of "Birthday"_
 
@@ -157,6 +180,49 @@ let items = data.d.results;
 ```
 
 <!-- tabs:end -->
+
+## addItem
+
+- `addItem(newItem)`
+
+Allows you to pass a JavaScript object, where each property aligns with a SharePoint Field name on the target list. It is async and will give you back the new List Item which will include new properties like the SharePoint ID.
+
+```javascript
+var itemToCreate = {
+  Title: "My New Task",
+  Status: "Not Started",
+  RemainingHours: 12,
+};
+let listItem = await ctx.lists("Tasks").addItem(itemToCreate);
+```
+
+If your `newItem` object has a property that **isn't** a Field on the List, the call will fail.
+
+## updateItem
+
+- `updateItem(id, updates)`
+
+Allows you to pass a JavaScript object, where each property aligns with a SharePoint Field name on the target list.
+
+- Does a `MERGE` so you don't have to pass all the field values.
+- If your updates object has a property that **isn't** a Field on the List, the call will fail.
+
+```javascript
+var updates = { Status: "Completed", RemainingHours: 0 };
+await ctx.lists("Tasks").updateItem(29, updates);
+```
+
+## deleteItem
+
+- `deleteItem(id)`
+
+Deletes the List Item with the specified Id.
+
+_Delete the Shared Documents item with an ID of 47_
+
+```javascript
+await ctx.lists("Shared Documents").deleteItem(47);
+```
 
 ## Source Code
 

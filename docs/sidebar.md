@@ -1,7 +1,6 @@
 - [Introduction](introduction)
 - [Getting Started](getting-started)
-- [Query List Items](querying-listitems)
-- [Mutate List Items](modifying-listitems)
+- [List Operations](list-operations)
 - [Arbitrary Requests](arbitrary-requests)
 - [SharePoint Search](search)
 - [SharePoint Profiles](profiles)
