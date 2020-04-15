@@ -110,6 +110,12 @@ describe("Context Methods", () => {
       expect(data).toHaveProperty("value");
       expect(data.value).toBeInstanceOf(Array);
     });
+    it("Should use less verbose OData header", async () => {
+      let data = await ctx.get("/thememanager/GetTenantThemingOptions");
+      console.log("data", data);
+      expect(data).toHaveProperty("themePreviews");
+      expect(data.themePreviews).toHaveProperty("length");
+    });
   });
 
   // TODO: look into JEST mocking of executeRequest
@@ -118,7 +124,6 @@ describe("Context Methods", () => {
       let data = await ctx.post(
         "/Microsoft.Sharepoint.Utilities.WebTemplateExtensions.SiteScriptUtility.GetSiteDesigns"
       );
-      console.log("data", data);
       expect(data).toBeTruthy();
     });
   });

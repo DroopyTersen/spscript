@@ -1,6 +1,6 @@
 # Arbitrary API Requests
 
-If SPScript doesn't have a method that specifically solves your needs, you can always use the base request helpers, `ctx.get` and `ctx.authorizedPost`. These methods expect you to pass an endpoint path relative to `<SITE_URL>/_api`.
+If SPScript doesn't have a method that specifically solves your needs, you can always use the base request helpers, `ctx.get` and `ctx.post`. These methods expect you to pass an endpoint path relative to `<SITE_URL>/_api`.
 
 > **IMPORTANT!** These methods expect you to pass an endpoint path relative to `<SITE_URL>/_api`.
 
@@ -17,13 +17,13 @@ _Get all Company Themes_
 
 ```javascript
 let data = await ctx.get("/thememanager/GetTenantThemingOptions");
-let themes = data.d.GetTenantThemingOptions.themePreviews.results;
+let themes = data.themePreviews;
 ```
 
 ## post
 
 - `ctx.post(apiPath, payload)`
-- `ctx.post(apiPath, payload, vert)`
+- `ctx.post(apiPath, payload, verb)`
 
 Takes an API path and a payload, and performs a `POST` request that includes the necessary headers and RequestDigest. If you pass a `verb`, it will place that in the `X-HTTP-Method` header.
 
