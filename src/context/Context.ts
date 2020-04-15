@@ -5,12 +5,9 @@ import Web from "../web/Web";
 import Search from "../search/Search";
 import CustomActions from "../customActions/CustomActions";
 import Profiles from "../profiles/Profiles";
-import { getAppOnlyToken } from "./tokenHelper";
 import Auth from "../auth/Auth";
 
 export interface ContextOptions {
-  clientSecret?: string;
-  clientId?: string;
   token?: string;
   headers?: { [any: string]: string };
 }
@@ -30,24 +27,14 @@ export default class Context {
   auth: Auth;
 
   private request: (url: string, options: RequestInit) => Promise<any>;
-  private clientId: string;
-  private clientSecret: string;
   private ensureToken: Promise<any>;
   private accessToken: string;
   private headers: any;
 
   constructor(url: string, options: ContextOptions = {}) {
     this.webUrl = url;
-    this.clientId = options.clientId;
-    this.clientSecret = options.clientSecret;
     this.accessToken = options.token;
     this.headers = options.headers;
-    // TODO serverside: replace with tokenHelper.getAppOnlyToken(this.webUrl, this.clientKey, this.clientSecret).then(token => this.accessToken = token);
-    this.ensureToken = options.clientSecret
-      ? getAppOnlyToken(url, options.clientId, options.clientSecret).then(
-          (token) => (this.accessToken = token)
-        )
-      : Promise.resolve(this.accessToken || true);
 
     this.search = new Search(this);
     this.customActions = new CustomActions(this);
