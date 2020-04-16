@@ -1,6 +1,6 @@
 {
   "name": "spscript",
-  "version": "5.0.0-beta.1",
+  "version": "5.0.0-beta.2",
   "description": "ShareP0oint Rest Api Wrappers",
   "main": "dist/spscript.cjs.js",
   "module": "dist/spscript.esm.js",
@@ -11,6 +11,7 @@
     "build": "rollup -c rollup.config.js",
     "test": "jest --verbose --coverage",
     "test:watch": "npx majestic --app",
+    "prepublish": "npm run build",
     "docs": "docsify serve docs"
   },
   "repository": {
