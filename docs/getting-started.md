@@ -29,16 +29,17 @@ import SPScript from "spscript";
 You can enter the following into a browser console to dynamically load SPScript on a page.
 
 ```javascript
-_spComponentLoader.loadScript(
-    "https://unpkg.com/spscript/pkg/dist/spscript.js"
-);
+_spComponentLoader.loadScript("https://unpkg.com/spscript/pkg/dist/spscript.browser.js");
 ```
 
 ## SPScript Context
 
-Almost everything in SPScript is based off an SPScript `Context` class. An SPScript `Context` is tied to specific SharePoint site. You get a `Context` by calling `SPScript.createContext(siteUrl)`.
+Almost everything in SPScript is based off an SPScript `Context` class.
 
-> You get a `Context` by calling `SPScript.createContext(siteUrl)`.
+- An SPScript **Context** is tied to specific SharePoint site.
+- You get a **Context** by calling `SPScript.createContext(siteUrl)`.
+
+> You get a **Context** by calling `SPScript.createContext(siteUrl)`.
 
 _This line of code is the entry point to almost everything SPScript provides._
 
@@ -51,11 +52,11 @@ _Example Usage: Get the News Pages of the specified site._
 ```javascript
 import SPScript from "spscript";
 
-const getPublishedNews = async function(siteUrl) {
-    let ctx = SPScript.createContext(siteUrl);
-    let pages = await ctx.lists("Site Pages").findItems("PromotedState", 2);
-    console.log(pages); // This will show an Array of Page List Items
-    return pages;
+const getPublishedNews = async function (siteUrl) {
+  let ctx = SPScript.createContext(siteUrl);
+  let pages = await ctx.lists("Site Pages").findItems("PromotedState", 2);
+  console.log(pages); // This will show an Array of Page List Items
+  return pages;
 };
 ```
 

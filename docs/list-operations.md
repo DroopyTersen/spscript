@@ -4,8 +4,8 @@
 
 Performing list operations you need to:
 
-1. Create an SPScript Context, `SPScript.createContext(siteUrl)`
-2. Get a list by Title, `ctx.lists("LIST TITLE")`
+1. Create an SPScript Context
+2. Get a list by Title
 
 These 2 steps are synchronous. They are really just building up the base REST API url for you.
 
