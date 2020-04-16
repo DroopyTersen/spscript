@@ -32,7 +32,7 @@ export default class Context {
   private request: (url: string, options: RequestInit) => Promise<any>;
   private ensureToken: Promise<any>;
   private accessToken: string;
-  private headers: any;
+  public headers: any;
 
   constructor(url: string, options: ContextOptions = {}) {
     this.webUrl = url;

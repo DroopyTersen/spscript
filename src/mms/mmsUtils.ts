@@ -1,4 +1,5 @@
 import { createContext } from "..";
+import Context from "../context/Context";
 
 export interface MMSTerm {
   id: string;
@@ -31,6 +32,7 @@ export const toTermTree = function (flatTerms: MMSTerm[]) {
         return findInTree(tree, (term) => term.id === termGuid);
       },
       getTermByName(termName: string) {
+        // console.log("getTermByName -> tree", tree);
         return findInTree(tree, (term) => term.name === termName);
       },
       getTermByPath(path: string) {
@@ -49,10 +51,10 @@ export const toTermTree = function (flatTerms: MMSTerm[]) {
 export const getTermSet = async (
   termGroupName: string,
   termSetName: string,
-  siteUrl: string
+  ctx: Context
 ): Promise<MMSTerm[]> => {
   // Create a flat array of parent termsets, and then each result of terms
-  let flatTerms = await _getTermsetTerms(termGroupName, termSetName, siteUrl);
+  let flatTerms = await _getTermsetTerms(termGroupName, termSetName, ctx);
   // console.log("TCL: flatTerms", flatTerms);
 
   return sortByPath(flatTerms);
@@ -67,19 +69,20 @@ const _toTermTree = function (flatTerms: MMSTerm[]): MMSTerm {
   let result = sortedTerms.reduce((results, term) => {
     let pathParts = term.path.split("/");
     let scope = results;
+    // console.log("_toTermTree -> pathParts", pathParts);
     pathParts.forEach((key) => {
       let match = scope.find((t) => t.name === key);
       if (!match) {
         scope.push(term);
         scope = term.children;
       } else {
+        // console.log("_toTermTree -> match", key, match);
         scope = match.children;
       }
     });
     return results;
   }, []);
   // console.log("TCL: result", result);
-
   return result.length === 1 ? result[0] : result;
 };
 
@@ -91,6 +94,8 @@ const sortByPath = (terms: MMSTerm[]) => {
 };
 const findInTree = function (term: MMSTerm, findFn: (term: MMSTerm) => boolean) {
   if (findFn(term)) return term;
+  // console.log("term.name", term);
+  // console.log("term.children.length", term.children.length);
   for (let i = 0; i < term.children.length; i++) {
     let childMatch = findInTree(term.children[i], findFn);
     if (childMatch) return childMatch;
@@ -137,12 +142,12 @@ const normalizeSlashes = function (str: string) {
 const _getTermsetTerms = async (
   termGroup: string,
   termset: string,
-  siteUrl
+  ctx: Context
 ): Promise<MMSTerm[]> => {
-  let ctx = createContext(siteUrl);
   let digest = await ctx.auth.getRequestDigest();
-  var url = `${siteUrl}/_vti_bin/client.svc/ProcessQuery?`;
+  var url = `${ctx.webUrl}/_vti_bin/client.svc/ProcessQuery?`;
   let headers = {
+    ...ctx.headers,
     "content-type": "text/xml",
     "x-requestdigest": digest,
   };
@@ -151,15 +156,30 @@ const _getTermsetTerms = async (
     body: getRequestXml(termGroup, termset),
     headers,
   }).then((resp) => resp.json());
-  console.log("_getTermsetTerms data", data);
+  // console.log("_getTermsetTerms data", data);
 
   let tc: TermCollectionData = data.find((d) => d._ObjectType_ === "SP.Taxonomy.TermCollection");
   if (tc && tc._Child_Items_) {
-    return tc._Child_Items_.map((t) => processTerm(t, termset));
+    return [
+      createTermFromTermsetName(termset),
+      ...tc._Child_Items_.map((t) => processTerm(t, termset)),
+    ];
   }
   return [];
 };
 
+const createTermFromTermsetName = (termset: string): MMSTerm => {
+  return {
+    id: "root",
+    sortOrder: 1,
+    children: [],
+    description: termset,
+    name: termset,
+    path: termset,
+    properties: {},
+    termSetName: termset,
+  };
+};
 interface TermCollectionData {
   _Child_Items_: TermData[];
 }

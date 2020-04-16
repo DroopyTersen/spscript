@@ -8,10 +8,10 @@ export default class MMS {
   }
 
   getTermset = (termGroup: string, termset: string) => {
-    return getTermSet(termGroup, termset, this.ctx.webUrl);
+    return getTermSet(termGroup, termset, this.ctx);
   };
   getTermTree = async (termGroup: string, termset: string) => {
-    let flatTerms = await getTermSet(termGroup, termset, this.ctx.webUrl);
+    let flatTerms = await getTermSet(termGroup, termset, this.ctx);
     return toTermTree(flatTerms);
   };
 }

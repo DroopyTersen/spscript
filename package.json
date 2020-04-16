@@ -10,7 +10,7 @@
     "prebuild": "rimraf dist",
     "build": "rollup -c rollup.config.js",
     "test": "node tasks/setAuthCookie.js && jest --verbose --coverage",
-    "test:watch": "npx majestic --app",
+    "test:watch": "node tasks/setAuthCookie.js && majestic --app",
     "prepublish": "npm run build",
     "docs": "docsify serve docs"
   },
@@ -38,6 +38,7 @@
     "dotenv": "^6.2.0",
     "isomorphic-fetch": "^2.2.1",
     "jest": "^25.3.0",
+    "majestic": "^1.6.2",
     "node-sp-auth": "^2.5.7",
     "rimraf": "^2.6.3",
     "rollup": "^2.6.1",
