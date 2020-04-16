@@ -1,6 +1,6 @@
 {
   "name": "spscript",
-  "version": "5.0.0-beta.0",
+  "version": "5.0.0-beta.1",
   "description": "ShareP0oint Rest Api Wrappers",
   "main": "dist/spscript.cjs.js",
   "module": "dist/spscript.esm.js",
