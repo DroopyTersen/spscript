@@ -112,7 +112,6 @@ describe("Context Methods", () => {
     });
     it("Should use less verbose OData header", async () => {
       let data = await ctx.get("/thememanager/GetTenantThemingOptions");
-      console.log("data", data);
       expect(data).toHaveProperty("themePreviews");
       expect(data.themePreviews).toHaveProperty("length");
     });

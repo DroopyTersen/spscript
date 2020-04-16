@@ -55,6 +55,7 @@ export function checkIsSharePointLink(url: string) {
 }
 
 export function getSiteUrl(url?: string) {
+  if (!url && !isBrowser()) throw new Error("No url given and it is not in a browser.");
   url = (url || window.location.href).toLowerCase();
   let managedPathIndex = url.search(/\/sites\/|\/teams\//i);
   if (!checkIsSharePointLink(url) || managedPathIndex < 0) return null;
@@ -72,6 +73,7 @@ export function getSiteUrl(url?: string) {
 }
 
 export function getTenant(url?: string) {
+  if (!url && !isBrowser()) throw new Error("No url given and it is not in a browser.");
   if (!url) url = window.location.href;
   url = url.toLowerCase();
   if (!checkIsSharePointLink(url)) return null;

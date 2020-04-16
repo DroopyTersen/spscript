@@ -1,3 +1,5 @@
+import { isBrowser } from ".";
+
 export function fromObj(obj: any, quoteValues: boolean = false): string {
   var writeParam = function (key) {
     var value = (obj[key] + "").trim();
@@ -13,6 +15,7 @@ export function fromObj(obj: any, quoteValues: boolean = false): string {
 
 export function toObj(str?: string): any {
   //if no string is passed use window.location.search
+  if (!str && !isBrowser()) throw new Error("No string provided and not in Browser env");
   if (str === undefined && window && window.location && window.location.search) {
     str = window.location.search;
   }
