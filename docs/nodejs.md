@@ -29,8 +29,8 @@ For example you could use [node-sp-auth](https://www.npmjs.com/package/node-sp-a
 const spauth = require("node-sp-auth");
 
 let auth = await spauth.getAuth(process.env.SITE_URL, {
-	username: process.env.SP_USER,
-	password: process.env.PASSWORD,
+  username: process.env.SP_USER,
+  password: process.env.PASSWORD,
 });
 // Pass the auth headers to SPScript via the optional ContextOptions param
 let ctx = SPScript.createContext(siteUrl, { headers: auth.headers });
@@ -58,10 +58,14 @@ _Site Collection Admin Permissions for you App Context_
 3. Pass the Client Id and Secret to `createContext`. All actions will be performed as the App.
 
 ```javascript
-var ctx = SPScript.createContext(config.SP_SITE_URL, {
-	clientId: config.CLIENT_KEY,
-	clientSecret: config.CLIENT_SECRET,
+const spauth = require("node-sp-auth");
+
+let auth = await spauth.getAuth(process.env.SITE_URL, {
+  clientId: process.env.CLIENT_KEY,
+  clientSecret: process.env.CLIENT_SECRET,
 });
+// Pass the auth headers to SPScript via the optional ContextOptions param
+let ctx = SPScript.createContext(siteUrl, { headers: auth.headers });
 let webInfo = await ctx.web.getInfo();
 console.log(webInfo);
 ```

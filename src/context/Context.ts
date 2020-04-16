@@ -6,6 +6,7 @@ import Search from "../search/Search";
 import CustomActions from "../customActions/CustomActions";
 import Profiles from "../profiles/Profiles";
 import Auth from "../auth/Auth";
+import MMS from "../mms/mms";
 
 export interface ContextOptions {
   token?: string;
@@ -25,6 +26,8 @@ export default class Context {
   customActions: CustomActions;
   /** Request Digest and Access token helpers */
   auth: Auth;
+  /** MMS helper function for getting a termset */
+  mms: MMS;
 
   private request: (url: string, options: RequestInit) => Promise<any>;
   private ensureToken: Promise<any>;
@@ -41,6 +44,7 @@ export default class Context {
     this.web = new Web(this);
     this.profiles = new Profiles(this);
     this.auth = new Auth(this);
+    this.mms = new MMS(this);
   }
 
   private async executeRequest(url: string, opts: RequestInit = {}): Promise<any> {

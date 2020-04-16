@@ -7,10 +7,10 @@ The SharePoint Search REST API responses are notoriously difficult to work with.
 _This is about the shortest way you could parse the Search Rest API response._
 
 ```javascript
-let items = data.PrimaryQueryResult.RelevantResults.Table.Rows.map(row => {
-	return row.Cells.reduce((obj, cell) => {
-		obj[cell.Key] = cell.Value;
-	}, {});
+let items = data.PrimaryQueryResult.RelevantResults.Table.Rows.map((row) => {
+  return row.Cells.reduce((obj, cell) => {
+    obj[cell.Key] = cell.Value;
+  }, {});
 });
 ```
 
@@ -44,14 +44,14 @@ Each call to `ctx.search.query(searchText)` is `async` and will resolve to a `Se
 
 ```typescript
 interface SearchResultResponse {
-	elapsedTime: string;
-	suggestion: any;
-	resultsCount: number;
-	totalResults: number;
-	totalResultsIncludingDuplicates: number;
-	/** The actual search results that you care about */
-	items: any[];
-	refiners?: Refiner[];
+  elapsedTime: string;
+  suggestion: any;
+  resultsCount: number;
+  totalResults: number;
+  totalResultsIncludingDuplicates: number;
+  /** The actual search results that you care about */
+  items: any[];
+  refiners?: Refiner[];
 }
 ```
 
@@ -71,14 +71,14 @@ Interface
 
 ```typescript
 interface QueryOptions {
-	sourceid?: string;
-	startrow?: number;
-	rowlimit?: number;
-	selectedproperties?: string[];
-	refiners?: string[];
-	refinementfilters?: string[];
-	hiddencontstraints?: any;
-	sortlist?: any;
+  sourceid?: string;
+  startrow?: number;
+  rowlimit?: number;
+  selectproperties?: string[];
+  refiners?: string[];
+  refinementfilters?: string[];
+  hiddencontstraints?: any;
+  sortlist?: any;
 }
 ```
 
@@ -89,7 +89,7 @@ Default Query Options
     sourceid:null,
     startrow:null,
     rowlimit:100,
-    selectedproperties:null,
+    selectproperties:null,
     refiners:null,
     refinementfilters:null,
     hiddencontstraints:null,
