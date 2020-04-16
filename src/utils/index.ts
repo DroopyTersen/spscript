@@ -8,7 +8,7 @@ import {
   waitForElement,
 } from "./dependencyManagement";
 
-function isBrowser(): boolean {
+export function isBrowser(): boolean {
   return !(typeof window === "undefined");
 }
 
