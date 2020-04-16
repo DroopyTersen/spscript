@@ -1,10 +1,9 @@
 import SPScript from "../src/index";
-import { getAuthHeaders, getContext } from "./testUtils";
+import { getContext } from "./testUtils";
 
 describe("SPScript.createContext(url, { headers: { FedAuthCookie }} )", () => {
   test("There is a FedAuth token", async () => {
-    let authHeaders = await getAuthHeaders();
-    expect(authHeaders).toBeTruthy();
+    expect(process.env.AUTH_HEADERS).toBeTruthy();
   });
 
   test("The FedAuth token can be used to authenticate requests", async () => {
