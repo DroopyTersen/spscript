@@ -44,7 +44,9 @@ import SPScript from "spscript";
 You can enter the following into a browser console to dynamically load SPScript on a page.
 
 ```javascript
-_spComponentLoader.loadScript("https://unpkg.com/spscript@beta/dist/spscript.browser.js");
+let script = document.createElement("script");
+script.src = "https://unpkg.com/spscript@beta/dist/spscript.browser.js";
+document.head.appendChild(script);
 ```
 
 ## SPScript Context
