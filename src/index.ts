@@ -1,7 +1,8 @@
 export * as utils from "./utils";
+import * as utils from "./utils";
 
-import utils, { isBrowser } from "./utils";
-import Context, { ContextOptions } from "./context/Context";
+import { isBrowser, getSiteUrl } from "./utils";
+import Context, { ContextOptions } from "./Context";
 
 declare global {
   interface Window {
@@ -16,7 +17,7 @@ export function createContext(url?: string, options?: ContextOptions) {
         // TODO: use get Site url util
         url = window._spPageContextInfo.webAbsoluteUrl;
       }
-    if (!url) url = utils.getSiteUrl();
+    if (!url) url = getSiteUrl();
     if (!url) throw new Error("Unable to find url to create SPScript Context");
     return new Context(url, options);
   } catch (ex) {
@@ -24,9 +25,7 @@ export function createContext(url?: string, options?: ContextOptions) {
   }
 }
 
-let spscript = {
-  utils,
+export default {
   createContext,
+  utils,
 };
-
-export default spscript;

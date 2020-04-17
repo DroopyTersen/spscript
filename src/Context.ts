@@ -1,12 +1,12 @@
+import Web from "./Web";
+import CustomActions from "./CustomActions";
+import Auth from "./Auth";
 import request from "./request";
-import utils from "../utils/index";
-import List from "../list/List";
-import Web from "../web/Web";
-import Search from "../search/Search";
-import CustomActions from "../customActions/CustomActions";
-import Profiles from "../profiles/Profiles";
-import Auth from "../auth/Auth";
-import MMS from "../mms/mms";
+import { parseJSON, getActionHeaders } from "./utils";
+import List from "./List";
+import Search from "./Search";
+import Profiles from "./Profiles";
+import MMS from "./MMS";
 
 export interface ContextOptions {
   token?: string;
@@ -72,7 +72,7 @@ export default class Context {
   /** Make a 'GET' request to the '<site>/_api' relative url. */
   get(url: string, opts?: RequestInit) {
     let options: RequestInit = Object.assign({}, { method: "GET" }, opts);
-    return this.executeRequest(url, options).then(utils.parseJSON);
+    return this.executeRequest(url, options).then(parseJSON);
   }
 
   /** Make a 'POST' request to the '<site>/_api' relative url. */
@@ -83,14 +83,14 @@ export default class Context {
       body,
     };
     options = Object.assign({}, options, opts);
-    return this.executeRequest(url, options).then(utils.parseJSON);
+    return this.executeRequest(url, options).then(parseJSON);
   }
 
   /** Make a 'POST' request to the '<site>/_api' relative url. SPScript will handle authorizing the request for you.*/
   post(url: string, body?: any, verb?: string) {
     return this.auth
       .getRequestDigest()
-      .then((digest) => utils.headers.getActionHeaders(verb, digest))
+      .then((digest) => getActionHeaders(verb, digest))
       .then((headers) => this._post(url, body, { headers }));
   }
 

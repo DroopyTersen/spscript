@@ -9,7 +9,7 @@
   "scripts": {
     "prebuild": "rimraf dist",
     "build": "rollup -c rollup.config.js",
-    "test": "node tasks/setAuthCookie.js && jest --verbose --coverage",
+    "test": "node tasks/setAuthCookie.js && jest --verbose --coverage --maxWorkers=4",
     "test:watch": "node tasks/setAuthCookie.js && majestic --app",
     "prepublish": "npm run build",
     "docs": "docsify serve docs"

@@ -1,5 +1,5 @@
 import { getContext } from "./testUtils";
-import Context from "../src/context/Context";
+import Context from "../src/Context";
 
 describe("ctx.web", () => {
   let ctx: Context;

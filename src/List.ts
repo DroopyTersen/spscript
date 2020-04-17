@@ -1,6 +1,6 @@
-import utils from "../utils";
-import Context from "../context/Context";
-import Securable from "../permissions/Securable";
+import Context from "./Context";
+import Securable from "./Securable";
+import { parseOData } from "./utils";
 
 export default class List {
   /** The title of the list */
@@ -16,13 +16,13 @@ export default class List {
   }
   /** Get items from the list. Will return all items if no OData is passed. */
   getItems(odata = "$top=5000"): Promise<any> {
-    return this._dao.get(this.baseUrl + "/items" + appendOData(odata)).then(utils.validateODataV2);
+    return this._dao.get(this.baseUrl + "/items" + appendOData(odata)).then(parseOData);
   }
 
   /** Get a specific item by SharePoint ID */
   getItemById(id: number, odata?: string) {
     var url = this.baseUrl + "/items(" + id + ")" + appendOData(odata);
-    return this._dao.get(url).then(utils.validateODataV2);
+    return this._dao.get(url).then(parseOData);
   }
 
   /** Gets the items returned by the specified CAML query. CAML should be something like <View><Query><Where>...</Where></Query></View>*/
@@ -33,13 +33,13 @@ export default class List {
         ViewXml: caml,
       },
     };
-    return this._dao.post(queryUrl, postBody).then(utils.validateODataV2);
+    return this._dao.post(queryUrl, postBody).then(parseOData);
   }
 
   /** Gets the items returned by the specified View name */
   async getItemsByView(viewName: string) {
     var viewUrl = this.baseUrl + "/Views/getByTitle('" + viewName + "')/ViewQuery";
-    let view = await this._dao.get(viewUrl).then(utils.validateODataV2);
+    let view = await this._dao.get(viewUrl).then(parseOData);
     let caml = `<View><Query>${view}</Query></View>`;
     return this.getItemsByCaml(caml);
   }
@@ -65,7 +65,7 @@ export default class List {
 
   /** Get all the properties of the List */
   getInfo(): Promise<any> {
-    return this._dao.get(this.baseUrl).then(utils.validateODataV2);
+    return this._dao.get(this.baseUrl).then(parseOData);
   }
 
   /** Check whether the list exists */
@@ -80,7 +80,7 @@ export default class List {
 
   /** Insert a List Item */
   addItem(item: any, digest?: string): Promise<any> {
-    return this._dao.post(this.baseUrl + "/items", item).then(utils.validateODataV2);
+    return this._dao.post(this.baseUrl + "/items", item).then(parseOData);
   }
 
   /** Takes a SharePoint Id, and updates that item ONLY with properties that are found in the passed in updates object. */

@@ -43,7 +43,6 @@ describe("MMS", () => {
     describe("termTree.getTermByName(name)", () => {
       it("Should return the correct term", () => {
         let target = termTree.flatTerms[termTree.flatTerms.length - 1];
-        console.log("target", target);
         expect(target).toHaveProperty("name");
         expect(target).toHaveProperty("id");
         let result = termTree.getTermByName(target.name);

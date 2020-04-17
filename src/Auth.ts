@@ -1,5 +1,5 @@
-import utils from "../utils/index";
-import Context from "../context/Context";
+import Context from "./Context";
+import { parseOData } from "./utils";
 
 export default class Auth {
   private ctx: Context;
@@ -18,8 +18,6 @@ export default class Auth {
 
   getGraphToken(): Promise<string> {
     let endpoint = "/SP.OAuth.Token/Acquire";
-    return this.ctx
-      ._post(endpoint, { resource: "https://graph.microsoft.com" })
-      .then(utils.validateODataV2);
+    return this.ctx._post(endpoint, { resource: "https://graph.microsoft.com" }).then(parseOData);
   }
 }

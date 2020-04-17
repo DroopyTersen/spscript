@@ -1,5 +1,5 @@
-import Context from "../context/Context";
-import utils from "../utils";
+import Context from "./Context";
+import { parseOData, getUpdateHeaders, getDeleteHeaders, getAddHeaders } from "./utils";
 
 export default class CustomActions {
   private _dao: Context;
@@ -23,12 +23,12 @@ export default class CustomActions {
     // first get the site scoped ones, then the web scoped ones
     return this._dao
       .get(scopes.Site.url)
-      .then(utils.validateODataV2)
+      .then(parseOData)
       .then((siteCustomActions) => {
         return (
           this._dao
             .get(scopes.Web.url)
-            .then(utils.validateODataV2)
+            .then(parseOData)
             //combine site scoped and web scoped into single array
             .then((webCustomActions) => siteCustomActions.concat(webCustomActions))
         );
@@ -70,7 +70,7 @@ export default class CustomActions {
     return this._getUrlAndDigest(updates.Name).then((prep) => {
       updates = Object.assign({}, metadata, updates);
       var opts = {
-        headers: utils.headers.getUpdateHeaders(prep.digest),
+        headers: getUpdateHeaders(prep.digest),
       };
       return this._dao._post(prep.url, updates, opts);
     });
@@ -81,7 +81,7 @@ export default class CustomActions {
     if (!name) throw new Error("You must at least pass an existing Custom Action name");
     return this._getUrlAndDigest(name).then((prep) => {
       var opts = {
-        headers: utils.headers.getDeleteHeaders(prep.digest),
+        headers: getDeleteHeaders(prep.digest),
       };
       return this._dao._post(prep.url, {}, opts);
     });
@@ -117,13 +117,13 @@ export default class CustomActions {
         var scope = scopes[customAction.Scope];
         customAction.Scope = scope.id;
         var opts = {
-          headers: utils.headers.getAddHeaders(digest),
+          headers: getAddHeaders(digest),
         };
         return this._dao._post(scope.url, customAction, opts);
       });
   }
 
-  private addScriptBlock(name: string, block: string, opts: CustomAction = {}) {
+  addScriptBlock(name: string, block: string, opts: CustomAction = {}) {
     var customAction: CustomAction = {
       Name: name,
       ScriptBlock: block,
@@ -131,38 +131,6 @@ export default class CustomActions {
     };
     customAction = Object.assign({}, customAction, opts);
     return this.add(customAction);
-  }
-
-  /** Injects a CSS file onto your site. Defaults to Site scoped */
-  addCSSLink(name: string, url: string, opts: CustomAction = {}) {
-    var scriptBlockStr = `
-		(function() {
-			var head = document.querySelector("head");
-			var styleTag = document.createElement("style");
-			styleTag.appendChild(document.createTextNode("body { opacity: 0 }"));
-			
-			var linkTag = document.createElement("link");
-			linkTag.rel = "stylesheet";	linkTag.href = "${url}"; linkTag.type = "text/css";
-			linkTag.addEventListener("load", function() {
-				head.removeChild(styleTag);
-			});
-
-			head.appendChild(styleTag);
-			head.appendChild(linkTag);
-		})();`;
-    return this.addScriptBlock(name, scriptBlockStr, opts);
-  }
-
-  addScriptLink(name: string, url: string, opts: CustomAction = {}) {
-    var scriptBlockStr = `
-		(function() {
-			var head = document.querySelector("head");
-			var scriptTag = document.createElement("script");
-            scriptTag.src = "${url}";
-            scriptTag.type = "text/javascript";
-			head.appendChild(scriptTag);
-		})();`;
-    return this.addScriptBlock(name, scriptBlockStr, opts);
   }
 }
 

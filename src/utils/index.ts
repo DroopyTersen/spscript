@@ -1,18 +1,13 @@
-import { toObj, fromObj } from "./queryString";
-import headerUtils, { HeaderUtils } from "./headers";
-import { loadScript, loadScripts, loadCSS } from "./loaders";
-import {
-  validateNamespace,
-  waitForLibraries,
-  waitForLibrary,
-  waitForElement,
-} from "./dependencyManagement";
+export * from "./headers";
+export * as qs from "./queryString";
+export * from "./loaders";
+export * from "./dependencyManagement";
 
 export function isBrowser(): boolean {
   return !(typeof window === "undefined");
 }
 
-function parseJSON(data: any): any {
+export function parseJSON(data: any): any {
   if (typeof data === "string") {
     try {
       data = JSON.parse(data);
@@ -23,7 +18,7 @@ function parseJSON(data: any): any {
   return data;
 }
 
-var getArrayBuffer = function (file) {
+export const getArrayBuffer = function (file) {
   if (file && file instanceof File) {
     return new Promise(function (resolve, reject) {
       var reader = new FileReader();
@@ -37,7 +32,7 @@ var getArrayBuffer = function (file) {
   }
 };
 
-function validateODataV2(data: any): any {
+export function parseOData(data: any): any {
   data = parseJSON(data);
   var results = null;
   if (data.d && data.d.results && data.d.results.length != null) {
@@ -85,23 +80,3 @@ export function getTenant(url?: string) {
 
   return subdomain.split("-")[0];
 }
-
-var utils = {
-  isBrowser,
-  headers: headerUtils,
-  parseJSON,
-  validateODataV2,
-  parseOData: validateODataV2,
-  qs: { toObj, fromObj },
-  loadScript,
-  loadScripts,
-  loadCSS,
-  getArrayBuffer,
-  waitForLibraries,
-  waitForLibrary,
-  validateNamespace,
-  waitForElement,
-  getTenant,
-  getSiteUrl,
-};
-export default utils;

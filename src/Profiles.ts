@@ -1,5 +1,5 @@
-import Context from "../context/Context";
-import utils from "../utils";
+import Context from "./Context";
+import { parseOData } from "./utils";
 
 export default class Profiles {
   private _dao: Context;
@@ -12,7 +12,7 @@ export default class Profiles {
   /** Gets the profile of the current user.  */
   current(): Promise<any> {
     var url = this.baseUrl + "/GetMyProperties";
-    return this._dao.get(url).then(utils.validateODataV2).then(transformPersonProperties);
+    return this._dao.get(url).then(parseOData).then(transformPersonProperties);
   }
 
   /** Gets the current user's profile */
@@ -26,7 +26,7 @@ export default class Profiles {
     return this.getUserObj(user).then((user) => {
       var login = encodeURIComponent(user.LoginName || user.AccountName);
       var url = this.baseUrl + "/GetPropertiesFor(accountName=@v)?@v='" + login + "'";
-      return this._dao.get(url).then(utils.validateODataV2).then(transformPersonProperties);
+      return this._dao.get(url).then(parseOData).then(transformPersonProperties);
     });
   }
 

@@ -1,5 +1,19 @@
-import { createContext } from "..";
-import Context from "../context/Context";
+import Context from "./Context";
+
+export default class MMS {
+  private ctx: Context;
+  constructor(ctx: Context) {
+    this.ctx = ctx;
+  }
+
+  getTermset = (termGroup: string, termset: string) => {
+    return getTermSet(termGroup, termset, this.ctx);
+  };
+  getTermTree = async (termGroup: string, termset: string) => {
+    let flatTerms = await getTermSet(termGroup, termset, this.ctx);
+    return toTermTree(flatTerms);
+  };
+}
 
 export interface MMSTerm {
   id: string;

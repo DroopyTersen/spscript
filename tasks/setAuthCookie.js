@@ -15,7 +15,6 @@ const setAuthHeaders = async () => {
 
   let existing = dotenv.parse(fs.readFileSync(envFilePath, "utf-8"));
 
-  console.log("setAuthHeaders -> existing", existing);
   let updated = {
     ...existing,
     AUTH_HEADERS: JSON.stringify(auth.headers),

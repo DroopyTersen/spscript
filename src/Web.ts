@@ -1,6 +1,6 @@
-import utils from "../utils";
-import Context from "../context/Context";
-import Securable from "../permissions/Securable";
+import Context from "./Context";
+import Securable from "./Securable";
+import { parseOData, getAddHeaders } from "./utils";
 
 export default class Web {
   private baseUrl: string;
@@ -15,12 +15,12 @@ export default class Web {
 
   /** Retrieves basic information about the site */
   getInfo(): Promise<any> {
-    return this._dao.get(this.baseUrl).then(utils.validateODataV2);
+    return this._dao.get(this.baseUrl).then(parseOData);
   }
 
   /** Retrieves all of the subsites */
   getSubsites(): Promise<any[]> {
-    return this._dao.get(this.baseUrl + "/webinfos").then(utils.validateODataV2);
+    return this._dao.get(this.baseUrl + "/webinfos").then(parseOData);
   }
 
   /** Retrieves the current user */
@@ -31,23 +31,23 @@ export default class Web {
     var url = email
       ? this.baseUrl + "/SiteUsers/GetByEmail('" + email + "')"
       : this.baseUrl + "/CurrentUser";
-    return this._dao.get(url).then(utils.validateODataV2);
+    return this._dao.get(url).then(parseOData);
   }
 
   ensureUser(login: string): Promise<any> {
-    return this._dao.post(`/web/ensureUser('${login}')`).then(utils.validateODataV2);
+    return this._dao.post(`/web/ensureUser('${login}')`).then(parseOData);
   }
 
   /** Retrieves a file by server relative url */
   getFile(url: string): Promise<any> {
     var url = `/web/getfilebyserverrelativeurl('${url}')`;
-    return this._dao.get(url).then(utils.validateODataV2);
+    return this._dao.get(url).then(parseOData);
   }
 
   private _copyFile(sourceUrl: string, destinationUrl: string, digest: string) {
     var url = `/web/getfilebyserverrelativeurl('${sourceUrl}')/CopyTo`; //(strnewurl='${destinationUrl}',boverwrite=true)`
     var options = {
-      headers: utils.headers.getAddHeaders(digest),
+      headers: getAddHeaders(digest),
     };
     var body = {
       strNewUrl: destinationUrl,
