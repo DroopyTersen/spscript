@@ -22,8 +22,6 @@ function getStandardHeaders(digest?: string): any {
   return headers;
 }
 
-var getAddHeaders = getStandardHeaders;
-
 var getFilestreamHeaders = function (digest: string) {
   return {
     Accept: jsonMimeType,
@@ -40,19 +38,12 @@ var getActionHeaders = function (verb: string, digest?: string) {
   });
 };
 
-var decorateETag = function (headers, etag) {
-  if (etag) headers["If-Match"] = etag;
-  return headers;
-};
-
-var getUpdateHeaders = (digest?: string, etag?: string) =>
-  decorateETag(getActionHeaders("MERGE", digest), etag);
-var getDeleteHeaders = (digest?: string, etag?: string) =>
-  decorateETag(getActionHeaders("DELETE", digest), etag);
+var getUpdateHeaders = (digest?: string) => getActionHeaders("MERGE", digest);
+var getDeleteHeaders = (digest?: string) => getActionHeaders("DELETE", digest);
 
 var headerUtils: HeaderUtils = {
   getStandardHeaders,
-  getAddHeaders,
+  getAddHeaders: getStandardHeaders,
   getFilestreamHeaders,
   getUpdateHeaders,
   getDeleteHeaders,
