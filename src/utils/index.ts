@@ -9,6 +9,14 @@ export function isBrowser(): boolean {
   return !(typeof window === "undefined");
 }
 
+export function getProfilePhoto(email: string) {
+  return `${getSiteUrl()}/_layouts/15/userphoto.aspx?size=L&username=${email}`;
+}
+
+export function getDelveLink(email: string) {
+  return `https://${getTenant()}-my.sharepoint.com/PersonImmersive.aspx?accountname=i%3A0%23%2Ef%7Cmembership%7C${email}`;
+}
+
 export function parseJSON(data: any): any {
   if (typeof data === "string") {
     try {
