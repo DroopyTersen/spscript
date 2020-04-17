@@ -1,6 +1,4 @@
-export * as utils from "./utils";
-import * as utils from "./utils";
-
+import * as allUtils from "./utils";
 import { isBrowser, getSiteUrl } from "./utils";
 import Context, { ContextOptions } from "./Context";
 
@@ -24,8 +22,9 @@ export function createContext(url?: string, options?: ContextOptions) {
     throw new Error("Unable to create SPScript Context: " + ex.message);
   }
 }
+export const utils = allUtils;
 
 export default {
   createContext,
-  utils,
+  utils: allUtils,
 };

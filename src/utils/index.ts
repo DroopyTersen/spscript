@@ -1,7 +1,9 @@
 export * from "./headers";
-export * as qs from "./queryString";
+import * as qsUtils from "./queryString";
 export * from "./loaders";
 export * from "./dependencyManagement";
+
+export const qs = qsUtils;
 
 export function isBrowser(): boolean {
   return !(typeof window === "undefined");
