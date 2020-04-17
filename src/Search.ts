@@ -5,9 +5,9 @@ export interface QueryOptions {
   sourceid?: string;
   startrow?: number;
   rowlimit?: number;
-  selectproperties?: string[];
-  refiners?: string[];
-  refinementfilters?: string[];
+  selectproperties?: string;
+  refiners?: string;
+  refinementfilters?: string;
   hiddencontstraints?: any;
   sortlist?: any;
 }
@@ -52,13 +52,13 @@ export default class Search {
   /** Query the SP Search Service */
   query(queryTemplate: string, queryOptions: QueryOptions = {}): Promise<SearchResultResponse> {
     var optionsQueryString = qs.fromObj(queryOptions, true);
+    console.log("Search -> optionsQueryString", optionsQueryString);
     var url = `/search/query?queryTemplate='${queryTemplate}'&${optionsQueryString}`;
     return this._dao
       .get(url)
       .then(parseOData)
       .then((resp) => {
-        if (resp.query) return mapResponse(resp.query);
-        throw new Error("Invalid response back from search service");
+        return mapResponse(resp);
       });
   }
 
@@ -89,7 +89,7 @@ const mapResponse = function (rawResponse: any): SearchResultResponse {
     totalResults: rawResponse.PrimaryQueryResult.RelevantResults.TotalRows,
     totalResultsIncludingDuplicates:
       rawResponse.PrimaryQueryResult.RelevantResults.TotalRowsIncludingDuplicates,
-    items: mapItems(rawResponse.PrimaryQueryResult.RelevantResults.Table.Rows.results),
+    items: mapItems(rawResponse.PrimaryQueryResult.RelevantResults.Table.Rows),
     refiners: mapRefiners(rawResponse.PrimaryQueryResult.RefinementResults),
   };
 };
@@ -97,11 +97,11 @@ const mapResponse = function (rawResponse: any): SearchResultResponse {
 const mapRefiners = function (refinementResults) {
   var refiners = [];
 
-  if (refinementResults && refinementResults.Refiners && refinementResults.Refiners.results) {
-    refiners = refinementResults.Refiners.results.map((r) => {
+  if (refinementResults && refinementResults.Refiners && refinementResults.Refiners) {
+    refiners = refinementResults.Refiners.map((r) => {
       return {
         RefinerName: r.Name,
-        RefinerOptions: r.Entries.results,
+        RefinerOptions: r.Entries,
       };
     });
   }
@@ -114,8 +114,8 @@ const mapItems = function (itemRows: any[]): any[] {
   for (var i = 0; i < itemRows.length; i++) {
     var row = itemRows[i],
       item = {};
-    for (var j = 0; j < row.Cells.results.length; j++) {
-      item[row.Cells.results[j].Key] = row.Cells.results[j].Value;
+    for (var j = 0; j < row.Cells.length; j++) {
+      item[row.Cells[j].Key] = row.Cells[j].Value;
     }
 
     items.push(item);
