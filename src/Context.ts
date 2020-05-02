@@ -83,6 +83,7 @@ export default class Context {
       body,
     };
     options = Object.assign({}, options, opts);
+    // console.log("_post -> options", options);
     return this.executeRequest(url, options).then(parseJSON);
   }
 

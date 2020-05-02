@@ -2,142 +2,96 @@ import Context from "./Context";
 import { parseOData, getUpdateHeaders, getDeleteHeaders, getAddHeaders } from "./utils";
 
 export default class CustomActions {
-  private _dao: Context;
+  private ctx: Context;
 
   constructor(ctx: Context) {
-    this._dao = ctx;
-  }
-
-  private getScope(scopeId: number): any {
-    if (scopeId === 3) return scopes.Web;
-    if (scopeId === 2) return scopes.Site;
-
-    throw new Error("Invalid Custom Action Scope");
+    this.ctx = ctx;
   }
 
   /** Returns both Site and Web custom actions. */
-  get(): Promise<any>;
+  get(): Promise<CustomAction[]>;
   /** Searches both Site and Web scoped custom actions for a name match */
-  get(name: string): Promise<any>;
-  get(name?: any): Promise<any> {
-    // first get the site scoped ones, then the web scoped ones
-    return this._dao
-      .get(scopes.Site.url)
-      .then(parseOData)
-      .then((siteCustomActions) => {
-        return (
-          this._dao
-            .get(scopes.Web.url)
-            .then(parseOData)
-            //combine site scoped and web scoped into single array
-            .then((webCustomActions) => siteCustomActions.concat(webCustomActions))
-        );
-      })
-      .then((customActions) => {
-        // if a name was passed filter it otherwise return everything
-        if (name) {
-          var matches = customActions.filter((a) => a.Name === name);
-          if (matches.length) {
-            return matches[0];
-          }
-          throw new Error("Unable to find Custom Action with name: " + name);
-        } else return customActions;
-      });
+  get(name: string): Promise<CustomAction>;
+  async get(name?: any): Promise<any> {
+    let webCustomActions = await this.ctx.get("/web/usercustomactions").then(parseOData);
+    let siteCustomActions = await this.ctx.get("/site/usercustomactions").then(parseOData);
+    let allCustomActions = [...webCustomActions, ...siteCustomActions];
+    if (name) {
+      return allCustomActions.find((c) => c.Name === name);
+    }
+    return allCustomActions;
   }
 
-  /** Gets the API url of a specific Custom Action */
-  private _getUrl(name: string): Promise<string> {
-    return this.get(name).then((a) => `${this.getScope(a.Scope).url}('${a.Id}')`);
-  }
-
-  private _getUrlAndDigest(name: string): Promise<any> {
-    var prep: any = {};
-    return this._getUrl(name)
-      .then((url) => {
-        prep.url = url;
-        return this._dao.auth.getRequestDigest();
-      })
-      .then((digest) => {
-        prep.digest = digest;
-        return prep;
-      });
-  }
-
+  private _getUrl = async (name) => {
+    let target = await this.get(name);
+    if (!target || !target["odata.editLink"]) {
+      throw new Error("Unable to find matching Custom Action: " + name);
+    }
+    return "/" + target["odata.editLink"];
+  };
   /** Update an existing Custom Action. You must pass a custom action with a 'Name' property */
-  update(updates: CustomAction): Promise<any> {
+  async update(updates: CustomAction): Promise<any> {
     if (!updates || !updates.Name) throw new Error("You must at least pass a Custom Action 'Name'");
 
-    return this._getUrlAndDigest(updates.Name).then((prep) => {
-      updates = Object.assign({}, metadata, updates);
-      var opts = {
-        headers: getUpdateHeaders(prep.digest),
-      };
-      return this._dao._post(prep.url, updates, opts);
-    });
+    let url = await this._getUrl(updates.Name);
+    return this.ctx.post(url, updates, "MERGE");
   }
 
   /** Remove an existing Custom Action. Searches both Site and Web scoped */
-  remove(name: string): Promise<any> {
+  async remove(name: string): Promise<any> {
     if (!name) throw new Error("You must at least pass an existing Custom Action name");
-    return this._getUrlAndDigest(name).then((prep) => {
-      var opts = {
-        headers: getDeleteHeaders(prep.digest),
-      };
-      return this._dao._post(prep.url, {}, opts);
-    });
+    let url = await this._getUrl(name);
+    return this.ctx.post(url, {}, "DELETE");
   }
 
   /** Adds a new custom action. If the custom action name already exists, it will be deleted first */
-  add(customAction: CustomAction): Promise<any> {
+  async add(customAction: CustomAction): Promise<any> {
     if (!customAction || !customAction.Name)
       throw new Error("You must at least pass a Custom Action 'Name'");
 
-    var defaults: CustomAction = {
+    var defaults: Partial<CustomAction> = {
       Name: customAction.Name,
       Title: customAction.Name,
       Description: customAction.Name,
       // Group: customAction.Name,
       Sequence: 100,
-      Scope: "Site",
-      Location: "ScriptLink",
+      Scope: 2,
     };
-    customAction = Object.assign({}, defaults, customAction);
+    customAction = { ...defaults, ...customAction };
 
     // if it exists already, delete it
-    return this.get()
-      .then((existingCustomActions) => {
-        if (existingCustomActions.filter((ca) => ca.Name === customAction.Name).length) {
-          return this.remove(customAction.Name);
-        }
-        return true;
-      })
-      .then(() => this._dao.auth.getRequestDigest())
-      .then((digest) => {
-        customAction = Object.assign({}, metadata, customAction);
-        var scope = scopes[customAction.Scope];
-        customAction.Scope = scope.id;
-        var opts = {
-          headers: getAddHeaders(digest),
-        };
-        return this._dao._post(scope.url, customAction, opts);
-      });
+    let exists = await this.get(customAction.Name);
+    if (exists) {
+      await this.remove(customAction.Name);
+    }
+
+    let url = (customAction.Scope === 2 ? "/site" : "/web") + "/usercustomactions";
+
+    return this.ctx.post(url, customAction);
   }
 
-  addScriptBlock(name: string, block: string, opts: CustomAction = {}) {
-    var customAction: CustomAction = {
-      Name: name,
-      ScriptBlock: block,
-      Group: name,
+  activateExtension = (
+    title: string,
+    componentId: string,
+    properties = {},
+    overrides: Partial<CustomAction> = {}
+  ) => {
+    let customAction: CustomAction = {
+      Name: title,
+      ClientSideComponentId: componentId,
+      Location: "ClientSideExtension.ApplicationCustomizer",
+      ClientSideComponentProperties: JSON.stringify(properties),
+      ...overrides,
     };
-    customAction = Object.assign({}, customAction, opts);
     return this.add(customAction);
-  }
+  };
 }
 
 export type CustomActionScope = "Web" | "Site";
 
 export interface CustomAction {
-  Name?: string;
+  Name: string;
+  Location: string;
   /** Defaults to match Name */
   Title?: string;
   /** Defaults to match Name */
@@ -146,27 +100,15 @@ export interface CustomAction {
   Group?: string;
   /** Defaults to to 100 */
   Sequence?: number;
-  Scope?: any;
-  /** Defaults to to 'ScriptLink' */
-  Location?: string;
+
+  /** 3 for Web. 2 for Site */
+  Scope?: 3 | 2;
   ScriptBlock?: string;
+  /** To activate an SPFx Extension, the Component Id*/
+  ClientSideComponentId?: string;
+  /** Properties for configuring SPFx Extensions */
+  ClientSideComponentProperties?: string;
+  /** The Custom Action's primary key, guid. */
+  Id?: string;
+  HostProperties?: "";
 }
-
-export var metadata = {
-  __metadata: {
-    type: "SP.UserCustomAction",
-  },
-};
-
-export var scopes = {
-  Web: {
-    id: 3,
-    name: "Web",
-    url: "/web/usercustomactions",
-  },
-  Site: {
-    id: 2,
-    name: "Site",
-    url: "/site/usercustomactions",
-  },
-};

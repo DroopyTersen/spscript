@@ -24,8 +24,8 @@ export default class Securable {
   }
 
   private checkPrivs(user): Promise<any> {
-    var login = encodeURIComponent(user.LoginName);
-    var url = this.baseUrl + "/getusereffectivepermissions(@v)?@v='" + login + "'";
+    var url =
+      this.baseUrl + `/getusereffectivepermissions('${encodeURIComponent(user.LoginName)}')`;
     return this._dao.get(url).then(parseOData);
   }
   /** Gets all the role assignments on that securable. If you don't pass an email, it will use the current user. */
@@ -41,12 +41,7 @@ export default class Securable {
 
     return req
       .then((user) => this.checkPrivs(user))
-      .then((privs) =>
-        permissionMaskToStrings(
-          privs.GetUserEffectivePermissions.Low,
-          privs.GetUserEffectivePermissions.High
-        )
-      );
+      .then((privs) => permissionMaskToStrings(privs.Low, privs.High));
   }
 }
 
@@ -55,8 +50,9 @@ var transformRoleAssignment = function (raw: any): RoleAssignment {
     login: raw.Member.LoginName,
     name: raw.Member.Title,
     id: raw.Member.Id,
+    principalType: raw.Member.PrincipalType,
   };
-  var roles: RoleDef[] = raw.RoleDefinitionBindings.results.map((roleDef) => {
+  var roles: RoleDef[] = raw.RoleDefinitionBindings.map((roleDef) => {
     return {
       name: roleDef.Name,
       description: roleDef.Description,
@@ -89,6 +85,7 @@ export interface RoleMember {
   login: string;
   name: string;
   id: string;
+  principalType: number;
 }
 
 export interface RoleDef {

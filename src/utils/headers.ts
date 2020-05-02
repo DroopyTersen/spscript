@@ -21,13 +21,17 @@ export const getFilestreamHeaders = function (digest: string) {
 
 /** returns a Headers object with including the X-HTTP-Method with the specified verb */
 export const getActionHeaders = function (verb: string, digest?: string) {
-  return {
-    ...getStandardHeaders(digest),
-    ...{
-      "X-HTTP-Method": verb,
-      "If-Match": "*",
-    },
-  };
+  let headers = getStandardHeaders(digest);
+  if (verb) {
+    headers = {
+      ...headers,
+      ...{
+        "X-HTTP-Method": verb,
+        "If-Match": "*",
+      },
+    };
+  }
+  return headers;
 };
 /** returns a Headers object with values configured ADDING an item */
 export const getAddHeaders = getStandardHeaders;
