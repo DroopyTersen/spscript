@@ -29,19 +29,9 @@ export default class Securable {
     return this._dao.get(url).then(parseOData);
   }
   /** Gets all the role assignments on that securable. If you don't pass an email, it will use the current user. */
-  check(email?: string): Promise<string[]> {
-    if (!email && !isBrowser()) {
-      return Promise.reject("Can't check permissions. No email passed and no current user");
-    }
-
-    // If no email is passed, then get current user, else get user by email
-    var req = !email
-      ? this._dao.get("/web/getuserbyid(" + _spPageContextInfo.userId + ")").then((data) => data.d)
-      : this._dao.web.getUser(email);
-
-    return req
-      .then((user) => this.checkPrivs(user))
-      .then((privs) => permissionMaskToStrings(privs.Low, privs.High));
+  async check(email?: string): Promise<string[]> {
+    let user = await this._dao.web.getUser(email);
+    return this.checkPrivs(user).then((privs) => permissionMaskToStrings(privs.Low, privs.High));
   }
 }
 
