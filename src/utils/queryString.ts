@@ -1,12 +1,9 @@
 import { isBrowser } from ".";
 
-export function fromObj(obj: any, quoteValues: boolean = false): string {
+export function fromObj(obj: any): string {
   var writeParam = function (key) {
     var value = (obj[key] + "").trim();
-    // if there is a space, wrap in single quotes
-    if (quoteValues || (value.indexOf(" ") > -1 && !quoteValues)) value = "'" + value + "'";
-
-    return key + "=" + value;
+    return encodeURIComponent(key) + "=" + encodeURIComponent(value);
   };
 
   var str = Object.keys(obj).map(writeParam).join("&");
