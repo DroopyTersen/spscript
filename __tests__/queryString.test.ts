@@ -19,6 +19,24 @@ describe("Query String Utils", () => {
       let qs = fromObj(obj);
       expect(qs).toBe("foo=thing%20one&bar=2");
     });
+
+    it("Should allow passing a flag to wrap values with single quotes (used by search service calls).", () => {
+      let obj = {
+        foo: "thing one",
+        bar: 2,
+      };
+
+      let qs = fromObj(obj, true);
+      expect(qs).toBe("foo='thing%20one'&bar='2'");
+    });
+    it("SHould handle a null object", () => {
+      let qs = fromObj(null);
+      expect(qs).toBe("");
+    });
+    it("SHould handle a undefined object", () => {
+      let qs = fromObj(undefined);
+      expect(qs).toBe("");
+    });
   });
 
   describe("toObj", () => {
@@ -45,6 +63,14 @@ describe("Query String Utils", () => {
       expect(obj).toHaveProperty("bar");
       expect(obj.foo).toBe("thing one");
       expect(obj.bar).toBe("2");
+    });
+    it("Should handle an empty string", () => {
+      let obj = toObj("");
+      expect(obj).toBeTruthy();
+    });
+    it("Should handle just a '?'", () => {
+      let obj = toObj("");
+      expect(obj).toBeTruthy();
     });
   });
 });
