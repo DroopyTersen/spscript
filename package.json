@@ -1,6 +1,6 @@
 {
   "name": "spscript",
-  "version": "5.0.0-beta.7",
+  "version": "5.1.1",
   "description": "ShareP0oint Rest Api Wrappers",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -9,7 +9,7 @@
     "build": "tsc && rollup -c rollup.config.js",
     "test": "node tasks/setAuthCookie.js && jest --verbose --coverage --maxWorkers=4",
     "test:watch": "node tasks/setAuthCookie.js && majestic --app",
-    "prepublish": "npm run build",
+    "prepare": "npm run build",
     "docs": "docsify serve docs"
   },
   "repository": {
