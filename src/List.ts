@@ -26,8 +26,8 @@ export default class List {
   }
 
   /** Gets the items returned by the specified CAML query. CAML should be something like <View><Query><Where>...</Where></Query></View>*/
-  getItemsByCaml(caml: string) {
-    var queryUrl = this.baseUrl + "/GetItems";
+  getItemsByCaml(caml: string, odata = "$top=4999") {
+    var queryUrl = this.baseUrl + "/GetItems?" + odata;
     var postBody = {
       query: {
         ViewXml: caml,
