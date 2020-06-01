@@ -8,7 +8,7 @@ declare global {
   }
 }
 
-export function createContext(url?: string, options?: ContextOptions) {
+export function createContext(url?: string, options?: ContextOptions): Context {
   try {
     if (isBrowser())
       if (!url && window._spPageContextInfo) {
